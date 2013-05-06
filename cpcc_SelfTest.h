@@ -2,8 +2,8 @@
 // cpcc_SelfTest.h
 //
 
-#ifndef TmioanSelfTest_h
-#define TmioanSelfTest_h
+#ifndef cpcc_SelfTest_h
+#define cpcc_SelfTest_h
 
 #define ENABLE_SELF_TESTS
 
@@ -31,4 +31,4 @@
 	} SelftestVariableName; }
 
 
-#endif 
+#endif // cpcc_SelfTest_h
