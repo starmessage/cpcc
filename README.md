@@ -2,7 +2,7 @@
 
 A set of classes and functions that are missing from the standard C++
 
-##Project Objectives:
+**Project Objectives:**
 
 A small set of cross platform classes and functions that will allow the quick development of applications.
 
