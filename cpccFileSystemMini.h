@@ -1,6 +1,6 @@
 /*  *****************************************
  *  File:		cpccFileSystemMini.h
- *  Version:	1.0
+ *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
@@ -9,6 +9,7 @@
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
  *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
@@ -24,16 +25,24 @@
 
 
 typedef long cpccFileSize_t;
+/** A small and portable (cross platform) C++ class with basic file system functions.
+	Simply add the .h and the .cpp in your application.
+	Dependencies: cpcc_SelfTest.h
+	
+	It was created because the boost::filesystem is too complicated and needs considerable effort 
+	to be included in your application.
+*/
 
 class cpccFileSystemMini
 {
-protected:
+public:	// class metadata
+	const char * getClassVersion(void) { return "1.01"; };
 	
+protected:
 	/// the destFile must be a file specification, not a folder specification
 	virtual bool copyFileToaFile(const char* sourceFile, const char* destFile);
 
 public:
-	
 	
 	// folder functions --------------------------------
 	virtual bool folderExists(const char * aFilename);
@@ -79,9 +88,10 @@ public:
 	virtual const std::string getAppFullPathFilename(void);
 	virtual const std::string getAppFilename(void);
 	virtual const std::string getFileSystemReport(void);
-	virtual const char * getClassVersion(void);
+	virtual const char * getClassVersion(void)
+
 	static void selfTest(void);
-	
+
 };
 
 

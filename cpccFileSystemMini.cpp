@@ -1,6 +1,6 @@
 /*  *****************************************
  *  File:		cpccFileSystemMini.cpp
- *  Version:	1.0
+ *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
@@ -9,6 +9,7 @@
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
  *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
@@ -45,10 +46,6 @@
 // class cpccFileSystemMini_SelfTest
 /////////////////////////////////////////////
 
-static const char * getClassVersion(void)
-{
-	return "1.0";
-};
 
 
 const char	cpccFileSystemMini::getPreferredPathDelimiter(void) 
