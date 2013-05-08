@@ -88,7 +88,6 @@ public:
 	virtual const std::string getAppFullPathFilename(void);
 	virtual const std::string getAppFilename(void);
 	virtual const std::string getFileSystemReport(void);
-	virtual const char * getClassVersion(void)
 
 	static void selfTest(void);
 
