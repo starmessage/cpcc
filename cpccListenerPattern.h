@@ -1,10 +1,18 @@
-/*
- *  cpccListenerPattern.h
- *  
- *	Version 1.0
- *  Copyright 2013 StarMessage software. All rights reserved.
- *
+ /*  *****************************************
+ *  File:		cpccListenerPattern.h
+ *  Version:	see function getClassVersion()
+ *	Purpose:	a template Listener pattern
+ *	*****************************************
+ *  Library:	Cross Platform C++ Classes (cpcc)
+ *  Copyright: 	2013 StarMessage software.
+ *  License: 	Free for opensource projects.
+ *  			Commercial license for closed source projects.
+ *	Web:		http://www.StarMessageSoftware.com
+ *				https://github.com/starmessage/cpcc
+ *	email:		sales -at- starmessage.info
+ *	*****************************************
  */
+
 
 #pragma once
 #ifndef CPCCLISTENERPATTERN_H
@@ -14,10 +22,14 @@
 #include <set>
 #include <assert.h>
 
+
 // ---------------- class cmiListener  -----------------
 template<typename Tobject> 
 class cpccListener
 {
+public:	// class metadata
+	const char * getClassVersion(void) { return "1.00"; };
+	
 private:
 	int _nSubscriptions;
 
