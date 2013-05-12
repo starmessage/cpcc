@@ -28,7 +28,7 @@ template<typename Tobject>
 class cpccListener
 {
 public:	// class metadata
-	const char * getClassVersion(void) { return "1.00"; };
+	const char * getClassVersion(void) { return "1.01"; };
 	
 private:
 	int _nSubscriptions;
@@ -49,7 +49,7 @@ public: // ctors
 	
 public: // functions
 
-	void virtual beNotified(Tobject &anObject) = 0;
+	void virtual beNotifiedAbout(Tobject &anObject) = 0;
 
 	int getNumSubsciptions(void)	{ return _nSubscriptions; } ;
 
@@ -95,7 +95,7 @@ public: //functions
 		typename std::set<cpccListener<Tobject> *>::iterator itr;
 		for (itr = _listenersList.begin(); itr != _listenersList.end(); itr++ )
 			{
-			(*itr)->beNotified(anObject);
+			(*itr)->beNotifiedAbout(anObject);
 			n--;
 			}
 		assert(n==0 && "#8246: notifyListeners iterator did not work properly");

@@ -32,11 +32,11 @@ The classes will be cleaned of unneeded binding code and added in this space.
 Doxygen documentation will be added in the files.
 
 Classes in the current queue:
-- portable fileSystem
-- portable log file
-- portable INI-like persistence class
-- portable screensaver API class
-- Listener pattern
+[ok] portable fileSystem
+[  ] portable log file
+[  ] portable INI-like persistence class
+[  ] portable screensaver API class
+[ok] Listener pattern
 
 Please come back and check after a few weeks.
 
