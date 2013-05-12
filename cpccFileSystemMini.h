@@ -36,7 +36,7 @@ typedef long cpccFileSize_t;
 class cpccFileSystemMini
 {
 public:	// class metadata
-	const char * getClassVersion(void) { return "1.01"; };
+	const char * getClassVersion(void) { return "1.02"; };
 	
 protected:
 	/// the destFile must be a file specification, not a folder specification

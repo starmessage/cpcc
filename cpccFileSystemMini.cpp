@@ -62,7 +62,7 @@ const char	*cpccFileSystemMini::getAllPathDelimiters(void)
 #ifdef _WIN32
 	return "\\/"; 
 #elif defined(__APPLE__)
-	return '/'; 
+	return "/"; 
 #endif
 };
 
