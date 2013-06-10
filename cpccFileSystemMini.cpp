@@ -268,6 +268,7 @@ bool cpccFileSystemMini::fileExists(const char * aFilename)
 };
 
 
+
 bool cpccFileSystemMini::folderExists(const char * aFilename)
 {
 #ifdef _WIN32
@@ -344,6 +345,7 @@ void cpccFileSystemMini::IncludeTrailingPathDelimiter(std::string &aFolder)
 };
 
 
+
 bool cpccFileSystemMini::createEmptyFile(const char * aFilename)
 {
 	FILE *fp;
@@ -409,6 +411,56 @@ const std::string cpccFileSystemMini::getAppFullPathFilename(void)
 };
 
 
+
+std::string	cpccFileSystemMini::replaceExtension(const char *aFilename, const char *newExtension)
+{
+	if (!aFilename)
+		return std::string("");
+
+	std::string fName(aFilename);
+
+	if (!newExtension) 
+		return fName;
+
+    size_t pos = fName.rfind('.');
+
+    if ((pos == std::string::npos )  //No extension.
+		||
+		(pos == 0)) //. is at the front. Not an extension.
+        {
+		if (newExtension[0]!='.')
+			fName.append(".");
+		fName.append(newExtension);
+		return fName;
+		}
+	    
+	// remove the current extension and keep the dot
+    fName.erase(pos, std::string::npos ); // A value of string::npos indicates all characters until the end of the string
+	if (newExtension[0]!='.')
+		fName.append(".");
+	fName.append(newExtension);
+	return fName;
+};
+
+
+std::string		cpccFileSystemMini::getExtension(const char *aFilename)
+{
+	if (!aFilename)
+		return std::string("");
+
+	std::string fName(aFilename);
+
+    size_t pos = fName.rfind(".");
+
+    if (pos == std::string::npos )  //No extension.
+		return std::string("");
+	    
+	// remove from start until the dot (including the dot)
+    fName.erase(0, pos+1); // A value of string::npos indicates all characters until the end of the string
+	return fName;
+};
+
+
 void cpccFileSystemMini::selfTest(void)
 {
 	cpccFileSystemMini fs;
@@ -440,6 +492,32 @@ void cpccFileSystemMini::selfTest(void)
 	// fileExists or deleteFile
 	fs.deleteFile(tmpFile);
 	assert(!fs.fileExists(tmpFile));
+
+	// test extension replacing and getExtension
+	{
+		std::string TestExt = fs.replaceExtension("c:\\folderA\\SubFolderB\\filename.oldext", "txt" );
+		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
+		assert(TestExt.compare("c:\\folderA\\SubFolderB\\filename.txt")==0);
+
+		TestExt = fs.replaceExtension("hello.filename.o", "n" );
+		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
+		assert(TestExt.compare("hello.filename.n")==0);
+
+		TestExt = fs.replaceExtension("hello.filename with long extension", ".dat" );
+		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
+		//cpccQmsg::Qmsg("getExtension", fs.getExtension(TestExt.c_str()).c_str());
+		assert(TestExt.compare("hello.dat")==0);
+		assert(fs.getExtension(TestExt.c_str()).compare("dat")==0);
+
+		TestExt = fs.replaceExtension("filename without extension", ".ooo" );
+		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());		
+		assert(TestExt.compare("filename without extension.ooo")==0);
+
+		TestExt = fs.replaceExtension("\\\\network shares/a/mac path", ".app" );
+		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
+		assert(TestExt.compare("\\\\network shares/a/mac path.app")==0);
+	}
+
 			
 };
 

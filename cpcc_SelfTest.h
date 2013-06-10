@@ -17,6 +17,9 @@
 #ifndef cpcc_SelfTest_h
 #define cpcc_SelfTest_h
 
+#ifdef _WIN32
+	#include <Windows.h>
+#endif
 
 /// Central switch to close all selfTests in your application
 #define ENABLE_SELF_TESTS	1
@@ -44,6 +47,24 @@
 #endif
 
 
+class cpccQmsg
+{
+public:
+	static void Qmsg(const char *title, const char *text)
+	{
+	#ifdef _WIN32
+		OutputDebugString(title);
+		OutputDebugString(": ");
+		OutputDebugString(text);
+		OutputDebugString("\n");
+		MessageBox( NULL, text, title, NULL);
+	#elif defined(__APPLE__)
+		cout << title << ": " << text << std::endl;
+	#endif
+	};
+};
+
+
 #define SELFTEST_BEGIN(SelfTestUniqueName)	\
 	namespace SelfTestUniqueName {			\
 	class TmioanSelfTest					\
@@ -58,6 +79,10 @@
 #define SELFTEST_END			\
 		};						\
 	} SelftestVariableName; }
+
+
+
+
 
 
 #endif // cpcc_SelfTest_h

@@ -33,10 +33,24 @@ typedef long cpccFileSize_t;
 	to be included in your application.
 */
 
+
+/*
+	future typedefs:
+	
+	#ifdef UNICODE //Test to see if we're using wchar_ts or not.
+		typedef std::wstring PathString;
+	#else
+		typedef std::string PathString;
+	#endif
+
+
+*/
+
+
 class cpccFileSystemMini
 {
 public:	// class metadata
-	const char * getClassVersion(void) { return "1.02"; };
+	const char * getClassVersion(void) { return "1.03"; };
 	
 protected:
 	/// the destFile must be a file specification, not a folder specification
@@ -83,6 +97,10 @@ public:
 		
 	virtual const std::string extractFilename(const std::string &aFullpathFilename);
 	
+	/// Returns a file path with a different extension. The newExtension parameter can be specified with or without a leading '.' 
+	std::string		replaceExtension(const char *aFilename, const char *newExtension);
+	std::string		getExtension(const char *aFilename);
+
 	// Other functions --------------------------------
 	virtual const std::string getAppFullPath(void);
 	virtual const std::string getAppFullPathFilename(void);
