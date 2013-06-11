@@ -19,7 +19,11 @@
 
 #ifdef _WIN32
 	#include <Windows.h>
+#elif defined(__APPLE__)
+	#include <iostream>
 #endif
+
+
 
 /// Central switch to close all selfTests in your application
 #define ENABLE_SELF_TESTS	1
@@ -59,7 +63,7 @@ public:
 		OutputDebugString("\n");
 		MessageBox( NULL, text, title, NULL);
 	#elif defined(__APPLE__)
-		cout << title << ": " << text << std::endl;
+		std::cout << title << ": " << text << std::endl;
 	#endif
 	};
 };

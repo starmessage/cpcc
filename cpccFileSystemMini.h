@@ -24,7 +24,7 @@
 //////////////////////////////////////////////////////////
 
 
-typedef long cpccFileSize_t;
+
 /** A small and portable (cross platform) C++ class with basic file system functions.
 	Simply add the .h and the .cpp in your application.
 	Dependencies: cpcc_SelfTest.h
@@ -46,12 +46,14 @@ typedef long cpccFileSize_t;
 
 */
 
+typedef long cpccFileSize_t;
 
 class cpccFileSystemMini
 {
-public:	// class metadata
-	const char * getClassVersion(void) { return "1.03"; };
-	
+public:	// class metadata and selftest
+	const char * getClassVersion(void) { return "1.04"; };
+	static void selfTest(void);
+
 protected:
 	/// the destFile must be a file specification, not a folder specification
 	virtual bool copyFileToaFile(const char* sourceFile, const char* destFile);
@@ -65,16 +67,6 @@ public:
 	virtual const std::string getFolder_Desktop(void);
 	virtual const std::string getFolder_Temp(void);
 	virtual const std::string getFolder_Fonts(void);
-	
-	virtual const char	 getPreferredPathDelimiter(void);
-	virtual const char	*getAllPathDelimiters(void);
-
-	virtual void ExcludeTrailingPathDelimiter(std::string &aPath);
-	virtual void IncludeTrailingPathDelimiter(std::string &aFolder);
-	
-	virtual const std::string getParentFolderOf(const std::string &aFullpathFilename);
-	virtual const std::string getParentFolderOf(const char *aFilename) { return getParentFolderOf(std::string(aFilename)); };
-	
 	
 	// file functions --------------------------------
 	virtual bool createEmptyFile(const char * aFilename);
@@ -95,19 +87,13 @@ public:
 	virtual cpccFileSize_t getFileSize(const char *aFilename); 
 	virtual cpccFileSize_t getFileSize(const std::string &aFilename)  {	return getFileSize(aFilename.c_str()); 	};
 		
-	virtual const std::string extractFilename(const std::string &aFullpathFilename);
 	
-	/// Returns a file path with a different extension. The newExtension parameter can be specified with or without a leading '.' 
-	std::string		replaceExtension(const char *aFilename, const char *newExtension);
-	std::string		getExtension(const char *aFilename);
-
 	// Other functions --------------------------------
 	virtual const std::string getAppFullPath(void);
 	virtual const std::string getAppFullPathFilename(void);
 	virtual const std::string getAppFilename(void);
+	
 	virtual const std::string getFileSystemReport(void);
-
-	static void selfTest(void);
 
 };
 

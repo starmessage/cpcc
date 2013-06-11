@@ -40,6 +40,7 @@
 #endif
 
 #include "cpccFileSystemMini.h"
+#include "cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
 
 /////////////////////////////////////////////
@@ -47,24 +48,6 @@
 /////////////////////////////////////////////
 
 
-
-const char	cpccFileSystemMini::getPreferredPathDelimiter(void) 
-{ 
-#ifdef _WIN32
-	return '\\'; 
-#elif defined(__APPLE__)
-	return '/'; 
-#endif
-};
-
-const char	*cpccFileSystemMini::getAllPathDelimiters(void) 
-{ 
-#ifdef _WIN32
-	return "\\/"; 
-#elif defined(__APPLE__)
-	return "/"; 
-#endif
-};
 
 const std::string cpccFileSystemMini::getFileSystemReport(void)
 {
@@ -96,7 +79,8 @@ const std::string cpccFileSystemMini::getFolder_Temp(void)
 		char buffer[L_tmpnam +1];
 		tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
 		assert(buffer && "#6753b: tmpnam() failed");
-		return getParentFolderOf(std::string(buffer));
+		cpccPathHelper ph;
+		return ph.getParentFolderOf(std::string(buffer));
 	
 	#else
 		assert(false && "Error #6753c: unsupported platform for getFolder_Temp()");	
@@ -115,7 +99,8 @@ const std::string cpccFileSystemMini::getFolder_Fonts(void)
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_FONTS, NULL, 0, szPath))) 
 		{
 		std::string result(szPath);
-		IncludeTrailingPathDelimiter(result);	
+		cpccPathHelper ph;
+		ph.includeTrailingPathDelimiter(result);	
 		return result;
 		}
 	std::cerr << "Error #4824 in cpccFileSystemMini::getFolder_Fonts\n";
@@ -131,49 +116,6 @@ const std::string cpccFileSystemMini::getFolder_Fonts(void)
 
 
 
-const std::string cpccFileSystemMini::getFolder_Desktop(void)
-{
-#ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
-	
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, szPath))) 
-		return std::string(szPath);
-	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
-		
-#elif defined(__APPLE__)
-	return  std::string("~/Desktop");
-	
-#else
-	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
-#endif	
-	return std::string("");
-};
-
-
-const std::string cpccFileSystemMini::getParentFolderOf(const std::string &aFullpathFilename)
-{
-	//size_t pos = aFullpathFilename.find_last_of("/\\");
-	const size_t pos = aFullpathFilename.find_last_of(getAllPathDelimiters());
-	
-	if(pos != std::string::npos)
-		return aFullpathFilename.substr(0,pos+1);
-	else
-		return aFullpathFilename;
-};
-
-
-const std::string cpccFileSystemMini::extractFilename(const std::string &aFullpathFilename)
-{
-	std::string result = aFullpathFilename;
-	
-	// const size_t last_slash_idx = result.find_last_of("\\/");
-	const size_t last_slash_idx = result.find_last_of(getAllPathDelimiters());
-	if (std::string::npos != last_slash_idx)
-		result.erase(0, last_slash_idx + 1);
-	
-	return result;
-};
 
 
 cpccFileSize_t cpccFileSystemMini::getFileSize(const char *aFilename)
@@ -195,8 +137,9 @@ bool cpccFileSystemMini::copyFile(const char * sourceFile, const char * destFile
 	
 	if (folderExists(destFileOrFolder)) 
 		{
-		IncludeTrailingPathDelimiter(destFile);
-		destFile = destFile + extractFilename(sourceFile);
+		cpccPathHelper ph;
+		ph.includeTrailingPathDelimiter(destFile);
+		destFile = destFile + ph.extractFilename(sourceFile);
 		}
 	
 	return copyFileToaFile(sourceFile, destFile.c_str());
@@ -328,21 +271,6 @@ bool cpccFileSystemMini::copyFileToaFile(const char* sourceFile, const char* des
 };
 	
 
-void cpccFileSystemMini::ExcludeTrailingPathDelimiter(std::string &aPath)
-{	
-	//while (aPath.find_last_of("\\/") == aPath.length())
-	while (aPath.find_last_of(getAllPathDelimiters()) == aPath.length())
-		aPath.erase(aPath.length()-1);
-};
-
-
-void cpccFileSystemMini::IncludeTrailingPathDelimiter(std::string &aFolder)
-{
-	char delimiter = getPreferredPathDelimiter();
-	std::string::size_type n = aFolder.size();
-	if ((n > 0) && (aFolder[n - 1] != delimiter)) 
-		aFolder = aFolder + delimiter;
-};
 
 
 
@@ -363,13 +291,14 @@ bool cpccFileSystemMini::createEmptyFile(const char * aFilename)
 const std::string cpccFileSystemMini::getAppFilename(void)
 {
 	// remove the path part and leave only the filename
-	return extractFilename(getAppFullPathFilename());
+	cpccPathHelper ph;
+	return ph.extractFilename(getAppFullPathFilename());
 };
 
 
 const std::string cpccFileSystemMini::getAppFullPath(void)
-{
-	return getParentFolderOf(getAppFullPathFilename());
+{	cpccPathHelper ph;
+	return ph.getParentFolderOf(getAppFullPathFilename());
 };
 
 
@@ -411,62 +340,36 @@ const std::string cpccFileSystemMini::getAppFullPathFilename(void)
 };
 
 
-
-std::string	cpccFileSystemMini::replaceExtension(const char *aFilename, const char *newExtension)
+const std::string cpccFileSystemMini::getFolder_Desktop(void)
 {
-	if (!aFilename)
-		return std::string("");
-
-	std::string fName(aFilename);
-
-	if (!newExtension) 
-		return fName;
-
-    size_t pos = fName.rfind('.');
-
-    if ((pos == std::string::npos )  //No extension.
-		||
-		(pos == 0)) //. is at the front. Not an extension.
-        {
-		if (newExtension[0]!='.')
-			fName.append(".");
-		fName.append(newExtension);
-		return fName;
-		}
-	    
-	// remove the current extension and keep the dot
-    fName.erase(pos, std::string::npos ); // A value of string::npos indicates all characters until the end of the string
-	if (newExtension[0]!='.')
-		fName.append(".");
-	fName.append(newExtension);
-	return fName;
+#ifdef _WIN32
+	TCHAR szPath[MAX_PATH];
+	
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, szPath))) 
+		return std::string(szPath);
+	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
+		
+#elif defined(__APPLE__)
+	return  std::string("~/Desktop");
+	
+#else
+	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
+#endif	
+	return std::string("");
 };
 
 
-std::string		cpccFileSystemMini::getExtension(const char *aFilename)
-{
-	if (!aFilename)
-		return std::string("");
 
-	std::string fName(aFilename);
-
-    size_t pos = fName.rfind(".");
-
-    if (pos == std::string::npos )  //No extension.
-		return std::string("");
-	    
-	// remove from start until the dot (including the dot)
-    fName.erase(0, pos+1); // A value of string::npos indicates all characters until the end of the string
-	return fName;
-};
 
 
 void cpccFileSystemMini::selfTest(void)
 {
-	cpccFileSystemMini fs;
-			
+	cpccFileSystemMini	fs;
+	cpccPathHelper		ph;		
+
 	// "#5349a: path delimiter"
-	char pDelimiter = fs.getPreferredPathDelimiter();
+	char pDelimiter = ph.getPreferredPathDelimiter();
 	assert(((pDelimiter=='/') || (pDelimiter=='\\') ) );
 			
 
@@ -474,7 +377,7 @@ void cpccFileSystemMini::selfTest(void)
 	std::string tmpFolder = fs.getFolder_Temp();
 	assert(tmpFolder.length()>1);
 			
-	fs.IncludeTrailingPathDelimiter(tmpFolder);
+	ph.includeTrailingPathDelimiter(tmpFolder);
 				
 	// fileExists or createEmptyFile
 	std::string tmpFile = tmpFolder + "selftest-cpccFileSystemMini.txt";
@@ -493,30 +396,6 @@ void cpccFileSystemMini::selfTest(void)
 	fs.deleteFile(tmpFile);
 	assert(!fs.fileExists(tmpFile));
 
-	// test extension replacing and getExtension
-	{
-		std::string TestExt = fs.replaceExtension("c:\\folderA\\SubFolderB\\filename.oldext", "txt" );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("c:\\folderA\\SubFolderB\\filename.txt")==0);
-
-		TestExt = fs.replaceExtension("hello.filename.o", "n" );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("hello.filename.n")==0);
-
-		TestExt = fs.replaceExtension("hello.filename with long extension", ".dat" );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		//cpccQmsg::Qmsg("getExtension", fs.getExtension(TestExt.c_str()).c_str());
-		assert(TestExt.compare("hello.dat")==0);
-		assert(fs.getExtension(TestExt.c_str()).compare("dat")==0);
-
-		TestExt = fs.replaceExtension("filename without extension", ".ooo" );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());		
-		assert(TestExt.compare("filename without extension.ooo")==0);
-
-		TestExt = fs.replaceExtension("\\\\network shares/a/mac path", ".app" );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("\\\\network shares/a/mac path.app")==0);
-	}
 
 			
 };
