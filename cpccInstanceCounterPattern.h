@@ -23,6 +23,7 @@
 	to allow clildren classes perform initialization/finalisation.
 	
 	Dependencies: cpcc_SelfTest.h
+ 
 */
 
 
@@ -49,12 +50,16 @@ public:	// ctor/dtor
 	{
 		if (nCountPtr)
 			*nCountPtr++;
-		onFirstCreate();
+		
+		if (*nCountPtr == 1)
+			onFirstCreate();
 	};
 
 	~cpccInstanceCounterPattern(void)
 	{
-		onLastDestroy();
+		if (*nCountPtr == 1)
+			onLastDestroy();
+		
 		if (nCountPtr)
 			*nCountPtr--;
 	};
