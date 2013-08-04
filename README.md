@@ -21,8 +21,7 @@ A small set of cross platform classes and functions that will allow the quick de
 Already tested under:
 - Windows 32, 64 bit
 - OSX 10.6+
-Future compatibility:
-- IOS
+- Future compatibility: IOS
 
 **Project status:**
 
