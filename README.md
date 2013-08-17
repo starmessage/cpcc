@@ -1,6 +1,7 @@
-**cpcc** - Cross Platform C++ Classes
+**cpcc - Cross Platform C++ Classes**
 
 A set of classes and functions that are missing from the standard C++
+
 (c) StarMessage Software [http://www.StarMessageSoftware.com]
 
 
@@ -11,10 +12,9 @@ A small set of cross platform classes and functions that will allow the quick de
 **Designed for ease of use:**
 
 - Simply include the needed files in your project.
-  Links statically with your program.
-  No need to build them as a separate library (release + debug) and then link it with your code
-- Self test routines on each unit.   
-- Implemented in header-only files whenever possible
+  No need to build the classes as a separate libraries (release + debug version) and then link the library with your code
+- Self test routines on most units.   
+- Implemented in header-only files whenever possible.
 
 **Operating system compatibility:**
 
@@ -37,6 +37,6 @@ Classes in the current queue:
 [  ] portable screensaver API class
 [ok] Listener pattern
 
-Please come back and check after a few weeks.
+Please come back to check after a few weeks.
 
 

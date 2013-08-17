@@ -27,7 +27,7 @@
 
 
 /** A small and portable (cross platform) C++ class 
-	with basic cpccBTinterface functions.
+	with basic bluetooth functions.
 	Dependencies: cpcc_SelfTest.h
 */
 
@@ -42,22 +42,30 @@
  Performing Device Inquiries
  https://developer.apple.com/library/mac/#documentation/devicedrivers/conceptual/bluetooth/BT_Develop_BT_Apps/BT_Develop_BT_Apps.html#//apple_ref/doc/uid/TP30000997-CH216-BACFJHEB
  
- 
  */
 
 
-/// path manipulation helper functions
+struct structBluetoothDevice
+{
+	std::string id, mac, name, label;
+};
+
+
+/// bluetooth functions
 class cpccBTinterface
 {
 public:	// class metadata and selftest
 	const char * getClassVersion(void) { return "0.50"; };
 	static void selfTest(void) { };
 
+	
 public:
-	typedef std::vector<std::string> BtDeviceNameList;
+	typedef std::vector<structBluetoothDevice> BtDeviceList;
 
+	
 private:
-	cpccFriendlyNames mFriendlyNames;
+	cpccFriendlyNames mDeviceLabels;
+	
 	
 protected:
 
@@ -65,21 +73,22 @@ public:
 	
 	virtual const float	 getDeviceSignalStrenght(const char *DeviceName)=0;
 	
+	
 	virtual const bool	 isBluetoothEnabled(void) 
 	{	
 		return false; 
 	};
 	
 	
-	virtual void		 getListOfVisibleDevices(BtDeviceNameList &aList)
+	virtual void		 getListOfVisibleDevices(BtDeviceList &aList)
 	{
 		aList.clear();
 	};
 	
 	
-	void setFriendlyName(const char *aDeviceName, const char *aFriendlyName)
+	void setFriendlyName(const char *aDeviceId, const char *aFriendlyName)
 	{
-		mFriendlyNames.setFriendlyName(aDeviceName, aFriendlyName);
+		mDeviceLabels.setFriendlyName(aDeviceId, aFriendlyName);
 	};
 	
 							  
