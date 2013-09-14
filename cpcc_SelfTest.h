@@ -17,6 +17,7 @@
 #ifndef cpcc_SelfTest_h
 #define cpcc_SelfTest_h
 
+#include "cpccUnicodeSupport.h"
 #ifdef _WIN32
 	#include <Windows.h>
 #elif defined(__APPLE__)
@@ -54,13 +55,13 @@
 class cpccQmsg
 {
 public:
-	static void Qmsg(const char *title, const char *text)
+	static void Qmsg(const cpcc_char *title, const cpcc_char *text)
 	{
 	#ifdef _WIN32
 		OutputDebugString(title);
-		OutputDebugString(": ");
+		OutputDebugString(_T(": "));
 		OutputDebugString(text);
-		OutputDebugString("\n");
+		OutputDebugString(_T("\n"));
 		MessageBox( NULL, text, title, NULL);
 	#elif defined(__APPLE__)
 		std::cout << title << ": " << text << std::endl;

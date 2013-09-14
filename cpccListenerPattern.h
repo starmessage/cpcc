@@ -21,30 +21,30 @@
 #include <string>
 #include <set>
 #include <assert.h>
-
+#include "cpccUnicodeSupport.h"
 
 // ---------------- class cmiListener  -----------------
 template<typename Tobject> 
 class cpccListener
 {
 public:	// class metadata
-	const char * getClassVersion(void) { return "1.01"; };
+	static const cpcc_char * getClassVersion(void) { return _T("1.01"); };
 	
 private:
 	int _nSubscriptions;
 
 public: // data
-	std::string name;
+	cpcc_string		name;
 
 public: // ctors
-	cpccListener(const char *aName="Unnamed cpcclistener"): 
+	cpccListener(const cpcc_char *aName= _T("Unnamed cpcclistener")): 
 		name(aName), 
 		_nSubscriptions(0)
 	{ };
 
 	~cpccListener()
 	{	
-		assert((_nSubscriptions==0) && "#2352: destroying cpcclistener, but is still subscribed");
+		assert((_nSubscriptions==0) && _T("#2352: destroying cpcclistener, but is still subscribed"));
 	};
 	
 public: // functions
@@ -55,13 +55,13 @@ public: // functions
 
 	void increaseSubscriptions(void) 
 	{ 
-		assert((_nSubscriptions>=0) && "#5370: _nSubscriptions<0");
+		assert((_nSubscriptions>=0) && _T("#5370: _nSubscriptions<0"));
 		_nSubscriptions++; 
 	};
 
 	void decreaseSubscriptions(void) 
 	{ 
-		assert((_nSubscriptions>0) && "#5371: _nSubscriptions<=0");
+		assert((_nSubscriptions>0) && _T("#5371: _nSubscriptions<=0"));
 		_nSubscriptions--; 
 	};
 };
@@ -78,14 +78,14 @@ public: //constructors
 	
 	cpccListenersList()
 	{
-		assert(countListeners()==0 && "#3415 cmiListenersList constructor: Not empty list");
+		assert(countListeners()==0 && _T("#3415 cmiListenersList constructor: Not empty list"));
 	};
 	
 	~cpccListenersList()
 	{
 		// at this point if the program is terminating
 		// you cannot have any calls to IO like std::cout << "Destructor cmiListenersList"
-		assert((countListeners()==0) && "#5274: destroying cmiListenersList, but listeners still exist");
+		assert((countListeners()==0) && _T("#5274: destroying cmiListenersList, but listeners still exist"));
 	};
 
 public: //functions
@@ -98,7 +98,7 @@ public: //functions
 			(*itr)->beNotifiedAbout(anObject);
 			n--;
 			}
-		assert(n==0 && "#8246: notifyListeners iterator did not work properly");
+		assert(n==0 && _T("#8246: notifyListeners iterator did not work properly"));
 	};
 	
 	

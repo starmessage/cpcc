@@ -17,7 +17,8 @@
 #pragma once
 
 #include <string>
-
+#include "cpccUnicodeSupport.h"
+#include "cpccPlatformAPI.h"
 
 //////////////////////////////////////////////////////////
 ///		class cpccFileSystemMini
@@ -34,66 +35,55 @@
 */
 
 
-/*
-	future typedefs:
-	
-	#ifdef UNICODE //Test to see if we're using wchar_ts or not.
-		typedef std::wstring PathString;
-	#else
-		typedef std::string PathString;
-	#endif
 
 
-*/
-
-typedef long cpccFileSize_t;
 
 class cpccFileSystemMini
 {
 public:	// class metadata and selftest
-	const char * getClassVersion(void) { return "1.04"; };
-	static void selfTest(void);
+	const cpcc_char *	getClassVersion(void) { return _T("1.05"); };
+	static void			selfTest(void);
+
+	enum { config_RunSelfTest=true };
 
 protected:
-	/// the destFile must be a file specification, not a folder specification
-	virtual bool copyFileToaFile(const char* sourceFile, const char* destFile);
+	cpccPlatformAPI platformAPI;
 
 public:
 	
 	// folder functions --------------------------------
-	virtual bool folderExists(const char * aFilename);
-	virtual bool folderExists(const std::string& aFilename) { return folderExists(aFilename.c_str()); };	
+	virtual bool folderExists(const cpcc_char * aFilename);
+	virtual bool folderExists(const cpcc_string& aFilename) { return folderExists(aFilename.c_str()); };	
 
-	virtual const std::string getFolder_Desktop(void);
-	virtual const std::string getFolder_Temp(void);
-	virtual const std::string getFolder_Fonts(void);
+	virtual const cpcc_string getFolder_Desktop(void);
+	virtual const cpcc_string getFolder_Temp(void);
+	virtual const cpcc_string getFolder_Fonts(void);
 	
 	// file functions --------------------------------
-	virtual bool createEmptyFile(const char * aFilename);
-	virtual bool createEmptyFile(const std::string & aFilename) {	return createEmptyFile(aFilename.c_str());	};
+	virtual bool createEmptyFile(const cpcc_char * aFilename);
+	virtual bool createEmptyFile(const cpcc_string & aFilename) {	return createEmptyFile(aFilename.c_str());	};
 
-	virtual bool fileExists(const char * aFilename);
-	virtual bool fileExists(const std::string &aFilename)	{ return fileExists(aFilename.c_str()); };
+	virtual bool fileExists(const cpcc_char * aFilename);
+	virtual bool fileExists(const cpcc_string &aFilename)	{ return fileExists(aFilename.c_str()); };
 
-	virtual bool fileAppend(const char* aFilename, const char *txt);
-	virtual bool fileAppend(const std::string aFilename, const std::string text) { return fileAppend(aFilename.c_str(), text.c_str());  };
+	virtual bool fileAppend(const cpcc_char* aFilename, const cpcc_char *txt);
+	virtual bool fileAppend(const cpcc_string aFilename, const cpcc_string text) { return fileAppend(aFilename.c_str(), text.c_str());  };
 	
-	virtual bool deleteFile(const char * filename);
-	virtual bool deleteFile(const std::string aFilename)  {  return deleteFile(aFilename.c_str()); };
+	virtual bool deleteFile(const cpcc_char * filename);
+	virtual bool deleteFile(const cpcc_string aFilename)  {  return deleteFile(aFilename.c_str()); };
 	
-	virtual bool copyFile(const char * sourceFile, const char * destFileOrFolder);	
-	virtual bool copyFile(const std::string &sourceFile, const std::string &destFileOrFolder) {	return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); }; 
+	virtual bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);	
+	virtual bool copyFile(const cpcc_string &sourceFile, const cpcc_string &destFileOrFolder) {	return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); }; 
 
-	virtual cpccFileSize_t getFileSize(const char *aFilename); 
-	virtual cpccFileSize_t getFileSize(const std::string &aFilename)  {	return getFileSize(aFilename.c_str()); 	};
+	virtual cpccFileSize_t getFileSize(const cpcc_string &aFilename)  {	return platformAPI.getFileSize(aFilename.c_str()); 	};
 		
 	
 	// Other functions --------------------------------
-	virtual const std::string getAppFullPath(void);
-	virtual const std::string getAppFullPathFilename(void);
-	virtual const std::string getAppFilename(void);
+	virtual const cpcc_string getAppFullPath(void);
+	virtual const cpcc_string getAppFullPathFilename(void);
+	virtual const cpcc_string getAppFilename(void);
 	
-	virtual const std::string getFileSystemReport(void);
+	virtual const cpcc_string getFileSystemReport(void);
 
 };
 

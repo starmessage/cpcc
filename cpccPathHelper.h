@@ -17,7 +17,7 @@
 #pragma once
 
 #include <string>
-
+#include "cpccUnicodeSupport.h"
 
 //////////////////////////////////////////////////////////
 ///		class cpccPathHelper
@@ -49,29 +49,34 @@
 class cpccPathHelper
 {
 public:	// class metadata and selftest
-	const char * getClassVersion(void) { return "1.00"; };
-	static void selfTest(void);
+	static const cpcc_char * getClassVersion(void) { return _T("1.00"); };
+	static void  selfTest(void);
 
 protected:
 
 public:
 	
-	virtual const char	 getPreferredPathDelimiter(void);
-	virtual const char	*getAllPathDelimiters(void);
+	virtual const cpcc_char	 getPreferredPathDelimiter(void);
+	virtual const cpcc_char	*getAllPathDelimiters(void);
 
-	virtual void excludeTrailingPathDelimiter(std::string &aPath);
-	virtual void includeTrailingPathDelimiter(std::string &aFolder);
+	virtual void removeLeadingPathDelimiter(cpcc_string &aPath);
+	virtual void removeTrailingPathDelimiter(cpcc_string &aPath);
+	virtual void addTrailingPathDelimiter(cpcc_string &aFolder);
 	
-	virtual const std::string getParentFolderOf(const std::string &aFullpathFilename);
-	virtual const std::string getParentFolderOf(const char *aFilename) { return getParentFolderOf(std::string(aFilename)); };
+	virtual const cpcc_string getParentFolderOf(const cpcc_string &aFullpathFilename);
+	virtual const cpcc_string getParentFolderOf(const cpcc_char *aFilename) { return getParentFolderOf(cpcc_string(aFilename)); };
 	
-	virtual const std::string extractFilename(const std::string &aFullpathFilename);
+	virtual const cpcc_string extractFilename(const cpcc_string &aFullpathFilename);
 	
 	/// Returns a file path with a different extension. The newExtension parameter can be specified with or without a leading '.' 
-	std::string		replaceExtension(const char *aFilename, const char *newExtension);
-	std::string		getExtension(const char *aFilename);
-	
+	cpcc_string		replaceExtension(const cpcc_char *aFilename, const cpcc_char *newExtension);
+	cpcc_string		getExtension(const cpcc_char *aFilename);
 
+	/// concatenates two paths
+	cpcc_string		pathCat(const cpcc_char *a, const cpcc_char *b);
+	
+	bool	endsWithPathDelimiter(cpcc_string &aPath);
+	bool	startsWithPathDelimiter(cpcc_string &aPath);
 };
 
 

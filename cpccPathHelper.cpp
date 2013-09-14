@@ -17,31 +17,6 @@
 #define 	cpccPathHelper_DoSelfTest	true
 
 #include <assert.h>
-/*
-#include <cstdio>
-#include <iostream>
-#include <errno.h>
-*/
-
-/*
-#ifdef _WIN32
-
-	#include	<io.h> // for _access on windows
-	#include	<Shlobj.h>
-	#include	<Shlwapi.h>
-	#pragma comment(lib,"Shlwapi.lib") // instruct visual studio to link the library
-	#include	<tchar.h>
-	#include	<sys/types.h>
-	#include	<sys/stat.h>
-
-#elif defined(__APPLE__)
-	#include <unistd.h> // for access on unix, mac	
-	#include <CoreFoundation/CoreFoundation.h>
-	#include <Carbon/Carbon.h> // for the DialogRef
-	#include <libproc.h>
-	
-#endif
-*/
 
 #include "cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
@@ -49,21 +24,21 @@
 
 
 
-const char	cpccPathHelper::getPreferredPathDelimiter(void) 
+const cpcc_char	cpccPathHelper::getPreferredPathDelimiter(void) 
 { 
 #ifdef _WIN32
-	return '\\'; 
+	return _T('\\'); 
 #elif defined(__APPLE__)
-	return '/'; 
+	return _T('/'); 
 #endif
 };
 
-const char	*cpccPathHelper::getAllPathDelimiters(void) 
+const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void) 
 { 
 #ifdef _WIN32
-	return "\\/"; 
+	return _T("\\/"); 
 #elif defined(__APPLE__)
-	return "/"; 
+	return _T("/"); 
 #endif
 };
 
@@ -71,33 +46,44 @@ const char	*cpccPathHelper::getAllPathDelimiters(void)
 
 
 
-const std::string cpccPathHelper::getParentFolderOf(const std::string &aFullpathFilename)
+const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
 {
 	//size_t pos = aFullpathFilename.find_last_of("/\\");
 	const size_t pos = aFullpathFilename.find_last_of(getAllPathDelimiters());
 	
-	if(pos != std::string::npos)
+	if(pos != cpcc_string::npos)
 		return aFullpathFilename.substr(0,pos+1);
 	else
 		return aFullpathFilename;
 };
 
 
-const std::string cpccPathHelper::extractFilename(const std::string &aFullpathFilename)
+const cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFilename)
 {
-	std::string result = aFullpathFilename;
+	cpcc_string result = aFullpathFilename;
 	
 	// const size_t last_slash_idx = result.find_last_of("\\/");
 	const size_t last_slash_idx = result.find_last_of(getAllPathDelimiters());
-	if (std::string::npos != last_slash_idx)
+	if (cpcc_string::npos != last_slash_idx)
 		result.erase(0, last_slash_idx + 1);
 	
 	return result;
 };
 
 
+bool cpccPathHelper::endsWithPathDelimiter(cpcc_string &aPath)
+{	
+	return (aPath.find_last_of(getAllPathDelimiters()) == aPath.length());
+};
 
-void cpccPathHelper::excludeTrailingPathDelimiter(std::string &aPath)
+
+bool cpccPathHelper::startsWithPathDelimiter(cpcc_string &aPath)
+{	
+	return (aPath.find_first_of(getAllPathDelimiters()) == 0);
+};
+
+
+void cpccPathHelper::removeTrailingPathDelimiter(cpcc_string &aPath)
 {	
 	//while (aPath.find_last_of("\\/") == aPath.length())
 	while (aPath.find_last_of(getAllPathDelimiters()) == aPath.length())
@@ -105,60 +91,76 @@ void cpccPathHelper::excludeTrailingPathDelimiter(std::string &aPath)
 };
 
 
-void cpccPathHelper::includeTrailingPathDelimiter(std::string &aFolder)
+void cpccPathHelper::addTrailingPathDelimiter(cpcc_string &aFolder)
 {
-	char delimiter = getPreferredPathDelimiter();
-	std::string::size_type n = aFolder.size();
+	cpcc_char delimiter = getPreferredPathDelimiter();
+	cpcc_string::size_type n = aFolder.size();
 	if ((n > 0) && (aFolder[n - 1] != delimiter)) 
 		aFolder = aFolder + delimiter;
 };
 
 
+void cpccPathHelper::removeLeadingPathDelimiter(cpcc_string &aPath)
+{	
+	//while (aPath.find_last_of("\\/") == aPath.length())
+	while (aPath.find_first_of(getAllPathDelimiters()) == 0)
+		aPath.erase(0);
+};
 
 
-
-std::string	cpccPathHelper::replaceExtension(const char *aFilename, const char *newExtension)
+cpcc_string	cpccPathHelper::replaceExtension(const cpcc_char *aFilename, const cpcc_char *newExtension)
 {
 	if (!aFilename)
-		return std::string("");
+		return cpcc_string(_T(""));
 
-	std::string fName(aFilename);
+	cpcc_string fName(aFilename);
 
 	if (!newExtension) 
 		return fName;
 
-    size_t pos = fName.rfind('.');
+    size_t pos = fName.rfind(_T('.'));
 
-    if ((pos == std::string::npos )  //No extension.
+    if ((pos == cpcc_string::npos )  //No extension.
 		||
 		(pos == 0)) //. is at the front. Not an extension.
         {
-		if (newExtension[0]!='.')
-			fName.append(".");
+		if (newExtension[0]!= _T('.'))
+			fName.append( _T(".") );
 		fName.append(newExtension);
 		return fName;
 		}
 	    
 	// remove the current extension and keep the dot
     fName.erase(pos, std::string::npos ); // A value of string::npos indicates all characters until the end of the string
-	if (newExtension[0]!='.')
-		fName.append(".");
+	if (newExtension[0]!= _T('.'))
+		fName.append( _T(".") );
 	fName.append(newExtension);
 	return fName;
 };
 
 
-std::string		cpccPathHelper::getExtension(const char *aFilename)
+cpcc_string		cpccPathHelper::pathCat(const cpcc_char *a, const cpcc_char *b)
+{
+	cpcc_string result=a;
+	cpcc_string part2=b;
+
+	addTrailingPathDelimiter(result);
+	removeLeadingPathDelimiter(part2);
+	return result + part2;
+}
+
+
+cpcc_string		cpccPathHelper::getExtension(const cpcc_char *aFilename)
 {
 	if (!aFilename)
-		return std::string("");
+		return cpcc_string( _T("") );
 
-	std::string fName(aFilename);
+	cpcc_string fName(aFilename);
 
-    size_t pos = fName.rfind(".");
+    size_t pos = fName.rfind( _T(".") );
 
-    if (pos == std::string::npos )  //No extension.
-		return std::string("");
+    if (pos == cpcc_string::npos )  //No extension.
+		return cpcc_string( _T("") );
 	    
 	// remove from start until the dot (including the dot)
     fName.erase(0, pos+1); // A value of string::npos indicates all characters until the end of the string
@@ -171,32 +173,32 @@ void cpccPathHelper::selfTest(void)
 	cpccPathHelper ph;
 			
 	// "#5349a: path delimiter"
-	char pDelimiter = ph.getPreferredPathDelimiter();
-	assert(((pDelimiter=='/') || (pDelimiter=='\\') ) );
+	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();
+	assert(((pDelimiter== _T('/')) || (pDelimiter== _T('\\')) ) );
 			
 	// test extension replacing and getExtension
-	{
-		std::string TestExt = ph.replaceExtension("c:\\folderA\\SubFolderB\\filename.oldext", "txt" );
+	{ 
+		cpcc_string TestExt = ph.replaceExtension( _T("c:\\folderA\\SubFolderB\\filename.oldext"), _T("txt") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("c:\\folderA\\SubFolderB\\filename.txt")==0);
+		assert(TestExt.compare(  _T("c:\\folderA\\SubFolderB\\filename.txt" ) )==0);
 
-		TestExt = ph.replaceExtension("hello.filename.o", "n" );
+		TestExt = ph.replaceExtension( _T("hello.filename.o"), _T("n") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("hello.filename.n")==0);
+		assert(TestExt.compare( _T("hello.filename.n") )==0);
 
-		TestExt = ph.replaceExtension("hello.filename with long extension", ".dat" );
+		TestExt = ph.replaceExtension( _T("hello.filename with long extension"), _T(".dat") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
 		//cpccQmsg::Qmsg("getExtension", fs.getExtension(TestExt.c_str()).c_str());
-		assert(TestExt.compare("hello.dat")==0);
-		assert(ph.getExtension(TestExt.c_str()).compare("dat")==0);
+		assert(TestExt.compare( _T("hello.dat") )==0);
+		assert(ph.getExtension(TestExt.c_str()).compare( _T("dat") )==0);
 
-		TestExt = ph.replaceExtension("filename without extension", ".ooo" );
+		TestExt = ph.replaceExtension(_T("filename without extension"), _T(".ooo") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());		
-		assert(TestExt.compare("filename without extension.ooo")==0);
+		assert(TestExt.compare( _T("filename without extension.ooo"))==0);
 
-		TestExt = ph.replaceExtension("\\\\network shares/a/mac path", ".app" );
+		TestExt = ph.replaceExtension( _T("\\\\network shares/a/mac path"), _T(".app") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		assert(TestExt.compare("\\\\network shares/a/mac path.app")==0);
+		assert(TestExt.compare( _T("\\\\network shares/a/mac path.app") )==0);
 	}
 			
 };
