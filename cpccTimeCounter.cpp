@@ -16,7 +16,7 @@
 
 
 #include "cpccTimeCounter.h"
-#include <math.h>
+#include <math.h>	// for floor()
 
 
 
@@ -47,6 +47,7 @@
 		} 
 	------------------
 */
+
 
 //
 // class implementation
@@ -89,6 +90,8 @@ void cpccTimeCounter::gettimeofdayCrossPlatform(struct timeval *currentTime)
 	which have been expired since Jan 1, 1601. 
 	GetSystemTimeAsFileTime returns the current time as the number of 100-nanosecond intervals 
 	that have passed since January 1, 1601. 
+
+	http://www.refcode.net/2013/02/gettimeofday-for-windows_13.html
 	*/
 	GetSystemTimeAsFileTime(&ft);
 	ui.LowPart=ft.dwLowDateTime;

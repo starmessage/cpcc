@@ -49,8 +49,11 @@
 class cpccPathHelper
 {
 public:	// class metadata and selftest
-	static const cpcc_char * getClassVersion(void) { return _T("1.00"); };
+	static const cpcc_char * getClassVersion(void) { return _T("1.01"); };
 	static void  selfTest(void);
+	
+	/// if true then a the selftest function is called automatically on app start
+	enum { config_RunSelfTest=true };
 
 protected:
 
@@ -75,8 +78,8 @@ public:
 	/// concatenates two paths
 	cpcc_string		pathCat(const cpcc_char *a, const cpcc_char *b);
 	
-	bool	endsWithPathDelimiter(cpcc_string &aPath);
-	bool	startsWithPathDelimiter(cpcc_string &aPath);
+	bool	endsWithPathDelimiter(const cpcc_char *aPath);
+	bool	startsWithPathDelimiter(const cpcc_char *aPath);
 };
 
 

@@ -71,40 +71,41 @@ const cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFi
 };
 
 
-bool cpccPathHelper::endsWithPathDelimiter(cpcc_string &aPath)
+bool cpccPathHelper::endsWithPathDelimiter(const cpcc_char *aPath)
 {	
-	return (aPath.find_last_of(getAllPathDelimiters()) == aPath.length());
+	cpcc_string p(aPath);
+	return (p.find_last_of(getAllPathDelimiters())+1 == p.length());
 };
 
 
-bool cpccPathHelper::startsWithPathDelimiter(cpcc_string &aPath)
+bool cpccPathHelper::startsWithPathDelimiter(const cpcc_char *aPath)
 {	
-	return (aPath.find_first_of(getAllPathDelimiters()) == 0);
+	cpcc_string p(aPath);
+	return (p.find_first_of(getAllPathDelimiters()) == 0);
 };
 
 
 void cpccPathHelper::removeTrailingPathDelimiter(cpcc_string &aPath)
 {	
-	//while (aPath.find_last_of("\\/") == aPath.length())
-	while (aPath.find_last_of(getAllPathDelimiters()) == aPath.length())
+	while ( endsWithPathDelimiter(aPath.c_str() ) )
 		aPath.erase(aPath.length()-1);
+	
 };
 
 
 void cpccPathHelper::addTrailingPathDelimiter(cpcc_string &aFolder)
 {
-	cpcc_char delimiter = getPreferredPathDelimiter();
-	cpcc_string::size_type n = aFolder.size();
-	if ((n > 0) && (aFolder[n - 1] != delimiter)) 
-		aFolder = aFolder + delimiter;
+  	if ( endsWithPathDelimiter(aFolder.c_str()))
+		return;
+	aFolder = aFolder + getPreferredPathDelimiter();
 };
 
 
 void cpccPathHelper::removeLeadingPathDelimiter(cpcc_string &aPath)
 {	
 	//while (aPath.find_last_of("\\/") == aPath.length())
-	while (aPath.find_first_of(getAllPathDelimiters()) == 0)
-		aPath.erase(0);
+ 	while (aPath.find_first_of(getAllPathDelimiters()) == 0)
+		aPath.erase(0,1);
 };
 
 
@@ -199,6 +200,30 @@ void cpccPathHelper::selfTest(void)
 		TestExt = ph.replaceExtension( _T("\\\\network shares/a/mac path"), _T(".app") );
 		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
 		assert(TestExt.compare( _T("\\\\network shares/a/mac path.app") )==0);
+
+		assert(ph.startsWithPathDelimiter( _T("/a/mac path")  ) && _T("#6928a: cpccPathHelper"));
+		assert(!ph.startsWithPathDelimiter( _T("a/mac path")  ) && _T("#6928b: cpccPathHelper"));
+
+		assert(ph.endsWithPathDelimiter( _T(".\\a\\path\\") ) && _T("#6928c: cpccPathHelper"));
+		assert(!ph.endsWithPathDelimiter( _T(".\\a\\path")  ) && _T("#6928d: cpccPathHelper"));
+
+		cpcc_string test = _T("c:/tmp/");
+		ph.removeTrailingPathDelimiter(test);
+		assert(test.compare( _T("c:/tmp") )==0);
+
+
+		assert(ph.pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);
+		assert(ph.pathCat(_T("\\folderroot\\"), _T("subfolder")).compare(_T("\\folderroot\\subfolder")) ==0);
+		cpcc_string expectedResult;
+#ifdef _WIN32
+		expectedResult = _T("/folderroot\\subfolder");
+#endif
+#ifdef __APPLE__
+		expectedResult = _T("/folderroot/subfolder");
+#endif
+		assert(ph.pathCat(_T("/folderroot"), _T("/subfolder")).compare(expectedResult) ==0);
+		assert(ph.pathCat(_T("/folderroot"), _T("subfolder")).compare(expectedResult) ==0);
+
 	}
 			
 };
@@ -211,7 +236,8 @@ void cpccPathHelper::selfTest(void)
 
 
 SELFTEST_BEGIN(cpccPathHelper_SelfTest)
-	cpccPathHelper::selfTest();
+	if (cpccPathHelper::config_RunSelfTest)
+		cpccPathHelper::selfTest();
 SELFTEST_END
 
 

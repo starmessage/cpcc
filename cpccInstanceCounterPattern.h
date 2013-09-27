@@ -34,7 +34,7 @@ private:
 	int * nCountPtr;
 	
 public:	// class metadata and selftest
-	static const char * getClassVersion(void) { return "1.00"; };
+	static const char * getClassVersion(void) { return "1.01"; };
 	
 	static void selfTest(void)
 	{
@@ -49,32 +49,27 @@ public:	// ctor/dtor
 	cpccInstanceCounterPattern(int *aStaticCounterPtr): nCountPtr(aStaticCounterPtr)
 	{
 		if (nCountPtr)
-			*nCountPtr++;
+			*nCountPtr = *nCountPtr + 1;
 		
-		if (*nCountPtr == 1)
-			onFirstCreate();
 	};
 
 	~cpccInstanceCounterPattern(void)
 	{
-		if (*nCountPtr == 1)
-			onLastDestroy();
-		
+	
 		if (nCountPtr)
-			*nCountPtr--;
+			*nCountPtr = *nCountPtr - 1;
 	};
 		
 public: // functions
 
-	const int getCount(void)	
+	const int getInstancesCount(void)	
 	{ 
 		if (nCountPtr)
 			return *nCountPtr; 
 		return -999; 	// error indication
 	};
 
-	virtual void onFirstCreate(void) { };
-	virtual void onLastDestroy(void) { };
+
 };
 
 

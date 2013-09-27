@@ -100,7 +100,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 		{
 		cpcc_string result(szPath);
 		cpccPathHelper ph;
-		ph.includeTrailingPathDelimiter(result);	
+		ph.addTrailingPathDelimiter(result);	
 		return result;
 		}
 	std::cerr << "Error #4824 in cpccFileSystemMini::getFolder_Fonts\n";

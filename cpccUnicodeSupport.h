@@ -72,6 +72,8 @@
 	#define		cpcc_strlen			_tcslen
 	#define		cpcc_strftime		_tcsftime	
 	#define		cpcc_fprintf		_ftprintf
+	#define		cpcc_strtok			_tcstok
+	#define		cpcc_strcpy			_tcscpy
 
 	typedef		wchar_t				cpcc_char;
 	typedef		std::wifstream		cpcc_ifstream;
@@ -86,6 +88,8 @@
 	#define		cpcc_strlen			strlen
 	#define		cpcc_strftime		strftime	
 	#define		cpcc_fprintf		fprintf
+	#define		cpcc_strtok			strtok
+	#define		cpcc_strcpy			strcpy
 
 	typedef		char				cpcc_char;
 	typedef		std::ifstream		cpcc_ifstream;

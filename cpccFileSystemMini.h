@@ -44,6 +44,7 @@ public:	// class metadata and selftest
 	const cpcc_char *	getClassVersion(void) { return _T("1.05"); };
 	static void			selfTest(void);
 
+	// if true then a the selftest function is called automatically on app start
 	enum { config_RunSelfTest=true };
 
 protected:
