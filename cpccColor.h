@@ -4,48 +4,63 @@
 
 #pragma once
 
+#define NOMINMAX
+
 #include "cpccTypes.h"
+#include <algorithm>
+
 
 typedef cpccUint32_t TmioanColorRGBA;
 
 
-#define applyMinMax(xLow, xHigh, x)		(((x>xHigh)?xHigh:x)<xLow)?xLow:((x>xHigh)?xHigh:x)
 
-/*
-template<typename Tlimit>
-Tlimit getLimitHigh(void)
+template<typename T>
+class colorChannelTypes	{  };
+
+
+template <>		// Partial specialization
+class colorChannelTypes<cpccUint8_t>
 {
-	return 0;
-}
+public:
+	static cpccUint8_t		getLimitHigh(void)			{ return 255; }
+	static cpccUint8_t		applyLimits(const float a)	{ return (cpccUint8_t) std::min( 255.0f, std::max(0.0f, a)); }
+	static cpccUint8_t		convertFrom(const float a)	{ return applyLimits(a*255.0f); }
+};
 
 
-template<>
-(float) getLimitHigh<float>(void)
+template <>		// Partial specialization
+class colorChannelTypes<float>
 {
-	return 1.0f;
-}
-*/
+public:
+	static float		getLimitHigh(void)					{ return 1.0f; }
+	static float		applyLimits(const float a)			{ return std::min( 1.0f, std::max(0.0f, a)); }
+	static float		convertFrom(const cpccUint8_t a)	{ return applyLimits(a/255.0f); }
+};
+
+
 
 template<typename T>
 class cpccColorT 
 	{
 	public: // data
 		T a, b, g, r;
+
+		enum { config_RunSelfTest=true };
 		
 	public: // constructors
 
 
 		cpccColorT(): r(0), g(0), b(0)
-			{
-			a=getLimitHigh();
-			};
+		{
+			a= colorChannelTypes<T>::getLimitHigh();
+		};
 		
 		
 		cpccColorT(T red, T green, T blue)
 			: r(red), g(green), b(blue)
-			{
-			a=getLimitHigh();
-			};
+		{
+			a= colorChannelTypes<T>::getLimitHigh();
+		};
 		
 		
 		cpccColorT(T red, T green, T blue, T alpha)
@@ -57,27 +72,20 @@ class cpccColorT
 			: r( src.r ), g( src.g ), b( src.b ), a( src.a )
 			{ };
 
+		/*
+		cpccColorT(cpccUint32_t aColorHex) : a(255)
+		{	
+			b = aColorHex & 0xFF;
+			aColorHex = aColorHex >> 8;
+			g = aColorHex & 0xFF;
+			aColorHex = aColorHex >> 8;
+			r = aColorHex & 0xFF;
+		}
+		*/
+
 
 	public: // functions
 
-
-		virtual T	getLimitHigh(void)=0;
-		/*
-		template<>
-		static float		getLimitHigh(void) { return 1.0f; };
-		
-		template<>
-		static cpccUint8_t	getLimitHigh(void) { return 255; };
-		*/
-
-		
-		cpccColorT<T> operator=( const cpccColorT<T> &rhs ) 
-		{
-			r = rhs.r;
-			g = rhs.g;
-			b = rhs.b;
-			return * this;
-		}
 	
 	
 		TmioanColorRGBA asARGB(void) 
@@ -91,76 +99,55 @@ class cpccColorT
 		};
 		
 		
-		void amplifyComponents(float xR, float xG, float xB)
+		void amplifyComponents(const float xR, const float xG, const float xB)
 		{
-			r = applyMinMax(0, 255, (int) (r * xR));
-			g = applyMinMax(0, 255, (int) (g * xG));
-			b = applyMinMax(0, 255, (int) (b * xB));
+			r = colorChannelTypes<T>::applyLimits(r*xR);
+			g = colorChannelTypes<T>::applyLimits(g*xG);
+			b = colorChannelTypes<T>::applyLimits(b*xB);
 		};
 
 		
-		/*
-		TmioanColor operator *(float f)
+		
+	public:		// operators ----------------------------------------	
+
+		cpccColorT<T>& operator=( const cpccColorT<T> &rhs ) 
 		{
-			changeBrightness(f,f,f);
-			return this
+			r = rhs.r;
+			g = rhs.g;
+			b = rhs.b;
+			a = rhs.a;
+			return * this;
 		}
-		*/
+
+
+		cpccColorT<T> operator *(const float f)
+		{
+			cpccColorT<T> tmp( *this );
+			tmp.amplifyComponents(f,f,f);
+			return tmp;
+		}
+		
+		
+		cpccColorT<T> operator *=(const float f)
+		{
+			amplifyComponents(f,f,f);
+			return this;
+		}
+
+
+	public:		// selftest ----------------------------------------
+
+		static void selfTest();
+
 	};
 
-/*
-template <>		// Partial specialization
-class cpccColorT<float>
-{
-public:
-    static float			getLimitHigh(void) { return 1.0f; }
-};
-*/
 
+typedef 	cpccColorT<float>				cpccColorF;
+typedef 	cpccColorT<cpccUint8_t>			cpccColor; // default
 
-class cpccColorF	: public cpccColorT<float>
-{
-public:
-    float			getLimitHigh(void) { return 1.0f; }
-};
-
-class cpccColor	: public cpccColorT<cpccUint8_t>
-{
-public:
-    cpccUint8_t			getLimitHigh(void) { return 255; }
-};
-
-
-/*
-template <>		// Partial specialization
-class cpccColorT<cpccUint8_t>
-{
-public:
-	cpccUint8_t				a, b, g, r;
-
-    static cpccUint8_t		getLimitHigh(void) { return 255; }
-
-	cpccColorT(cpccUint32_t aColorHex) : a(255)
-	{	
-		b = aColorHex & 0xFF;
-		aColorHex = aColorHex >> 8;
-		g = aColorHex & 0xFF;
-		aColorHex = aColorHex >> 8;
-		r = aColorHex & 0xFF;
-	}
-
-};
-*/
-
-
-
-// typedef 	cpccColorT<float>				cpccColorF;
-// typedef 	cpccColorT<cpccUint8_t>			cpccColor; // default
-
-static const cpccColor						cpccBlack(0,0,0);
+static const cpccColor						cpccBlack( 0, 0, 0);
 static const cpccColor						cpccGray(127,127,127);
 static const cpccColor						cpccBlue(0,0,255);
 static const cpccColor						cpccDarkblue(10,10,50);
 static const cpccColor						cpccRed(255,0,0);
-
 

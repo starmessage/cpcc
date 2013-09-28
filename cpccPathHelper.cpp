@@ -204,16 +204,28 @@ void cpccPathHelper::selfTest(void)
 		assert(ph.startsWithPathDelimiter( _T("/a/mac path")  ) && _T("#6928a: cpccPathHelper"));
 		assert(!ph.startsWithPathDelimiter( _T("a/mac path")  ) && _T("#6928b: cpccPathHelper"));
 
+#ifdef _WIN32
 		assert(ph.endsWithPathDelimiter( _T(".\\a\\path\\") ) && _T("#6928c: cpccPathHelper"));
 		assert(!ph.endsWithPathDelimiter( _T(".\\a\\path")  ) && _T("#6928d: cpccPathHelper"));
-
+#endif
+#ifdef __APPLE__
+		assert(ph.endsWithPathDelimiter( _T(".\\a/path/") ) && _T("#6928c: cpccPathHelper"));
+		assert(!ph.endsWithPathDelimiter( _T(".\\a/path")  ) && _T("#6928d: cpccPathHelper"));
+#endif
+		
 		cpcc_string test = _T("c:/tmp/");
 		ph.removeTrailingPathDelimiter(test);
 		assert(test.compare( _T("c:/tmp") )==0);
 
 
 		assert(ph.pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);
+#ifdef _WIN32
 		assert(ph.pathCat(_T("\\folderroot\\"), _T("subfolder")).compare(_T("\\folderroot\\subfolder")) ==0);
+#endif
+#ifdef __APPLE__
+		assert(ph.pathCat(_T("\\folderroot/"), _T("subfolder")).compare(_T("\\folderroot/subfolder")) ==0);
+#endif
+		
 		cpcc_string expectedResult;
 #ifdef _WIN32
 		expectedResult = _T("/folderroot\\subfolder");
