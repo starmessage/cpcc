@@ -83,8 +83,12 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 	
 #elif defined(__APPLE__)
 	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
-	// or /Library/Application Support/name_of_your_app/
-	return  std::string("/Library/Preferences/");
+	// https://developer.apple.com/library/mac/documentation/General/Conceptual/MOSXAppProgrammingGuide/AppRuntime/AppRuntime.html#//apple_ref/doc/uid/TP40010543-CH2-SW9
+	// /Library/Application Support/name_of_your_app/
+	//	or
+	// /library/preferences
+	// finally I chose /users/shared
+	return  std::string("/users/shared/");
 	
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
@@ -146,7 +150,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Temp(void)
 		
 	#endif
 	return  cpcc_string( _T("") );
-};
+}
 
 
 const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
@@ -188,7 +192,7 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 		}
 
 	return copyFileToaFile(sourceFile, destFile.c_str());
-};
+}
 
 
 
@@ -225,9 +229,20 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 #ifdef _WIN32
 	::CreateDirectory(aFoldername, NULL);
 #elif defined(__APPLE__)
-	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
-	// if (mkdir(mname)
+	cpccPathHelper ph;
+	cpcc_string finalPath = ph.expandTilde(aFoldername);
 	
+	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
+	// https://discussions.apple.com/thread/844719?start=0&tstart=0
+	// http://www.linuxquestions.org/questions/programming-9/mkdir-in-c-setting-wrong-permissions-613250/
+
+	umask(0);
+	// read/write/search permissions for owner and group, and with read/search permissions for others
+	// S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH 
+	//if (mkdir( finalPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH ) == 0)
+	// S_IRWXU | S_IRWXG | S_IRWXO instead of 0777
+	if (mkdir( finalPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO ) == 0)
+		return true;
 
 #endif
 
@@ -244,9 +259,21 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
 	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
 	
 #elif defined(__APPLE__)
-	struct stat fileinfo;
+	// example with lstat()
+	// http://stackoverflow.com/questions/3543231/how-to-find-out-if-a-file-or-directory-exists
+	// expand the tilde ~ 
+	// http://www.davidverhasselt.com/2009/09/16/expanding-a-leading-tilde-in-cc/
 	
-	if (stat(aFilename, &fileinfo) == -1)
+	cpcc_string finalPath(aFoldername);
+	
+	if (aFoldername[0]=='~')
+	{
+		cpccPathHelper ph;
+		finalPath = ph.expandTilde(aFoldername);
+	}
+	
+	struct stat fileinfo;
+	if (stat(finalPath.c_str(), &fileinfo) == -1)
 	{	// On success, zero is returned. 
 		// On error, -1 is returned, and errno is set appropriately. 
 		return false;
@@ -288,6 +315,7 @@ bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
 	return false;
 }
 
+
 bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 {
 	/*
@@ -297,7 +325,7 @@ bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 	This creates issues when trying to write portable code. 
 	*/
 	return (cpcc_rename(filenameOld, filenameNew)==0);
-};
+}
 
 /**
 	to create an empty file (replacing any existing one) call this as
@@ -323,7 +351,7 @@ cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const
 		
     fclose (pFile);
     return res;
-};
+}
 	
 	
 cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize)
@@ -345,7 +373,7 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 		
     fclose (pFile);
     return res;
-};
+}
 
 
 cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
@@ -366,7 +394,7 @@ cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
 #endif
 	return (rc == 0) ? stat_buf.st_size : -1;
 */	
-};
+}
 
 
 bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
@@ -384,7 +412,8 @@ bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
 #else
 	return (remove(aFilename)==0);
 #endif
-};
+}
+
 
 bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile)
 {
@@ -419,21 +448,16 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 	
 	return (!errorOccured);
 
-};
+}
 
 	
-
-
-
-
-
 
 
 bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 {
 	return (writeToFile(aFilename, "", 0, false)==0);
 	// other way: std::ofstream tmpOut(aFilename); 
-};
+}
 
 
 const cpcc_string cpccFileSystemMini::getAppFilename(void)
@@ -441,13 +465,13 @@ const cpcc_string cpccFileSystemMini::getAppFilename(void)
 	// remove the path part and leave only the filename
 	cpccPathHelper ph;
 	return ph.extractFilename(getAppFullPathFilename());
-};
+}
 
 
 const cpcc_string cpccFileSystemMini::getAppFullPath(void)
 {	cpccPathHelper ph;
 	return ph.getParentFolderOf(getAppFullPathFilename());
-};
+}
 
 
 const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
@@ -485,7 +509,7 @@ const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 #endif	
 	return cpcc_string( _T(""));
 	
-};
+}
 
 
 const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
@@ -505,7 +529,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
 #endif	
 	return cpcc_string(_T(""));
-};
+}
 
 
 
@@ -513,7 +537,9 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 
 void cpccFileSystemMini::selfTest(void)
 {
-return;
+std::cout << "cpccFileSystemMini::SelfTest starting\n";
+
+	
 	cpccFileSystemMini	fs;
 	cpccPathHelper		ph;		
 
@@ -547,10 +573,20 @@ return;
 	// fileExists or deleteFile
 	fs.deleteFile(tmpFile);
 	assert(!fs.fileExists(tmpFile) && "#5356g: cpccFileSystemMini::selfTest");
+	
+#ifdef _WIN32
+	assert(fs.folderExists("c:\\") && "#5356h: cpccFileSystemMini::selfTest");
+	assert(!fs.folderExists("c:\\non-existing-folder") && "#5356k: cpccFileSystemMini::selfTest");
+#endif
+#ifdef __APPLE__
+	assert(fs.folderExists("/Library") && "#5356h: cpccFileSystemMini::selfTest");
+	assert(fs.folderExists("~/Library") && "#5356i: cpccFileSystemMini::selfTest");
+	assert(!fs.folderExists("/non-existing-folder") && "#5356k: cpccFileSystemMini::selfTest");
 
-
-			
-};
+#endif
+	
+	std::cout << "cpccFileSystemMini::SelfTest ended\n";
+}
 
 #endif
 

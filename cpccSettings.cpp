@@ -31,7 +31,7 @@
 
 
 
-cpccSettings::cpccSettings(cpcc_char *aCompanyName, cpcc_char *aSoftwareName, settingsScope aScope):
+cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoftwareName, const settingsScope aScope):
 	instantSaving(true)
 {
 	// setup the filename
@@ -39,8 +39,15 @@ cpccSettings::cpccSettings(cpcc_char *aCompanyName, cpcc_char *aSoftwareName, se
 	cpccPathHelper		ph;
 	cpcc_string			settingsRootFolder;
 
+	assert(cpcc_strlen(aCompanyName)>0 && "#5351: cpccSettings: blank company name");
+	assert(cpcc_strlen(aSoftwareName)>0 && "#5351: cpccSettings: blank Software name");
+
 	settingsRootFolder = aScope==scopeAllUsers? fs.getFolder_CommonAppData(): fs.getFolder_UserData();
+	
+	//std::cout << "settingsRootFolder:" << settingsRootFolder << "\n";
+	
 	assert(fs.folderExists(settingsRootFolder) && "#5381: settings folder does not exist");
+	
 #ifdef __APPLE__
 	// apple prefixes the folders with a com.
 	mFilename = ph.pathCat(settingsRootFolder.c_str(), "com.");
@@ -49,13 +56,18 @@ cpccSettings::cpccSettings(cpcc_char *aCompanyName, cpcc_char *aSoftwareName, se
 	mFilename = ph.pathCat(settingsRootFolder.c_str(), aCompanyName);
 #endif
 	
-	fs.createFolder(mFilename);
+	if (!fs.createFolder(mFilename))
+		std::cerr << "During cpccSettings constructor could not create folder:" << mFilename << "\n";
 
 	mFilename = ph.pathCat(mFilename.c_str(), aSoftwareName);
 	mFilename.append(".ini");
 	
+	std::cout << "cpccSettings construction point 1\n";
+	
 	if (!load())
 		std::cerr << "Error #1351: loading cpccSettings from file:" << mFilename << std::endl;
+	
+	std::cout << "cpccSettings construction point 2\n";
 }
 
 	
@@ -72,9 +84,8 @@ bool cpccSettings::load(void)
 	// http://stackoverflow.com/questions/10951447/load-stdmap-from-text-file
 	// http://stackoverflow.com/questions/16135285/iterate-over-ini-file-on-c-probably-using-boostproperty-treeptree
 	// http://www.cplusplus.com/forum/beginner/29576/
-	cpcc_string key, value, line;
-	std::ifstream iniFile(mFilename);
-	// int posEqual;
+	cpcc_string key, value;
+	std::ifstream iniFile(mFilename.c_str());
 
 	mSettings.clear();
 	
@@ -205,6 +216,7 @@ bool cpccSettings::save(void)
 #if defined(cpccSettings_DoSelfTest)
 void cpccSettings::selfTest(void) 
 {
+	std::cout << "cpccSettings::SelfTest starting\n";
 	cpccFileSystemMini fs;
 	double pi = 3.14159265359;
 
@@ -250,12 +262,18 @@ void cpccSettings::selfTest(void)
 		assert(settingsUser.readLongint("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
 	}
 		
+	std::cout << "cpccSettings::SelfTest ended\n";
 }
 #endif
 
 
 #if defined(cpccSettings_DoSelfTest)
 	SELFTEST_BEGIN(cpccSettings_SelfTest)
-		cpccSettings::selfTest();
+		cpccPersistentVar_SelfTest::selfTest();
 	SELFTEST_END
 #endif
+
+
+///////////////////////////////////////////////////////////////////////////
+
+

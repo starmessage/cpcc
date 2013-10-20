@@ -21,7 +21,9 @@
 #include "cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
 
-
+#if defined(__APPLE__)
+	#include <wordexp.h>
+#endif
 
 
 const cpcc_char	cpccPathHelper::getPreferredPathDelimiter(void) 
@@ -43,7 +45,28 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 };
 
 
+#if defined(__APPLE__)
+const cpcc_string cpccPathHelper::expandTilde(const cpcc_char *aPathWithTilde)
+{
+	//	http://www.davidverhasselt.com/2009/09/16/expanding-a-leading-tilde-in-cc/
+	//  http://www.dreamincode.net/forums/topic/197372-how-to-expand-a-path-linux/
+	cpcc_string result;
+	
+	if (aPathWithTilde[0]=='~')
+	{
+		wordexp_t exp_result;
+		wordexp(aPathWithTilde, &exp_result, 0);
+		result = exp_result.we_wordv[0];
+		wordfree(&exp_result);
+	}
+	else 
+		result = aPathWithTilde;
 
+	std::cout << "expanding path:" << aPathWithTilde << "\n->\n" << result << "\n";
+	
+	return result;
+}
+#endif
 
 
 const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
