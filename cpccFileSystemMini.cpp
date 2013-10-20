@@ -14,12 +14,12 @@
  *	*****************************************
  */
 
-#define 	cpccFileSystemMini_DoSelfTest	true
 
 
 #include <assert.h>
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <errno.h>
 
 #ifdef _WIN32
@@ -41,26 +41,85 @@
 
 #include "cpccFileSystemMini.h"
 #include "cpccPathHelper.h"
-#include "cpcc_SelfTest.h"
-
-/////////////////////////////////////////////
-// class cpccFileSystemMini_SelfTest
-/////////////////////////////////////////////
+#if defined(cpccFileSystemMini_DoSelfTest)
+	#include "cpcc_SelfTest.h"
+#endif
 
 
 
 const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
+	report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
+	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));	
+
 	report.append(_T("Temp folder:")	+ getFolder_Temp() + _T("\n"));
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
-	report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
-	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));
+	report.append(_T("AppData path:")	+ getFolder_CommonAppData() + _T("\n"));
+	report.append(_T("UserData path:")	+ getFolder_UserData() + _T("\n"));
 
 	report.append(_T("End of file system report\n----------------------\n"));
 	return report;
-};
+}
+ 
+
+const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
+{
+	#ifdef _WIN32
+	TCHAR szPath[MAX_PATH];
+	
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
+	// e.g. C:\ProgramData
+
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) 
+		{
+		cpcc_string result(szPath);
+		cpccPathHelper ph;
+		ph.addTrailingPathDelimiter(result);	
+		return result;
+		}
+	std::cerr << "Error #6531 in getFolder_AppData::getFolder_Fonts\n";
+	
+#elif defined(__APPLE__)
+	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
+	// or /Library/Application Support/name_of_your_app/
+	return  std::string("/Library/Preferences/");
+	
+#else
+	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
+#endif	
+	return cpcc_string( _T("") );
+}
+
+
+const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
+{
+		#ifdef _WIN32
+	TCHAR szPath[MAX_PATH];
+	
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
+	// e.g C:\Users\JohnSmith\AppData\Roaming
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) 
+		{
+		cpcc_string result(szPath);
+		cpccPathHelper ph;
+		ph.addTrailingPathDelimiter(result);	
+		return result;
+		}
+	std::cerr << "Error #6531 in getFolder_AppData::getFolder_UserData\n";
+	
+#elif defined(__APPLE__)
+	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
+	
+	// 
+	return  std::string("~/Library/Preferences/");
+	
+#else
+	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
+#endif	
+	return cpcc_string( _T("") );
+}
 
 
 const cpcc_string cpccFileSystemMini::getFolder_Temp(void)
@@ -117,7 +176,9 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 
 
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
-{	cpcc_string destFile=destFileOrFolder;
+{	
+	
+	cpcc_string destFile=destFileOrFolder;
 	
 	if (folderExists(destFileOrFolder)) 
 		{
@@ -125,26 +186,11 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 		ph.addTrailingPathDelimiter(destFile);
 		destFile = destFile + ph.extractFilename(sourceFile);
 		}
-	
-	return platformAPI.copyFileToaFile(sourceFile, destFile.c_str());
+
+	return copyFileToaFile(sourceFile, destFile.c_str());
 };
 
 
-
-bool cpccFileSystemMini::deleteFile(const cpcc_char * filename) 
-{	
-
-	if (!fileExists(filename))
-		{
-		#ifdef _WIN32
-			#pragma warning(disable : 4996)
-		#endif
-		std::cerr << "Error in cpccFileSystemMini::deleteFile. File does not exist: " << filename << std::endl;
-		return true;
-		};
-	
-	return platformAPI.deleteFile(filename);
-};
 
 
 bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char *txt)
@@ -159,6 +205,60 @@ bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char 
 	fclose(fp);
 	return true;
 };
+
+
+
+
+#ifdef UNICODE
+	#define		cpcc_rename			_trename 		
+ #else 
+	#define		cpcc_rename			std::rename 	
+ #endif
+
+
+
+bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
+{
+	if (folderExists(aFoldername))
+		return true;
+
+#ifdef _WIN32
+	::CreateDirectory(aFoldername, NULL);
+#elif defined(__APPLE__)
+	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
+	// if (mkdir(mname)
+	
+
+#endif
+
+    return(folderExists(aFoldername));
+}
+
+
+bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
+{
+#ifdef _WIN32
+	DWORD attrib = GetFileAttributes(aFoldername);
+	return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
+	// Other way:
+	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
+	
+#elif defined(__APPLE__)
+	struct stat fileinfo;
+	
+	if (stat(aFilename, &fileinfo) == -1)
+	{	// On success, zero is returned. 
+		// On error, -1 is returned, and errno is set appropriately. 
+		return false;
+	}
+	else
+		return (S_ISDIR(fileinfo.st_mode));
+	
+#else
+	#error 	Error #5414: unsupported platform for folderExists()
+#endif
+	return false;
+}
 
 
 bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
@@ -186,41 +286,152 @@ bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
 	
 #endif
 	return false;
-};
+}
 
-
-
-bool cpccFileSystemMini::folderExists(const cpcc_char * aFilename)
+bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 {
-#ifdef _WIN32
-	DWORD attrib = GetFileAttributes(aFilename);
-	return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
-	// Other way:
-	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
-	
-#elif defined(__APPLE__)
-	struct stat fileinfo;
-	
-	if (stat(aFilename, &fileinfo) == -1)
-	{	// On success, zero is returned. 
-		// On error, -1 is returned, and errno is set appropriately. 
-		return false;
-	}
-	else
-		return (S_ISDIR(fileinfo.st_mode));
-	
-#else
-	#error 	Error #5414: unsupported platform for folderExists()
-#endif
-	return false;
+	/*
+	If the file referenced by dest_file exists prior to calling rename(), 
+	the behavior is implementation-defined. On POSIX systems, the destination 
+	file is removed. On Windows systems, the rename() fails.
+	This creates issues when trying to write portable code. 
+	*/
+	return (cpcc_rename(filenameOld, filenameNew)==0);
 };
+
+/**
+	to create an empty file (replacing any existing one) call this as
+	writeToFile(aFilename, "", 0, false)
+*/
+cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile)
+{
+	#ifdef _WIN32
+		#pragma warning(disable : 4996)
+	#endif
+	if (!buffer)
+		return -3;
+
+	FILE * pFile;
+	
+	pFile = cpcc_fopen (aFilename, (appendToFile)? _T("ab") : _T("wb") );
+	if (pFile==NULL) 
+		return -1;
+	
+	cpccFileSize_t res=fwrite (buffer, 1, bufSize, pFile);
+	if( ferror( pFile ) )      
+		res=-2;
+		
+    fclose (pFile);
+    return res;
+};
+	
+	
+cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize)
+{
+	#ifdef _WIN32
+		#pragma warning(disable : 4996)
+	#endif
+	if (!buffer)
+		return -3;
+
+	FILE * pFile;
+	pFile = cpcc_fopen (aFilename, _T("rb"));
+	if (pFile==NULL) 
+		return -1;
+	
+	cpccFileSize_t res=fread(buffer, 1, bufSize, pFile);
+	if( ferror( pFile ) )      
+		res=-2;
+		
+    fclose (pFile);
+    return res;
+};
+
+
+cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
+{	
+	// http://www.codeproject.com/Articles/9016/Quick-and-Dirty-Series-C-FileSize-function
+	// GetFileSizeEx()
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa364957%28v=vs.85%29.aspx
+
+	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
+	return static_cast<cpccFileSize_t>(f.tellg());
+/*
+#ifdef _WIN32
+	struct _tstat stat_buf;
+	int rc = _tstat(aFilename, &stat_buf);
+#else
+	struct stat stat_buf;
+	int rc = stat(aFilename, &stat_buf);
+#endif
+	return (rc == 0) ? stat_buf.st_size : -1;
+*/	
+};
+
+
+bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
+{
+	/*
+	 http://www.cplusplus.com/reference/clibrary/cstdio/remove/
+	 If the file is successfully deleted, a zero value is returned.
+	 On failure, a nonzero value is reurned and the errno variable is 
+	 set to the corresponding error code. A string interpreting 
+	 this value can be printed to the standard error stream by a call to perror.
+	 */ 
+	 
+#ifdef UNICODE
+	 return (_wremove(aFilename)==0);
+#else
+	return (remove(aFilename)==0);
+#endif
+};
+
+bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile)
+{
+	// You may use std::fopen, std::fread, std::fwrite, and std::fclose, 
+	// all of which are part of the standard C++ library (#include <cstdio>, very portable)
+
+	// http://msdn.microsoft.com/en-us/library/yeby3zcb%28v=vs.90%29.aspx
+
+	char buf[4096];
+	size_t size;
+	
+	#ifdef _WIN32
+		#pragma warning( disable : 4996 )
+	#endif
+	FILE* source = cpcc_fopen(sourceFile, _T("rb"));
+	if (!source) 
+		return false;
+	
+	FILE* dest = cpcc_fopen(destFile, _T("wb"));
+	if (!dest) 
+	{
+		fclose(source);
+		return false;
+	};
+
+	bool errorOccured=false;
+	while ((!errorOccured) && (size = fread(buf, 1, BUFSIZ, source))) 
+		errorOccured = ( fwrite(buf, 1, size, dest) != size );
+	
+	fclose(source);
+	fclose(dest);
+	
+	return (!errorOccured);
+
+};
+
+	
+
+
+
 
 
 
 
 bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 {
-	return (platformAPI.writeToFile(aFilename, "", 0, false)==0);
+	return (writeToFile(aFilename, "", 0, false)==0);
 	// other way: std::ofstream tmpOut(aFilename); 
 };
 
@@ -298,7 +509,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 
 
 
-
+#if defined(cpccFileSystemMini_DoSelfTest)
 
 void cpccFileSystemMini::selfTest(void)
 {
@@ -341,6 +552,8 @@ return;
 			
 };
 
+#endif
+
 /////////////////////////////////////////////
 // Selftest cpccFileSystemMini
 /////////////////////////////////////////////
@@ -349,10 +562,8 @@ return;
 
 
 SELFTEST_BEGIN(cpccFileSystemMini_SelfTest)
-	// MessageBox(NULL, "selftest of cpccFileSystemMini"	, NULL, NULL);
-	if (cpccFileSystemMini::config_RunSelfTest)
-		cpccFileSystemMini::selfTest();
+	cpccFileSystemMini::selfTest();
 SELFTEST_END
 
 
-#endif // cmi_run_FSM_SelfTest
+#endif // cpccFileSystemMini_DoSelfTest
