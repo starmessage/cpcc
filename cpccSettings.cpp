@@ -21,6 +21,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <errno.h>
 
 #include "cpccSettings.h"
 #include "cpccFileSystemMini.h"
@@ -37,37 +38,36 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	// setup the filename
 	cpccFileSystemMini	fs; 
 	cpccPathHelper		ph;
-	cpcc_string			settingsRootFolder;
-
+	
 	assert(cpcc_strlen(aCompanyName)>0 && "#5351: cpccSettings: blank company name");
 	assert(cpcc_strlen(aSoftwareName)>0 && "#5351: cpccSettings: blank Software name");
 
-	settingsRootFolder = aScope==scopeAllUsers? fs.getFolder_CommonAppData(): fs.getFolder_UserData();
-	
+	cpcc_string settingsRootFolder = aScope==scopeAllUsers? fs.getFolder_CommonAppData(): fs.getFolder_UserData();
 	//std::cout << "settingsRootFolder:" << settingsRootFolder << "\n";
-	
 	assert(fs.folderExists(settingsRootFolder) && "#5381: settings folder does not exist");
 	
+	// problem with writing:
+	// http://stackoverflow.com/questions/6993527/c-mac-os-x-cannot-write-to-library-application-support-appname
+	
+	cpcc_string companySubFolder(aCompanyName);
+	 
 #ifdef __APPLE__
-	// apple prefixes the folders with a com.
-	mFilename = ph.pathCat(settingsRootFolder.c_str(), "com.");
-	mFilename.append(aCompanyName);
-#else
-	mFilename = ph.pathCat(settingsRootFolder.c_str(), aCompanyName);
+	// apple prefixes the entries with a com.
+	companySubFolder = "com." + companySubFolder;
 #endif
 	
+	mFilename = ph.pathCat(settingsRootFolder.c_str(), companySubFolder.c_str());
 	if (!fs.createFolder(mFilename))
 		std::cerr << "During cpccSettings constructor could not create folder:" << mFilename << "\n";
-
-	mFilename = ph.pathCat(mFilename.c_str(), aSoftwareName);
-	mFilename.append(".ini");
 	
-	std::cout << "cpccSettings construction point 1\n";
+	mFilename = ph.pathCat(mFilename.c_str(), aSoftwareName);	
+	mFilename.append(".ini");
+	std::cout << "cpccSettings constructor: filename:" << mFilename << "\n";
 	
 	if (!load())
 		std::cerr << "Error #1351: loading cpccSettings from file:" << mFilename << std::endl;
 	
-	std::cout << "cpccSettings construction point 2\n";
+	//std::cout << "cpccSettings construction point 2\n";
 }
 
 	
@@ -81,12 +81,22 @@ cpccSettings::~cpccSettings()
 
 bool cpccSettings::load(void)
 {
+	cpccFileSystemMini	fs; 
+	if (!fs.fileExists(mFilename))
+		return true;
+	
 	// http://stackoverflow.com/questions/10951447/load-stdmap-from-text-file
 	// http://stackoverflow.com/questions/16135285/iterate-over-ini-file-on-c-probably-using-boostproperty-treeptree
 	// http://www.cplusplus.com/forum/beginner/29576/
+	
 	cpcc_string key, value;
 	std::ifstream iniFile(mFilename.c_str());
-
+	if (!iniFile.is_open())
+	{
+		std::cerr << "#8551: Could not open file:" << mFilename << "\n";
+		return false;
+	}
+		
 	mSettings.clear();
 	
 	while(std::getline(iniFile, key, '='))
@@ -94,8 +104,7 @@ bool cpccSettings::load(void)
 		std::getline(iniFile, value);
 		mSettings[key] = value;
     }
-
-
+	
 	return true;
 }
 
@@ -202,8 +211,14 @@ bool cpccSettings::save(void)
 	#pragma warning(disable : 4996)
 	FILE *fp = fopen(mFilename.c_str(), "w");
 	if (!fp)
+	{
+		// If it fails returns NULL", yes. The global variable errno (found in <errno.h>) 
+		// contains information about what went wrong; 
+		// you can use perror() to print that information as a readable string.
+		std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
 		return false;
-		
+	}
+	
 	for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); it++) 
 		fprintf(fp, "%s=%s\n", it->first.c_str(), it->second.c_str());
     fclose(fp);

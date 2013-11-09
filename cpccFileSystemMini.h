@@ -66,6 +66,10 @@ public:
 	virtual const cpcc_string getFolder_UserData(void);
 	
 	// file functions --------------------------------
+#if defined(__APPLE__)
+	mode_t getFileOrFolderPermissions(const cpcc_char *aFilename);
+	bool createFolderLinux(const cpcc_char *aFilename, const mode_t permissions);
+#endif
 	
 	virtual bool fileExists(const cpcc_char * aFilename);
 	virtual bool fileExists(const cpcc_string &aFilename)	{ return fileExists(aFilename.c_str()); };

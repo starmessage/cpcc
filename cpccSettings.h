@@ -138,12 +138,16 @@ public:
 			
 			cpccSettings settingsUser("testCompanyName", "testSoftwareName", cpccSettings::scopeCurrentUser);
 			cpccSettings settingsApp("testCompanyName","testSoftwareName", cpccSettings::scopeAllUsers);
-
+			
+			std::cout << "cpccPersistentVar_SelfTest point1\n";
+			
 			cpccPersistentVar_bool tmpIsRegistered(&settingsApp, (cpcc_char *)"isRegistered");
 			tmpIsRegistered.write(true);
 
 			cpccPersistentVar_string tmpUserName(&settingsUser, (cpcc_char *)"username");
 			tmpUserName.write("John");
+			
+			std::cout << "cpccPersistentVar_SelfTest point2\n";
 		}
 
 
@@ -151,9 +155,13 @@ public:
 			cpccSettings settingsUser("testCompanyName", "testSoftwareName", cpccSettings::scopeCurrentUser);
 			cpccSettings settingsApp((cpcc_char *)"testCompanyName",(cpcc_char *)"testSoftwareName", cpccSettings::scopeAllUsers);
 
+			std::cout << "cpccPersistentVar_SelfTest point3\n";
+			
 			cpccPersistentVar_bool tmpIsRegistered(&settingsApp, (cpcc_char *)"isRegistered");
 			assert(tmpIsRegistered.read(false) && "SelfTest #8524: cpccPersistentVar_bool");
 
+			std::cout << "cpccPersistentVar_SelfTest point4\n";
+			
 			cpccPersistentVar_string tmpUserName(&settingsUser, "username");
 			assert(tmpUserName.read("unknown").compare("John")==0 && "SelfTest #8524: cpccPersistentVar_string");
 		}

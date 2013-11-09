@@ -66,12 +66,11 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 
 const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 {
-	#ifdef _WIN32
+#ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
 	
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
 	// e.g. C:\ProgramData
-
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) 
 		{
 		cpcc_string result(szPath);
@@ -79,14 +78,14 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 		ph.addTrailingPathDelimiter(result);	
 		return result;
 		}
-	std::cerr << "Error #6531 in getFolder_AppData::getFolder_Fonts\n";
+	std::cerr << "Error #6531 in getFolder_CommonAppData\n";
 	
 #elif defined(__APPLE__)
 	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
 	// https://developer.apple.com/library/mac/documentation/General/Conceptual/MOSXAppProgrammingGuide/AppRuntime/AppRuntime.html#//apple_ref/doc/uid/TP40010543-CH2-SW9
-	// /Library/Application Support/name_of_your_app/
-	//	or
-	// /library/preferences
+	//return  std::string("/Library/Application Support/");
+	//return  std::string("/library/preferences/");
+	
 	// finally I chose /users/shared
 	return  std::string("/users/shared/");
 	
@@ -99,7 +98,7 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 
 const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
 {
-		#ifdef _WIN32
+#ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
 	
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
@@ -115,10 +114,8 @@ const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
 	
 #elif defined(__APPLE__)
 	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
-	
-	// 
-	return  std::string("~/Library/Preferences/");
-	
+	cpccPathHelper ph;
+	return  ph.expandTilde("~/Library/Preferences/");
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
 #endif	
@@ -181,9 +178,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
 {	
-	
 	cpcc_string destFile=destFileOrFolder;
-	
 	if (folderExists(destFileOrFolder)) 
 		{
 		cpccPathHelper ph;
@@ -193,7 +188,6 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 	return copyFileToaFile(sourceFile, destFile.c_str());
 }
-
 
 
 
@@ -208,8 +202,7 @@ bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char 
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
 	return true;
-};
-
+}
 
 
 
@@ -219,6 +212,38 @@ bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char 
 	#define		cpcc_rename			std::rename 	
  #endif
 
+
+#if defined(__APPLE__)
+mode_t cpccFileSystemMini::getFileOrFolderPermissions(const cpcc_char *aFilename)
+{
+	struct stat statInfo;  
+	stat(aFilename, &statInfo);
+	//  Octal numbers begin with 0.  hex numbers begin with 0x.
+	return statInfo.st_mode & 0777;
+}
+#endif
+
+
+#if defined(__APPLE__)
+bool cpccFileSystemMini::createFolderLinux(const cpcc_char *aFilename, const mode_t permissions)
+{	/* tutorial:
+	int mkdir(const char *pathname, mode_t mode);
+	The argument mode specifies the permissions to use. 
+	It is modified by the process’s umask in the usual way: 
+	the permissions of the created directory are (mode & ~umask & 0777).
+	*/
+	
+	mode_t previous_umask = umask(0);
+	int rc=mkdir( aFilename, permissions );
+	// chmod(): This POSIX function is deprecated. Use the ISO C++ conformant _chmod instead.
+	// http://msdn.microsoft.com/en-us/library/1z319a54.aspx
+	//	chmod(aFilename, permissions);
+	umask(previous_umask);
+	if (rc!=0) 
+		std::cerr << "Error no " <<  rc << " (" << strerror(rc) << ") while creating directory:" << aFilename << "\n";
+	return (rc == 0);
+}
+#endif
 
 
 bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
@@ -231,19 +256,20 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 #elif defined(__APPLE__)
 	cpccPathHelper ph;
 	cpcc_string finalPath = ph.expandTilde(aFoldername);
+	cpcc_string parentFolder = ph.getParentFolderOf(aFoldername);
+	
+	int parentPermissions = getFileOrFolderPermissions(parentFolder.c_str());
+	std::cout << "permissions of " << parentFolder << " : " << parentPermissions << "\n";
 	
 	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
 	// https://discussions.apple.com/thread/844719?start=0&tstart=0
 	// http://www.linuxquestions.org/questions/programming-9/mkdir-in-c-setting-wrong-permissions-613250/
 
-	umask(0);
 	// read/write/search permissions for owner and group, and with read/search permissions for others
-	// S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH 
-	//if (mkdir( finalPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH ) == 0)
-	// S_IRWXU | S_IRWXG | S_IRWXO instead of 0777
-	if (mkdir( finalPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO ) == 0)
-		return true;
-
+	//mode_t p775 = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
+	// full permissions for all
+	//mode_t p777 = S_IRWXU | S_IRWXG | S_IRWXO;
+	return createFolderLinux(finalPath.c_str(), parentPermissions);
 #endif
 
     return(folderExists(aFoldername));
@@ -363,7 +389,7 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 		return -3;
 
 	FILE * pFile;
-	pFile = cpcc_fopen (aFilename, _T("rb"));
+	pFile = cpcc_fopen(aFilename, _T("rb"));
 	if (pFile==NULL) 
 		return -1;
 	
@@ -419,7 +445,6 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 {
 	// You may use std::fopen, std::fread, std::fwrite, and std::fclose, 
 	// all of which are part of the standard C++ library (#include <cstdio>, very portable)
-
 	// http://msdn.microsoft.com/en-us/library/yeby3zcb%28v=vs.90%29.aspx
 
 	char buf[4096];
@@ -437,7 +462,7 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 	{
 		fclose(source);
 		return false;
-	};
+	}
 
 	bool errorOccured=false;
 	while ((!errorOccured) && (size = fread(buf, 1, BUFSIZ, source))) 
@@ -489,10 +514,8 @@ const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	
 	/*
 	 http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
-	 
 	 _NSGetExecutablePath
 	 http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
-	 
 	 http://astojanov.wordpress.com/2011/11/16/mac-os-x-resolve-absolute-path-using-process-pid/
 	 */
 	char fullPathfileName[4096];
@@ -508,7 +531,6 @@ const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	#error Error #5453: unsupported platform for getModuleFilename()	
 #endif	
 	return cpcc_string( _T(""));
-	
 }
 
 
@@ -546,12 +568,15 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	// "#5349a: path delimiter"
 	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();
 	assert(((pDelimiter=='/') || (pDelimiter=='\\') ) );
-			
+		
+	std::cout << "cpccFileSystemMini::SelfTest point1\n";
 
 	// temp path is empty string
 	cpcc_string tmpFolder = fs.getFolder_Temp();
 	assert(tmpFolder.length()>1 && "#5356a: cpccFileSystemMini::selfTest");
-			
+	
+	std::cout << "cpccFileSystemMini::SelfTest point2\n";
+	
 	ph.addTrailingPathDelimiter(tmpFolder);
 				
 	// fileExists or createEmptyFile
@@ -560,6 +585,8 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	fs.createEmptyFile(tmpFile);
 	assert(fs.fileExists(tmpFile) && "#5356d: cpccFileSystemMini::selfTest");
 
+	std::cout << "cpccFileSystemMini::SelfTest point3\n";
+	
 	fs.createEmptyFile(tmpFile);
 	assert(fs.getFileSize(tmpFile)==0 && "#5356e: cpccFileSystemMini::selfTest");
 			
@@ -567,12 +594,16 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	const cpcc_char * fileContent= _T("kalimera sas");
 	fs.fileAppend(tmpFile.c_str(),fileContent);
 			
+	std::cout << "cpccFileSystemMini::SelfTest point4\n";
+	
 	// getFileSize
 	assert(fs.getFileSize(tmpFile)==cpcc_strlen(fileContent) && "#5356h: cpccFileSystemMini::selfTest");
 			
 	// fileExists or deleteFile
 	fs.deleteFile(tmpFile);
 	assert(!fs.fileExists(tmpFile) && "#5356g: cpccFileSystemMini::selfTest");
+	
+	std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	
 #ifdef _WIN32
 	assert(fs.folderExists("c:\\") && "#5356h: cpccFileSystemMini::selfTest");

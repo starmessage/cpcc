@@ -62,8 +62,7 @@ const cpcc_string cpccPathHelper::expandTilde(const cpcc_char *aPathWithTilde)
 	else 
 		result = aPathWithTilde;
 
-	std::cout << "expanding path:" << aPathWithTilde << "\n->\n" << result << "\n";
-	
+	//std::cout << "expanding path:" << aPathWithTilde << "\n->\n" << result << "\n";
 	return result;
 }
 #endif
