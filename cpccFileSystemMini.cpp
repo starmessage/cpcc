@@ -36,7 +36,7 @@
 	#include <CoreFoundation/CoreFoundation.h>
 	#include <Carbon/Carbon.h> // for the DialogRef
 	#include <libproc.h>
-	
+	#include <pwd.h>
 #endif
 
 #include "cpccFileSystemMini.h"
@@ -52,8 +52,9 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
 	report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
 	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));	
-
 	report.append(_T("Temp folder:")	+ getFolder_Temp() + _T("\n"));
+	
+	report.append(_T("User's home folder:")	+ getFolder_UserHome() + _T("\n"));
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
 	report.append(_T("AppData path:")	+ getFolder_CommonAppData() + _T("\n"));
@@ -63,6 +64,40 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	return report;
 }
  
+
+const cpcc_string cpccFileSystemMini::getFolder_UserHome(void)
+{
+#ifdef _WIN32
+	TCHAR szPath[MAX_PATH];
+	
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
+	// e.g. C:\ProgramData
+	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
+	{
+		cpcc_string result(szPath);
+		cpccPathHelper ph;
+		ph.addTrailingPathDelimiter(result);	
+		return result;
+	}
+	std::cerr << "Error #6531 in getFolder_UserHome\n";
+	
+#elif defined(__APPLE__)
+	// http://macosx.com/forums/software-programming-web-scripting/301243-get-current-user-path.html
+	// https://github.com/ehsan/ogre/blob/master/Samples/Browser/src/FileSystemLayerImpl_OSX.cpp#L46
+
+	struct passwd* pwd = getpwuid(getuid());
+	if (pwd)
+	{
+		return std::string(pwd->pw_dir);
+	}
+	return  std::string("~");
+	
+#else
+	assert(false && "Error #5735: unsupported platform for getFolder_UserHome()");	
+#endif	
+	return cpcc_string( _T("") );
+}
+
 
 const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 {
@@ -115,7 +150,8 @@ const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
 #elif defined(__APPLE__)
 	// http://apple.stackexchange.com/questions/28928/what-is-the-osx-equivalent-to-windows-appdata-folder
 	cpccPathHelper ph;
-	return  ph.expandTilde("~/Library/Preferences/");
+	return ph.pathCat(getFolder_UserHome().c_str(), "/Library/Preferences/");
+	//return  ph.expandTilde("~/Library/Preferences/");
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
 #endif	
@@ -255,7 +291,9 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 	::CreateDirectory(aFoldername, NULL);
 #elif defined(__APPLE__)
 	cpccPathHelper ph;
-	cpcc_string finalPath = ph.expandTilde(aFoldername);
+	//cpcc_string finalPath = ph.expandTilde(aFoldername);
+	cpcc_string finalPath = aFoldername;
+	
 	cpcc_string parentFolder = ph.getParentFolderOf(aFoldername);
 	
 	int parentPermissions = getFileOrFolderPermissions(parentFolder.c_str());
@@ -295,7 +333,8 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
 	if (aFoldername[0]=='~')
 	{
 		cpccPathHelper ph;
-		finalPath = ph.expandTilde(aFoldername);
+		// finalPath = ph.expandTilde(aFoldername);
+		finalPath = ph.pathCat(getFolder_UserHome().c_str(), &aFoldername[1]);
 	}
 	
 	struct stat fileinfo;
@@ -545,7 +584,8 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
 		
 #elif defined(__APPLE__)
-	return  std::string("~/Desktop");
+	cpccPathHelper ph;
+	return  ph.pathCat(getFolder_UserHome().c_str(), "/Desktop");
 	
 #else
 	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
@@ -611,7 +651,6 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 #endif
 #ifdef __APPLE__
 	assert(fs.folderExists("/Library") && "#5356h: cpccFileSystemMini::selfTest");
-	assert(fs.folderExists("~/Library") && "#5356i: cpccFileSystemMini::selfTest");
 	assert(!fs.folderExists("/non-existing-folder") && "#5356k: cpccFileSystemMini::selfTest");
 
 #endif

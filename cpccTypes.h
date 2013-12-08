@@ -13,7 +13,9 @@
  *	*****************************************
  */
 
-#pragma once
+#ifndef cpccTypes_h
+#define cpccTypes_h
+
 
 typedef unsigned char		cpccUint8_t;
 
@@ -81,3 +83,6 @@ typedef uint64_t UINT_64;
 #endif // __INT_TYPES_H__ 
 
 */
+
+
+#endif

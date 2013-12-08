@@ -71,8 +71,8 @@ public:		// functions
 	bool		load(void);
 	bool		save(void);
 
-	void pauseSaving(void) { instantSaving = false; }
-	void resumeSaving(void);
+	void		pauseSaving(void) { instantSaving = false; }
+	void		resumeSaving(void);
 	
 							  
 };
@@ -97,7 +97,7 @@ class cpccPersistentVar_real: public cpccPersistentVar
 public:
 	cpccPersistentVar_real(cpccSettings *aIniPtr, const cpcc_char *aKey): cpccPersistentVar(aIniPtr, aKey) { }
 	const double read(const double aDefault) { return mIniPtr->readReal(mKey.c_str(), aDefault); }
-	void write(const double aValue)			 { return mIniPtr->writeReal(mKey.c_str(), aValue);  }
+	void		 write(const double aValue)	 { return mIniPtr->writeReal(mKey.c_str(), aValue);  }
 };
 
 
@@ -105,8 +105,8 @@ class cpccPersistentVar_bool: public cpccPersistentVar
 {
 public:
 	cpccPersistentVar_bool(cpccSettings *aIniPtr, const cpcc_char *aKey): cpccPersistentVar(aIniPtr, aKey) { }
-	const bool read(const bool aDefault)	{ return mIniPtr->readBool(mKey.c_str(), aDefault); }
-	void write(const bool aValue)			{ return mIniPtr->writeBool(mKey.c_str(), aValue);  }
+	const bool	read(const bool aDefault)	{ return mIniPtr->readBool(mKey.c_str(), aDefault); }
+	void		write(const bool aValue)	{ return mIniPtr->writeBool(mKey.c_str(), aValue);  }
 };
 
 
@@ -114,8 +114,8 @@ class cpccPersistentVar_longint: public cpccPersistentVar
 {
 public:
 	cpccPersistentVar_longint(cpccSettings *aIniPtr, const cpcc_char *aKey): cpccPersistentVar(aIniPtr, aKey) { }
-	const long int read(const long int aDefault)	{ return mIniPtr->readLongint(mKey.c_str(), aDefault); }
-	void write(const long int aValue)				{ return mIniPtr->writeLongint(mKey.c_str(), aValue);  }
+	const long int	read(const long int aDefault)	{ return mIniPtr->readLongint(mKey.c_str(), aDefault); }
+	void			write(const long int aValue)	{ return mIniPtr->writeLongint(mKey.c_str(), aValue);  }
 };
 
 
@@ -123,8 +123,8 @@ class cpccPersistentVar_string: public cpccPersistentVar
 {
 public:
 	cpccPersistentVar_string(cpccSettings *aIniPtr, const cpcc_char *aKey): cpccPersistentVar(aIniPtr, aKey) { }
-	const cpcc_string read(const cpcc_char *aDefault)	{ return mIniPtr->readString(mKey.c_str(), aDefault); }
-	void write(const cpcc_char * aValue)				{ return mIniPtr->writeString(mKey.c_str(), aValue);  }
+	const cpcc_string	read(const cpcc_char *aDefault)	{ return mIniPtr->readString(mKey.c_str(), aDefault); }
+	void				write(const cpcc_char * aValue)	{ return mIniPtr->writeString(mKey.c_str(), aValue);  }
 };
 
 

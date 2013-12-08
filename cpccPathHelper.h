@@ -58,8 +58,9 @@ public:	// class metadata and selftest
 protected:
 
 public:
+
 #if defined(__APPLE__)
-	virtual const cpcc_string expandTilde(const cpcc_char *aPathWithTilde);
+	// virtual const cpcc_string expandTilde(const cpcc_char *aPathWithTilde);
 #endif
 	
 	virtual const cpcc_char	 getPreferredPathDelimiter(void);

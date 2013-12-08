@@ -2,11 +2,21 @@
 // cpccColor.cpp
 //
 
+
+#ifdef __APPLE__
+    #if !defined __OBJC__
+        #error File cpccColor must be compiled as obc++ under MAC. Did you include the cpccColor.cpp instead of cpccColor.mm ?
+    #endif
+#endif
+
+
 #define NOMINMAX
 
 #include "cpccColor.h"
 #include "cpcc_SelfTest.h"
 #include <assert.h>
+#include <cmath>
+
 
 
 
@@ -37,6 +47,17 @@ void cpccColorT<T>::selfTest()
 			practicallyEqual(cf2.b, 0.6f) && 
 			practicallyEqual(cf2.a, 0.5f) && 
 			_T("#8571d: cpccColor"));
+    
+#ifdef __APPLE__
+    cpccColor t1(30,60,120);
+    NSColor *t2 = t1.asNSColor();
+    
+    cpccColor t3;
+    t3.fromNSColor(t2);
+    
+    assert( (t3==t1) );
+    // std::cout << "selftest of cpccColor: t3: R" << (int)t3.r << " G" << (int)t3.g << " B" << (int)t3.b << "\n";
+#endif
 
 }
 

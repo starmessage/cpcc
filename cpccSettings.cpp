@@ -35,6 +35,8 @@
 cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoftwareName, const settingsScope aScope):
 	instantSaving(true)
 {
+	// std::cout << "cpccSettings constructor\n";
+	
 	// setup the filename
 	cpccFileSystemMini	fs; 
 	cpccPathHelper		ph;

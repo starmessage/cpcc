@@ -64,6 +64,7 @@ public:
 	virtual const cpcc_string getFolder_Fonts(void);
 	virtual const cpcc_string getFolder_CommonAppData(void);
 	virtual const cpcc_string getFolder_UserData(void);
+	virtual const cpcc_string getFolder_UserHome(void);
 	
 	// file functions --------------------------------
 #if defined(__APPLE__)

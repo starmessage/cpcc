@@ -33,7 +33,8 @@ const cpcc_char	cpccPathHelper::getPreferredPathDelimiter(void)
 #elif defined(__APPLE__)
 	return _T('/'); 
 #endif
-};
+}
+
 
 const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void) 
 { 
@@ -42,29 +43,39 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 #elif defined(__APPLE__)
 	return _T("/"); 
 #endif
-};
+}
 
 
 #if defined(__APPLE__)
+/*
 const cpcc_string cpccPathHelper::expandTilde(const cpcc_char *aPathWithTilde)
 {
+	// xtypaei merikes fores
+	
 	//	http://www.davidverhasselt.com/2009/09/16/expanding-a-leading-tilde-in-cc/
 	//  http://www.dreamincode.net/forums/topic/197372-how-to-expand-a-path-linux/
-	cpcc_string result;
 	
-	if (aPathWithTilde[0]=='~')
-	{
-		wordexp_t exp_result;
-		wordexp(aPathWithTilde, &exp_result, 0);
-		result = exp_result.we_wordv[0];
-		wordfree(&exp_result);
-	}
-	else 
-		result = aPathWithTilde;
-
-	//std::cout << "expanding path:" << aPathWithTilde << "\n->\n" << result << "\n";
+	if (!aPathWithTilde)
+		return cpcc_string(_T(""));
+	
+	if (strlen(aPathWithTilde)==0)
+		return cpcc_string(_T(""));
+	
+	if (aPathWithTilde[0]!='~')
+		return cpcc_string(aPathWithTilde);
+		
+	std::cout << "expandTilde:" << aPathWithTilde << "\n->\n"; 
+	cpcc_string result;	
+	
+	wordexp_t exp_result;
+	wordexp(aPathWithTilde, &exp_result, 0);
+	result = exp_result.we_wordv[0];
+	wordfree(&exp_result);
+	
+	std::cout << result << "\n";
 	return result;
 }
+*/
 #endif
 
 
@@ -90,21 +101,21 @@ const cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFi
 		result.erase(0, last_slash_idx + 1);
 	
 	return result;
-};
+}
 
 
 bool cpccPathHelper::endsWithPathDelimiter(const cpcc_char *aPath)
 {	
 	cpcc_string p(aPath);
 	return (p.find_last_of(getAllPathDelimiters())+1 == p.length());
-};
+}
 
 
 bool cpccPathHelper::startsWithPathDelimiter(const cpcc_char *aPath)
 {	
 	cpcc_string p(aPath);
 	return (p.find_first_of(getAllPathDelimiters()) == 0);
-};
+}
 
 
 void cpccPathHelper::removeTrailingPathDelimiter(cpcc_string &aPath)
@@ -112,7 +123,7 @@ void cpccPathHelper::removeTrailingPathDelimiter(cpcc_string &aPath)
 	while ( endsWithPathDelimiter(aPath.c_str() ) )
 		aPath.erase(aPath.length()-1);
 	
-};
+}
 
 
 void cpccPathHelper::addTrailingPathDelimiter(cpcc_string &aFolder)
@@ -120,7 +131,7 @@ void cpccPathHelper::addTrailingPathDelimiter(cpcc_string &aFolder)
   	if ( endsWithPathDelimiter(aFolder.c_str()))
 		return;
 	aFolder = aFolder + getPreferredPathDelimiter();
-};
+}
 
 
 void cpccPathHelper::removeLeadingPathDelimiter(cpcc_string &aPath)
@@ -128,7 +139,7 @@ void cpccPathHelper::removeLeadingPathDelimiter(cpcc_string &aPath)
 	//while (aPath.find_last_of("\\/") == aPath.length())
  	while (aPath.find_first_of(getAllPathDelimiters()) == 0)
 		aPath.erase(0,1);
-};
+}
 
 
 cpcc_string	cpccPathHelper::replaceExtension(const cpcc_char *aFilename, const cpcc_char *newExtension)
@@ -159,7 +170,7 @@ cpcc_string	cpccPathHelper::replaceExtension(const cpcc_char *aFilename, const c
 		fName.append( _T(".") );
 	fName.append(newExtension);
 	return fName;
-};
+}
 
 
 cpcc_string		cpccPathHelper::pathCat(const cpcc_char *a, const cpcc_char *b)
@@ -188,7 +199,8 @@ cpcc_string		cpccPathHelper::getExtension(const cpcc_char *aFilename)
 	// remove from start until the dot (including the dot)
     fName.erase(0, pos+1); // A value of string::npos indicates all characters until the end of the string
 	return fName;
-};
+}
+
 
 
 void cpccPathHelper::selfTest(void)
@@ -260,7 +272,7 @@ void cpccPathHelper::selfTest(void)
 
 	}
 			
-};
+}
 
 /////////////////////////////////////////////
 // Selftest 

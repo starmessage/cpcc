@@ -14,6 +14,9 @@
 	#include <windows.h>	// for COLORREF
 #endif
 
+#ifdef __APPLE__
+	#include <appkit/NSColor.h>	// for NSColor
+#endif
 
 typedef cpccUint32_t TmioanColorRGBA;
 
@@ -137,13 +140,19 @@ class cpccColorT
 		}
 		
 		
-		cpccColorT<T> operator *=(const float f)
+		cpccColorT<T>& operator *=(const float f)
 		{
 			amplifyComponents(f,f,f);
-			return this;
+			return *this;
 		}
 
 
+        inline const bool operator ==(cpccColorT<T>& c2)
+		{
+			return (r==c2.r) && (g==c2.g) && (b==c2.b);
+		}
+        
+        
 	public:		// selftest ----------------------------------------
 
 		static void selfTest();
@@ -176,11 +185,32 @@ public:
 
 
 #ifdef _WIN32
-	COLORREF asColorref(void)
+	const COLORREF asColorref(void)
 	{
 		return	((b << 16) | (g << 8) | r);
 	}
 
+#endif
+
+#ifdef __APPLE__
+	NSColor *asNSColor(void)
+    {
+        // return [NSColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];
+        return [NSColor colorWithDeviceRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];
+
+    }
+    
+    
+    void fromNSColor(NSColor *c)
+    {
+    	CGFloat aR,aG,aB;
+        [c getRed:&aR green:&aG blue:&aB alpha:NULL];
+        
+		r=aR*255;
+		g=aG*255;
+		b=aB*255;
+    }
+    
 #endif
 
 
