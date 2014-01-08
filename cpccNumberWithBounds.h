@@ -23,7 +23,7 @@
 #include <iostream>
 #include <assert.h>
 
-float fzero(0.0f), fone(1.0f);
+
 
 template<typename T, const T &m_min, const T &m_max>
 class cpccNumberWithBounds
@@ -50,36 +50,19 @@ class cpccNumberWithBounds
 		const T& operator()(void) 		{ return m_value; }
 		
 	#if defined(cpccNumberWithBounds_DoSelfTest)
-		static void  selfTest(void)
-		{
-			std::cout << "cpccNumberWithBounds::SelfTest starting\n";
-			cpccNumberWithBounds<float, fzero, fone>		f;
-			f = 2.0f;
-			// std::cout << "f:" << f();
-			
-			assert( (f == 1.0f) && "#9621a: cpccNumberWithBounds");
-			f = 0.5f;
-			assert( f == 0.5f && "#9621b: cpccNumberWithBounds");
-			f -= 1.0f;
-			assert( f == 0.0f && "#9621c: cpccNumberWithBounds");
-			
-			f=0.1f;
-			f*=2.0f;
-
-			float newf = f();
-			assert( newf == 0.2f && "#9621d: cpccNumberWithBounds");
-
-			std::cout << "cpccNumberWithBounds::SelfTest ended\n";
-		}
+		static void  selfTest(void);
 	#endif
 		
 };
 
 
-
+float fzero(0.0f), fone(1.0f);
 typedef cpccNumberWithBounds<float, fzero, fone>		cpccFloat0_1;
 
+unsigned char czero(0), c255(255);
+typedef cpccNumberWithBounds<unsigned char, czero, c255>		cpccByte0_255;
 
+/*
 float float0_1_deleted(float a)
 {
 	cpccFloat0_1 v;
@@ -91,5 +74,6 @@ const float bound0_1f(const float a)
 {
 	return std::min(0.0f, std::max(1.0f, a));
 }
+*/
 
 #endif // cpccNumberWithBounds

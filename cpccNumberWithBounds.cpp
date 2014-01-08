@@ -26,16 +26,30 @@
 
 #if defined(cpccNumberWithBounds_DoSelfTest)
 
-/*
+
 template<typename T, const T &m_min, const T &m_max>
-void cpccNumberWithBounds::selfTest(void)
+void cpccNumberWithBounds<T, m_min, m_max>::selfTest(void)
 {
 	std::cout << "cpccNumberWithBounds::SelfTest starting\n";
+	cpccNumberWithBounds<float, fzero, fone>		f;
+	f = 2.0f;
+	// std::cout << "f:" << f();
+			
+	assert( (f == 1.0f) && "#9621a: cpccNumberWithBounds");
+	f = 0.5f;
+	assert( f == 0.5f && "#9621b: cpccNumberWithBounds");
+	f -= 1.0f;
+	assert( f == 0.0f && "#9621c: cpccNumberWithBounds");
+			
+	f=0.1f;
+	f*=2.0f;
 
-	
+	float newf = f();
+	assert( newf == 0.2f && "#9621d: cpccNumberWithBounds");
+
 	std::cout << "cpccNumberWithBounds::SelfTest ended\n";
 }
-*/
+
 
 #endif
 
