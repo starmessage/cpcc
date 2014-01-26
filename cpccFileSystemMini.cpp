@@ -609,13 +609,13 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();
 	assert(((pDelimiter=='/') || (pDelimiter=='\\') ) );
 		
-	std::cout << "cpccFileSystemMini::SelfTest point1\n";
+	//std::cout << "cpccFileSystemMini::SelfTest point1\n";
 
 	// temp path is empty string
 	cpcc_string tmpFolder = fs.getFolder_Temp();
 	assert(tmpFolder.length()>1 && "#5356a: cpccFileSystemMini::selfTest");
 	
-	std::cout << "cpccFileSystemMini::SelfTest point2\n";
+	//std::cout << "cpccFileSystemMini::SelfTest point2\n";
 	
 	ph.addTrailingPathDelimiter(tmpFolder);
 				
@@ -625,7 +625,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	fs.createEmptyFile(tmpFile);
 	assert(fs.fileExists(tmpFile) && "#5356d: cpccFileSystemMini::selfTest");
 
-	std::cout << "cpccFileSystemMini::SelfTest point3\n";
+	//std::cout << "cpccFileSystemMini::SelfTest point3\n";
 	
 	fs.createEmptyFile(tmpFile);
 	assert(fs.getFileSize(tmpFile)==0 && "#5356e: cpccFileSystemMini::selfTest");
@@ -634,7 +634,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	const cpcc_char * fileContent= _T("kalimera sas");
 	fs.fileAppend(tmpFile.c_str(),fileContent);
 			
-	std::cout << "cpccFileSystemMini::SelfTest point4\n";
+	//std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
 	assert(fs.getFileSize(tmpFile)==cpcc_strlen(fileContent) && "#5356h: cpccFileSystemMini::selfTest");
@@ -643,7 +643,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	fs.deleteFile(tmpFile);
 	assert(!fs.fileExists(tmpFile) && "#5356g: cpccFileSystemMini::selfTest");
 	
-	std::cout << "cpccFileSystemMini::SelfTest point5\n";
+	//std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	
 #ifdef _WIN32
 	assert(fs.folderExists("c:\\") && "#5356h: cpccFileSystemMini::selfTest");

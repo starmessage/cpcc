@@ -31,12 +31,15 @@ class cpccNumberWithBounds
 	private: // data
 		T m_value ;
 	
+	public:	// constructor
+        cpccNumberWithBounds<T, m_min, m_max>(const T a=0) { set(a); }
+
 	public:	// functions
 		const T bound(const T a)	{ return std::max(m_min, std::min(m_max, a)); }
-		const T& get() 				{ return m_value; }
-		const T& getMax() 			{ return m_max; }
-		const T& getMin() 			{ return m_min; }
-		void  set(const T aValue)	{ 	m_value =  bound(aValue); }
+		const T getMax() 			{ return m_max; }
+		const T getMin() 			{ return m_min; }
+        const T get()               { return m_value; }
+        const T set(const T a)      { return m_value =  bound(a); }
 		
 	public: // operators
 		void operator =(const T a) 		{ set(a); }
@@ -46,8 +49,8 @@ class cpccNumberWithBounds
 		void operator /=(const float a) { if (a!=0.0f) set( m_value / a); }
 		bool operator ==(const T a) 	{ return ( m_value == a); }
 		// http://stackoverflow.com/questions/356950/c-functors-and-their-uses
-		const T& operator()(const T a)	{ return m_value = bound(a); }
-		const T& operator()(void) 		{ return m_value; }
+		const T operator()(const T a)	{ return set(a); }
+		const T operator()(void) 		{ return m_value; }
 		
 	#if defined(cpccNumberWithBounds_DoSelfTest)
 		static void  selfTest(void);
@@ -56,10 +59,10 @@ class cpccNumberWithBounds
 };
 
 
-float fzero(0.0f), fone(1.0f);
+extern float fzero, fone;
 typedef cpccNumberWithBounds<float, fzero, fone>		cpccFloat0_1;
 
-unsigned char czero(0), c255(255);
+extern unsigned char czero, c255;
 typedef cpccNumberWithBounds<unsigned char, czero, c255>		cpccByte0_255;
 
 /*

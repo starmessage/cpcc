@@ -109,8 +109,14 @@ class cpccColorT
 		}
 		
 
+		void amplifyComponents(const float x)
+		{
+			r = colorChannelTypes<T>::applyLimits(r*x);
+			g = colorChannelTypes<T>::applyLimits(g*x);
+			b = colorChannelTypes<T>::applyLimits(b*x);
+		}
 
-
+		
 		void amplifyComponents(const float xR, const float xG, const float xB)
 		{
 			r = colorChannelTypes<T>::applyLimits(r*xR);
@@ -119,19 +125,37 @@ class cpccColorT
 		}
 
 		
+		T getBrightness(void) const
+		{
+			T brightness = colorChannelTypes<T>::applyLimits((r + g + b)/3.0f);
+			return brightness;
+		}
+
 		
 	public:		// operators ----------------------------------------	
 
-		cpccColorT<T>& operator=( const cpccColorT<T> &rhs ) 
+		cpccColorT<T>& operator=( const cpccColorT<T> &aColor ) 
 		{
-			r = rhs.r;
-			g = rhs.g;
-			b = rhs.b;
-			a = rhs.a;
+			r = aColor.r;
+			g = aColor.g;
+			b = aColor.b;
+			a = aColor.a;
 			return * this;
 		}
 
-
+		/*
+		bool operator>(cpccColorT<T> &aColor ) 
+		{
+			return (aColor.getBrightness() < getBrightness() );
+		}
+		
+		
+		bool operator<( cpccColorT<T> &aColor ) 
+		{
+			return ( aColor.getBrightness() > getBrightness() ) ;
+		}
+		*/
+		
 		cpccColorT<T> operator *(const float f)
 		{
 			cpccColorT<T> tmp( *this );
@@ -147,11 +171,16 @@ class cpccColorT
 		}
 
 
-        inline const bool operator ==(cpccColorT<T>& c2)
+        inline const bool operator ==(const cpccColorT<T>& c2)
 		{
 			return (r==c2.r) && (g==c2.g) && (b==c2.b);
 		}
         
+		
+        inline const bool operator !=(const cpccColorT<T>& c2)
+		{
+			return (! (*this==c2));
+		}
         
 	public:		// selftest ----------------------------------------
 
@@ -222,6 +251,7 @@ typedef 	cpccColorT<float>				cpccColorF;
 //	http://www.rapidtables.com/web/color/RGB_Color.htm
 
 static const cpccColor	cpccBlack(   0x000000);
+static const cpccColor	cpccWhite(   0xFFFFFF);
 static const cpccColor	cpccGray(    0x808080);
 static const cpccColor	cpccBlue(    0x0000FF);
 static const cpccColor	cpccGreen(	0x00FF00);
