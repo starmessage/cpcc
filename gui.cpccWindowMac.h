@@ -1,7 +1,7 @@
 /*  *****************************************
- *  File:		cpccFileSystemMini.h
+ *  File:		cpccWindowMac.h
  *  Version:	see function getClassVersion()
- *	Purpose:	Portable (cross-platform), light-weight, file system library
+ *	Purpose:	Portable (cross-platform), light-weight library
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2013 StarMessage software.
@@ -43,11 +43,12 @@
 
 #include <Carbon/Carbon.h>
 
-#include "../../../../cpcc/cpccColor.h"
-#include "../../../../cpcc/gui.cpccWindowBase.h"
+
+#include "cpccColor.h"
+#include "gui.cpccWindowBase.h"
 
 
-class cpccWindowMacTextStylesMac
+class cpccTextStylesMac
 {
 public:
     
@@ -109,7 +110,7 @@ private:
 	NSView*				m_windowHandle;
 	CGContextRef 		m_drawSurface;
 	NSRect				m_windowRect;
-	TmioanTextStylesMac	m_styleHelper;
+	
     const float         m_skewX, m_skewY;
 protected:
 	
@@ -171,7 +172,8 @@ public:  // functions
         NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
 		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
     
-        m_styleHelper.setFont(textAttrib, fontName.getCurrent().c_str(), fontSize.getCurrent());
+        cpccTextStylesMac	styleHelper;
+        styleHelper.setFont(textAttrib, fontName.getCurrent().c_str(), fontSize.getCurrent());
         NSSize tmpSize = [macString sizeWithAttributes: textAttrib];
 		
         if (width)
@@ -222,10 +224,11 @@ protected:
 		
 		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
         
-        m_styleHelper.setFont(textAttrib, fontName.getCurrent().c_str(), fontSize.getCurrent());
-        m_styleHelper.setColor(textAttrib, & drawColor.getCurrent());
+        cpccTextStylesMac	styleHelper;
+        styleHelper.setFont(textAttrib, fontName.getCurrent().c_str(), fontSize.getCurrent());
+        styleHelper.setColor(textAttrib, & drawColor.getCurrent());
         int align = textAlign.getCurrent();
-        m_styleHelper.setParagraph(textAttrib, align);
+        styleHelper.setParagraph(textAttrib, align);
         
         NSRect rect;
         rect.size = [macString sizeWithAttributes: textAttrib];

@@ -45,7 +45,7 @@ void cpccNumberWithBounds<T, m_min, m_max>::selfTest(void)
     assert( (f() == 1.0f) && "#9621a2: cpccNumberWithBounds");
     assert( (f.get() == 1.0f) && "#9621a3: cpccNumberWithBounds");
     
-    float tmpFloat = 1.01;
+    float tmpFloat = 1.01f;
     f = tmpFloat;
     assert( (f() == 1.0f) && "#9621a4: cpccNumberWithBounds");
     

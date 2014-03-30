@@ -40,6 +40,8 @@ class cpccStackWithDefault
 		void	operator=(const T& a)	{ m_defaultValue = a; }
 
 		int		getCount(void)			{ return m_stack.size(); }
+
+		// the pop function here, also returns the value that was poped (unlike std::stack that returns void)
 		T		pop(void)				
 		{	T val= getCount()>0? m_stack.top() : m_defaultValue; 
 			if (getCount()>0)

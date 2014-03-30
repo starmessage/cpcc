@@ -48,6 +48,15 @@ void cpccColorT<T>::selfTest()
 			practicallyEqual(cf2.a, 0.5f) && 
 			_T("#8571d: cpccColor"));
     
+	assert( cpccBlack.getBrightness()==0 && 
+			_T("#8571e: cpccColor"));
+    
+	assert( cpccWhite.getBrightness()==255 && 
+			_T("#8571f: cpccColor"));
+    
+	assert( cpccGray.getBrightness()==128 && 
+			_T("#8571g: cpccColor"));
+    
 #ifdef __APPLE__
     cpccColor t1(30,60,120);
     NSColor *t2 = t1.asNSColor();

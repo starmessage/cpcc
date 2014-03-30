@@ -127,7 +127,7 @@ class cpccColorT
 		
 		T getBrightness(void) const
 		{
-			T brightness = colorChannelTypes<T>::applyLimits((r + g + b)/3.0f);
+			T brightness = colorChannelTypes<T>::applyLimits(((r + g + b)/3.0f));
 			return brightness;
 		}
 
@@ -214,7 +214,7 @@ public:
 
 
 #ifdef _WIN32
-	const COLORREF asColorref(void)
+	const COLORREF asColorref(void) const
 	{
 		return	((b << 16) | (g << 8) | r);
 	}
@@ -222,7 +222,7 @@ public:
 #endif
 
 #ifdef __APPLE__
-	NSColor *asNSColor(void)
+    NSColor *asNSColor(void) const
     {
         // return [NSColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];
         return [NSColor colorWithDeviceRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];

@@ -19,8 +19,8 @@
 #pragma once
 
 
-#include "../../../cpcc/cpccColor.h"
-#include "../../../cpcc/cpccUnicodeSupport.h"
+#include "cpccColor.h"
+#include "cpccUnicodeSupport.h"
 
 
 
@@ -62,6 +62,8 @@ public: // data
 		cpccProperty<int>				fontSize; 
 		cpccProperty<TcssTextAlignValue> textAlign;
 		
-	public: // functions
+public: // functions
+    
+    
 };
 
