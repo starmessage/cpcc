@@ -8,7 +8,8 @@
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *  Download:	https://code.google.com/p/cpcc/
+ *              https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
