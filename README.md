@@ -1,11 +1,12 @@
 **cpcc - Cross Platform C++ Classes**
 
 A set of classes and functions that are missing from the standard C++
+
 Version: 0.50
+
 (c) StarMessage Software [http://www.StarMessageSoftware.com]
 
-Source hosting moved from Github to Google code:
- http://code.google.com/p/cpcc/
+Source hosting moved from Github to Google code: http://code.google.com/p/cpcc/
 
  
 **Project Objectives:**
