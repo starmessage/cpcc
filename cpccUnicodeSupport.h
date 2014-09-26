@@ -38,6 +38,24 @@
 	LPCWSTR = const wchar_t*
 	LPTSTR = char* or wchar_t* depending on _UNICODE
 	LPCTSTR = const char* or const wchar_t* depending on _UNICODE
+	
+	-------------------------------------------------------------
+	
+	example of converting from ascii to wide char
+	std::wstring A_to_W (const char* p)
+	{
+    	std::wstring   ws ;
+	    if (p)
+    	{
+        	setlocale (LC_CTYPE, "") ;
+
+        	std::vector<wchar_t>  buf (strlen(p)+1, 0) ;
+        	mbstowcs (&buf[0], p, buf.size()-1) ;
+        	ws = &buf[0] ;
+    	}
+    	return ws ;
+	}
+	
  */
 #pragma once
 

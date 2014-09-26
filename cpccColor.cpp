@@ -57,6 +57,15 @@ void cpccColorT<T>::selfTest()
 	assert( cpccGray.getBrightness()==128 && 
 			_T("#8571g: cpccColor"));
     
+#ifdef _WIN32
+	COLORREF ref= RGB(0x44, 0x55, 0x66); // COLORREF has the bytes as 0BGR
+
+	cpccColor aa(0x445566L); // initialize with HEX color
+	cpccColor bb(GetRValue(ref), GetGValue(ref), GetBValue(ref)); // initialise by color components
+	assert( aa==bb && _T("#8571k: cpccColor"));
+#endif
+
+
 #ifdef __APPLE__
     cpccColor t1(30,60,120);
     NSColor *t2 = t1.asNSColor();

@@ -46,14 +46,27 @@
 #endif
 
 
+#if defined(__APPLE__)
+const std::string  cpccFileSystemMini::expandTilde_OSX(const char *aPath)
+{
+    std::string result(aPath);
+    if (result.length()>0)
+        if (result.at(0)=='~')
+            result.replace(0,1, getFolder_UserHome());
+    return result;
+}
+#endif
+
+// main class
 
 const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
 	report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
 	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));	
-	report.append(_T("Temp folder:")	+ getFolder_Temp() + _T("\n"));
-	
+	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
+	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
+
 	report.append(_T("User's home folder:")	+ getFolder_UserHome() + _T("\n"));
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
@@ -159,27 +172,68 @@ const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_Temp(void)
+const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
     // TMPDIR is what Posix recommends, I think.
 	
+	#ifdef _WIN32	
+		cpcc_char buffer[MAX_PATH+1]; 
+		GetTempPath(MAX_PATH, buffer);	// this is the user's temp
+		assert(buffer && _T("#6753a: GetTempPath() failed"));
+		return  cpcc_string(buffer);
+	
+	#elif defined(__APPLE__)
+		std::string userTempFolder( expandTilde_OSX("~/Library/Caches/temp-cpcc"));
+		createFolder(userTempFolder);
+		return userTempFolder;
+	
+	#else
+		assert(false && "Error #6753c: unsupported platform for getFolder_UsersTemp()");	
+		
+	#endif
+	return  cpcc_string( _T("") );
+}
+
+
+const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
+{
+	// getenv("TEMP"); // does not work on mac
+	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
+    // TMPDIR is what Posix recommends, I think.
+	
+	/* for OSX:
+		Don't use tmpnam() or tempnam(). They are insecure. 
+		Don't assume /tmp. 
+		Use NSTemporaryDirectory() in conjunction with mkdtemp(). 
+		NSTemporaryDirectory() will give you a better directory to use, however it can return nil. 
+		NSString * tempDir = NSTemporaryDirectory();
+		if (tempDir == nil)
+			tempDir = @"/tmp";
+	*/
+	
 	#ifdef _WIN32
-		cpcc_char buffer[MAX_PATH+1]; // =_T("C:\\Users\\mioan\\AppData\\Local\\Temp");
-		GetTempPath(MAX_PATH, buffer);
+		cpcc_char buffer[MAX_PATH+1]; 
+		GetTempPath(MAX_PATH, buffer); // this is the user's temp
 		assert(buffer && _T("#6753a: GetTempPath() failed"));
 		return  cpcc_string(buffer);
 	
 	#elif defined(__APPLE__)
 		char buffer[L_tmpnam +1];
+    
+        // the following 3 pragma directives is to suppress the warning that tmpnam is deprecated
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 		tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
+						// it returns the SYSTEM's temp
+        #pragma GCC diagnostic pop
 		assert(buffer && "#6753b: tmpnam() failed");
 		cpccPathHelper ph;
 		return ph.getParentFolderOf(std::string(buffer));
 	
 	#else
-		assert(false && "Error #6753c: unsupported platform for getFolder_Temp()");	
+		assert(false && "Error #6753c: unsupported platform for getFolder_SystemsTemp()");	
 		
 	#endif
 	return  cpcc_string( _T("") );
@@ -250,7 +304,7 @@ bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char 
 
 
 #if defined(__APPLE__)
-mode_t cpccFileSystemMini::getFileOrFolderPermissions(const cpcc_char *aFilename)
+mode_t cpccFileSystemMini::getFileOrFolderPermissions_OSX(const cpcc_char *aFilename)
 {
 	struct stat statInfo;  
 	stat(aFilename, &statInfo);
@@ -261,14 +315,16 @@ mode_t cpccFileSystemMini::getFileOrFolderPermissions(const cpcc_char *aFilename
 
 
 #if defined(__APPLE__)
-bool cpccFileSystemMini::createFolderLinux(const cpcc_char *aFilename, const mode_t permissions)
+bool cpccFileSystemMini::createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions)
 {	/* tutorial:
 	int mkdir(const char *pathname, mode_t mode);
 	The argument mode specifies the permissions to use. 
-	It is modified by the processís umask in the usual way: 
+	It is modified by the process√≠s umask in the usual way: 
 	the permissions of the created directory are (mode & ~umask & 0777).
 	*/
-	
+	if (folderExists(aFilename) )
+		return true;
+		
 	mode_t previous_umask = umask(0);
 	int rc=mkdir( aFilename, permissions );
 	// chmod(): This POSIX function is deprecated. Use the ISO C++ conformant _chmod instead.
@@ -290,13 +346,17 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 #ifdef _WIN32
 	::CreateDirectory(aFoldername, NULL);
 #elif defined(__APPLE__)
+    /* it will probably fail if the folder starts with tilde (~)
+        expand the tilde before calling the function
+     */
 	cpccPathHelper ph;
-	//cpcc_string finalPath = ph.expandTilde(aFoldername);
-	cpcc_string finalPath = aFoldername;
+
+	cpcc_string finalPath(expandTilde_OSX( aFoldername));
 	
-	cpcc_string parentFolder = ph.getParentFolderOf(aFoldername);
+	cpcc_string parentFolder = ph.getParentFolderOf(finalPath);
 	
-	int parentPermissions = getFileOrFolderPermissions(parentFolder.c_str());
+	int parentPermissions = getFileOrFolderPermissions_OSX(parentFolder.c_str());
+	
 	std::cout << "permissions of " << parentFolder << " : " << parentPermissions << "\n";
 	
 	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
@@ -307,7 +367,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 	//mode_t p775 = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
 	// full permissions for all
 	//mode_t p777 = S_IRWXU | S_IRWXG | S_IRWXO;
-	return createFolderLinux(finalPath.c_str(), parentPermissions);
+	return createFolder_Linux(finalPath.c_str(), parentPermissions);
 #endif
 
     return(folderExists(aFoldername));
@@ -584,8 +644,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
 		
 #elif defined(__APPLE__)
-	cpccPathHelper ph;
-	return  ph.pathCat(getFolder_UserHome().c_str(), "/Desktop");
+	return  expandTilde_OSX(_T("~/Desktop"));
 	
 #else
 	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
@@ -612,7 +671,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 	//std::cout << "cpccFileSystemMini::SelfTest point1\n";
 
 	// temp path is empty string
-	cpcc_string tmpFolder = fs.getFolder_Temp();
+	cpcc_string tmpFolder = fs.getFolder_UsersTemp();
 	assert(tmpFolder.length()>1 && "#5356a: cpccFileSystemMini::selfTest");
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point2\n";
@@ -621,7 +680,8 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 				
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");
-	//std::cout << "\nTmpFile:" << tmpFile << "\n";
+	std::cout << "\nTmpFile:" << tmpFile << "\n";
+    
 	fs.createEmptyFile(tmpFile);
 	assert(fs.fileExists(tmpFile) && "#5356d: cpccFileSystemMini::selfTest");
 

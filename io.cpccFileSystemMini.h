@@ -61,7 +61,8 @@ public:
 	virtual bool folderExists(const cpcc_string& aFoldername) { return folderExists(aFoldername.c_str()); };
 
 	virtual const cpcc_string getFolder_Desktop(void);
-	virtual const cpcc_string getFolder_Temp(void);
+	virtual const cpcc_string getFolder_SystemsTemp(void);
+	virtual const cpcc_string getFolder_UsersTemp(void);
 	virtual const cpcc_string getFolder_Fonts(void);
 	virtual const cpcc_string getFolder_CommonAppData(void);
 	virtual const cpcc_string getFolder_UserData(void);
@@ -69,8 +70,9 @@ public:
 	
 	// file functions --------------------------------
 #if defined(__APPLE__)
-	mode_t getFileOrFolderPermissions(const cpcc_char *aFilename);
-	bool createFolderLinux(const cpcc_char *aFilename, const mode_t permissions);
+	mode_t              getFileOrFolderPermissions_OSX(const cpcc_char *aFilename);
+	bool                createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions);
+    const std::string   expandTilde_OSX(const char *aPath);
 #endif
 	
 	virtual bool fileExists(const cpcc_char * aFilename);
@@ -96,13 +98,14 @@ public:
 
 
 	virtual bool fileAppend(const cpcc_char* aFilename, const cpcc_char *txt);
-	virtual bool fileAppend(const cpcc_string aFilename, const cpcc_string text) { return fileAppend(aFilename.c_str(), text.c_str());  };
+	virtual bool fileAppend(const cpcc_char* aFilename, const cpcc_string& text) { return fileAppend(aFilename, text.c_str());  };
+	virtual bool fileAppend(const cpcc_string& aFilename, const cpcc_string& text) { return fileAppend(aFilename.c_str(), text.c_str());  };
 	
 	virtual bool deleteFile(const cpcc_char * filename);
-	virtual bool deleteFile(const cpcc_string aFilename)  {  return deleteFile(aFilename.c_str()); };
+	virtual bool deleteFile(const cpcc_string& aFilename)  {  return deleteFile(aFilename.c_str()); };
 	
 	virtual bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);	
-	virtual bool copyFile(const cpcc_string &sourceFile, const cpcc_string &destFileOrFolder) {	return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); }; 
+	virtual bool copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) {	return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); }; 
 
 		
 	

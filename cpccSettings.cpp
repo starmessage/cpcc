@@ -221,7 +221,7 @@ bool cpccSettings::save(void)
 		return false;
 	}
 	
-	for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); it++) 
+	for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it) 
 		fprintf(fp, "%s=%s\n", it->first.c_str(), it->second.c_str());
     fclose(fp);
 

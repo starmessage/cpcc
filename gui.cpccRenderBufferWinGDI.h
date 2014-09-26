@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		TmioanRenderBufferWinGDI.h
+ *  File:		cpccRenderBufferWinGDI.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
  *	*****************************************
@@ -8,8 +8,6 @@
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
- *  Download:	https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */

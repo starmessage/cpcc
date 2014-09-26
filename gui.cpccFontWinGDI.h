@@ -29,31 +29,44 @@ private:
 	HDC		m_hDC;
 
 public:
-	cpccFontWinGDI(HDC ahDC, const cpcc_char *aFontName, const int aFontSize, const eFontWeight aWeight, const eFontQuality aQuality): m_hDC(ahDC)
+	cpccFontWinGDI(HDC ahDC, const cpcc_char *aFontName, const int *aFontSize, const eFontWeight aWeight, const eFontQuality aQuality): m_hDC(ahDC)
 	{ 
-		int fWeight=FW_NORMAL, fQuality=DEFAULT_QUALITY;
-		if (aWeight==fwThin)
-			fWeight=FW_THIN;
+		if (!m_hDC)
+			return;
 
-		if (aQuality==fqNonAntiAliased)
-			fQuality=NONANTIALIASED_QUALITY;
+		int fWeight = FW_NORMAL;
+		switch (aWeight)
+			{
+				case fwThin: fWeight= FW_THIN; break;
+			}
+		
+
+		int fQuality = DEFAULT_QUALITY;
+		switch (aQuality)
+			{
+				case fqNonAntiAliased: fQuality=NONANTIALIASED_QUALITY; break;
+			}
+		
+
+		int size=  aFontSize ? *aFontSize : 10;
+		char *fontname = aFontName ? aFontName : "Arial";
 
 		m_hFont = CreateFont(
-			-MulDiv(aFontSize, GetDeviceCaps(ahDC, LOGPIXELSY), 72),
+			-MulDiv(size, GetDeviceCaps(ahDC, LOGPIXELSY), 72),
 			0,0,0,
 			fWeight,
 			0,0,0, DEFAULT_CHARSET, 0,0,
 			fQuality,
 			FF_DONTCARE,
-			aFontName);
-
+			fontname);
 
 		m_hFontOld=(HFONT)SelectObject(m_hDC, m_hFont);
 	}
 
 	~cpccFontWinGDI() 
 	{ 
-		DeleteObject(SelectObject(m_hDC, m_hFontOld));
+		if (m_hDC)
+			DeleteObject(SelectObject(m_hDC, m_hFontOld));
 	}
 };
 

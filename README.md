@@ -2,9 +2,9 @@
 
 A set of classes and functions that are missing from the standard C++
 
-Version: 0.50
+Version: 0.54.2
 
-(c) StarMessage Software [http://www.StarMessageSoftware.com]
+(c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
 Source hosting moved from Github to Google code: http://code.google.com/p/cpcc/
 
@@ -36,11 +36,14 @@ Doxygen documentation will be added in the files.
 
 Classes in the current queue:
 [ok] portable fileSystem
-[  ] portable log file
-[  ] portable INI-like persistence class
-[  ] portable screensaver API class
+[ok] portable log file
+[ok] portable INI-like persistence class
+[ok] portable screensaver API class
 [ok] Listener pattern
+[  ] Gui drawing tools (HDC: Ok, NSView [Ok], NSImage [ ], NSBmpRepresentation [ ] 
+[ok] portable window class with drawing tools
+[  ] portable image class with drawing tools
 
-Please come back to check after a few weeks.
+Please come back to check every few weeks.
 
 

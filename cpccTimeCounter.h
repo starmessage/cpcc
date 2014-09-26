@@ -6,9 +6,9 @@
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2013 StarMessage software.
  *  License: 	Free for opensource projects.
- *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *  			Commercial license exists for closed source projects.
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
+ *  Download:	https://code.google.com/p/cpcc/
  *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************

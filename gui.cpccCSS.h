@@ -36,7 +36,7 @@ private:
 public:
 	cpccProperty(): m_isNull(true) { }
 	
-	T* operator()(const T a)	{ m_value = a; return get(); }
+	T* operator()(const T& a)	{ m_value = a; return get(); }
 	T* operator()(void) 		{ return get(); }
 
 	void operator=(const T &a)	{ set(a); }

@@ -214,25 +214,19 @@ void cpccPathHelper::selfTest(void)
 	// test extension replacing and getExtension
 	{ 
 		cpcc_string TestExt = ph.replaceExtension( _T("c:\\folderA\\SubFolderB\\filename.oldext"), _T("txt") );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
 		assert(TestExt.compare(  _T("c:\\folderA\\SubFolderB\\filename.txt" ) )==0);
 
 		TestExt = ph.replaceExtension( _T("hello.filename.o"), _T("n") );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
 		assert(TestExt.compare( _T("hello.filename.n") )==0);
 
 		TestExt = ph.replaceExtension( _T("hello.filename with long extension"), _T(".dat") );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
-		//cpccQmsg::Qmsg("getExtension", fs.getExtension(TestExt.c_str()).c_str());
 		assert(TestExt.compare( _T("hello.dat") )==0);
 		assert(ph.getExtension(TestExt.c_str()).compare( _T("dat") )==0);
 
 		TestExt = ph.replaceExtension(_T("filename without extension"), _T(".ooo") );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());		
 		assert(TestExt.compare( _T("filename without extension.ooo"))==0);
 
 		TestExt = ph.replaceExtension( _T("\\\\network shares/a/mac path"), _T(".app") );
-		//cpccQmsg::Qmsg("replaceExtension", TestExt.c_str());
 		assert(TestExt.compare( _T("\\\\network shares/a/mac path.app") )==0);
 
 		assert(ph.startsWithPathDelimiter( _T("/a/mac path")  ) && _T("#6928a: cpccPathHelper"));

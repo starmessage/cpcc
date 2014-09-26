@@ -1,6 +1,18 @@
-//
-// cpccColor.h
-//
+/*  *****************************************
+ *  File:		cpccColor.h
+ *  Version:	
+ *	Purpose:	Portable (cross-platform), light-weight library
+ *	*****************************************
+ *  Library:	Cross Platform C++ Classes (cpcc)
+ *  Copyright: 	2013 StarMessage software.
+ *  License: 	Free for opensource projects.
+ *  			Commercial license for closed source projects.
+ *	Web:		http://www.StarMessageSoftware.com
+ *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *				https://github.com/starmessage/cpcc
+ *	email:		sales -at- starmessage.info
+ *	*****************************************
+ */
 
 
 #pragma once
@@ -13,13 +25,22 @@
 
 #ifdef _WIN32
 	#include <windows.h>	// for COLORREF
+    //typedef COLORREF    TcpccNativeColor;
+
 #endif
 
 #ifdef __APPLE__
 	#include <appkit/NSColor.h>	// for NSColor
+    //typedef NSColor    TcpccNativeColor;
+/*
+    To convert back and forth between CGColorRef and NSColor objects, get the color component values 
+    from one object and use those values to create the other object.
+ */
 #endif
 
-typedef cpccUint32_t TmioanColorRGBA;
+
+typedef cpccUint32_t    cpccColorARGB;
+
 
 #define applyMinMax(xLow, xHigh, x)		(((x>xHigh)?xHigh:x)<xLow)?xLow:((x>xHigh)?xHigh:x)
 
@@ -48,12 +69,11 @@ public:
 };
 
 
-
 template<typename T>
 class cpccColorT 
 	{
 	public: // data
-		T a, b, g, r;
+		T b, g, r, a;
 
 		enum { config_RunSelfTest=true };
 		
@@ -98,13 +118,13 @@ class cpccColorT
 
 	
 	
-		TmioanColorRGBA asARGB(void) 
+		cpccColorARGB asARGB(void)
 		{
 			return	((a << 24) | (r << 16) | (g << 8) | b);
 		}
 		
 
-		TmioanColorRGBA asRGB(void) 
+		cpccColorARGB asRGB(void)
 		{
 			return	((r << 16) | (g << 8) | b);
 		}
@@ -199,8 +219,9 @@ public:
 	cpccColor() : cpccColorT<cpccUint8_t>() { }
 
 
-	cpccColor(unsigned int aColorHex) 
-	{	
+	cpccColor(cpccUint32_t aColorHex) 
+	{		// The COLORREF RGB value in Win32 is defined as #00BBGGRR. 
+			// so do not pass a COLORREF to this constructor
 			b = aColorHex & 0xFF;
 			aColorHex = aColorHex >> 8;
 			g = aColorHex & 0xFF;
@@ -213,11 +234,16 @@ public:
 	cpccColor(cpccUint8_t aRed, cpccUint8_t aGreen, cpccUint8_t aBlue, cpccUint8_t aAlpha=255) : cpccColorT<cpccUint8_t>(aRed, aGreen, aBlue, aAlpha)
 	{ }
 
+	// this is a dangerous function. Someone might misunderstand tha the floats are in the interval 0..1
+	cpccColor(float aRed, float aGreen, float aBlue, float aAlpha=255) : cpccColorT<cpccUint8_t>((cpccUint8_t)aRed, (cpccUint8_t)aGreen, (cpccUint8_t)aBlue, (cpccUint8_t)aAlpha)
+	{ }
+
+	cpccColor(int aRed, int aGreen, int aBlue, int aAlpha=255) : cpccColorT<cpccUint8_t>((cpccUint8_t)aRed, (cpccUint8_t)aGreen, (cpccUint8_t)aBlue, (cpccUint8_t)aAlpha)
+	{ }
 
 #ifdef _WIN32
 	const COLORREF asColorref(void) const
-	{
-		return	((b << 16) | (g << 8) | r);
+	{	return	RGB(r,g,b); // return ((b << 16) | (g << 8) | r);
 	}
 
 #endif
@@ -232,13 +258,41 @@ public:
     
     
     void fromNSColor(NSColor *c)
-    {
-    	CGFloat aR,aG,aB;
-        [c getRed:&aR green:&aG blue:&aB alpha:NULL];
+    {  	CGFloat aR, aG, aB, aA;
+        [c getRed:&aR green:&aG blue:&aB alpha:&aA];
         
 		r=aR*255;
 		g=aG*255;
 		b=aB*255;
+		a=aA*255;
+    }
+	
+	
+	CGColorRef asCGColorRef(void)
+	{
+		// You create a CGColor object by calling the function CGColorCreate, passing a CGColorspace object 
+		// and an array of floating-point values that specify the intensity values for the color. 
+		// The last component in the array specifies the alpha value
+		
+		return CGColorCreateGenericRGB(r/255.0, g/255.0, b/255.0, a/255.0);
+	}
+	
+    
+	/// get the color components from CGColorRef and put them in cpccColor
+	void fromCGColorRef(CGColorRef c)
+    {  	
+		const CGFloat *components = CGColorGetComponents(c);
+		int numComponents = CGColorGetNumberOfComponents(c);
+		if (numComponents >= 3)
+		{	r	= 255*components[0];
+			g 	= 255*components[1];
+			b	= 255*components[2];
+		}	
+	
+		if (numComponents == 4)
+			a= 255*components[3];
+			else
+			a= 255;
     }
     
 #endif
@@ -251,21 +305,21 @@ typedef 	cpccColorT<float>				cpccColorF;
 
 //	http://www.rapidtables.com/web/color/RGB_Color.htm
 
-static const cpccColor	cpccBlack(   0x000000);
-static const cpccColor	cpccWhite(   0xFFFFFF);
-static const cpccColor	cpccGray(    0x808080);
-static const cpccColor	cpccBlue(    0x0000FF);
-static const cpccColor	cpccGreen(	0x00FF00);
-static const cpccColor	cpccDarkblue(0x0A0A30);
-static const cpccColor	cpccRed(     0xFF0000);
-static const cpccColor	cpccYellow( 	0xFFFF00);
-static const cpccColor	cpccMagenta(	0xFF00FF);
-static const cpccColor	cpccSilver( 	0xC0C0C0);
-static const cpccColor	cpccMaroon( 	0x800000);
-static const cpccColor	cpccNavy( 	0x000080);
-static const cpccColor	cpccMidnightBlue( 	0x191970);
-static const cpccColor	cpccDarkBlue( 	0x00008B);
-static const cpccColor	cpccAntiqueWhite( 	0xFAEBD7);
-static const cpccColor	cpccLemonChiffon( 	0xFFFACD);
-static const cpccColor	cpccMoccasin( 	0xFFE4B5);
-static const cpccColor	cpccSlateGray( 	0x708090);
+static const cpccColor	cpccBlack(          0x00, 0x00, 0x00);
+static const cpccColor	cpccWhite(          0xFF, 0xFF, 0xFF);
+static const cpccColor	cpccGray(           0x80, 0x80, 0x80);
+static const cpccColor	cpccBlue(           0x00, 0x00, 0xFF);
+static const cpccColor	cpccGreen(          0x00, 0xFF, 0x00);
+static const cpccColor	cpccDarkblue(       0x0A, 0x0A, 0x30);
+static const cpccColor	cpccRed(            0xFF, 0x00, 0x00);
+static const cpccColor	cpccYellow(         0xFF, 0xFF, 0x00);
+static const cpccColor	cpccMagenta(        0xFF, 0x00, 0xFF);
+static const cpccColor	cpccSilver(         0xC0, 0xC0, 0xC0);
+static const cpccColor	cpccMaroon(         0x80, 0x00, 0x00);
+static const cpccColor	cpccNavy(           0x00, 0x00, 0x80);
+static const cpccColor	cpccMidnightBlue( 	0x19, 0x19, 0x70);
+static const cpccColor	cpccDarkBlue(       0x00, 0x00, 0x8B);
+static const cpccColor	cpccAntiqueWhite( 	0xFA, 0xEB, 0xD7);
+static const cpccColor	cpccLemonChiffon( 	0xFF, 0xFA, 0xCD);
+static const cpccColor	cpccMoccasin(       0xFF, 0xE4, 0xB5);
+static const cpccColor	cpccSlateGray(      0x70, 0x80, 0x90);

@@ -21,6 +21,7 @@
 #include "cpccUnicodeSupport.h"
 #ifdef _WIN32
 	#include <Windows.h>
+	#include <sstream>
 #elif defined(__APPLE__)
 	#include <iostream>
 #endif
@@ -45,6 +46,34 @@
 
  */
  
+/// consolePut() is used to allow console output inside visual studio.
+/// In OSX, xcode, the command std::cout << "something" 
+/// send the text in the console window. This does not happen in visual studio (if creating a windows app)
+/// This macro is used to fix this inconvenience, that is an annoying inconsistency when you develop cross platform applications
+#ifdef _WIN32
+/*
+    class consoleRedirect
+    {
+    public:
+		~consoleRedirect(void) 	{ OutputDebugString(s.str().c_str()); 
+									// OutputDebugString("\n");  }
+
+		std::ostringstream s;
+
+		static std::ostringstream& put(void)	{  consoleRedirect a; return a.s; }
+    };
+*/
+
+
+	#define consolePut(x)	{	std::ostringstream s;  s << x;     \
+								OutputDebugString(s.str().c_str()); \
+								OutputDebugString("\n"); \
+							}
+#else
+	#define consolePut(x)	std::cout << x << "\n";
+	
+#endif
+
 
 #if (ENABLE_SELF_TESTS==1)
 	#define SelftestVariableName aSelfTest
@@ -52,23 +81,6 @@
 	#define SelftestVariableName
 #endif
 
-
-class cpccQmsg
-{
-public:
-	static void Qmsg(const cpcc_char *title, const cpcc_char *text)
-	{
-	#ifdef _WIN32
-		OutputDebugString(title);
-		OutputDebugString(_T(": "));
-		OutputDebugString(text);
-		OutputDebugString(_T("\n"));
-		MessageBox( NULL, text, title, NULL);
-	#elif defined(__APPLE__)
-		std::cout << title << ": " << text << std::endl;
-	#endif
-	};
-};
 
 
 #define SELFTEST_BEGIN(SelfTestUniqueName)	\

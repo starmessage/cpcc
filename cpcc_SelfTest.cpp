@@ -1,0 +1,41 @@
+/*  *****************************************
+ *  File:		cpcc_SelfTest.cpp
+ *  Version:	see function getClassVersion()
+ *	Purpose:	Automatic tests of the library's classes
+ *				Include this cpp in your program to enable automatic tests when the program starts
+ *	*****************************************
+ *  Library:	Cross Platform C++ Classes (cpcc)
+ *  Copyright: 	2014 StarMessage software.
+ *  License: 	Free for opensource projects.
+ *  			Commercial license for closed source projects.
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
+ *  Download:	https://code.google.com/p/cpcc/
+ *              https://github.com/starmessage/cpcc
+ *	email:		sales -at- starmessage.info
+ *	*****************************************
+ */
+
+
+#include "cpcc_SelfTest.h"
+#include "math.cpccVector.h"
+
+
+SELFTEST_BEGIN(aTest_NumberXd)
+	// MessageBox(NULL, "selftest"	, NULL, NULL);
+	cpccVector<int,3>::selfTest();
+SELFTEST_END
+
+
+#include "math.cpccNumberWithBounds.h"
+
+#if defined(cpccNumberWithBounds_DoSelfTest)
+	SELFTEST_BEGIN(cpccNumberWithBounds_SelfTest)
+		cpccFloat0_1::selfTest();
+	SELFTEST_END
+#endif
+
+
+#include "math.cpccFastFloat.h"
+SELFTEST_BEGIN(cpccFixedPointNumber_SelfTest)
+    cpccFastFloat13::selfTest();
+SELFTEST_END

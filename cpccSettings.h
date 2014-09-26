@@ -19,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <assert.h>
 
 #include "cpccUnicodeSupport.h"
 
