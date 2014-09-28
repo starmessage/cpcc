@@ -199,7 +199,7 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	[self createScreensaver]; // must be called after super startAnimation
 
     if (ssPtr)
-        ssPtr->eraseBackground();
+        ssPtr->fadeoutUsersDesktop();
 }
 
 
@@ -217,12 +217,6 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	 */
 	
     [super stopAnimation];
-	
-	if (ssPtr)
-		{
-		//ssPtr->shutDown();
-		//delete ssPtr;
-		}
 	
 }
 

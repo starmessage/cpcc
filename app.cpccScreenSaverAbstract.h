@@ -25,25 +25,17 @@ class cpccScreenSaverAbstract: public cpccScreenSaverInterface_PerMonitor
 {
 private:
 	cpccTimeCounter		mSecondsTimer;
-	//unsigned long int	mFramesElapsed;
-	double				mTimeElapsed_inSec,
-                        mPrev_TimeElapsed_inSec,
-						mDeltaTime_inSec;
+	double				mTimeElapsed_inSec;
     logObjectLife       objLog;
 
 protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
-	bool				clearBackgroundOnAnimate;
 	
 public: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
-			clearBackgroundOnAnimate(true),    //todo: in windows must be true?
-			//mFramesElapsed(0),
 			mTimeElapsed_inSec(0.0),
-            mPrev_TimeElapsed_inSec(0.0),
-			mDeltaTime_inSec(0.0),
             objLog((char *) "cpccScreenSaverAbstract")
 	{  }
 
@@ -59,20 +51,25 @@ public: // constructor/destructor
 	
 private:	// functions
 		
-	void updateCounters(void)
-	{
-		// 1. update frame counter
-		//mFramesElapsed++;
+    
+    void animateOneFrame(void)
+    {
+        //appLog.addInfof("cpccScreenSaverAbstract.animateOneFrame() #%i", mFramesElapsed);
+        static double mPrev_TimeElapsed_inSec=0.0;
+        
+        // 1. update seconts counter
+        double mTimeElapsed_inSec = mSecondsTimer.getSecondsElapsed();
 
-		// 2. update seconts counter
-		mTimeElapsed_inSec = mSecondsTimer.getSecondsElapsed();
-
-		// 3. update DT
-		if (mPrev_TimeElapsed_inSec>0.0f)
-			mDeltaTime_inSec = mTimeElapsed_inSec - mPrev_TimeElapsed_inSec;
-		mPrev_TimeElapsed_inSec = mTimeElapsed_inSec;
-	}
-
+        // 2. update DT
+        float mDeltaTime_inSec = (mPrev_TimeElapsed_inSec>0.0 ? mTimeElapsed_inSec - mPrev_TimeElapsed_inSec : 0.04f);
+    
+        // 3. store the new time
+        mPrev_TimeElapsed_inSec = mTimeElapsed_inSec;
+        
+        // 4. call the animation now that I know the dt
+        animateOneFrameByDt(mDeltaTime_inSec);
+    }
+    
 
     // bit blit from buffer to screen
     void flushOneFrame(void)
@@ -83,24 +80,16 @@ private:	// functions
     }
     
     
-    void animateOneFrame(void)
-    {	//appLog.addInfof("cpccScreenSaverAbstract.animateOneFrame() #%i", mFramesElapsed);
-        updateCounters();
-        //appLog.addInfof("cpccScreenSaverAbstract.animateOneFrame() #%i exiting", mFramesElapsed);
-        animateOneFrameByDt((mDeltaTime_inSec==0)?0.04f:mDeltaTime_inSec);
-    }
-    
-    
 protected:  // abstract functions for the ancenstor to implement
     
     virtual void animateOneFrameByDt(const float dt)=0;
-    
     
 public: // screensaver standard functions	
 
     
 	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle, const int monitorId)
-	{	infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle():%X"), (cpccNativeWindowHandle) wHandle);
+	{
+        infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle():%X"), (cpccNativeWindowHandle) wHandle);
 		if (!DesktopWindowPtr)
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
@@ -108,30 +97,17 @@ public: // screensaver standard functions
 		mSecondsTimer.resetTimer();
 	}
 
-
-	virtual void eraseBackground(void)
-	{	
-		//infoLog().add("cpccScreenSaverAbstract.eraseBackground()");
-		if (clearBackgroundOnAnimate) 
-			if (DesktopWindowPtr)
-				DesktopWindowPtr->clear();
-		// appLog.addInfof("cpccScreenSaverAbstract.eraseBackground() #%i exiting", mFramesElapsed);
-	}
     
-	
-	virtual void shutDown(void)
-    { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
+	virtual void shutDown(void)    { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
     
 	virtual bool hasConfigureSheet(void)=0;
 	virtual void showConfigureSheet(void) { };
 
 public:	// other functions
 
-	//unsigned long int	getFramesElapsed(void)		{ return mFramesElapsed; }
-	double				getDeltaTime_inSec(void)	{ return (mDeltaTime_inSec==0)?0.001f:mDeltaTime_inSec; }
-	double				getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
-	virtual int			getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
-	virtual int			getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
+	inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
+	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
+	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
 
 
 };

@@ -60,7 +60,7 @@ cpccTimeCounter::cpccTimeCounter()
 void cpccTimeCounter::resetTimer(void)
 {
 	gettimeofdayCrossPlatform(&mStartTime);
-};
+}
 	
 
 double cpccTimeCounter::getSecondsElapsed(void)
@@ -69,7 +69,7 @@ double cpccTimeCounter::getSecondsElapsed(void)
 	gettimeofdayCrossPlatform(&mEndTime);
 	// return difftime( time(0), mStartTime);
 	return mEndTime.tv_sec + mEndTime.tv_usec/1e6 - mStartTime.tv_sec - mStartTime.tv_usec/1e6;
-};
+}
 
 
 void cpccTimeCounter::gettimeofdayCrossPlatform(struct timeval *currentTime)
@@ -102,10 +102,10 @@ void cpccTimeCounter::gettimeofdayCrossPlatform(struct timeval *currentTime)
 #else
 	#error #9523: Unsupported platform
 #endif
-};
+}
 
 
 void cpccTimeCounter::selfTest(void) 
 { 
 
-};
+}

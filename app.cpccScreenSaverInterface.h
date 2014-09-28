@@ -61,7 +61,8 @@ public: // screensaver interface functions: calls that the operating system disp
 	virtual void animateOneFrame(void)=0;
 	virtual void drawOneFrame(void)=0;
 	virtual void flushOneFrame(void)=0;
-	virtual void eraseBackground(void)=0;
+    // optional to override in an ancenstor class
+    virtual void fadeoutUsersDesktop(void) {}
 	
 	/// free the allocated screensaver
 	virtual void shutDown()=0;
