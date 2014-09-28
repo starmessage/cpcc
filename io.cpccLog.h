@@ -17,8 +17,11 @@
  
 #pragma once
 
+
 #include <ctime>
 #include <iostream> 
+#include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
+
 #include "cpccUnicodeSupport.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
@@ -42,6 +45,7 @@ public: // constructor / destructor
 		m_isEmpty(true)
  	{ }
 	
+    
 public: // functions
 	bool isEmpty(void) { return m_isEmpty; }
 	
@@ -135,7 +139,7 @@ class logObjectLife
 private:
     std::string tag;
 public:
-    logObjectLife(char *aTag): tag(aTag) { infoLog().addf("creating: %s", tag.c_str()); }
-    ~logObjectLife(void)                 { infoLog().addf("destroying: %s", tag.c_str()); }
+    logObjectLife(char *aTag): tag(aTag) { infoLog().addf("creating: %s", tag.c_str() ); }
+    ~logObjectLife(void)                 { infoLog().addf("destroying: %s", tag.c_str());}
     
 };

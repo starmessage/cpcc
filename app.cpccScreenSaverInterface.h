@@ -50,7 +50,7 @@ protected:	// functions
 	
 public: // constructor/destructor
 	cpccScreenSaverInterface_PerMonitor(): objLog((char *) "cpccScreenSaverInterface_PerMonitor")	{ 	}
-
+    virtual ~cpccScreenSaverInterface_PerMonitor() { }
 		
 public: // screensaver interface functions: calls that the operating system dispatches to the screensaver	
 
@@ -69,8 +69,6 @@ public: // screensaver interface functions: calls that the operating system disp
 	virtual bool hasConfigureSheet(void)  { return false; };
 	virtual void showConfigureSheet(void) { };
 
-	
-	
 };
 
 // this function must be implemeted by the final child class as in this example

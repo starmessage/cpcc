@@ -50,6 +50,7 @@
 /// In OSX, xcode, the command std::cout << "something" 
 /// send the text in the console window. This does not happen in visual studio (if creating a windows app)
 /// This macro is used to fix this inconvenience, that is an annoying inconsistency when you develop cross platform applications
+/// Usage example: consolePut( "Log filename:" << aFilename );
 #ifdef _WIN32
 /*
     class consoleRedirect
@@ -57,9 +58,7 @@
     public:
 		~consoleRedirect(void) 	{ OutputDebugString(s.str().c_str()); 
 									// OutputDebugString("\n");  }
-
 		std::ostringstream s;
-
 		static std::ostringstream& put(void)	{  consoleRedirect a; return a.s; }
     };
 */

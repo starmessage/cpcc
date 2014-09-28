@@ -30,7 +30,7 @@
 #include "io.cpccLog.h"
 #include "app.cpccScreenSaverInterface.h"
 #include "app.cpccApp.h"
-
+#include "core.cpccOS.h"
 
 
 
@@ -112,7 +112,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_CREATE: // Retrieve any initialization data from the file REGEDIT.INI.  
 						// Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
-			infoLog().add("ScreenSaverProc WM_CREATE");
+			infoLog().add("ScreenSaverProc() received WM_CREATE");
 
 			if (!ssNewPtr)
 			{
@@ -129,22 +129,22 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 						// prior to destroying a window, by processing the 
 						// WM_CLOSE message and calling the DestroyWindow function 
 						// only if the user confirms the choice. 
-			infoLog().add("ScreenSaverProc WM_CLOSE");
+			infoLog().add("ScreenSaverProc() received WM_CLOSE");
 			break;
 		
 		case WM_PAINT:
 			//ns_cmiLog::cmiQLog().put() << "WM_PAINT";
 			#if (USE_WM_PAINT)
 				isDrawing = true;
+				if (ssNewPtr)
+					ssNewPtr->drawOneFrame();
+				
 				PAINTSTRUCT ps;
 				BeginPaint(hwnd,&ps);
 
 				if (ssNewPtr)
-				{
-					ssNewPtr->drawOneFrame();
 					ssNewPtr->flushOneFrame();
-				}
-
+				
 				EndPaint(hwnd,&ps);
 				isDrawing = false;
 			#endif
@@ -182,7 +182,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_DESTROY:	
 			// Destroy the timer(s) created when the application processed the WM_CREATE message. 
 			// Perform any additional required cleanup.
-			infoLog().add("ScreenSaverProc WM_DESTROY");
+			infoLog().add("ScreenSaverProc() received  WM_DESTROY");
 
 			if (uTimer)  
 				KillTimer(hwnd, uTimer); 
@@ -215,6 +215,15 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 
 			if (ssNewPtr)
 				ssNewPtr->eraseBackground();
+
+			// debugging WM_ERASEBKGND
+			/*
+			{	RECT tmpRect = { 10,20, 60, 80 };
+				FillRect((HDC) wParam, &tmpRect, (HBRUSH) GetStockObject(LTGRAY_BRUSH));
+				cpccOS::sleep(2000);
+			}
+			*/
+
 			/*
 			the typical erase background is:
 			{ RECT tmpRect;

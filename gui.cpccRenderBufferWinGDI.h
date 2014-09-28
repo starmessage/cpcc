@@ -81,34 +81,57 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/ms533895%28v=vs.85%29.as
 class renderBufferWinGDI
 {
 private:
-	HBITMAP hBitmapMemory, hOldBitmap;
+	HBITMAP hMemoryBitmap, hOldBitmap;
 	HDC		hDCmemoryBuffer;
-	
+	int		w,h;
 public:
 	HDC dc(void) { return hDCmemoryBuffer; };
 
 
-	renderBufferWinGDI(const HDC hDC, const int aWidth, const int aHeight)
+	renderBufferWinGDI(const HDC hDC, const int aWidth, const int aHeight, const bool copyContents=false): w(aWidth), h(aHeight)
 	{	
 		hDCmemoryBuffer = CreateCompatibleDC(hDC);
 		SetBkMode(hDCmemoryBuffer, TRANSPARENT);
 		
-		hBitmapMemory = CreateCompatibleBitmap(hDC, aWidth, aHeight);
+		hMemoryBitmap = CreateCompatibleBitmap(hDC , aWidth, aHeight);
 		// Select the bitmap into the off-screen DC.
-		hOldBitmap = (HBITMAP) SelectObject(hDCmemoryBuffer, hBitmapMemory);
+		hOldBitmap = (HBITMAP) SelectObject(hDCmemoryBuffer, hMemoryBitmap);
+
+		if (copyContents)
+			blitFrom(hDC);
+
+		// debuging
+		/*
+		RECT r={0,0,w,h};
+		FillRect(hDCmemoryBuffer, &r, (HBRUSH) GetStockObject(LTGRAY_BRUSH));
+		*/
 	}
 
 
 	~renderBufferWinGDI()
 	{
-		if (hBitmapMemory)
+		if (hMemoryBitmap)
 			{
 			SelectObject(hDCmemoryBuffer, hOldBitmap);
-			DeleteObject(hBitmapMemory);
+			DeleteObject(hMemoryBitmap);
 			DeleteDC(hDCmemoryBuffer);
 			hDCmemoryBuffer=NULL;
-			hBitmapMemory=NULL;
+			hMemoryBitmap=NULL;
 			}
+	}
+
+
+	void blitFrom(const HDC sourceDC)
+	{
+		// http://www.codeproject.com/Articles/5051/Various-methods-for-capturing-the-screen
+		infoLog().addf("blitFrom w:%i, h:%i", w, h);
+		::BitBlt(hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0, 0, SRCCOPY|CAPTUREBLT);
+	}
+
+
+	void blitTo(const HDC destDC)
+	{
+		::BitBlt(destDC, 0, 0, w, h, hDCmemoryBuffer, 0, 0, SRCCOPY);
 	}
 
 };

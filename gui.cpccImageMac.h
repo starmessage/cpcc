@@ -187,7 +187,7 @@ public: /// functions
     {
         const bool hasAlpha = true;
         
-        infoLog().addf("cpccImageMacBmpRep.initWithSizeAndColor(%i,%i)", aWidth, aHeight);
+        //infoLog().addf("cpccImageMacBmpRep.initWithSizeAndColor(%i,%i)", aWidth, aHeight);
         
         if(aWidth < 1 || aHeight < 1)
             return;

@@ -198,6 +198,8 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	[super startAnimation];	
 	[self createScreensaver]; // must be called after super startAnimation
 
+    if (ssPtr)
+        ssPtr->eraseBackground();
 }
 
 

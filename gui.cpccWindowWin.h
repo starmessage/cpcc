@@ -51,7 +51,8 @@ protected:		// ctors.
 
 		if (config_UseDoubleBuffer)
 		{
-			m_renderBuffer = new renderBufferWinGDI(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top);
+			m_renderBuffer = new renderBufferWinGDI(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
+			//m_renderBuffer->blitFrom(m_WindowDC);
 			m_DrawDC = m_renderBuffer->dc();
 		}
 	}
@@ -79,8 +80,8 @@ protected:		// functions ////////////////////////////////
 		if (!m_renderBuffer)
 			return;	// no need to flush, already drawn on the screen
 
-		BitBlt(m_WindowDC, m_rect.left, m_rect.top, m_rect.right-m_rect.left, m_rect.bottom-m_rect.top, 
-			   m_DrawDC, 0, 0, SRCCOPY);
+		m_renderBuffer->blitTo(m_WindowDC);
+		// BitBlt(m_WindowDC, m_rect.left, m_rect.top, m_rect.right-m_rect.left, m_rect.bottom-m_rect.top, m_DrawDC, 0, 0, SRCCOPY);
 	}
 
 	
@@ -101,17 +102,17 @@ protected:		// functions ////////////////////////////////
 			*height = size.y();
 	}
 
-	int 		getHeight(void) { return m_rect.bottom - m_rect.top; }
-	int 		getWidth(void) 	{ return m_rect.right - m_rect.left; }
-	void 		fillWithColor(const cpccColor &aColor)							  { m_dtool.fillRectWithColor(m_rect, aColor);  }
-	void		fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) {	m_dtool.fillRectWithColor(aRect.asRECT(), aColor); }
+	int 		getHeight(void)												{ return m_rect.bottom - m_rect.top; }
+	int 		getWidth(void) 												{ return m_rect.right - m_rect.left; }
+	void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
+	void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
 	
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
     
 
-	cpccColor	getPixel_impl(const int x, const int y)								{ return m_dtool.getPixel(x,y); }
-	void		setPixel_impl(const int x, const int y, const cpccColor &aColor)  	{ m_dtool.setPixel(x,y,aColor); }
+	cpccColor	getPixel_impl(const int x, const int y)						{ return m_dtool.getPixel(x,y); }
+	void		setPixel_impl(const int x, const int y, const cpccColor &c) { m_dtool.setPixel(x,y,c); }
 		
 	void 		textOut_impl(const int x, const int y, const cpcc_char *txt) 
 	{

@@ -16,7 +16,7 @@
  */
  
 #include "io.cpccLog.h"
-
+#include "cpcc_SelfTest.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -43,28 +43,17 @@ public:
     info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
 	{
 		cpccFileSystemMini fs;
+		info.addf("Log filename:%s", aFilename);
+        consolePut( "Log filename:" << aFilename );
+
 		// empty the file
 		if (fs.fileExists(aFilename))
 			fs.createEmptyFile(aFilename);
         else
-		{
-            std::cout << "Log not created at:" << aFilename << "\n";
-			#if defined(_WIN32)
-				OutputDebugString("Log not created at:");
-				OutputDebugString(aFilename);
-				OutputDebugString( "\n");
-			#endif
-		}
+			consolePut( "Disabling log becase file does not exist at:" << aFilename );
 
 		info.add(cpccLogOpeningStamp);
 		info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.addf("Log saved at:%s", aFilename);
-        std::cout << "Log saved at:" << aFilename << "\n";
-		#if defined(_WIN32)
-			OutputDebugString("Log at:");
-			OutputDebugString(aFilename);
-			OutputDebugString( "\n");
-		#endif
 		info.add("More info about the cpcc cross plaform library at: www.StarMessageSoftware.com/cpcclibrary\n");
 	}
 	

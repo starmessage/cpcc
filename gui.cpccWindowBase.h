@@ -108,13 +108,13 @@ public:  // abstract functions
 
     virtual void 					flush(void)=0;
     virtual void					clear(void)=0;
-    virtual void					fillWithColor(const cpccColor& aColor)=0;
-	virtual void					fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)=0;
+    virtual void					fillWithColor(const cpccColor& c)=0;
+	virtual void					fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
     virtual void 					textOut(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
     virtual void					pushCss(cpccCSS *aCssPtr)=0;
 	virtual void					popCss(cpccCSS* aCssPtr)=0;
     virtual cpccColor				getPixel(const int x, const int y)=0;
-    virtual void 					setPixel(int x, int y, const cpccColor &aColor)=0;
+    virtual void 					setPixel(int x, int y, const cpccColor &c)=0;
     virtual int                     getWidth(void)=0;
     virtual int                     getHeight(void)=0;
     virtual void                    getTextSize(const cpcc_char *txt, int *width, int *height)=0;

@@ -41,6 +41,8 @@ public:		// data
 public:		// constructors
 	cpccRect() { }
 
+	cpccRect(const T &l, const T &t, const T &r, const T &b): topLeft(l,t), size(r-l, b-t) { }
+
 #ifdef _WIN32
 	cpccRect(const RECT &r):	// construct from a Windows RECT
 		topLeft.data[0](r.left),
