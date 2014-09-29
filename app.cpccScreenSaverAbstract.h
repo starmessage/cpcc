@@ -61,7 +61,7 @@ private:	// functions
         double mTimeElapsed_inSec = mSecondsTimer.getSecondsElapsed();
 
         // 2. update DT
-        float mDeltaTime_inSec = (mPrev_TimeElapsed_inSec>0.0 ? mTimeElapsed_inSec - mPrev_TimeElapsed_inSec : 0.04f);
+        float mDeltaTime_inSec = (mPrev_TimeElapsed_inSec>0.0 ? (float)(mTimeElapsed_inSec - mPrev_TimeElapsed_inSec) : 0.04f);
     
         // 3. store the new time
         mPrev_TimeElapsed_inSec = mTimeElapsed_inSec;

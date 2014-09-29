@@ -214,7 +214,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			infoLog().add("ScreenSaverProc() received WM_ERASEBKGND");
 
 			if (ssNewPtr)
-				ssNewPtr->eraseBackground();
+				ssNewPtr->fadeoutUsersDesktop();
 
 			// debugging WM_ERASEBKGND
 			/*
