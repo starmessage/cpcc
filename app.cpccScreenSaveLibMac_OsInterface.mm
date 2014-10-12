@@ -148,6 +148,19 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 }
 
 
++ (BOOL)performGammaFade
+/*
+    This class method allows to select how the desktop visibly transitions to the screen saver view.
+    If this method returns YES (default), the screen will gradually darken before the animation begins. 
+    If it returns NO, the transition will be immediate. 
+    'No' is more appropriate if the screen saver animates a screen shot of the desktop, as is the case 
+    for optical lens effects.
+ */
+{
+    return NO;
+}
+
+
 - (cpccNativeWindowHandle)getNativeWindowHandle
 {
 	return self; // this returns an NSView
@@ -198,8 +211,10 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	[super startAnimation];	
 	[self createScreensaver]; // must be called after super startAnimation
 
+    //[self lockFocus];
     if (ssPtr)
         ssPtr->fadeoutUsersDesktop();
+    //[self unlockFocus];
 }
 
 
@@ -223,19 +238,21 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 
 - (void)drawRect:(NSRect)rect
 {
+    // infoLog().add("drawRect()");
 	/*
+     ScreenSaverView implements drawRect: to draw a black background. 
+     Subclasses can do their drawing here or in animateOneFrame.
+     
 	There are two main ways to do drawing in a screen saver. 
-	 You can either do your drawing in the normal NSView drawRect:(page12)method,
-	 or you can do your drawing in ScreenSaverView’sanimateOneFrame(page11) method. 
-	 If you do drawing in drawRect: (page 12), you should call setNeedsDisplay: with 
+	 You can either do your drawing in the normal NSView drawRect: method,
+	 or you can do your drawing in ScreenSaverView’s animateOneFrame method.
+	 If you do drawing in drawRect: , you should call setNeedsDisplay: with
 	 an argument of YES in animateOneFrame.
-	 */
-	
-    /*
+	 
      By keeping all the drawing code in drawRect: you ensure it is always drawn when the Cocoa system needs it drawn.
      By keeping all of your computational logic out of the draw path, you ensure multiple-redraws don't cause unwanted side-effects in your animation.
      */
-    [super drawRect:rect];
+    [super drawRect:rect];      // this call also draws a black background
     
     // std::cout << "drawRect. w:" << rect.size.width << " h:" << rect.size.height << "\n";
 #ifdef drawInDrawRect
@@ -261,16 +278,13 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	 The default implementation does nothing.
 	 */
 	
-	//cmiQLog().put() << "TmioanScreenSaveLibMac_OsInterface animateOneFrame: Mac window handle:" << (long) [self getNativeWindowHandle];
 		
 	if (ssPtr)
 		{
 		//NSDisableScreenUpdates();
 		
-		//TmioanUtils::DebugLogLn("before ssPtr->animateOneFrame()");
 		ssPtr->animateOneFrame();
 			
-		//TmioanUtils::DebugLogLn("before ssPtr->drawOneFrame()");
 #ifndef drawInDrawRect
 		ssPtr->drawOneFrame();
 		ssPtr->flushOneFrame();
@@ -281,7 +295,7 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 		//NSEnableScreenUpdates();
 		}
 	
-	// [self setNeedsDisplay:YES];
+	
 }
 
 

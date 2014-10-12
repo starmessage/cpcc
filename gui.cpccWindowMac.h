@@ -101,24 +101,7 @@ public:  // functions
 	int 		getHeight(void) { return m_windowRect.size.height; }
 	int 		getWidth(void) 	{ return m_windowRect.size.width; }
 	
-	/*
-	void		BitBlit_obsolete(int x, int y, NSImage *img, int w, int h, const cpccColor *aTransparentColor)
-	{
-        if (!img)
-            return;
-        
-        if (![img isValid])
-        {
-            errorLog().add("cpccWindowMac.BitBlit_obsolete() img isValid = false");
-            return;
-        }
-        
-        [m_windowHandle lockFocus];
-        [img drawAtPoint:NSMakePoint(x +m_skewX, y +m_skewY) fromRect:NSZeroRect operation: NSCompositeSourceOver fraction: 1.0f];
-        [m_windowHandle unlockFocus];
-	}
-    */
-	
+
 	void 	fillRectWithColor_impl(const NSRect &aRect, const NSColor* aColor)
 	{
         //[m_windowHandle lockFocus];
@@ -130,7 +113,9 @@ public:  // functions
     
 	
 	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)
-	{	fillRectWithColor_impl(aRect.asNSRect(), aColor.asNSColor());
+	{   //[m_windowHandle lockFocus];
+        fillRectWithColor_impl(aRect.asNSRect(), aColor.asNSColor());
+        //[m_windowHandle unlockFocus];
 	}
 	
 	

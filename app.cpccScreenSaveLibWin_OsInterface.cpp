@@ -7,8 +7,8 @@
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
- *  Download:	https://code.google.com/p/cpcc/
- *              https://github.com/starmessage/cpcc
+ *  Download:	https://github.com/starmessage/cpcc
+ *              https://code.google.com/p/cpcc/
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
@@ -19,7 +19,6 @@
 //
 #define USE_WM_PAINT	1
 #define FramesPerSec	40
-
 //
 //////////////////////////////////////////
 

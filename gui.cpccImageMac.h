@@ -230,7 +230,7 @@ public: /// functions
     
 protected: // functions
     
-    const virtual void 	drawImage(cpccWindowBase *destWindow, const int x, const int y) const
+    const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
     {
         assert(bmpPtr && "#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
         cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;

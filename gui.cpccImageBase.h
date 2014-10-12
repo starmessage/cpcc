@@ -49,7 +49,7 @@ public:  // abstract functions
     virtual void 			setPixel(const int x, const int y, const cpccColor &aColor)=0;
     const virtual int       getWidth(void) const =0;
     const virtual int       getHeight(void) const =0;
-	const virtual void 		drawImage(cpccWindowBase *destWindow, const int x, const int y) const =0;
+	const virtual void 		drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const =0;
 	virtual void 			resizeBy(const float aFactor) { resizeTo((int) (getWidth()*aFactor), (int) (getHeight()*aFactor)); }
 	virtual void 			resizeTo(const int newWidth, const int newHeight) =0;
     virtual void 			cropTo(const int newTop, int newLeft, int newWidth, int newHeight)=0;

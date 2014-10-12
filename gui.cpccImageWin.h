@@ -102,7 +102,7 @@ public:		// functions
 	// virtual HDC 	getDrawSurfaceHandle_obsolete(void)	{	return m_hDC;	}
 
 
-	const virtual void 					drawImage(cpccWindowBase *destWindow, const int x, const int y) const
+	const virtual void 					drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
 	{
 		cpccWindowWin *tmpWindow = (cpccWindowWin *) destWindow;
 		HDC tmpDC = tmpWindow->getDrawDC();
