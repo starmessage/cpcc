@@ -136,7 +136,7 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 
 - (BOOL)isOpaque
 {
-    return NO;
+    return YES;
 }
 
 
@@ -195,6 +195,10 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
     self = [super initWithFrame:frame isPreview:isPreview];
 	assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
 	
+    // semi transparent window
+    //if (![self isPreview])
+    //    [[self window] setAlphaValue:0.7];
+    
     return self;
 }
 
@@ -208,13 +212,16 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	
 	// Activates the periodic timer that animates the screen saver.
 	[self setAnimationTimeInterval:1/25.0]; // 25 frames/sec
-	[super startAnimation];	
-	[self createScreensaver]; // must be called after super startAnimation
+    [self createScreensaver]; // must be called after super startAnimation
 
-    //[self lockFocus];
+	
+    [self lockFocus];
     if (ssPtr)
         ssPtr->fadeoutUsersDesktop();
-    //[self unlockFocus];
+    [self unlockFocus];
+    
+    [super startAnimation];
+
 }
 
 
@@ -252,6 +259,7 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
      By keeping all the drawing code in drawRect: you ensure it is always drawn when the Cocoa system needs it drawn.
      By keeping all of your computational logic out of the draw path, you ensure multiple-redraws don't cause unwanted side-effects in your animation.
      */
+    
     [super drawRect:rect];      // this call also draws a black background
     
     // std::cout << "drawRect. w:" << rect.size.width << " h:" << rect.size.height << "\n";

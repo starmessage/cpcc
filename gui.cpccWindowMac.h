@@ -118,6 +118,15 @@ public:  // functions
         //[m_windowHandle unlockFocus];
 	}
 	
+    
+    virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
+    {
+        NSColor *fillColor = c.asNSColor();
+        [fillColor setFill];
+        NSRect ellipseRect = NSMakeRect(left, top, right-left, bottom-top);
+        [[NSBezierPath bezierPathWithOvalInRect:ellipseRect] fill];
+    }
+
 	
     void 		fillWithColor(const cpccColor& aColor)
 	{

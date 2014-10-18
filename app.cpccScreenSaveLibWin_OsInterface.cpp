@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		app.cpccScreenSaveLibWin_OsInterface.cpp
  *	Purpose:	Portable (cross-platform), light-weight, screensaver helper class
  *	*****************************************
@@ -104,25 +104,67 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static bool		isDrawing=false;
 	static cpccApp	app;	
 	static cpccScreenSaverInterface_PerMonitor* ssNewPtr=NULL;
+	static bool screensaverWindowInitialised = false;
 
 	switch(wMessage)
 		{
 
-		case WM_CREATE: // Retrieve any initialization data from the file REGEDIT.INI.  
-						// Set a window timer for the screen saver window. 
+		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
 			infoLog().add("ScreenSaverProc() received WM_CREATE");
 
 			if (!ssNewPtr)
 			{
 				ssNewPtr = createScreenSaver();
-				ssNewPtr->initWithWindowHandle( hwnd, 0);
+				// something is quite not ready here in windows8 and the getDC does not work very well.
+				// So I moved the initWithWindowHandle() into the WM_ERASEBKGND event
+				// ssNewPtr->initWithWindowHandle( hwnd, 0);
 			}
+	
 
 			// Last job: Set the timer
             uTimer = SetTimer(hwnd, 1, 1000/FramesPerSec, NULL); 
             return 0;
 		
+			
+		case WM_ERASEBKGND:	
+			/*
+			// http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx#Using_the_Screen_Sav
+			// The WM_ERASEBKGND message is issued before the WM_TIMER message, allowing the screen saver to paint the background as appropriate. 
+
+            hdc = GetDC(hwnd); 
+            GetClientRect (hwnd, &rc); 
+            FillRect (hdc, &rc, GetStockObject(BLACK_BRUSH)); 
+            ReleaseDC(hwnd,hdc); 
+            break; 
+			*/
+				// About WM_ERASEBKGND: wParam holds the HDC;
+				// erases the background in the case of password protected running
+				// when the user cancels the password entry dialog.
+			infoLog().add("ScreenSaverProc() received WM_ERASEBKGND");
+			
+			if (ssNewPtr)
+			{
+				if (!screensaverWindowInitialised)
+				{
+					ssNewPtr->initWithWindowHandle( hwnd, 0);
+					screensaverWindowInitialised =true;
+				}
+				ssNewPtr->fadeoutUsersDesktop();
+			}
+
+
+			/*
+			the typical erase background is:
+			{ RECT tmpRect;
+				
+			GetClientRect(hwnd, &tmpRect); 
+			FillRect((HDC) wParam, &tmpRect, (HBRUSH) GetStockObject(BLACK_BRUSH));
+			}
+			*/
+
+			break;
+			//return 1L; //An application should return nonzero (1L) if it erases the background
 		
 		case WM_CLOSE:	// An application can prompt the user for confirmation, 
 						// prior to destroying a window, by processing the 
@@ -155,6 +197,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			// if a tick from a different timer arrives, ignore it.
 			if (wParam!=uTimer)
 				return 1;
+			
+			//infoLog().add("ScreenSaverProc() received WM_TIMER");
 
 			if (isDrawing)
 				return 0;
@@ -194,44 +238,12 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				ssNewPtr=NULL;
 			}
 
-			/*		
-			if (desktop_hDC)
-				ReleaseDC(desktop_hWnd, desktop_hDC);
-			desktop_hDC = NULL;
-			*/
-
 			// PostQuitMessage(0);
 			// isos edo thelei break gia na kalestei i DefScreenSaverProc() na kanei to sosto cleanup
 			break;	//return 0l;  
 
 
-		case WM_ERASEBKGND:	
-			
-				// About WM_ERASEBKGND: wParam holds the HDC;
-				// erases the background in the case of password protected running
-				// when the user cancels the password entry dialog.
-			infoLog().add("ScreenSaverProc() received WM_ERASEBKGND");
 
-			if (ssNewPtr)
-				ssNewPtr->fadeoutUsersDesktop();
-
-			// debugging WM_ERASEBKGND
-			/*
-			{	RECT tmpRect = { 10,20, 60, 80 };
-				FillRect((HDC) wParam, &tmpRect, (HBRUSH) GetStockObject(LTGRAY_BRUSH));
-				cpccOS::sleep(2000);
-			}
-			*/
-
-			/*
-			the typical erase background is:
-			{ RECT tmpRect;
-				
-			GetClientRect(hwnd, &tmpRect); 
-			FillRect((HDC) wParam, &tmpRect, (HBRUSH) GetStockObject(BLACK_BRUSH));
-			}
-			*/
-			return 1L; //An application should return nonzero if it erases the background
 		
 		
 		case WM_MOUSEMOVE:			// mouse trap for the first 3 seconds

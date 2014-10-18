@@ -102,7 +102,7 @@ public:
 
 		// debuging
 		/*
-		RECT r={0,0,w,h};
+		RECT r={100,150, 150, 270};
 		FillRect(hDCmemoryBuffer, &r, (HBRUSH) GetStockObject(LTGRAY_BRUSH));
 		*/
 	}
@@ -124,8 +124,8 @@ public:
 	void blitFrom(const HDC sourceDC)
 	{
 		// http://www.codeproject.com/Articles/5051/Various-methods-for-capturing-the-screen
-		infoLog().addf("blitFrom w:%i, h:%i", w, h);
-		::BitBlt(hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0, 0, SRCCOPY|CAPTUREBLT);
+		infoLog().addf("renderBufferWinGDI.blitFrom w:%i, h:%i", w, h);
+		::BitBlt(hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0, 0, SRCCOPY /* |CAPTUREBLT */ );
 	}
 
 

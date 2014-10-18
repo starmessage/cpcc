@@ -110,7 +110,8 @@ public:  // abstract functions
     virtual void					clear(void)=0;
     virtual void					fillWithColor(const cpccColor& c)=0;
 	virtual void					fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
-    virtual void 					textOut(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
+    virtual void					fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
+	virtual void 					textOut(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
     virtual void					pushCss(cpccCSS *aCssPtr)=0;
 	virtual void					popCss(cpccCSS* aCssPtr)=0;
     virtual cpccColor				getPixel(const int x, const int y)=0;
@@ -118,6 +119,6 @@ public:  // abstract functions
     virtual int                     getWidth(void)=0;
     virtual int                     getHeight(void)=0;
     virtual void                    getTextSize(const cpcc_char *txt, int *width, int *height)=0;
-   
+	
 };
 

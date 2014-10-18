@@ -51,6 +51,7 @@ protected:		// ctors.
 
 		if (config_UseDoubleBuffer)
 		{
+			// the last paramenter, "true" means take a screenshot here of the actual window contents and put them in the buffer
 			m_renderBuffer = new renderBufferWinGDI(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
 			//m_renderBuffer->blitFrom(m_WindowDC);
 			m_DrawDC = m_renderBuffer->dc();
@@ -106,6 +107,8 @@ protected:		// functions ////////////////////////////////
 	int 		getWidth(void) 												{ return m_rect.right - m_rect.left; }
 	void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
 	void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
+	void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) 
+					{ m_dtool.fillEllipseWithColor( left, top, right, bottom, c); } 
 	
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor

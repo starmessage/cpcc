@@ -65,8 +65,19 @@ public:		// data
 	
 
 public:		// functions
-	
-	virtual void 		fillRectWithColor(const RECT &r, const cpccColor& aColor) 
+
+	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor)
+	{
+		const COLORREF c = /* (DWORD) */ aColor.asColorref();
+		HBRUSH hBrush = CreateSolidBrush(c);
+		HGDIOBJ OldBrush = SelectObject(m_drawContext, hBrush);
+		Ellipse(m_drawContext, left, top, right, bottom);
+		SelectObject(m_drawContext, OldBrush);
+		DeleteObject(hBrush);
+	}
+
+
+	void 		fillRectWithColor(const RECT &r, const cpccColor& aColor) 
 	{
 		const COLORREF c = /* (DWORD) */ aColor.asColorref();
 		// The brush identified by the hbr parameter may be either a handle to a logical brush or a color value. 
