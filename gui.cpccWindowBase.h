@@ -86,7 +86,7 @@ public:  // constructor
 	
 	cpccWindowBase(const cpccNativeWindowHandle aWnd): 
 		m_windowHandle(aWnd),
-		bgColor(cpccGray), 
+		bgColor(cpccPapayaWhip),
 		drawColor(cpccYellow), 
 		fontName(_T("Arial")), 
 		fontSize(12),

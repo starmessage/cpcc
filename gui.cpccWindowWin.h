@@ -19,7 +19,6 @@
 #include <Windows.h>
 #include "cpccColor.h"
 #include "gui.cpccWindowBase.h"
-#include "gui.cpccrenderBufferWinGDI.h"
 #include "gui.cpccDrawingToolsWinDC.h"
 
 #pragma comment(lib,"msimg32.lib")	// needed for TransparentBlt()
@@ -33,7 +32,7 @@ private:
 	RECT					m_rect;
 	HDC						m_WindowDC,
 							m_DrawDC;
-	renderBufferWinGDI*		m_renderBuffer;
+	cpccWinGDIMemoryDC*		m_renderBuffer;
 	cpccDrawingToolsWinDC	m_dtool;
 	enum	{ config_UseDoubleBuffer=true };
 
@@ -52,7 +51,7 @@ protected:		// ctors.
 		if (config_UseDoubleBuffer)
 		{
 			// the last paramenter, "true" means take a screenshot here of the actual window contents and put them in the buffer
-			m_renderBuffer = new renderBufferWinGDI(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
+			m_renderBuffer = new cpccWinGDIMemoryDC(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
 			//m_renderBuffer->blitFrom(m_WindowDC);
 			m_DrawDC = m_renderBuffer->dc();
 		}

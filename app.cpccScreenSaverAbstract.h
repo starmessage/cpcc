@@ -89,7 +89,7 @@ public: // screensaver standard functions
     
 	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle, const int monitorId)
 	{
-        infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle():%X"), (cpccNativeWindowHandle) wHandle);
+        infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
 		if (!DesktopWindowPtr)
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		

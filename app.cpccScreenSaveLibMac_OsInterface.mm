@@ -20,6 +20,7 @@
 #include	"app.cpccScreenSaverInterface.h"
 #import		<ScreenSaver/ScreenSaver.h>
 #include 	"app.cpccApp.h"
+#include 	"core.cpccOS.h"
 
 /*
  Screensavers need to be compiled 32/64-bit with garbage collection supported or required 
@@ -108,9 +109,7 @@ cpccApp	app;
 }
 
 /*
- If your subclass of NSView implements the isOpaque method to return YES, 
- then the framework will never clear anything behind your view or draw any 
- of the views under it.
+
  
  Implementing preservesContentDuringLiveResize to return YES gives you some 
  extra responsibilities, but can improve performance during window resizing.
@@ -132,33 +131,26 @@ cpccApp	app;
 
 BOOL runningInPreview;
 cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
+bool    animationStarted=false,
+        fadeoutEffectCompleted=false;
 
 
-- (BOOL)isOpaque
-{
-    return YES;
-}
+
+// flip the coordinates of the NSView, so they are the same as in the case of windows screensavers
+- (BOOL)isFlipped  { return YES; }
+
+/*  If your subclass of NSView implements the isOpaque method to return YES,
+    then the framework will never clear anything behind your view or draw any of the views under it.
+    YES = this keeps Cocoa from unneccessarily redrawing our superview */
+- (BOOL)isOpaque    { return YES; }
 
 
-- (BOOL)isFlipped
-{	
-	// flip-the-coordinate-system-of-an-nsview
-    // I flip the coordinates, so they are the same as in the case of windows screensavers
-	return YES;
-}
-
-
-+ (BOOL)performGammaFade
-/*
-    This class method allows to select how the desktop visibly transitions to the screen saver view.
-    If this method returns YES (default), the screen will gradually darken before the animation begins. 
-    If it returns NO, the transition will be immediate. 
-    'No' is more appropriate if the screen saver animates a screen shot of the desktop, as is the case 
-    for optical lens effects.
- */
-{
-    return NO;
-}
+/*  This class method allows to select how the desktop visibly transitions to the screen saver view.
+    If this method returns YES (default), the screen will gradually darken before the animation begins.
+    If it returns NO, the transition will be immediate.
+    'No' is more appropriate if the screen saver animates a screen shot of the desktop, as is the case
+    for optical lens effects.  */
++ (BOOL)performGammaFade { return NO; }
 
 
 - (cpccNativeWindowHandle)getNativeWindowHandle
@@ -171,34 +163,43 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 - (void)createScreensaver
 {
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
-
 	//TmioanUtils::DebugLogLn("TmioanScreenSaveLibMac_OsInterface BEFORE new ClassOfScreensaver");
-
 	ssPtr = createScreenSaver();
-	
 	assert(ssPtr && "Error 4567: ssPtr = nil");
-	
-	cpccNativeWindowHandle windowHandle = [self getNativeWindowHandle];
-	assert(windowHandle && "Error 2354b: could not get native window handle");
-	
-	ssPtr->initWithWindowHandle( windowHandle, runningInPreview);
 }
 
 
+- (void)initScreensaverWithWindowHandle
+{
+    cpccNativeWindowHandle windowHandle = [self getNativeWindowHandle];
+    assert(windowHandle && "Error 2354b: could not get native window handle");
+    ssPtr->initWithWindowHandle( windowHandle, runningInPreview);
+}
+
+
+- (void)doOnceTheFadeoutEffect
+{
+    //[self lockFocus];
+    if (!fadeoutEffectCompleted)
+        if (ssPtr)
+        {
+            ssPtr->fadeoutUsersDesktop();
+            fadeoutEffectCompleted = true;
+        }
+    //[self unlockFocus];
+}
 
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
 	infoLog().add( "TmioanScreenSaveLibMac_OsInterface initWithFrame");
+    //cpccOS::sleep(2000);
+    
 	runningInPreview = isPreview;
 	
     self = [super initWithFrame:frame isPreview:isPreview];
 	assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
 	
-    // semi transparent window
-    //if (![self isPreview])
-    //    [[self window] setAlphaValue:0.7];
-    
     return self;
 }
 
@@ -206,40 +207,55 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 - (void)startAnimation
 {
 	// This method should not do any drawing.
-	// Note If you override this method,be sure to call the method in your super class.
+	// You must at least call [super stopAnimation] as shown in the standard template.
+    
 	infoLog().add( "TmioanScreenSaveLibMac_OsInterface startAnimation");
-	
-	
+    //cpccOS::sleep(2000);
+    
+    // semi transparent window
+    //if (![self isPreview])
+    //    [[self window] setAlphaValue:0.7];
+    
+    /*
+    // demo
+    NSRect tmpRect = NSMakeRect(30, 40, 100, 150);
+    [[NSColor redColor] set];
+    NSRectFill(tmpRect);
+    cpccOS::sleep(2000);
+     */
+    
+    
+    [[self window] setBackgroundColor:[NSColor clearColor]];
+    
 	// Activates the periodic timer that animates the screen saver.
+    // A zero value polls as fast as possible while a negative number turns animation off.
 	[self setAnimationTimeInterval:1/25.0]; // 25 frames/sec
-    [self createScreensaver]; // must be called after super startAnimation
-
-	
-    [self lockFocus];
-    if (ssPtr)
-        ssPtr->fadeoutUsersDesktop();
-    [self unlockFocus];
+    [self createScreensaver];
+    [self initScreensaverWithWindowHandle];
+	[self doOnceTheFadeoutEffect];
     
     [super startAnimation];
-
+    animationStarted = true;
+    
+    infoLog().add( "TmioanScreenSaveLibMac_OsInterface startAnimation exiting");
+    //cpccOS::sleep(2000);
 }
 
 
 - (void)stopAnimation
 {
-	// stopAnimation, it will get called if the display goes to sleep.
+    // You must at least call [super stopAnimation] as shown in the standard template.
+    // stopAnimation, it will get called if the display goes to sleep.
 	infoLog().add( "TmioanScreenSaveLibMac_OsInterface stopAnimation");
 	
 	/*
 	 Deactivates the timer that advances the animation.
-	 
 	When Mac OS X wants your screen saver to stop doing its thing, it calls stopAnimation. 
 	 You can override stopAnimation to release resources or 
 	 do any other cleanup you want before your screen saver goes away. 
 	 */
 	
     [super stopAnimation];
-	
 }
 
 
@@ -259,6 +275,13 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
      By keeping all the drawing code in drawRect: you ensure it is always drawn when the Cocoa system needs it drawn.
      By keeping all of your computational logic out of the draw path, you ensure multiple-redraws don't cause unwanted side-effects in your animation.
      */
+    
+    
+    if (!animationStarted)
+        return;
+    
+    //infoLog().add( "TmioanScreenSaveLibMac_OsInterface drawRect");
+    //cpccOS::sleep(1000);
     
     [super drawRect:rect];      // this call also draws a black background
     
@@ -285,7 +308,10 @@ cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-	
+    //infoLog().add( "TmioanScreenSaveLibMac_OsInterface animateOneFrame");
+    //cpccOS::sleep(1000);
+    
+
 		
 	if (ssPtr)
 		{

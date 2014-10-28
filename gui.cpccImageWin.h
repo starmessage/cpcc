@@ -19,7 +19,6 @@
 #include <string>
 #include <Windows.h>
 #include "io.cpccLog.h"
-#include "gui.cpccRenderBufferWinGDI.h"
 #include "gui.cpccImageBase.h"
 #include "gui.cpccDrawingToolsWinDC.h"
 #include "gui.cpccWindowWin.h"
@@ -28,31 +27,18 @@
 class cpccImageWin: public cpccImageBase
 {
 private:
-	HBITMAP	hBitmap, hOldBitmap;
+	cpccWinGDIBitmap *m_GDIHBitmap;
+	//HBITMAP	hBitmap, hOldBitmap;
 	HDC		m_hDC; 
 	cpccDrawingToolsWinDC	m_dtool;
-
-	// todo: why this function is unused ?
-	void releaseBitmap(HBITMAP &aBitmap)
-	{
-		if (aBitmap)
-		{
-			if (m_hDC)
-				::SelectObject (m_hDC, hOldBitmap);
-			DeleteObject(aBitmap);
-		}
-	}
-
-	// todo: why this function is unused ?
-	void selectBitmap(HBITMAP &aBitmap)
-	{
-		hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, aBitmap));
-	}
 
 	
 protected:	// ctors
 
-	cpccImageWin(): hBitmap(NULL), hOldBitmap(NULL), m_hDC(NULL), m_dtool(m_hDC)
+	cpccImageWin(): 
+			// hBitmap(NULL), hOldBitmap(NULL), 
+			m_hDC(NULL), m_dtool(m_hDC),
+			m_GDIHBitmap(NULL)
 	{ 
 		/*	CreateCompatibleDC (); 
 			http://msdn.microsoft.com/en-us/library/windows/desktop/dd183489%28v=vs.85%29.aspx
@@ -77,17 +63,19 @@ public:		// functions
 	virtual void initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor)
 	{
 		// http://www.cplusplus.com/forum/windows/102452/
-		if (hBitmap)
-			errorLog().add("cpccImageWin.initWithSizeAndColor() called but hBitmap not null");
+		//if (hBitmap)
+		if (m_GDIHBitmap)
+			errorLog().add("cpccImageWin.initWithSizeAndColor() called but m_GDIHBitmap not null");
 		if (!m_hDC)
 			errorLog().add("cpccImageWin.initWithSizeAndColor() called but m_hDC is null");
 
 		HDC hdcScreen = GetDC(NULL);
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/dd183488%28v=vs.85%29.aspx
-		hBitmap = CreateCompatibleBitmap(hdcScreen, aWidth, aHeight);
+		//hBitmap = CreateCompatibleBitmap(hdcScreen, aWidth, aHeight);
+		m_GDIHBitmap = new cpccWinGDIBitmap(m_hDC, hdcScreen, aWidth, aHeight);
 		ReleaseDC(NULL,hdcScreen);
 
-		hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
+		//hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
 
 		RECT r;
 		r.top = r.left =0;  r.right	= aWidth; r.bottom = aHeight;
@@ -99,8 +87,6 @@ public:		// functions
 		//infoLog().addf("cpccImageWin.initialize() with w=%i, h=%i", bm.bmWidth, bm.bmHeight);
 	}
     
-	// virtual HDC 	getDrawSurfaceHandle_obsolete(void)	{	return m_hDC;	}
-
 
 	const virtual void 					drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
 	{
@@ -113,17 +99,23 @@ public:		// functions
 
 	const virtual int getWidth(void) const
 	{ 
+		return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0;
+		/*
 		BITMAP bm;
         ::GetObject (hBitmap, sizeof (bm), &bm);
         return bm.bmWidth;
+		*/
 	} 
 
 	
 	const virtual int getHeight(void) const
 	{ 
+		return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0;
+		/*
 		BITMAP bm;
         ::GetObject (hBitmap, sizeof (bm), &bm);
         return bm.bmHeight;
+		*/
 	} 
 	
 
@@ -131,13 +123,14 @@ protected:
 
 	virtual void 		cropTo_impl(const int newTop, const int newLeft, const int newWidth, const int newHeight)
 	{
-		renderBufferWinGDI croppedBitmapBuffer(m_hDC, newWidth, newHeight);
+		if (!m_GDIHBitmap)
+			return;
 
+		cpccWinGDIMemoryDC croppedBitmapBuffer(m_hDC, newWidth, newHeight);
 		BitBlt(croppedBitmapBuffer.dc(), 0,0, newWidth, newHeight, m_hDC, newTop, newLeft, SRCCOPY);
-
-		HBITMAP newhBitmap = CreateCompatibleBitmap(m_hDC, newWidth, newHeight);
-		DeleteObject( SelectObject(m_hDC, newhBitmap));
-		hBitmap = newhBitmap;
+		
+		if (m_GDIHBitmap)
+			m_GDIHBitmap->deleteCurrentAndSelectAnother(CreateCompatibleBitmap(m_hDC, newWidth, newHeight));
 
 		// copy back
 		BitBlt(m_hDC, 0, 0,  newWidth, newHeight, croppedBitmapBuffer.dc(), 0,0, SRCCOPY);
@@ -146,36 +139,35 @@ protected:
 
 	virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
 	{ 
-		renderBufferWinGDI resizedBitmapBuffer(m_hDC, newWidth, newHeight);
+		if (!m_GDIHBitmap)
+			return;
+
+		cpccWinGDIMemoryDC resizedBitmapBuffer(m_hDC, newWidth, newHeight);
 		SetStretchBltMode(resizedBitmapBuffer.dc(), COLORONCOLOR);
 		StretchBlt(resizedBitmapBuffer.dc(), 0,0, newWidth, newHeight, m_hDC, 0, 0, getWidth(), getHeight(), SRCCOPY);
 		
-		HBITMAP newhBitmap = CreateCompatibleBitmap(m_hDC, newWidth, newHeight);
-		DeleteObject( SelectObject(m_hDC, newhBitmap));
-		hBitmap = newhBitmap;
+		if (m_GDIHBitmap)
+			m_GDIHBitmap->deleteCurrentAndSelectAnother(CreateCompatibleBitmap(m_hDC, newWidth, newHeight));
 
 		// copy back
 		BitBlt(m_hDC, 0, 0,  newWidth, newHeight, resizedBitmapBuffer.dc(), 0,0, SRCCOPY);
 		
-		// http://www.codeguru.com/cpp/g-m/bitmap/specialeffects/article.php/c4897/Accelerated-Smooth-Bitmap-Resizing.htm
-		// http://forums.codeguru.com/showthread.php?128649-using-StretchBlt-with-HBITMAP-how&p=346744#post346744
+		
+		infoLog().addf("cpccImageWin.resizeTo_impl() exiting with new w=%i, new h=%i", getWidth(), getHeight());
 	}
-
-
-	
-
 
 
 protected: // functions
 	// ToDo: transparentCorner is ignored here but is treated by the encapsulating class
 	virtual bool initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
 	{
-		if (hBitmap)
+		// if (hBitmap)
+		if (m_GDIHBitmap)
 			errorLog().addf("cpccImageWin.initWithFile(%s) called but hBitmap not null", aFullPathFilename);
 		
-		hBitmap = (HBITMAP) ::LoadImage(NULL, aFullPathFilename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /* |LR_CREATEDIBSECTION */);
+		HBITMAP hBitmapFromFile = (HBITMAP) ::LoadImage(NULL, aFullPathFilename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /* |LR_CREATEDIBSECTION */);
 		// if LoadImage fails, it returns a NULL handle
-		if(!hBitmap)
+		if(!hBitmapFromFile)
 		{
 			// LoadImage faled so get extended error information.
 			errorLog().addf( _T("#4653: image.loadFromFile failed:%s") , aFullPathFilename);
@@ -186,7 +178,9 @@ protected: // functions
 		if (!m_hDC)
 			errorLog().addf("cpccImageWin.initWithFile(%s) called but m_hDC is null", aFullPathFilename);
 
-		hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
+		// hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
+		m_GDIHBitmap = new cpccWinGDIBitmap(m_hDC, hBitmapFromFile);
+
 		return true;
 	}
 

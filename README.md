@@ -2,11 +2,10 @@
 
 A set of classes and functions that are missing from the standard C++
 
-Version: 0.54.6
+Version: 0.54.72
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
-Source hosting moved from Github to Google code: http://code.google.com/p/cpcc/
 
  
 **Project Objectives:**
@@ -42,7 +41,8 @@ Classes in the current queue:
 [ok] Listener pattern
 [  ] Gui drawing tools (HDC: Ok, NSView [Ok], NSImage [ ], NSBmpRepresentation [ ] 
 [ok] portable window class with drawing tools
-[  ] portable image class with drawing tools
+[ok] portable image class with drawing tools
+[ok] Windows GDI helper class with common GDI drawing objects (Brush, HBITMAT, HFONT, etc).
 
 Please come back to check every few weeks.
 

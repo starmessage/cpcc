@@ -323,3 +323,13 @@ static const cpccColor	cpccAntiqueWhite( 	0xFA, 0xEB, 0xD7);
 static const cpccColor	cpccLemonChiffon( 	0xFF, 0xFA, 0xCD);
 static const cpccColor	cpccMoccasin(       0xFF, 0xE4, 0xB5);
 static const cpccColor	cpccSlateGray(      0x70, 0x80, 0x90);
+static const cpccColor	cpccBurlyWood(  	0xDE, 0xB8, 0x87);
+static const cpccColor	cpccNavajoWhite(  	0xFF, 0xDE, 0xAD);
+static const cpccColor	cpccOlive(          0x80, 0x80, 0x00);
+static const cpccColor	cpccPurple(         0x80, 0x00, 0x80);
+static const cpccColor	cpccSkyBlue(        0x87, 0xCE, 0xEB);
+static const cpccColor	cpccSteelBlue(  	0x46, 0x82, 0xB4);
+static const cpccColor	cpccSpringGreen(  	0x00, 0xFF, 0x7F);
+static const cpccColor	cpccTomato(         0xFF, 0x63, 0x47);
+static const cpccColor	cpccPapayaWhip(  	0xFF, 0xEF, 0xD5);
+

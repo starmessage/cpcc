@@ -20,32 +20,10 @@
 
 #include <windows.h>
 #include "gui.cpccDrawingToolsAbstract.h"
-#include "gui.cpccFontWinGDI.h"
+// #include "gui.cpccFontWinGDI.h"
+#include "gui.cpccWinGDIhelper.h"
 
 #pragma comment(lib,"msimg32.lib")	// needed for TransparentBlt()
-
-
-//////////////////////////////////////////////
-//		cpccFontKerningWin
-//////////////////////////////////////////////
-class cpccFontKerningWin
-{
-private:
-	int m_oldSpacing;
-	HDC	m_dc;
-
-public:
-	cpccFontKerningWin(HDC hdc, int aKerning): m_dc(hdc), m_oldSpacing(GetTextCharacterExtra(hdc))
-	{
-		SetTextCharacterExtra(hdc, aKerning); // change the spacing of the characters
-	}
-
-	~cpccFontKerningWin()
-	{
-		SetTextCharacterExtra(m_dc, m_oldSpacing); // restore the drawing tools
-	}
-	
-};
 
 
 //////////////////////////////////////////////
@@ -68,22 +46,22 @@ public:		// functions
 
 	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor)
 	{
-		const COLORREF c = /* (DWORD) */ aColor.asColorref();
-		HBRUSH hBrush = CreateSolidBrush(c);
-		HGDIOBJ OldBrush = SelectObject(m_drawContext, hBrush);
+		cpccWinGDIBrush tmpBrush(m_drawContext, aColor.asColorref());
 		Ellipse(m_drawContext, left, top, right, bottom);
-		SelectObject(m_drawContext, OldBrush);
-		DeleteObject(hBrush);
 	}
 
 
 	void 		fillRectWithColor(const RECT &r, const cpccColor& aColor) 
 	{
-		const COLORREF c = /* (DWORD) */ aColor.asColorref();
+		// const COLORREF c = /* (DWORD) */ aColor.asColorref();
+		cpccWinGDIBrush tmpBrush(m_drawContext, aColor.asColorref());
+		
 		// The brush identified by the hbr parameter may be either a handle to a logical brush or a color value. 
 		// If specifying a handle to a logical brush, call CreatePatternBrush, or CreateSolidBrush to obtain the handle.
 		// If specifying a color value for the hbr parameter, it must be one of the standard system colors (the value 1 must be added to the chosen color). 
-		FillRect(m_drawContext, &r ,(HBRUSH) CreateSolidBrush(c));
+
+
+		FillRect(m_drawContext, &r , tmpBrush);
 	}
 	
 
@@ -110,7 +88,7 @@ public:		// functions
 		if (params.kerning)
 			applyKerningPtr = new cpccFontKerningWin(m_drawContext, (int) *params.kerning);
 		
-		cpccFontWinGDI useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
+		cpccWinGDIFont useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
 		
 
 		DrawText(m_drawContext, text, -1, &tmpRect, alignment | DT_NOCLIP | DT_NOPREFIX);
@@ -123,10 +101,8 @@ public:		// functions
 
 	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const 
 	{	RECT tmpRect = {0,0,0,0};
-		//tmpRect.right = tmpRect.left = 0;
-		//tmpRect.bottom = tmpRect.top = 0;
 
-		cpccFontWinGDI useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
+		cpccWinGDIFont useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
 		
 		cpccFontKerningWin *applyKerningPtr=NULL;
 		if (params.kerning)
