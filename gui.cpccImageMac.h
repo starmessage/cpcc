@@ -26,7 +26,7 @@
 #include "io.cpccLog.h"
 #include "gui.cpccImageBase.h"
 #include "gui.cpccImageUtilsOSX.h"
-#include "gui.cpccDrawingToolsCGContext.h"
+// #include "gui.cpccDrawingToolsCGContext.h"
 #include "gui.cpccDrawingToolsNSBitmapImageRep.h"
 #include "gui.cpccWindowMac.h"
 

@@ -46,7 +46,9 @@
 
 #include "cpccColor.h"
 #include "gui.cpccWindowBase.h"
-#include "gui.cpccTextStylesMac.h"
+#include "gui.cpccDrawingToolsMacOnFocused.h"
+
+
 
 #define DEBUGPARAM_DISABLE_TEXTDRAWING   false
 
@@ -57,9 +59,10 @@
 class cpccWindowMac: public cpccWindowBase
 {
 private:
-	NSRect				m_windowRect;
-    const float         m_skewX, m_skewY;
-	
+	NSRect                          m_windowRect;
+    const float                     m_skewX, m_skewY;
+    cpccDrawingToolsMacOnFocused    dtool;
+    
 protected:
 	
 protected:		// ctors. Protected because this class should not be created alone, but only via its derived class, cpccWindow
@@ -77,67 +80,40 @@ public:  // functions
     
     void		getTextSize(const cpcc_char *txt, int *width, int *height)
     {
-        // http://stackoverflow.com/questions/2044981/determining-the-pixel-length-of-a-string-in-cocoa-mac-osx
+        cpccTextParams  params;
+
+        params.fontName = fontName.getCurrent().c_str();
+        params.fontSize = &fontSize.getCurrent();
+        params.kerning  = &kerning.getCurrent();
         
-        NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
-		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
-    
-        cpccTextStylesMac	styleHelper;
-        styleHelper.setFont(textAttrib, fontName.getCurrent().c_str(), fontSize.getCurrent());
-        styleHelper.setKerning(textAttrib, kerning.getCurrent());
-        
-        NSSize tmpSize = [macString sizeWithAttributes: textAttrib];
-		
-        std::cout << "getTextSize(" << txt << ")\n";
+        cpccVector2i	textSize = dtool.getTextSize(txt, params);
         
         if (width)
-            *width = tmpSize.width;
+            *width = textSize.x();
         
         if (height)
-            *height = tmpSize.height;
+            *height = textSize.y();
+
     }
 	
+    
 	void 		flush() { };
 	int 		getHeight(void) { return m_windowRect.size.height; }
 	int 		getWidth(void) 	{ return m_windowRect.size.width; }
 	
-
-	void 	fillRectWithColor_impl(const NSRect &aRect, const NSColor* aColor)
-	{
-        //[m_windowHandle lockFocus];
-		[aColor setFill];
-		NSRectFill(aRect);
-        //NSRectFill(m_windowRect);
-        //[m_windowHandle unlockFocus];
-	}
     
-	
 	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)
-	{   //[m_windowHandle lockFocus];
-        fillRectWithColor_impl(aRect.asNSRect(), aColor.asNSColor());
-        //[m_windowHandle unlockFocus];
+	{
+        dtool.fillRectWithColor(aRect.asNSRect(), aColor);
 	}
 	
     
     virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
-    {
-        NSColor *fillColor = c.asNSColor();
-        [fillColor setFill];
-        NSRect ellipseRect = NSMakeRect(left, top, right-left, bottom-top);
-        [[NSBezierPath bezierPathWithOvalInRect:ellipseRect] fill];
-    }
+    { dtool.fillEllipseWithColor(left, top, right, bottom, c); }
 
 	
-    void 		fillWithColor(const cpccColor& aColor)
-	{
-		//std::cout << "fillWithColor_impl()\n";
-		fillRectWithColor_impl(m_windowRect, aColor.asNSColor());
-		/*
-        NSColor *backgroundColor = aColor.asNSColor();
-		[backgroundColor setFill];
-		NSRectFill(m_windowRect);
-		*/
-	}
+    void 		fillWithColor(const cpccColor& aColor)	{ dtool.fillRectWithColor(m_windowRect, aColor); }
+    
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
     
@@ -189,13 +165,27 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	void 		textOut_impl(int x, int y, const cpcc_char *text)
 	{
 #if (!DEBUGPARAM_DISABLE_TEXTDRAWING)
-		// https://developer.apple.com/library/mac/#documentation/graphicsimaging/conceptual/drawingwithquartz2d/dq_text/dq_text.html#//apple_ref/doc/uid/TP30001066-CH213-TPXREF101
-		//	std::cout << "textOut(" << x << " , " << y << " , "<< text << ")";
-		
-		// Note: Stroke and fill colors do not affect the appearance of text.
-        // To apply color to text, you must change the attributes associated with the text
-        // https://developer.apple.com/library/mac/documentation/cocoa/conceptual/CocoaDrawingGuide/Color/Color.html
+
+        cpccTextParams  params;
+
+        params.fontName = fontName.getCurrent().c_str();
+        params.fontSize = &fontSize.getCurrent();
+        params.kerning  = &kerning.getCurrent();
+        params.color    = &drawColor.getCurrent();
+        params.textAlign= &textAlign.getCurrent();
         
+        if (fontQuality.getCurrent()==fqNonAntiAliased)
+            [[NSGraphicsContext currentContext] setShouldAntialias: NO];
+
+        [m_windowHandle lockFocus];
+        // You should only invoke this method when an NSView object has focus.
+        dtool.textOut(x, y, text, params);
+        [m_windowHandle unlockFocus];
+
+        if (fontQuality.getCurrent()==fqNonAntiAliased)
+            [[NSGraphicsContext currentContext] setShouldAntialias: YES];
+
+        /*
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: NO];
         
@@ -233,6 +223,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
         //std::cout << "textOut_impl() isFlipped:" << (m_windowHandle.isFlipped? "Y" : "N " ) << " x:" << rect.origin.x <<  " y:" << rect.origin.y << "\n";
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: YES];
+         */
 #endif
 	}
 	

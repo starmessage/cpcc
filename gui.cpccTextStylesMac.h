@@ -51,7 +51,7 @@ public:
     }
     
   
-    void setColor(NSMutableDictionary *aTextAttr, cpccColor *aColor)
+    void setColor(NSMutableDictionary *aTextAttr, const cpccColor *aColor)
     {
         if (aTextAttr && aColor)
             [aTextAttr setObject:aColor->asNSColor() forKey:NSForegroundColorAttributeName];

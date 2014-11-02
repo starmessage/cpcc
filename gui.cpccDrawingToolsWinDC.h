@@ -20,7 +20,6 @@
 
 #include <windows.h>
 #include "gui.cpccDrawingToolsAbstract.h"
-// #include "gui.cpccFontWinGDI.h"
 #include "gui.cpccWinGDIhelper.h"
 
 #pragma comment(lib,"msimg32.lib")	// needed for TransparentBlt()
@@ -29,15 +28,15 @@
 //////////////////////////////////////////////
 //		cpccDrawingToolsWinDC
 //////////////////////////////////////////////
-class cpccDrawingToolsWinDC: public cpccDrawingToolsAbstract<HDC, RECT>
+class cpccDrawingToolsWinDC: public cpccDrawingToolsAbstract<RECT>
 {
 private:
 
 protected:
-
+	HDC &m_hDC;
 
 public:  // constructor
-	cpccDrawingToolsWinDC(HDC &aDC): cpccDrawingToolsAbstract<HDC, RECT>(aDC) { }
+	cpccDrawingToolsWinDC(HDC &aDC): m_hDC(aDC) { }
 
 public:		// data
 	
@@ -46,22 +45,20 @@ public:		// functions
 
 	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor)
 	{
-		cpccWinGDIBrush tmpBrush(m_drawContext, aColor.asColorref());
-		Ellipse(m_drawContext, left, top, right, bottom);
+		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
+		Ellipse(m_hDC, left, top, right, bottom);
 	}
 
 
 	void 		fillRectWithColor(const RECT &r, const cpccColor& aColor) 
 	{
 		// const COLORREF c = /* (DWORD) */ aColor.asColorref();
-		cpccWinGDIBrush tmpBrush(m_drawContext, aColor.asColorref());
+		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
 		
 		// The brush identified by the hbr parameter may be either a handle to a logical brush or a color value. 
 		// If specifying a handle to a logical brush, call CreatePatternBrush, or CreateSolidBrush to obtain the handle.
 		// If specifying a color value for the hbr parameter, it must be one of the standard system colors (the value 1 must be added to the chosen color). 
-
-
-		FillRect(m_drawContext, &r , tmpBrush);
+		FillRect(m_hDC, &r , tmpBrush);
 	}
 	
 
@@ -72,7 +69,7 @@ public:		// functions
 		tmpRect.top = tmpRect.bottom = y;
 
 		if (params.color)
-			SetTextColor(m_drawContext, params.color->asColorref());
+			SetTextColor(m_hDC, params.color->asColorref());
 
 		long alignment=DT_LEFT;
 		if (params.textAlign)
@@ -86,12 +83,12 @@ public:		// functions
 
 		cpccFontKerningWin *applyKerningPtr=NULL;
 		if (params.kerning)
-			applyKerningPtr = new cpccFontKerningWin(m_drawContext, (int) *params.kerning);
+			applyKerningPtr = new cpccFontKerningWin(m_hDC, (int) *params.kerning);
 		
-		cpccWinGDIFont useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
+		cpccWinGDIFont useFont(m_hDC, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
 		
 
-		DrawText(m_drawContext, text, -1, &tmpRect, alignment | DT_NOCLIP | DT_NOPREFIX);
+		DrawText(m_hDC, text, -1, &tmpRect, alignment | DT_NOCLIP | DT_NOPREFIX);
 
 		// restore the drawing tools
 		if (params.kerning)
@@ -102,13 +99,13 @@ public:		// functions
 	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const 
 	{	RECT tmpRect = {0,0,0,0};
 
-		cpccWinGDIFont useFont(m_drawContext, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
+		cpccWinGDIFont useFont(m_hDC, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
 		
 		cpccFontKerningWin *applyKerningPtr=NULL;
 		if (params.kerning)
-			applyKerningPtr = new cpccFontKerningWin(m_drawContext, (int) *params.kerning);
+			applyKerningPtr = new cpccFontKerningWin(m_hDC, (int) *params.kerning);
 						
-		DrawText(m_drawContext, txt, -1, &tmpRect, DT_LEFT | DT_NOCLIP | DT_NOPREFIX | DT_CALCRECT);
+		DrawText(m_hDC, txt, -1, &tmpRect, DT_LEFT | DT_NOCLIP | DT_NOPREFIX | DT_CALCRECT);
 		
 		if (params.kerning)		// restore the drawing tools
 			delete applyKerningPtr;
@@ -119,29 +116,29 @@ public:		// functions
     
 	virtual cpccColor	getPixel(const int x, const int y) const 
 	{	
-		if (!m_drawContext)
+		if (!m_hDC)
 			return cpccRed;
 		
-		COLORREF c = ::GetPixel(m_drawContext, x, y);
+		COLORREF c = ::GetPixel(m_hDC, x, y);
 		return cpccColor(GetRValue(c), GetGValue(c), GetBValue(c));
 	}
 	
 	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor)
 	{
-		if (m_drawContext)
-			::SetPixel (m_drawContext, x, y, aColor.asColorref());
+		if (m_hDC)
+			::SetPixel (m_hDC, x, y, aColor.asColorref());
 	}	
 	
 
 	virtual void		bitBlitFrom(const int x, const int y, const HDC &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL) 
 	{ 
-		if (!m_drawContext)
+		if (!m_hDC)
 			return;
 
 		if (!transparentColor)
-			::BitBlt(m_drawContext, x, y, srcW , srcH, srcContext, 0,0, SRCCOPY); 
+			::BitBlt(m_hDC, x, y, srcW , srcH, srcContext, 0,0, SRCCOPY); 
 		else // http://www.winprog.org/tutorial/transparency.html
-			TransparentBlt(m_drawContext, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asColorref());
+			TransparentBlt(m_hDC, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asColorref());
 	}
 	
 };

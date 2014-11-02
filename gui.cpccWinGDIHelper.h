@@ -202,7 +202,7 @@ public:
 
 	void blitFrom(const HDC sourceDC)
 	{
-		//infoLog().addf("renderBufferWinGDI.blitFrom w:%i, h:%i", w, h);
+		//infoLog().addf("cpccWinGDIMemoryDC.blitFrom w:%i, h:%i", w, h);
 		::BitBlt(m_hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0, 0, SRCCOPY /* |CAPTUREBLT */ );
 	}
 

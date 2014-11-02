@@ -105,33 +105,27 @@
 	needed for drawing inside a cpccWindow class and a cpccImage class
 
 */
-template<typename TdrawContext, typename Trect>
+template<typename TNativeRect>
 class cpccDrawingToolsAbstract
 {
 private:
 	
 protected:
-	TdrawContext 	&m_drawContext;	// this is a reference to a variable that is external to the class
-	
 
 public:  // constructor
-	cpccDrawingToolsAbstract(TdrawContext &aDrawContext): m_drawContext(aDrawContext) { }
 
 public:		// data
 
 
 public:		// functions
-
-	// TODO: make them all abstract
-	virtual const TdrawContext	getDrawContext(void) const { return m_drawContext; } 
-	//virtual	bool				initFromFile(const cpcc_char *aFullPathFilename) =0;
-	virtual void 				fillRectWithColor(const Trect &r, const cpccColor& aColor) =0;
+    virtual void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
+	virtual void 				fillRectWithColor(const TNativeRect &r, const cpccColor& aColor) =0;
 	virtual void 				textOut(int x, int y, const cpcc_char *text, const cpccTextParams& params) const =0;
 	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const =0;
 	virtual cpccColor			getPixel(const int x, const int y) const =0;
 	virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)=0;
     
     // todo: make this abstract
-	virtual void				bitBlitFrom(const int x, const int y, const TdrawContext &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL)=0;
+	// virtual void				bitBlitFrom(const int x, const int y, const TdrawContext &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL)=0;
 };
 
