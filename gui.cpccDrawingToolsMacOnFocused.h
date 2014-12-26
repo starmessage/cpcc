@@ -23,6 +23,7 @@
 
 //////////////////////////////////////////////
 //		cpccDrawingToolsMacOnFocused
+//  Asume the proper destination has already a lockFocus
 //////////////////////////////////////////////
 
 
@@ -44,7 +45,7 @@ public:		// functions
     virtual cpccColor			getPixel(const int x, const int y) const
     {
         // not implemented
-        return cpccBlack;
+        return cpccMaroon;
     }
     
     
@@ -71,7 +72,7 @@ public:		// functions
     
     
     
-	/// Asume the proper destination has already a lockFocus
+
     void 		textOut(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
 	{
         // https://developer.apple.com/library/mac/#documentation/graphicsimaging/conceptual/drawingwithquartz2d/dq_text/dq_text.html#//apple_ref/doc/uid/TP30001066-CH213-TPXREF101

@@ -75,7 +75,7 @@ public:		// functions
 		if (!aCssPtr->textAlign.isNull())
 		{
 			int alignment = -1; // left
-			switch (*aCssPtr->textAlign())
+			switch (aCssPtr->textAlign)
 			{
 				case cpccCSS::taRight:	alignment=1; break;
 				case cpccCSS::taCenter:	alignment=0; break;
@@ -87,14 +87,14 @@ public:		// functions
 
 		// text color
 		if (!aCssPtr->color.isNull())
-			drawColor.push(* aCssPtr->color());
+			drawColor.push( aCssPtr->color);
 
         // text font
         if (!aCssPtr->fontName.isNull())
-            fontName.push(*aCssPtr->fontName());
+            fontName.push(aCssPtr->fontName);
             
         if (!aCssPtr->fontSize.isNull())
-            fontSize.push(*aCssPtr->fontSize());
+            fontSize.push(aCssPtr->fontSize);
 	}
 
 

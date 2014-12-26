@@ -24,24 +24,27 @@
 #include "cpccUnicodeSupport.h"
 
 
-
 template <typename T> class cpccProperty
 {
 private: 
 	bool	m_isNull;
 	T		m_value;
 	void	set(const T &a) { m_value = a; m_isNull=false; }
-	T *		get(void) { return m_isNull ? NULL : &m_value; }
+	T 		get(void)       { return m_value; }
 
 public:
 	cpccProperty(): m_isNull(true) { }
 	
-	T* operator()(const T& a)	{ m_value = a; return get(); }
-	T* operator()(void) 		{ return get(); }
-
+	//T* operator()(const T& a)	{ m_value = a; return get(); }
+	//T* operator()(void)         { return get(); }
+    
+    // convert to T
+    inline operator T(void)     { return get(); }
+    
+    
 	void operator=(const T &a)	{ set(a); }
-	void	clear(void)	{ m_isNull=true; }
-	bool	isNull(void) { return  m_isNull; }
+	void	clear(void)         { m_isNull=true; }
+	bool	isNull(void)        { return  m_isNull; }
 };
 
 

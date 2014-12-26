@@ -88,8 +88,10 @@ public:		// functions
     
 public:		// convenience functions
 
-	inline const T getRight(void) 	{ return topLeft.x() + size.x(); } 
-	inline const T getBottom(void) 	{ return topLeft.y() + size.y(); } 
+	inline const T getRight(void) 	const { return topLeft.getX() + size.getX(); }
+	inline const T getBottom(void) 	const { return topLeft.getY() + size.getY(); }
+	inline const T getTop(void) 	const { return topLeft.getY(); }
+	inline const T getLeft(void) 	const { return topLeft.getX(); }
 
 	inline T&	x(void) 		{ return topLeft.x(); };
 	inline T&	y(void) 		{ return topLeft.y(); };

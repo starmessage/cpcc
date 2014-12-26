@@ -173,7 +173,8 @@ bool    animationStarted=false,
 {
     cpccNativeWindowHandle windowHandle = [self getNativeWindowHandle];
     assert(windowHandle && "Error 2354b: could not get native window handle");
-    ssPtr->initWithWindowHandle( windowHandle, runningInPreview);
+    int monitorID = runningInPreview? -1 : 0;
+    ssPtr->initWithWindowHandle( windowHandle, monitorID);
 }
 
 
