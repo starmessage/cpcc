@@ -104,7 +104,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static bool		isDrawing=false;
 	static cpccApp	app;	
 	static cpccScreenSaverInterface_PerMonitor* ssNewPtr=NULL;
-	static bool screensaverWindowInitialised = false;
+	static bool		screensaverWindowInitialised = false;
+	static int		monitorID = 0;
 
 	switch(wMessage)
 		{
@@ -121,6 +122,21 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				// ssNewPtr->initWithWindowHandle( hwnd, 0);
 			}
 	
+			if (ssNewPtr)
+			{
+				if (!screensaverWindowInitialised)
+				{
+					stringlist args;
+					app.getArgcArgv(args);
+					if (args.size() > 1)
+						monitorID = args[1] == "/p" ? -1 : 0;
+					ssNewPtr->initWithWindowHandle(hwnd, monitorID);
+					screensaverWindowInitialised = true;
+					ssNewPtr->fadeoutUsersDesktop();
+				}
+				
+			}
+
 
 			// Last job: Set the timer
             uTimer = SetTimer(hwnd, 1, 1000/FramesPerSec, NULL); 
@@ -137,6 +153,9 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
             FillRect (hdc, &rc, GetStockObject(BLACK_BRUSH)); 
             ReleaseDC(hwnd,hdc); 
             break; 
+
+			In the preview window, the WM_ERASEBKGND does not come when the screensaver is starting. Only WM_CREATE is received.
+			In normal operation (desktop window) the WM_ERASEBKGND comes after the WM_CREATE
 			*/
 				// About WM_ERASEBKGND: wParam holds the HDC;
 				// erases the background in the case of password protected running
@@ -147,10 +166,15 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			{
 				if (!screensaverWindowInitialised)
 				{
-					ssNewPtr->initWithWindowHandle( hwnd, 0);
+					stringlist args;
+					app.getArgcArgv(args);
+					if (args.size() > 1)
+						monitorID = args[1] == "/p" ? -1 : 0;
+					ssNewPtr->initWithWindowHandle(hwnd, monitorID);
 					screensaverWindowInitialised =true;
+					ssNewPtr->fadeoutUsersDesktop();
 				}
-				ssNewPtr->fadeoutUsersDesktop();
+				
 			}
 
 

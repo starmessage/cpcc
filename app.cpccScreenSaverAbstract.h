@@ -93,15 +93,14 @@ public: // screensaver standard functions
 		if (!DesktopWindowPtr)
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
-		infoLog().addf( _T("screen width: %i, height: %i"),  getWidth(), getHeight());
+		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
 		mSecondsTimer.resetTimer();
 	}
 
     
 	virtual void shutDown(void)    { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
     
-	virtual bool hasConfigureSheet(void)=0;
-	virtual void showConfigureSheet(void) { };
+
 
 public:	// other functions
 

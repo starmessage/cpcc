@@ -101,6 +101,9 @@ public:  // functions
 	int 		getHeight(void) { return m_windowRect.size.height; }
 	int 		getWidth(void) 	{ return m_windowRect.size.width; }
 	
+    int         getTop(void)    { return m_windowRect.origin.y; }
+    int         getLeft(void)   { return m_windowRect.origin.x; }
+    
     
 	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)
 	{

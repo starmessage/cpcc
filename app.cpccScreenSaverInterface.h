@@ -72,9 +72,12 @@ public: // screensaver interface functions: calls that the operating system disp
 
 };
 
+
 // this function must be implemeted by the final child class as in this example
 // cpccScreenSaverInterface_PerMonitor* createScreenSaver(void) { return new ssClass; };
 // You can also use the following macro to do the same job
 cpccScreenSaverInterface_PerMonitor* createScreenSaver(void);
 
 #define DECLARE_SCREENSAVER_CLASS(T) cpccScreenSaverInterface_PerMonitor* createScreenSaver(void) { return new T; };
+
+

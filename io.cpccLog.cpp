@@ -31,7 +31,12 @@
 class cpccLog
 {
 private: // configuation
-	enum { CreateFileOnInfo=false, CreateFileOnWarning=true, CreateFileOnError=true, echoToCOUT=true };
+	enum    {
+            CreateFileOnInfo=true,  // you might want to set this to false when compiling for production
+            CreateFileOnWarning=true,
+            CreateFileOnError=true,
+            echoToCOUT=true
+            };
     
 public: 	// data
 	cpccLogFile	error, warning, info;
@@ -43,18 +48,19 @@ public:
     info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
 	{
 		cpccFileSystemMini fs;
-		info.addf("Log filename:%s", aFilename);
-        consolePut( "Log filename:" << aFilename );
-
+    
 		// empty the file
 		if (fs.fileExists(aFilename))
 			fs.createEmptyFile(aFilename);
-        else
-			consolePut( "Disabling log becase file does not exist at:" << aFilename );
-
-		info.add(cpccLogOpeningStamp);
-		info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.add("More info about the cpcc cross plaform library at: www.StarMessageSoftware.com/cpcclibrary\n");
+        
+        info.add(cpccLogOpeningStamp);
+        consolePut( "Log filename:" << aFilename );
+        info.addf("Log filename:%s", aFilename);
+        if (!fs.fileExists(aFilename))
+            consolePut( "Disabling log becase file does not exist at:" << aFilename );
+        
+        info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
+		info.add("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary\n");
 	}
 	
     

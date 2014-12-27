@@ -98,6 +98,9 @@
 	The setting will be written like this in the info.plist file:
 	<key>NSPrincipalClass</key>
 	<string>TmioanScreenSaveLibMac_OsInterface</string>
+	
+	If editing the info.plist file from xcode, find the key "Principal class" and put a value of TmioanScreenSaveLibMac_OsInterface
+	Todo: rename TmioanScreenSaveLibMac_OsInterface to cpccScreenSaveLibMac_OsInterface
  */
  
  

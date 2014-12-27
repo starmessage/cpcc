@@ -118,6 +118,8 @@ public:  // abstract functions
     virtual void 					setPixel(int x, int y, const cpccColor &c)=0;
     virtual int                     getWidth(void)=0;
     virtual int                     getHeight(void)=0;
+    virtual int                     getTop(void)=0;
+    virtual int                     getLeft(void)=0;
     virtual void                    getTextSize(const cpcc_char *txt, int *width, int *height)=0;
 	
 };
