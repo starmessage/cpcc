@@ -21,28 +21,31 @@
 #include "gui.cpccWindow.h"
 
 
-class cpccScreenSaverAbstract: public cpccScreenSaverInterface_PerMonitor
+class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
 	cpccTimeCounter		mSecondsTimer;
 	double				mTimeElapsed_inSec;
     logObjectLife       objLog;
+	
 
 protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
-	
-public: // constructor/destructor
+	bool				m_windowIsOwned;
+
+protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
 			mTimeElapsed_inSec(0.0),
+			m_windowIsOwned(true),
             objLog((char *) "cpccScreenSaverAbstract")
 	{  }
 
 
 	virtual ~cpccScreenSaverAbstract()
 	{
-		if (DesktopWindowPtr)
+		if (DesktopWindowPtr && (m_windowIsOwned))
 		{
 			delete(DesktopWindowPtr);		
 			DesktopWindowPtr=NULL;
@@ -72,7 +75,7 @@ private:	// functions
     
 
     // bit blit from buffer to screen
-    void flushOneFrame(void)
+    virtual void flushOneFrame(void)
     {	// appLog.addInfof("cpccScreenSaverAbstract.flushOneFrame() #%i", mFramesElapsed);
         if (DesktopWindowPtr)
             DesktopWindowPtr->flush();
@@ -84,7 +87,7 @@ protected:  // abstract functions for the ancenstor to implement
     
     virtual void animateOneFrameByDt(const float dt)=0;
     
-public: // screensaver standard functions	
+protected: // screensaver standard functions	
 
     
 	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle, const int monitorId)
@@ -95,6 +98,7 @@ public: // screensaver standard functions
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
 		mSecondsTimer.resetTimer();
+		m_windowIsOwned = true;
 	}
 
     

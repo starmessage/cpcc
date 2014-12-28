@@ -97,17 +97,17 @@
 	so that when OSX knows which class to instanciate when it starts the screensaver
 	The setting will be written like this in the info.plist file:
 	<key>NSPrincipalClass</key>
-	<string>TmioanScreenSaveLibMac_OsInterface</string>
+	<string>cpccScreenSaveLibMac_OsInterface</string>
 	
-	If editing the info.plist file from xcode, find the key "Principal class" and put a value of TmioanScreenSaveLibMac_OsInterface
-	Todo: rename TmioanScreenSaveLibMac_OsInterface to cpccScreenSaveLibMac_OsInterface
+	If editing the info.plist file from xcode, find the key "Principal class" and put a value of cpccScreenSaveLibMac_OsInterface
+	Todo: rename cpccScreenSaveLibMac_OsInterface to cpccScreenSaveLibMac_OsInterface
  */
  
  
 cpccApp	app;	
 
 
-@interface TmioanScreenSaveLibMac_OsInterface : ScreenSaverView 
+@interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
 {	// ScreenSaverView class is a subclass of NSView 
 }
 
@@ -124,27 +124,42 @@ cpccApp	app;
 
 @end
 
-// this selects if drawing will be done in the function drawInDrawRect 
-// otherwise it is done in the function animateOneFrame
+// this selects if drawing will be done inside the function drawInDrawRect
+// if not defined it is done inside the function animateOneFrame
 #define     drawInDrawRect
 
 
-@implementation TmioanScreenSaveLibMac_OsInterface
+@implementation cpccScreenSaveLibMac_OsInterface
 
 
-BOOL runningInPreview;
-cpccScreenSaverInterface_PerMonitor *ssPtr=NULL;
-bool    animationStarted=false,
-        fadeoutEffectCompleted=false;
+cpccScreenSaverInterface *ssPtr=NULL;
+
+/*
+ -(BOOL)isAnimating
+    Check if your screen saver is currently between startAnimation and stopAnimation.
+    Useful for pausing calculations you don't want to perform while the screen saver is idle.
+ 
+ -(BOOL)isPreview
+    Call this method to see if you're being asked to draw the small preview.
+ 
+ + (NSBackingStoreType) backingStoreType; { return NSBackingStoreBuffered; }
+*/
+
+
 
 
 
 // flip the coordinates of the NSView, so they are the same as in the case of windows screensavers
 - (BOOL)isFlipped  { return YES; }
 
+
 /*  If your subclass of NSView implements the isOpaque method to return YES,
     then the framework will never clear anything behind your view or draw any of the views under it.
-    YES = this keeps Cocoa from unneccessarily redrawing our superview */
+    YES = this keeps Cocoa from unneccessarily redrawing our superview 
+    
+    The drawing system needs to know whether it should bother updating views that lie behind yours.
+    In non-transparent windows you use [self setOpaque:YES]; to speed up drawing.
+ */
 - (BOOL)isOpaque    { return YES; }
 
 
@@ -166,8 +181,8 @@ bool    animationStarted=false,
 - (void)createScreensaver
 {
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
-	//TmioanUtils::DebugLogLn("TmioanScreenSaveLibMac_OsInterface BEFORE new ClassOfScreensaver");
-	ssPtr = createScreenSaver();
+	//TmioanUtils::DebugLogLn("cpccScreenSaveLibMac_OsInterface BEFORE new ClassOfScreensaver");
+	ssPtr = cpccScreenSaverFactory::createScreenSaver();
 	assert(ssPtr && "Error 4567: ssPtr = nil");
 }
 
@@ -176,31 +191,19 @@ bool    animationStarted=false,
 {
     cpccNativeWindowHandle windowHandle = [self getNativeWindowHandle];
     assert(windowHandle && "Error 2354b: could not get native window handle");
-    int monitorID = runningInPreview? -1 : 0;
+    int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
 }
 
 
-- (void)doOnceTheFadeoutEffect
-{
-    //[self lockFocus];
-    if (!fadeoutEffectCompleted)
-        if (ssPtr)
-        {
-            ssPtr->fadeoutUsersDesktop();
-            fadeoutEffectCompleted = true;
-        }
-    //[self unlockFocus];
-}
-
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
-	infoLog().add( "TmioanScreenSaveLibMac_OsInterface initWithFrame");
+	infoLog().add( "cpccScreenSaveLibMac_OsInterface initWithFrame");
     //cpccOS::sleep(2000);
     
-	runningInPreview = isPreview;
-	
+    //[[self window] setBackgroundColor:[NSColor clearColor]];
+    [[self window] setBackgroundColor:[NSColor orangeColor]];
     self = [super initWithFrame:frame isPreview:isPreview];
 	assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
 	
@@ -213,12 +216,12 @@ bool    animationStarted=false,
 	// This method should not do any drawing.
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
-	infoLog().add( "TmioanScreenSaveLibMac_OsInterface startAnimation");
+	infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation");
     //cpccOS::sleep(2000);
     
     // semi transparent window
     //if (![self isPreview])
-    //    [[self window] setAlphaValue:0.7];
+        [[self window] setAlphaValue:0.7];
     
     /*
     // demo
@@ -229,19 +232,19 @@ bool    animationStarted=false,
      */
     
     
-    [[self window] setBackgroundColor:[NSColor clearColor]];
+    //[[self window] setBackgroundColor:[NSColor clearColor]];
+    [[self window] setBackgroundColor:[NSColor orangeColor]];
     
 	// Activates the periodic timer that animates the screen saver.
     // A zero value polls as fast as possible while a negative number turns animation off.
 	[self setAnimationTimeInterval:1/25.0]; // 25 frames/sec
     [self createScreensaver];
     [self initScreensaverWithWindowHandle];
-	[self doOnceTheFadeoutEffect];
-    
+	
     [super startAnimation];
-    animationStarted = true;
+    // animationStarted = true;
     
-    infoLog().add( "TmioanScreenSaveLibMac_OsInterface startAnimation exiting");
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation exiting");
     //cpccOS::sleep(2000);
 }
 
@@ -250,7 +253,7 @@ bool    animationStarted=false,
 {
     // You must at least call [super stopAnimation] as shown in the standard template.
     // stopAnimation, it will get called if the display goes to sleep.
-	infoLog().add( "TmioanScreenSaveLibMac_OsInterface stopAnimation");
+	infoLog().add( "cpccScreenSaveLibMac_OsInterface stopAnimation");
 	
 	/*
 	 Deactivates the timer that advances the animation.
@@ -281,13 +284,14 @@ bool    animationStarted=false,
      */
     
     
-    if (!animationStarted)
-        return;
+    //if (!animationStarted)
+    //    return;
     
-    //infoLog().add( "TmioanScreenSaveLibMac_OsInterface drawRect");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface drawRect");
     //cpccOS::sleep(1000);
     
-    [super drawRect:rect];      // this call also draws a black background
+    //[super drawRect:rect];      // this call also draws a black background
+                                // without it, a gray background is shown as initial background
     
     // std::cout << "drawRect. w:" << rect.size.width << " h:" << rect.size.height << "\n";
 #ifdef drawInDrawRect
@@ -312,9 +316,8 @@ bool    animationStarted=false,
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-    //infoLog().add( "TmioanScreenSaveLibMac_OsInterface animateOneFrame");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
     //cpccOS::sleep(1000);
-    
 
 		
 	if (ssPtr)
@@ -345,7 +348,7 @@ bool    animationStarted=false,
 	 */
 	if (ssPtr)
 		{
-		infoLog().add( "TmioanScreenSaveLibMac_OsInterface dealloc");
+		infoLog().add( "cpccScreenSaveLibMac_OsInterface dealloc");
 		ssPtr->shutDown();
 		delete ssPtr;
 		ssPtr = NULL;
@@ -357,7 +360,7 @@ bool    animationStarted=false,
 
 - (BOOL)hasConfigureSheet
 {	
-	infoLog().add(  "TmioanScreenSaveLibMac_OsInterface hasConfigureSheet()");
+	infoLog().add(  "cpccScreenSaveLibMac_OsInterface hasConfigureSheet()");
 	return false;
 	/*
 	bool result;
@@ -373,7 +376,7 @@ bool    animationStarted=false,
 
 - (NSWindow*)configureSheet
 {
-	infoLog().add( "TmioanScreenSaveLibMac_OsInterface configureSheet()");
+	infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
     // ToDo: a code like the following example must be put here
 	/*
 	TmioanScreenSaverAbstract *tmpSsPtr;

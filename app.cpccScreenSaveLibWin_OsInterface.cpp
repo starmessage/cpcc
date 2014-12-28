@@ -103,7 +103,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static UINT_PTR	uTimer=NULL; /* timer identifier */
 	static bool		isDrawing=false;
 	static cpccApp	app;	
-	static cpccScreenSaverInterface_PerMonitor* ssNewPtr=NULL;
+	static cpccScreenSaverInterface* screensaverPtr=NULL;
 	static bool		screensaverWindowInitialised = false;
 	static int		monitorID = 0;
 
@@ -114,15 +114,15 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 						// Perform any other required initialization.	
 			infoLog().add("ScreenSaverProc() received WM_CREATE");
 
-			if (!ssNewPtr)
+			if (!screensaverPtr)
 			{
-				ssNewPtr = createScreenSaver();
+				screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
 				// something is quite not ready here in windows8 and the getDC does not work very well.
 				// So I moved the initWithWindowHandle() into the WM_ERASEBKGND event
-				// ssNewPtr->initWithWindowHandle( hwnd, 0);
+				// screensaverPtr->initWithWindowHandle( hwnd, 0);
 			}
 	
-			if (ssNewPtr)
+			if (screensaverPtr)
 			{
 				if (!screensaverWindowInitialised)
 				{
@@ -130,9 +130,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 					app.getArgcArgv(args);
 					if (args.size() > 1)
 						monitorID = args[1] == "/p" ? -1 : 0;
-					ssNewPtr->initWithWindowHandle(hwnd, monitorID);
+					screensaverPtr->initWithWindowHandle(hwnd, monitorID);
 					screensaverWindowInitialised = true;
-					ssNewPtr->fadeoutUsersDesktop();
 				}
 				
 			}
@@ -162,24 +161,11 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				// when the user cancels the password entry dialog.
 			infoLog().add("ScreenSaverProc() received WM_ERASEBKGND");
 			
-			if (ssNewPtr)
-			{
-				if (!screensaverWindowInitialised)
-				{
-					stringlist args;
-					app.getArgcArgv(args);
-					if (args.size() > 1)
-						monitorID = args[1] == "/p" ? -1 : 0;
-					ssNewPtr->initWithWindowHandle(hwnd, monitorID);
-					screensaverWindowInitialised =true;
-					ssNewPtr->fadeoutUsersDesktop();
-				}
-				
-			}
-
-
+			if (screensaverPtr)
+				screensaverPtr->backgroundWasInvalidatedByOS();
+			
 			/*
-			the typical erase background is:
+			// the typical erase background is:
 			{ RECT tmpRect;
 				
 			GetClientRect(hwnd, &tmpRect); 
@@ -187,8 +173,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			}
 			*/
 
-			break;
-			//return 1L; //An application should return nonzero (1L) if it erases the background
+			//break;
+			return 1L; //An application should return nonzero (1L) if it erases the background
 		
 		case WM_CLOSE:	// An application can prompt the user for confirmation, 
 						// prior to destroying a window, by processing the 
@@ -201,14 +187,14 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			//ns_cmiLog::cmiQLog().put() << "WM_PAINT";
 			#if (USE_WM_PAINT)
 				isDrawing = true;
-				if (ssNewPtr)
-					ssNewPtr->drawOneFrame();
+				if (screensaverPtr)
+					screensaverPtr->drawOneFrame();
 				
 				PAINTSTRUCT ps;
 				BeginPaint(hwnd,&ps);
 
-				if (ssNewPtr)
-					ssNewPtr->flushOneFrame();
+				if (screensaverPtr)
+					screensaverPtr->flushOneFrame();
 				
 				EndPaint(hwnd,&ps);
 				isDrawing = false;
@@ -227,9 +213,9 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			if (isDrawing)
 				return 0;
 
-			if (ssNewPtr)
+			if (screensaverPtr)
 			{
-				ssNewPtr->animateOneFrame();
+				screensaverPtr->animateOneFrame();
 
 				#if (USE_WM_PAINT)
 					// ask windows for a redraw
@@ -238,8 +224,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 					InvalidateRect(hwnd, &tmpRect, false);
 				#else
 					isDrawing = true;
-					ssNewPtr->drawOneFrame();
-					ssNewPtr->flushOneFrame();
+					screensaverPtr->drawOneFrame();
+					screensaverPtr->flushOneFrame();
 					isDrawing = false;
 				#endif
 			}
@@ -255,11 +241,11 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				KillTimer(hwnd, uTimer); 
 			uTimer=NULL;			 
             
-			if (ssNewPtr)
+			if (screensaverPtr)
 			{
-				ssNewPtr->shutDown();
-				delete(ssNewPtr);
-				ssNewPtr=NULL;
+				screensaverPtr->shutDown();
+				delete(screensaverPtr);
+				screensaverPtr=NULL;
 			}
 
 			// PostQuitMessage(0);
@@ -316,7 +302,7 @@ Prepei na yparxei ena dialog template me to parakato ID
 #define DLG_SCRNSAVECONFIGURE           2003
 
 */	
-	static cpccScreenSaverInterface_PerMonitor* ssNewPtr=NULL;
+	static cpccScreenSaverInterface* screensaverPtr=NULL;
 
     switch(message) 
     { 
@@ -331,14 +317,14 @@ Prepei na yparxei ena dialog template me to parakato ID
 			dialog box that can be given the focus. */
 			//MessageBox(NULL,"ConfigureSheet that must have been overiden by the child class",NULL,NULL); 
 			
-			if (!ssNewPtr)
+			if (!screensaverPtr)
 			{
-				ssNewPtr = createScreenSaver();
+				screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
 			}
 
-			if (ssNewPtr)
-				if (ssNewPtr->hasConfigureSheet())
-					ssNewPtr->showConfigureSheet();
+			if (screensaverPtr)
+				if (screensaverPtr->hasConfigureSheet())
+					screensaverPtr->showConfigureSheet();
 				
 			PostMessage(hDlg,WM_COMMAND, IDOK, NULL);
 			return TRUE; 

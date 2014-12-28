@@ -28,7 +28,7 @@ class cpccAppBase
 {
 
 public:		// abstract functions to be implemented by Windows or OSX specific code
-	virtual cpcc_string getCommandLine(void)=0;
+    virtual cpcc_string getCommandLine(void)=0;
 	virtual cpcc_string getAppDir(void)=0;
 
 	void logInformation(void)
@@ -43,7 +43,7 @@ public:		// abstract functions to be implemented by Windows or OSX specific code
 public:		// platform independent functions 
 
 
-	void				getArgcArgv(stringlist &argList)
+    void				getArgcArgv(stringlist &argList)
 	{
 		cmdline2Vector(getCommandLine().c_str(), argList);
 	}
@@ -52,16 +52,16 @@ public:		// platform independent functions
 protected:	// platform independent functions 
 
 
-	void				argcArgv2Vector(int argc, cpcc_char **argvPtr, stringlist &argList)
+	static void				argcArgv2Vector(int argc, cpcc_char **argvPtr, stringlist &argList)
 	{
 		argList.clear();
-		for(int i=0 ; i<argc ; i++)
+		for(int i=0 ; i<argc ; ++i)
 			// argList.push_back( std::string(argv[i],strlen(argv[i])).dup() );
 			argList.push_back( cpcc_string(argvPtr[i]) );
 	}
 	
 
-	void				cmdline2Vector(const cpcc_char *aCmdLine, stringlist &argList)
+	static void				cmdline2Vector(const cpcc_char *aCmdLine, stringlist &argList)
 	{
 		argList.clear();
 		cpcc_char	*token, 

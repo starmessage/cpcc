@@ -65,7 +65,7 @@ class cpccWindowBase
 {
 protected:
 	cpccNativeWindowHandle				m_windowHandle;
-	
+	bool								m_useDblBuffer;
 
 public:		// data
 
@@ -86,6 +86,7 @@ public:  // constructor
 	
 	cpccWindowBase(const cpccNativeWindowHandle aWnd): 
 		m_windowHandle(aWnd),
+		m_useDblBuffer(true),
 		bgColor(cpccPapayaWhip),
 		drawColor(cpccYellow), 
 		fontName(_T("Arial")), 
@@ -121,6 +122,6 @@ public:  // abstract functions
     virtual int                     getTop(void)=0;
     virtual int                     getLeft(void)=0;
     virtual void                    getTextSize(const cpcc_char *txt, int *width, int *height)=0;
-	
+	virtual void					useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
 };
 

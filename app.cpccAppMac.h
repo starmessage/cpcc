@@ -69,11 +69,11 @@ class cpccAppMac: public cpccAppBase
 {
 
 private:
-	pid_t	getProcessID(void) { return  getpid(); } ;
+	static pid_t	getProcessID(void) { return  getpid(); } ;
 
 public:		
 
-	virtual cpcc_string getCommandLine(void)
+    cpcc_string getCommandLine(void)
 	{	
 		/*
 		 If you want to easily access the command line information from elsewhere 

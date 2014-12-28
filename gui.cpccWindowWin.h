@@ -34,7 +34,7 @@ private:
 							m_DrawDC;
 	cpccWinGDIMemoryDC*		m_renderBuffer;
 	cpccDrawingToolsWinDC	m_dtool;
-	enum	{ config_UseDoubleBuffer=true };
+	enum	{ config_HasDoubleBuffer=true };
 
 
 
@@ -48,11 +48,10 @@ protected:		// ctors.
 		SetBkMode(m_WindowDC, TRANSPARENT);
 		GetWindowRect(m_windowHandle, &m_rect);
 
-		if (config_UseDoubleBuffer)
+		if (config_HasDoubleBuffer)
 		{
 			// the last paramenter, "true" means take a screenshot here of the actual window contents and put them in the buffer
 			m_renderBuffer = new cpccWinGDIMemoryDC(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
-			//m_renderBuffer->blitFrom(m_WindowDC);
 			m_DrawDC = m_renderBuffer->dc();
 		}
 	}
@@ -69,7 +68,13 @@ protected:		// ctors.
 
 public:
 	
-	const HDC getDrawDC(void) const { return m_DrawDC; }
+	const HDC		getDrawDC(void) const { return m_DrawDC; }
+
+	virtual void	useDblBuffer(const bool a)	
+	{ 
+		cpccWindowBase::useDblBuffer(a); 
+		m_DrawDC = (a && config_HasDoubleBuffer) ? m_renderBuffer->dc() : m_WindowDC;
+	}
 
 
 protected:		// functions ////////////////////////////////
@@ -77,7 +82,7 @@ protected:		// functions ////////////////////////////////
 
 	void 		flush(void) 
 	{ 
-		if (!m_renderBuffer)
+		if ((!m_renderBuffer) || (!m_useDblBuffer))
 			return;	// no need to flush, already drawn on the screen
 
 		m_renderBuffer->blitTo(m_WindowDC);

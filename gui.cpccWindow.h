@@ -62,6 +62,7 @@ public:		// functions
 	
 	void clear(void)
 	{
+		infoLog().add(_T("cpccWindow.clear()"));
 		fillWithColor(bgColor.getCurrent());
 	}
 
