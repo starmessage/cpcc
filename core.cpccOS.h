@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		core.cpccOS.h
  *	Purpose:	Portable (cross-platform), light-weight, OS functions

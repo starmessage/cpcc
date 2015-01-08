@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpccWindowBase.h
  *  Version:	
  *	Purpose:	Portable (cross-platform), light-weight library

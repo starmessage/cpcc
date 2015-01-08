@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsMacOnFocused.h
  *	Purpose:	Portable (cross-platform), light-weight, graphic drawing tools

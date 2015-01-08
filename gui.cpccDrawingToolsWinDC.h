@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsWinDC.h
  *  Version:	see function getClassVersion()

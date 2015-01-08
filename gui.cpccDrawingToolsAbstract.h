@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsAbstract.h
  *  Version:	see function getClassVersion()

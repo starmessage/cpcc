@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpcc_SelfTest.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Automatic tests of the library's classes

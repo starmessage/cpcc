@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpccPathHelper.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library

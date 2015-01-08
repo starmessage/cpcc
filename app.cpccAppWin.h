@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		app.cpccAppWin.h
  *	Purpose:	Portable (cross-platform), light-weight, library

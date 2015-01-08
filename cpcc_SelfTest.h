@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpcc_SelfTest.h
  *  Version:	1.0
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking

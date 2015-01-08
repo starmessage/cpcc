@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		math.cpccDerivedOperators.h
  *	Purpose:	Portable (cross-platform), light-weight, help class with templated operators
  *	*****************************************

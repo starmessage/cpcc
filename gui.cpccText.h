@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccText.h
  *  Version:	see function getClassVersion()

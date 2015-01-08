@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccTextStylesMac.h
  *  Version:	see function getClassVersion()

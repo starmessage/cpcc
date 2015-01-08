@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsCGContext.h
  *  Version:	see function getClassVersion()

@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		app.cpccAppBase.h
  *	Purpose:	Portable (cross-platform), light-weight, library

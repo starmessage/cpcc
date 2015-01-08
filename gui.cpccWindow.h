@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		cpccWindow.h
  *  Version:	see function getClassVersion()

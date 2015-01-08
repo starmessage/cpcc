@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		app.cpccScreenSaverAbstract.h
   *	Purpose:	Portable (cross-platform), light-weight, library
  *				screensaver interface with windows and OSX
@@ -28,17 +28,18 @@ private:
 	double				mTimeElapsed_inSec;
     logObjectLife       objLog;
 	
-
 protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
-
+    bool				mPreserveDeskopContents;
+    
 protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
 			mTimeElapsed_inSec(0.0),
 			m_windowIsOwned(true),
+            mPreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
 	{  }
 
@@ -86,10 +87,10 @@ private:	// functions
 protected:  // abstract functions for the ancenstor to implement
     
     virtual void animateOneFrameByDt(const float dt)=0;
+
     
 protected: // screensaver standard functions	
 
-    
 	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle, const int monitorId)
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
@@ -111,7 +112,8 @@ public:	// other functions
 	inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
-
+    virtual bool    getPreserveDeskopContents() const     { return mPreserveDeskopContents; }
+    virtual void    setPreserveDeskopContents(const bool a) { mPreserveDeskopContents = a; }
 
 };
 

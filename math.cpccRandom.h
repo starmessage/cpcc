@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		math.cpccRandom.h
  *  Version:	see function getClassVersion()

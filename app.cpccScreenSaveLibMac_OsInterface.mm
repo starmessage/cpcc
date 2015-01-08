@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		app.cpccScreenSaveLibMac_OsInterface.mm
  *  Version:	see function getClassVersion()
@@ -131,6 +131,8 @@ cpccApp	app;
 
 @implementation cpccScreenSaveLibMac_OsInterface
 
+bool previousPreserveDeskopContents = false;
+bool fadeOutHasCompleted = false;
 
 cpccScreenSaverInterface *ssPtr=NULL;
 
@@ -160,7 +162,22 @@ cpccScreenSaverInterface *ssPtr=NULL;
     The drawing system needs to know whether it should bother updating views that lie behind yours.
     In non-transparent windows you use [self setOpaque:YES]; to speed up drawing.
  */
-- (BOOL)isOpaque    { return YES; }
+- (BOOL)isOpaque
+/*
+ View Opacity
+ 
+ The display... methods must find an opaque background behind the view that requires displaying and begin drawing from there forward. The display... methods search up the view hierarchy to locate the first view that responds YES to an isOpaque message, bringing the invalidated rectangles along.
+ 
+ If a view instance can guarantee that it will fill all the pixels within its bounds using opaque colors, it should implement the method isOpaque, returning YES. The NSView implementation of isOpaque returns NO. Subclasses should override this method to return YES if all pixels within the view's content will be drawn opaquely.
+ 
+ The isOpaque method is called during drawing, and may be called several times for a given view in a drawing pass. Subclasses should avoid computationally intensive calculations in their implementation of the isOpaque method. Simple tests–for example determining if the background color is opaque as the DraggableItemView does–are acceptable.
+ 
+    // If the background color is opaque, return YES
+    // otherwise, return NO
+    return [[self backgroundColor] alphaComponent] >= 1.0 ? YES : NO;
+ */
+
+{ return YES; }
 
 
 /*  This class method allows to select how the desktop visibly transitions to the screen saver view.
@@ -168,17 +185,18 @@ cpccScreenSaverInterface *ssPtr=NULL;
     If it returns NO, the transition will be immediate.
     'No' is more appropriate if the screen saver animates a screen shot of the desktop, as is the case
     for optical lens effects.  */
+
+
 + (BOOL)performGammaFade { return NO; }
 
 
-- (cpccNativeWindowHandle)getNativeWindowHandle
+- (cpccNativeWindowHandle)util_getNativeWindowHandle
 {
 	return self; // this returns an NSView
-	// return [self window]; // this returns an NSWindow
 }
 
 
-- (void)createScreensaver
+- (void)util_createScreensaver
 {
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
 	//TmioanUtils::DebugLogLn("cpccScreenSaveLibMac_OsInterface BEFORE new ClassOfScreensaver");
@@ -187,26 +205,79 @@ cpccScreenSaverInterface *ssPtr=NULL;
 }
 
 
-- (void)initScreensaverWithWindowHandle
+- (void)util_initScreensaverWithWindowHandle
 {
-    cpccNativeWindowHandle windowHandle = [self getNativeWindowHandle];
+    cpccNativeWindowHandle windowHandle = [self util_getNativeWindowHandle];
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
 }
 
 
+-(void) util_setTransparency: (bool) transparency
+{
+    if (transparency)
+        {
+        //self.alphaValue = 0.0;
+        [[self window] setBackgroundColor:[NSColor clearColor]];
+        [[self window] setOpaque:NO];
+        }
+    else
+        {
+        //self.alphaValue = 0.3;
+        [[self window] setOpaque:YES];
+        }
+    
+}
+
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
+    // see displayRectIgnoringOpacity
+    // at
+    // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
+    
 	infoLog().add( "cpccScreenSaveLibMac_OsInterface initWithFrame");
     //cpccOS::sleep(2000);
     
     //[[self window] setBackgroundColor:[NSColor clearColor]];
-    [[self window] setBackgroundColor:[NSColor orangeColor]];
+    //[[self window] setBackgroundColor:[NSColor orangeColor]];
+
+    
     self = [super initWithFrame:frame isPreview:isPreview];
-	assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
+    
+    /*
+    NSRect windowframe = frame;
+    
+    windowframe.origin.x += 50;
+    windowframe.size.height -= 200;
+    windowframe.size.width -= 300;
+    
+    [self setFrame:windowframe];
+    */
+
+     assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
 	
+    /*
+     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/c/tdef/NSBackingStoreType
+     enum { NSBackingStoreRetained = 0, NSBackingStoreNonretained = 1, NSBackingStoreBuffered = 2 };
+     typedef NSUInteger NSBackingStoreType;
+     */
+    
+    // https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/occ/instm/NSWindow/setBackingType:
+    //[[self window] setBackingType:NSBackingStoreRetained];
+    [self util_createScreensaver];
+    [self util_initScreensaverWithWindowHandle];
+    
+    if (ssPtr)
+        [self util_setTransparency: ssPtr->getPreserveDeskopContents()];
+    
+    [[self window] setBackgroundColor:[NSColor clearColor]];
+    [[NSColor orangeColor] set];
+    
+    [NSBezierPath fillRect:frame];
+    
+    // cpccOS::sleep(3000);
     return self;
 }
 
@@ -217,35 +288,34 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
 	infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation");
+    // cpccOS::sleep(3000);
+    
+    [[self window] setAlphaValue:0.3];
+    
     //cpccOS::sleep(2000);
+    [[self window] setBackgroundColor:[NSColor clearColor]];
     
-    // semi transparent window
-    //if (![self isPreview])
-        [[self window] setAlphaValue:0.7];
+    //[[self window] setBackgroundColor:[NSColor orangeColor]];
+    //[[self window] setOpaque:NO];
+    //[[self window] setAlphaValue:1.0];
+    //[[NSColor clearColor] setFill];
+    //NSRectFill([self frame]);
     
-    /*
     // demo
     NSRect tmpRect = NSMakeRect(30, 40, 100, 150);
     [[NSColor redColor] set];
     NSRectFill(tmpRect);
-    cpccOS::sleep(2000);
-     */
-    
-    
-    //[[self window] setBackgroundColor:[NSColor clearColor]];
-    [[self window] setBackgroundColor:[NSColor orangeColor]];
+    // cpccOS::sleep(2000);
     
 	// Activates the periodic timer that animates the screen saver.
     // A zero value polls as fast as possible while a negative number turns animation off.
 	[self setAnimationTimeInterval:1/25.0]; // 25 frames/sec
-    [self createScreensaver];
-    [self initScreensaverWithWindowHandle];
+
 	
+    //infoLog().add( "before [super startAnimation];");
     [super startAnimation];
-    // animationStarted = true;
-    
+
     infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation exiting");
-    //cpccOS::sleep(2000);
 }
 
 
@@ -257,7 +327,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	
 	/*
 	 Deactivates the timer that advances the animation.
-	When Mac OS X wants your screen saver to stop doing its thing, it calls stopAnimation. 
+	 When Mac OS X wants your screen saver to stop doing its thing, it calls stopAnimation.
 	 You can override stopAnimation to release resources or 
 	 do any other cleanup you want before your screen saver goes away. 
 	 */
@@ -268,9 +338,60 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 - (void)drawRect:(NSRect)rect
 {
-    // infoLog().add("drawRect()");
+    //static bool firstDrawRectCall = true;
+    
+    if (fadeOutHasCompleted)
+        {
+        infoLog().add(" in drawRect() with fadeOutHasCompleted");
+        //[[self window] setAlphaValue:1.0];
+        }
+    
+    //NSBezierPath * path;
+    //path = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:60 yRadius:60];
+    //[[NSColor colorWithCalibratedRed:0 green:0 blue:0.4 alpha:0.3] set];
+    //[path fill];
+    
+    
+    //[[NSColor clearColor] set];
+    //NSRectFillUsingOperation(rect, NSCompositeSourceOver);
+    
+    //NSRect bounds = [self bounds];
+    //[[NSColor clearColor] setFill];
+    //[NSBezierPath fillRect:rect];
+    //NSRectFill([self frame]);
+    /*
+    [[self window] setBackgroundColor:[NSColor clearColor]];
+    //[[self window] setBackgroundColor:[NSColor orangeColor]];
+    [[self window] setOpaque:NO];
+    [[self window] setAlphaValue:1.0];
+    [[NSColor clearColor] set];
+    NSRectFill([self frame]);
+     
+     // NSRectFill treats the alpha in some odd way, [NSBezierPath fillRect:tRect]; is the solution..
+    */
+    //[[NSColor clearColor] setFill];
+    //NSRectFill(rect);
+    //[[self window] setBackgroundColor:[NSColor clearColor]];
+    
+    
+    infoLog().add("drawRect()");
+    
+    
+    if (ssPtr)
+        if (ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents)
+        {
+            infoLog().add("ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents");
+            infoLog().addf("ssPtr->getPreserveDeskopContents(): %s", ssPtr->getPreserveDeskopContents()?"YES":"NO");
+            
+            previousPreserveDeskopContents = ssPtr->getPreserveDeskopContents();
+            [self util_setTransparency: previousPreserveDeskopContents];
+            //self.alphaValue = 0.3;
+            //[[self window] setBackgroundColor:[NSColor clearColor]];
+            //[[self window] setOpaque:NO];
+        }
+    
 	/*
-     ScreenSaverView implements drawRect: to draw a black background. 
+     ScreenSaverView implements drawRect: to draw a black background.
      Subclasses can do their drawing here or in animateOneFrame.
      
 	There are two main ways to do drawing in a screen saver. 
@@ -290,15 +411,20 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //infoLog().add( "cpccScreenSaveLibMac_OsInterface drawRect");
     //cpccOS::sleep(1000);
     
-    //[super drawRect:rect];      // this call also draws a black background
-                                // without it, a gray background is shown as initial background
+    // [super drawRect:rect];      // this call draws a black background
+    /*          - (void) drawRect:(NSRect) rect
+                {
+                    [[NSColor blackColor] set];
+                    NSRectFill(rect);
+                }
+      */
+    // without it, a gray background is shown as initial background
     
     // std::cout << "drawRect. w:" << rect.size.width << " h:" << rect.size.height << "\n";
 #ifdef drawInDrawRect
 	if (ssPtr)
 		{
-		//TmioanUtils::DebugLogLn("before ssPtr->drawOneFrame()");
-		ssPtr->drawOneFrame();
+        ssPtr->drawOneFrame();
 		ssPtr->flushOneFrame();
 		}
 #endif
@@ -316,7 +442,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
     //cpccOS::sleep(1000);
 
 		
@@ -336,7 +462,8 @@ cpccScreenSaverInterface *ssPtr=NULL;
 		//NSEnableScreenUpdates();
 		}
 	
-	
+    if (!fadeOutHasCompleted)
+        fadeOutHasCompleted = true;
 }
 
 

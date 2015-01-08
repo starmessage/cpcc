@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		math.cpccMath.h
  *  Version:	see function getClassVersion()

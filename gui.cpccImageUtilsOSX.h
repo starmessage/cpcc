@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpccImageUtilsOSX.h
  *	Purpose:	Portable (cross-platform), light-weight library
  *	*****************************************

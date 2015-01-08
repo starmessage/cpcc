@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsNSBitmapImageRep.h
  *  Version:	see function getClassVersion()

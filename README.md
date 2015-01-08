@@ -1,4 +1,4 @@
-**cpcc - Cross Platform C++ Classes**
+﻿**cpcc - Cross Platform C++ Classes**
 
 A set of classes and functions that are missing from the standard C++
 

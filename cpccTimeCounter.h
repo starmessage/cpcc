@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		cpccTimeCounter.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), simple time counter in milliseconds

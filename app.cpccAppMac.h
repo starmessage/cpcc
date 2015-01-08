@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		app.cpccAppMac.h
  *	Purpose:	Portable (cross-platform), light-weight, library

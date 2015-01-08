@@ -1,4 +1,4 @@
-
+﻿
 /*  *****************************************
  *  File:		gui.cpccWinGDIhelper.h
   *	Purpose:	Portable (cross-platform), light-weight, graphic context drawing objects

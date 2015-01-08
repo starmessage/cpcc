@@ -1,4 +1,4 @@
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		math.cpccVector.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, multidimentional number

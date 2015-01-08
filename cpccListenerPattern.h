@@ -1,4 +1,4 @@
- /*  *****************************************
+﻿ /*  *****************************************
  *  File:		cpccListenerPattern.h
  *  Version:	see function getClassVersion()
  *	Purpose:	a template Listener pattern

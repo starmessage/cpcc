@@ -1,4 +1,4 @@
-/*  *****************************************
+ï»¿/*  *****************************************
  *  File:		cpccTimeCounter.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	(see header file)
@@ -32,8 +32,8 @@
 	long long time =   (end.tv_sec * (unsigned int)1e6 +   end.tv_usec) - 
 					 (start.tv_sec * (unsigned int)1e6 + start.tv_usec);
 
-	This should give 1-2µs resolution on modern Linux systems (what OS are you using?), 
-	which means that it's not well suited to learning much for items taking of <10µs. 
+	This should give 1-2Âµs resolution on modern Linux systems (what OS are you using?), 
+	which means that it's not well suited to learning much for items taking of <10Âµs. 
 
 	------------------
 	#include <sys/types.h>    
