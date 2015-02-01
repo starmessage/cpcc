@@ -112,8 +112,6 @@ cpccApp	app;
 }
 
 /*
-
- 
  Implementing preservesContentDuringLiveResize to return YES gives you some 
  extra responsibilities, but can improve performance during window resizing.
  
@@ -177,7 +175,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     return [[self backgroundColor] alphaComponent] >= 1.0 ? YES : NO;
  */
 
-{ return YES; }
+{ return NO; }
 
 
 /*  This class method allows to select how the desktop visibly transitions to the screen saver view.
@@ -185,7 +183,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
     If it returns NO, the transition will be immediate.
     'No' is more appropriate if the screen saver animates a screen shot of the desktop, as is the case
     for optical lens effects.  */
-
 
 + (BOOL)performGammaFade { return NO; }
 
@@ -216,6 +213,8 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 -(void) util_setTransparency: (bool) transparency
 {
+    infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", transparency?"Yes":"No");
+    
     if (transparency)
         {
         //self.alphaValue = 0.0;
@@ -237,7 +236,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     // at
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
     
-	infoLog().add( "cpccScreenSaveLibMac_OsInterface initWithFrame");
+	infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame()");
     //cpccOS::sleep(2000);
     
     //[[self window] setBackgroundColor:[NSColor clearColor]];
@@ -269,15 +268,24 @@ cpccScreenSaverInterface *ssPtr=NULL;
     [self util_createScreensaver];
     [self util_initScreensaverWithWindowHandle];
     
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
+    
     if (ssPtr)
         [self util_setTransparency: ssPtr->getPreserveDeskopContents()];
     
-    [[self window] setBackgroundColor:[NSColor clearColor]];
-    [[NSColor orangeColor] set];
+    // this reports an error in cerr:
+    //[[self window] setBackgroundColor:[NSColor clearColor]];
+    //[[NSColor orangeColor] set];
+    // [NSBezierPath fillRect:frame];
     
-    [NSBezierPath fillRect:frame];
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 3");
+    
+    
+    // [NSBezierPath fillRect:frame];
     
     // cpccOS::sleep(3000);
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
+    
     return self;
 }
 
@@ -290,7 +298,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation");
     // cpccOS::sleep(3000);
     
-    [[self window] setAlphaValue:0.3];
+    //[[self window] setAlphaValue:0.3];
     
     //cpccOS::sleep(2000);
     [[self window] setBackgroundColor:[NSColor clearColor]];
@@ -342,7 +350,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     
     if (fadeOutHasCompleted)
         {
-        infoLog().add(" in drawRect() with fadeOutHasCompleted");
+        //infoLog().add(" in drawRect() with fadeOutHasCompleted");
         //[[self window] setAlphaValue:1.0];
         }
     
@@ -374,7 +382,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //[[self window] setBackgroundColor:[NSColor clearColor]];
     
     
-    infoLog().add("drawRect()");
+    //infoLog().add("drawRect()");
     
     
     if (ssPtr)
@@ -442,7 +450,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
     //cpccOS::sleep(1000);
 
 		

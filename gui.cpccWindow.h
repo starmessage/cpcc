@@ -9,8 +9,8 @@
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
- *  Download:	https://code.google.com/p/cpcc/
- *              https://github.com/starmessage/cpcc
+ *  Download:	https://github.com/starmessage/cpcc
+ *				https://code.google.com/p/cpcc/              
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
@@ -62,7 +62,8 @@ public:		// functions
 	
 	void clear(void)
 	{
-		infoLog().add(_T("cpccWindow.clear()"));
+		// to debug: in some cases, this is called twice during the screensaver run under MAC
+		// infoLog().add(_T("cpccWindow.clear()"));
 		fillWithColor(bgColor.getCurrent());
 	}
 
