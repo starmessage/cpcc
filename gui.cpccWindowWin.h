@@ -119,7 +119,11 @@ protected:		// functions ////////////////////////////////
 	
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
-    
+	virtual void 			drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+	{
+		{ m_dtool.drawLine(x1, y1, x2, x2, width, c); }
+	}
+
 
 	cpccColor	getPixel_impl(const int x, const int y)						{ return m_dtool.getPixel(x,y); }
 	void		setPixel_impl(const int x, const int y, const cpccColor &c) { m_dtool.setPixel(x,y,c); }
@@ -134,7 +138,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 		params.color		= &drawColor.getCurrent();
 		params.kerning		= &kerning.getCurrent();
 		params.textAlign	= &textAlign.getCurrent();
-		m_dtool.textOut(x, y, txt, params);
+		m_dtool.drawText(x, y, txt, params);
 	}
 
 	

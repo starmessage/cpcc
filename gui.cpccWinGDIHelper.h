@@ -71,6 +71,38 @@ public:
 };
 
 
+//////////////////////////////////////////////
+//		cpccWinGDIPen
+//		Windows GDI 32 HPEN construction, destruction
+//////////////////////////////////////////////
+/*	simple example:
+	
+	HPEN hPenOld;
+
+	// Draw a red line
+	HPEN hLinePen;
+	COLORREF qLineColor = RGB(255, 0, 0);
+	hLinePen = CreatePen(PS_SOLID, 7, qLineColor);
+	hPenOld = (HPEN)SelectObject(hdc, hLinePen);
+
+	MoveToEx(hdc, 100, 100, NULL);
+	LineTo(hdc, 500, 250);
+
+	SelectObject(hdc, hPenOld);
+	DeleteObject(hLinePen);
+*/
+class cpccWinGDIPen : public cpccWinGDIObject
+{
+
+public:
+	cpccWinGDIPen(const HDC hdc, const int width, const COLORREF c) : cpccWinGDIObject(hdc, CreatePen(PS_SOLID, width, c))
+	{ }
+
+	/// convert to HBRUSH
+	inline operator HPEN(void) const   { return (HPEN)m_object; }
+};
+
+
 
 //////////////////////////////////////////////
 //		cpccWinGDIBitmap

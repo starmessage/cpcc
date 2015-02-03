@@ -71,9 +71,21 @@ public:		// functions
     }
     
     
+    virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    {
+        NSBezierPath * path = [NSBezierPath bezierPath];
+        [path setLineWidth: width];
+        
+        NSPoint startPoint = {  x1, y1 };
+        NSPoint endPoint   = { x2, y2 };
+        [path  moveToPoint: startPoint];
+        [path lineToPoint:endPoint];
+        [c.asNSColor() set];
+        [path stroke];
+    }
     
 
-    void 		textOut(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
+    void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
 	{
         // https://developer.apple.com/library/mac/#documentation/graphicsimaging/conceptual/drawingwithquartz2d/dq_text/dq_text.html#//apple_ref/doc/uid/TP30001066-CH213-TPXREF101
         //	std::cout << "textOut(" << x << " , " << y << " , "<< text << ")";

@@ -130,7 +130,7 @@ cpccApp	app;
 @implementation cpccScreenSaveLibMac_OsInterface
 
 bool previousPreserveDeskopContents = false;
-bool fadeOutHasCompleted = false;
+bool m_isOpaque = true;
 
 cpccScreenSaverInterface *ssPtr=NULL;
 
@@ -174,8 +174,9 @@ cpccScreenSaverInterface *ssPtr=NULL;
     // otherwise, return NO
     return [[self backgroundColor] alphaComponent] >= 1.0 ? YES : NO;
  */
-
-{ return NO; }
+{ 	// infoLog().add( "cpccScreenSaveLibMac_OsInterface.isOpaque()");
+    return m_isOpaque;
+}
 
 
 /*  This class method allows to select how the desktop visibly transitions to the screen saver view.
@@ -211,11 +212,11 @@ cpccScreenSaverInterface *ssPtr=NULL;
 }
 
 
--(void) util_setTransparency: (bool) transparency
+-(void) util_setTransparency: (bool) isTransparent
 {
-    infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", transparency?"Yes":"No");
+    infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", isTransparent?"Yes":"No");
     
-    if (transparency)
+    if (isTransparent)
         {
         //self.alphaValue = 0.0;
         [[self window] setBackgroundColor:[NSColor clearColor]];
@@ -227,6 +228,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
         [[self window] setOpaque:YES];
         }
     
+    m_isOpaque = !isTransparent;
 }
 
 
@@ -348,11 +350,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
 {
     //static bool firstDrawRectCall = true;
     
-    if (fadeOutHasCompleted)
-        {
-        //infoLog().add(" in drawRect() with fadeOutHasCompleted");
-        //[[self window] setAlphaValue:1.0];
-        }
     
     //NSBezierPath * path;
     //path = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:60 yRadius:60];
@@ -470,8 +467,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
 		//NSEnableScreenUpdates();
 		}
 	
-    if (!fadeOutHasCompleted)
-        fadeOutHasCompleted = true;
 }
 
 

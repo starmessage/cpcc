@@ -120,6 +120,11 @@ public:  // functions
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
     
+    virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    {
+            dtool.drawLine(x1, y1, x2, y2, width, c);
+    }
+    
     
     void setPixel_impl(const int x, const int y, const cpccColor &aColor)
 	{
@@ -182,7 +187,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 
         [m_windowHandle lockFocus];
         // You should only invoke this method when an NSView object has focus.
-        dtool.textOut(x, y, text, params);
+        dtool.drawText(x, y, text, params);
         [m_windowHandle unlockFocus];
 
         if (fontQuality.getCurrent()==fqNonAntiAliased)

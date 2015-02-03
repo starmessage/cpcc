@@ -62,7 +62,7 @@ public:		// functions
 	}
 	
 
-	virtual void 		textOut(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
+	virtual void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
 	{
 		RECT tmpRect;
 		tmpRect.left = tmpRect.right = x;
@@ -123,6 +123,7 @@ public:		// functions
 		return cpccColor(GetRValue(c), GetGValue(c), GetBValue(c));
 	}
 	
+
 	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor)
 	{
 		if (m_hDC)
@@ -141,5 +142,15 @@ public:		// functions
 			TransparentBlt(m_hDC, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asColorref());
 	}
 	
+
+	virtual void 		drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor)
+	{
+		if (!m_hDC)
+			return;
+
+		cpccWinGDIPen tmpPen(m_hDC, width, aColor.asColorref());
+		::MoveToEx(m_hDC, x1, y2, NULL);
+		::LineTo(m_hDC, x2, y2);
+	}
 };
 
