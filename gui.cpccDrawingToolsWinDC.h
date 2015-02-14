@@ -149,7 +149,7 @@ public:		// functions
 			return;
 
 		cpccWinGDIPen tmpPen(m_hDC, width, aColor.asColorref());
-		::MoveToEx(m_hDC, x1, y2, NULL);
+		::MoveToEx(m_hDC, x1, y1, NULL);
 		::LineTo(m_hDC, x2, y2);
 	}
 };

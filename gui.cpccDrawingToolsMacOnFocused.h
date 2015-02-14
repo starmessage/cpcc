@@ -44,15 +44,36 @@ public:		// functions
     
     virtual cpccColor			getPixel(const int x, const int y) const
     {
-        // not implemented
-        return cpccMaroon;
+
+        /*
+         NSReadPixel(NSPoint passedPoint)
+         https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Miscellaneous/AppKit_Functions/Reference/reference.html#//apple_ref/c/func/NSReadPixel
+         Because the passedPoint parameter is relative to the current coordinate system,
+         if you wish to read a pixel from a specific view, you must convert points in the view’s
+         coordinate system to the current coordinate system before calling this function.
+         Alternatively, you can lock focus on the view and then specify the pixel coordinate in the view’s coordinate system.
+         */
+        
+        NSColor * pixelColor = NSReadPixel(NSMakePoint(x, y));
+        
+        cpccColor c;
+        // std::cout << "getPixel result:" << (int) c.getBrightness() << "\n";
+        c.fromNSColor(pixelColor);
+     
+        return c;
     }
     
     
     virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)
     {
-        // not implemented
+        // in OSX there is no pair to NSReadPixel, like the window's setPixel(x,y, color)
+        // I use a fillRect with size of 1x1 pixels
+        
+        NSColor *drawColor = aColor.asNSColor();
+        [drawColor set];
+        NSRectFill(NSMakeRect(x, y, 1.0, 1.0));
     }
+    
     
     
     void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)

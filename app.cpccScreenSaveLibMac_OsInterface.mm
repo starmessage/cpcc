@@ -22,6 +22,14 @@
 #include 	"app.cpccApp.h"
 #include 	"core.cpccOS.h"
 
+////////////////////////////////
+// configuration parameters
+////////////////////////////////
+// this selects if drawing will be done inside the function drawInDrawRect
+// if not defined it is done inside the function animateOneFrame
+#define     drawInDrawRect
+#define     config_FramesPerSec 10.0  // 25 frames/sec
+
 /*
  Screensavers need to be compiled 32/64-bit with garbage collection supported or required 
  in the 64-bit architecture if they are to work on 64-bit systems. 
@@ -122,9 +130,6 @@ cpccApp	app;
 
 @end
 
-// this selects if drawing will be done inside the function drawInDrawRect
-// if not defined it is done inside the function animateOneFrame
-#define     drawInDrawRect
 
 
 @implementation cpccScreenSaveLibMac_OsInterface
@@ -303,7 +308,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //[[self window] setAlphaValue:0.3];
     
     //cpccOS::sleep(2000);
-    [[self window] setBackgroundColor:[NSColor clearColor]];
+    //[[self window] setBackgroundColor:[NSColor clearColor]];
     
     //[[self window] setBackgroundColor:[NSColor orangeColor]];
     //[[self window] setOpaque:NO];
@@ -312,14 +317,14 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //NSRectFill([self frame]);
     
     // demo
-    NSRect tmpRect = NSMakeRect(30, 40, 100, 150);
-    [[NSColor redColor] set];
-    NSRectFill(tmpRect);
+    //NSRect tmpRect = NSMakeRect(30, 40, 100, 150);
+    //[[NSColor redColor] set];
+    //NSRectFill(tmpRect);
     // cpccOS::sleep(2000);
     
 	// Activates the periodic timer that animates the screen saver.
     // A zero value polls as fast as possible while a negative number turns animation off.
-	[self setAnimationTimeInterval:1/25.0]; // 25 frames/sec
+	[self setAnimationTimeInterval:1/config_FramesPerSec]; // 25 frames/sec
 
 	
     //infoLog().add( "before [super startAnimation];");

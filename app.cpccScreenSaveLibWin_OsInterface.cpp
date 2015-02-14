@@ -18,7 +18,7 @@
 // engine configuration
 //
 #define USE_WM_PAINT	1
-#define FramesPerSec	40
+#define FramesPerSec	25
 //
 //////////////////////////////////////////
 
@@ -33,18 +33,8 @@
 
 
 
-/*  
-http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx
-http://www.dreamincode.net/forums/topic/17214-write-your-own-windows-screen-saver/
-
-http://social.msdn.microsoft.com/forums/en-US/vcgeneral/thread/3f2544bd-698d-4e96-a784-10d2bc92c23f/
-
-minimal example:
-http://ohwhsmm7.web.fc2.com/win/Scrnsave.cpp
-
-minimal with openGL
-http://www.windows-tech.info/17/0f61ee9913615fc5.php
-
+/*  Handling Screen Savers
+	http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx
 */
 
 /*  command line arguments:
@@ -65,17 +55,12 @@ http://www.windows-tech.info/17/0f61ee9913615fc5.php
 	#pragma comment(lib, "ScrnSavw.lib")
 #else
 	#pragma comment(lib, "ScrnSave.lib")
-	// the SDK 6.0A (comes with vs2008) creates an error under XP: changewindowmessagefilter user32.dll
-	// SDK 7.0: OK
-	
-	// here is what the scrnsave.lib is equivalent with (winmain)
-	//		http://www.wischik.com/scr/howtoscr.html#WinMainCode
+	// the windows SDK 6.0A (comes with vs2008) creates an error under XP: changewindowmessagefilter user32.dll
+	// SDK 7.0 is OK
 	
 #endif
-/*
-If using Dev-C++ in the pragma comment change 'scrnsave.lib'
-to 'libscrnsave.a' without the quotes.
-*/ 
+//	If using Dev-C++ in the pragma comment change 'scrnsave.lib' to 'libscrnsave.a'
+
 
 
 /*

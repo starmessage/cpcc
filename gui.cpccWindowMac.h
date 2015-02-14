@@ -128,14 +128,14 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
     
     void setPixel_impl(const int x, const int y, const cpccColor &aColor)
 	{
-        // in OSX there is no pair to NSReadPixel, like the window's setPixel(x,y, color)
-        // I use a fillRect with size of 1x1 pixels
         if (!m_windowHandle) return;
         
         [m_windowHandle lockFocus];
-        NSColor *drawColor = aColor.asNSColor();
-        [drawColor set];
-        NSRectFill(NSMakeRect(x, y, 1.0, 1.0));
+        
+        dtool.setPixel(x, y, aColor);
+        //NSColor *drawColor = aColor.asNSColor();
+        //[drawColor set];
+        //NSRectFill(NSMakeRect(x, y, 1.0, 1.0));
         [m_windowHandle unlockFocus];
 	}
     
@@ -148,24 +148,12 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 		// NSReadPixel() will tell you the color of the pixel nearest to the given location,
 		// in the current drawing context.
 		
-		[m_windowHandle lockFocus]; // NSReadPixel pulls data out of the current focused graphics context, so -lockFocus is necessary here.
-        /*
-         NSReadPixel(NSPoint passedPoint)
-         https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Miscellaneous/AppKit_Functions/Reference/reference.html#//apple_ref/c/func/NSReadPixel
-         Because the passedPoint parameter is relative to the current coordinate system,
-         if you wish to read a pixel from a specific view, you must convert points in the view’s
-         coordinate system to the current coordinate system before calling this function.
-         Alternatively, you can lock focus on the view and then specify the pixel coordinate in the view’s coordinate system.
-         */
-        
-		NSColor * pixelColor = NSReadPixel(NSMakePoint(x +m_skewX, y + m_skewY)); //pixelPosition is of type NSPoint and has the value of the position where you want to read the color
-   
-        
+		[m_windowHandle lockFocus];
+
+        cpccColor c = dtool.getPixel(x +m_skewX, y + m_skewY);
         [m_windowHandle unlockFocus];
         
-		cpccColor c;
-        // std::cout << "getPixel result:" << (int) c.getBrightness() << "\n";
-		c.fromNSColor(pixelColor);
+		// std::cout << "getPixel result:" << (int) c.getBrightness() << "\n";
 		return c;
 	}
 	

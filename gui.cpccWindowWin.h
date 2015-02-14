@@ -121,7 +121,7 @@ protected:		// functions ////////////////////////////////
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
 	virtual void 			drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
 	{
-		{ m_dtool.drawLine(x1, y1, x2, x2, width, c); }
+		{ m_dtool.drawLine(x1, y1, x2, y2, width, c); }
 	}
 
 

@@ -8,7 +8,7 @@
  *  Copyright: 	2014 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *  Download:	https://code.google.com/p/cpcc/
  *              https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
