@@ -42,7 +42,7 @@ public:		// data
 
 public:		// functions
     
-    virtual cpccColor			getPixel(const int x, const int y) const
+    virtual cpccColor getPixel(const int x, const int y) const
     {
 
         /*
@@ -64,7 +64,7 @@ public:		// functions
     }
     
     
-    virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)
+    virtual void setPixel(const int x, const int y, const cpccColor &aColor)
     {
         // in OSX there is no pair to NSReadPixel, like the window's setPixel(x,y, color)
         // I use a fillRect with size of 1x1 pixels
@@ -75,8 +75,7 @@ public:		// functions
     }
     
     
-    
-    void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
+    void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
     {
         NSColor *fillColor = c.asNSColor();
         [fillColor setFill];
@@ -92,7 +91,7 @@ public:		// functions
     }
     
     
-    virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
     {
         NSBezierPath * path = [NSBezierPath bezierPath];
         [path setLineWidth: width];
@@ -142,11 +141,11 @@ public:		// functions
         if (align==1)   // right
             rect.origin.x -= rect.size.width;
         
-		[macString drawInRect:rect withAttributes:textAttrib ];
-	}
+        [macString drawInRect:rect /* respectFlipped:YES */ withAttributes:textAttrib];
+    }
 	
 
-	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const 
+	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const
 	{
 		NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
 		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];

@@ -228,6 +228,34 @@ public: /// functions
         
     }
     
+public:
+    
+    virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
+    {
+        // http://stackoverflow.com/questions/4754973/images-in-nsimageviews-randomly-turned-upside-down
+        
+        NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(getWidth(), getHeight())] autorelease];
+        //[tmpImageWithText setFlipped:YES];
+        
+        
+        [tmpImageWithText lockFocus]; //  lockFocusFlipped:YES];
+        [bmpPtr drawInRect:NSMakeRect(0, 0, getWidth(), getHeight())];
+        // to adjust the flipped copy
+        // [bmpPtr drawInRect:NSMakeRect(0, getHeight(), getWidth(), -getHeight())];
+        
+        cpccVector2i textSize =	m_dtool.getTextSize(text, params);
+        m_dtool.drawText(x, getHeight() - y - textSize.getY()  , text, params);
+        [tmpImageWithText unlockFocus];
+        
+        // tmpImageWithText has the text now. Copy it back to a new bmpPtr.
+        
+        NSData *imageNewData = [tmpImageWithText  TIFFRepresentation]; // converting img into data
+        
+        if (bmpPtr)
+            [bmpPtr release];
+        bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
+    }
+    
     
 protected: // functions
     
@@ -237,7 +265,14 @@ protected: // functions
         cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;
         NSView * tmpView = tmpWindow->getNativeWindowHandle();
         [tmpView lockFocus];
-        [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())];
+        //[bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())];
+        [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
+                fromRect:NSZeroRect
+                operation:NSCompositeSourceOver
+                fraction:1.0
+                respectFlipped:YES
+                hints:nil];
+        
         [tmpView unlockFocus];
     }
 	
@@ -271,14 +306,15 @@ protected: // functions
         return true;
     }
     
+         
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
     {
-        // todo: later....
-        
-        // http://stackoverflow.com/questions/12050517/nsbitmapimagerep-resizing
         NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
+        
         [imageOfNewSize lockFocus];
         [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
+        // to adjust the flipped copy
+        //[bmpPtr drawInRect:NSMakeRect(0, newHeight, newWidth, -newHeight)];
         [imageOfNewSize unlockFocus];
         // imageOfNewSize has the resized image now
     
@@ -315,10 +351,20 @@ protected: // functions
 		*/
     }
     
-    inline cpccColor getPixel(const int x, const int y) const {  return m_dtool.getPixel(x,y); }
-	inline virtual void setPixel(const int x, const int y, const cpccColor &aColor)  { m_dtool.setPixel(x,y,aColor); }
+    inline cpccColor getPixel(const int x, const int y) const
+    {
+        return m_dtool.getPixel(x,y);
+    }
+    
+         
+	inline virtual void setPixel(const int x, const int y, const cpccColor &aColor)
+    {
+        m_dtool.setPixel(x,y,aColor);
+    }
 
+    
 	
+    
     virtual void setAlpha_impl(int x, int y, const CGFloat a)
 	{
 		/*

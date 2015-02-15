@@ -63,7 +63,7 @@ public:		// functions
 	
 
 	   
-	virtual cpccColor	getPixel(const int x, const int y) const 
+	virtual cpccColor getPixel(const int x, const int y) const
 	{
         if (!m_imgRep)
 			return cpccGreen;
@@ -74,7 +74,7 @@ public:		// functions
     }
 	
     
-	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor)
+	virtual void setPixel(const int x, const int y, const cpccColor &aColor)
 	{
 		if (!m_imgRep)
             return;

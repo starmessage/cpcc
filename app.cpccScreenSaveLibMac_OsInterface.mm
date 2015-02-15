@@ -28,7 +28,7 @@
 // this selects if drawing will be done inside the function drawInDrawRect
 // if not defined it is done inside the function animateOneFrame
 #define     drawInDrawRect
-#define     config_FramesPerSec 10.0  // 25 frames/sec
+#define     config_FramesPerSec 25.0  // 25 frames/sec
 
 /*
  Screensavers need to be compiled 32/64-bit with garbage collection supported or required 

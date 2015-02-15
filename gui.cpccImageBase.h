@@ -20,6 +20,7 @@
 
 #include "cpccColor.h"
 #include "gui.cpccWindowBase.h"
+#include "gui.cpccText.h"
 
 // This class is the abstract image class against which you must do your programming
 // Only the class factory should know what is the exact implementation that will be instatiated.
@@ -49,6 +50,8 @@ public:  // abstract functions
     virtual void 			setPixel(const int x, const int y, const cpccColor &aColor)=0;
     const virtual int       getWidth(void) const =0;
     const virtual int       getHeight(void) const =0;
+    virtual void 			drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)=0;
+    
 	const virtual void 		drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const =0;
 	virtual void 			resizeBy(const float aFactor) { resizeTo((int) (getWidth()*aFactor), (int) (getHeight()*aFactor)); }
 	virtual void 			resizeTo(const int newWidth, const int newHeight) =0;
