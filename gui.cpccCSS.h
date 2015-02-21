@@ -30,7 +30,7 @@ private:
 	bool	m_isNull;
 	T		m_value;
 	void	set(const T &a) { m_value = a; m_isNull=false; }
-	T 		get(void)       { return m_value; }
+	T 		get(void) const { return m_value; }
 
 public:
 	cpccProperty(): m_isNull(true) { }
@@ -44,7 +44,7 @@ public:
     
 	void operator=(const T &a)	{ set(a); }
 	void	clear(void)         { m_isNull=true; }
-	bool	isNull(void)        { return  m_isNull; }
+	bool	isNull(void) const  { return  m_isNull; }
 };
 
 

@@ -17,17 +17,19 @@
  
 #pragma once
 
-
 #include <ctime>
 #include <iostream> 
 #include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
+#include <assert.h>
 
+#include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
 #include "cpccUnicodeSupport.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 
 
-class cpccLogFile
+
+class cpccLogSink
 {
 private:
 	const cpcc_char *m_tag;
@@ -35,9 +37,16 @@ private:
 	bool  			 m_isEmpty,
 					 m_disableIfFileDoesNotExist,
 					 m_echoToConsole;
-	
+
+	static int		 m_IdentLevel;
+	static cpcc_char *m_IdentText;
+
+public:
+	static void		 increaseIdent(void) { ++m_IdentLevel; }
+	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541: reducing log ident to <0"); }
+
 public: // constructor / destructor
-	cpccLogFile(const cpcc_char *aTag, const cpcc_char *aFilename, const bool disableIfFileDoesNotExist, const bool echoToConsole):
+	cpccLogSink(const cpcc_char *aTag, const cpcc_char *aFilename, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
 		m_filename(aFilename),
 		m_tag(aTag),
 		m_disableIfFileDoesNotExist(disableIfFileDoesNotExist),
@@ -63,6 +72,9 @@ public: // functions
 		output.append( m_tag );
 		output.append( txt );
 		output.append( "\n" );
+		for (int i = 0; i<m_IdentLevel; ++i)
+			output.insert(0, m_IdentText);
+
 		fs.fileAppend(m_filename, output);
 		if (m_echoToConsole)
 		{
@@ -125,9 +137,9 @@ public: // functions
 
 // lazy but early enough constructor for the logging object
 
-cpccLogFile			&infoLog(void);
-cpccLogFile			&warningLog(void);
-cpccLogFile			&errorLog(void);
+cpccLogSink			&infoLog(void);
+cpccLogSink			&warningLog(void);
+cpccLogSink			&errorLog(void);
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -137,9 +149,38 @@ cpccLogFile			&errorLog(void);
 class logObjectLife
 {
 private:
-    std::string tag;
+    cpcc_string tag;
 public:
-    logObjectLife(char *aTag): tag(aTag) { infoLog().addf("creating: %s", tag.c_str() ); }
-    ~logObjectLife(void)                 { infoLog().addf("destroying: %s", tag.c_str());}
-    
+	logObjectLife(const cpcc_char *aTag) : tag(aTag) 
+	{ 
+		infoLog().addf("creating: %s", tag.c_str()); 
+		cpccLogSink::increaseIdent();
+	}
+
+    ~logObjectLife(void)  
+	{ 
+		cpccLogSink::decreaseIdent();
+		infoLog().addf("destroying: %s", tag.c_str());
+	}
 };
+
+
+
+class logTimeCountrer : public logObjectLife
+{
+private:
+	cpccTimeCounter timer;
+public:
+
+	logTimeCountrer(const cpcc_char *aTag) : logObjectLife(aTag)
+	{
+		timer.resetTimer();
+	}
+
+	~logTimeCountrer(void)
+	{
+		infoLog().addf("timer result: %.2f sec", timer.getSecondsElapsed());
+	}
+
+};
+

@@ -4,7 +4,7 @@
  *	Purpose:	Portable (cross-platform), simple time counter in milliseconds
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
+ *  Copyright: 	2015 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
@@ -46,14 +46,15 @@ private:
 	void		gettimeofdayCrossPlatform(struct timeval *currentTime);
 
 public:	// class metadata and selftest
-	const char * getClassVersion(void) { return "1.01"; };
-	static void selfTest(void);
+	const char * getClassVersion(void) { return "1.02"; };
+
 	
 public: // ctor
-	cpccTimeCounter();
+	cpccTimeCounter() 				{ resetTimer(); }
 	
 public: // functions
-	void		resetTimer(void);
+
+	void		resetTimer(void)	{ gettimeofdayCrossPlatform(&mStartTime);  }
 	double		getSecondsElapsed(void);
 	
 };

@@ -22,7 +22,7 @@
 //
 //////////////////////////////////////////
 
-
+#define _WINSOCKAPI_    // stops windows.h including winsock.h
 #include <windows.h>
 #include <ScrnSave.h>
 #include <commctrl.h>
@@ -40,6 +40,7 @@
 /*  command line arguments:
  ScreenSaver           - Show the Settings dialog box.
  ScreenSaver /c        - Show the Settings dialog box, modal to the foreground window.
+ ScreenSaver /c <HWND> - Show the Settings dialog box, as child to the  HWND window.
  ScreenSaver /p <HWND> - Preview Screen Saver as child of window <HWND>.
  ScreenSaver /s        - Run the Screen Saver.
  ScreenSaver /sm	   - emulate multi-monitor

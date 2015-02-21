@@ -39,13 +39,13 @@ private: // configuation
             };
     
 public: 	// data
-	cpccLogFile	error, warning, info;
+	cpccLogSink	error, warning, info;
     
 public:
 	cpccLog(const char *aFilename):
-    error("ERROR>\t", aFilename, !CreateFileOnError, echoToCOUT),
-    warning("Warning>\t", aFilename, !CreateFileOnWarning, echoToCOUT),
-    info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
+		error("ERROR>\t", aFilename, !CreateFileOnError, echoToCOUT),
+		warning("Warning>\t", aFilename, !CreateFileOnWarning, echoToCOUT),
+		info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
 	{
 		cpccFileSystemMini fs;
     
@@ -110,14 +110,17 @@ cpccLogAutoFilename &appLogNew(void)
 	return m_appLog;
 }
 
+cpcc_char *	cpccLogSink::m_IdentText =  (cpcc_char *)"| ";
+int	cpccLogSink::m_IdentLevel = 0;
+
 
 /////////////////////////////////////////////////////////////////////////
 // inside the program use the following functions to write to the 3 logs.
 // all the 3 logs point to the same file.
 
-cpccLogFile			&infoLog(void)		{	return appLogNew().info; }
-cpccLogFile			&warningLog(void)	{	return appLogNew().warning; }
-cpccLogFile			&errorLog(void)		{	return appLogNew().error; }
+cpccLogSink			&infoLog(void)		{ return appLogNew().info; }
+cpccLogSink			&warningLog(void)	{ return appLogNew().warning; }
+cpccLogSink			&errorLog(void)		{ return appLogNew().error; }
 
 
 

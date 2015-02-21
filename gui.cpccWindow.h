@@ -75,11 +75,11 @@ public:		// functions
 
 		if (!aCssPtr->textAlign.isNull())
 		{
-			int alignment = -1; // left
+			eTextAlign alignment = taLeft; // left
 			switch (aCssPtr->textAlign)
 			{
-				case cpccCSS::taRight:	alignment=1; break;
-				case cpccCSS::taCenter:	alignment=0; break;
+				case cpccCSS::taRight:	alignment= taRight; break;
+				case cpccCSS::taCenter:	alignment= taCenter; break;
                 case cpccCSS::taNone:
 				case cpccCSS::taLeft: ;
 			}

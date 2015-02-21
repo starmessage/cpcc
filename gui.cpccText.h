@@ -31,8 +31,8 @@ struct cpccTextParams
 {
 	cpccColor		*color;
 	const cpcc_char	*fontName;
-	int				*fontSize,
-                    *textAlign;
+	int				*fontSize;
+	eTextAlign      *textAlign;
 	float			*kerning;
 	eFontQuality	fontQuality;
 	eFontWeight		fontWeight;

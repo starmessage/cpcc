@@ -118,8 +118,8 @@ public:		// data
 	
 	// text (font+paragraph) parameters:
 	cpccStackWithDefault<cpcc_string>	fontName;
-	cpccStackWithDefault<int>			fontSize,
-                                        textAlign;
+	cpccStackWithDefault<int>			fontSize;
+	cpccStackWithDefault<eTextAlign>    textAlign;
 	cpccStackWithDefault<float>			kerning;
 	cpccStackWithDefault<eFontQuality>	fontQuality;
 	cpccStackWithDefault<eFontWeight>	fontWeight;
@@ -134,7 +134,7 @@ public:  // constructor
 		drawColor(cpccYellow), 
 		fontName(_T("Arial")), 
 		fontSize(12),
-		textAlign(-1),	// left
+		textAlign(taLeft),	// left
 		kerning(0.0f),
 		fontQuality(fqAntiAliased),
 		fontWeight(fwNormal)

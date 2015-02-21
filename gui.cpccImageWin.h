@@ -48,6 +48,7 @@ protected:	// ctors
 			When the thread is destroyed, the memory DC will be destroyed as well.
 		*/
 		m_hDC = ::CreateCompatibleDC (NULL);
+		SetBkMode(m_hDC, TRANSPARENT);
 	}
 	
 	
@@ -119,6 +120,12 @@ public:		// functions
 	} 
 	
 
+	virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
+	{
+		m_dtool.drawText(x, y, text, params);
+	}
+
+
 protected:
 
 	virtual void 		cropTo_impl(const int newTop, const int newLeft, const int newWidth, const int newHeight)
@@ -158,6 +165,7 @@ protected:
 
 
 protected: // functions
+
 	// ToDo: transparentCorner is ignored here but is treated by the encapsulating class
 	virtual bool initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
 	{

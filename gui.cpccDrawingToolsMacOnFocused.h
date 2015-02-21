@@ -141,7 +141,15 @@ public:		// functions
         if (align==1)   // right
             rect.origin.x -= rect.size.width;
         
+        bool prevState = [[NSGraphicsContext currentContext] shouldAntialias];
+        
+        if ((params.fontQuality==fqNonAntiAliased) && (prevState==YES))
+            [[NSGraphicsContext currentContext] setShouldAntialias: NO];
+        
         [macString drawInRect:rect /* respectFlipped:YES */ withAttributes:textAttrib];
+        
+        if ((params.fontQuality==fqNonAntiAliased) && (prevState==YES))    [[NSGraphicsContext currentContext] setShouldAntialias: YES];
+        
     }
 	
 

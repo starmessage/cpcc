@@ -256,9 +256,7 @@ public:
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
     }
     
-    
-protected: // functions
-    
+
     const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
     {
         assert(bmpPtr && "#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
@@ -267,14 +265,19 @@ protected: // functions
         [tmpView lockFocus];
         //[bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())];
         [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
-                fromRect:NSZeroRect
-                operation:NSCompositeSourceOver
-                fraction:1.0
-                respectFlipped:YES
-                hints:nil];
+                  fromRect:NSZeroRect
+                 operation:NSCompositeSourceOver
+                  fraction:1.0
+            respectFlipped:YES
+                     hints:nil];
         
         [tmpView unlockFocus];
     }
+    
+    
+protected: // functions
+    
+
 	
     
     virtual bool initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
