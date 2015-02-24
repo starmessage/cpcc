@@ -14,7 +14,7 @@
 
 #include "cpccColor.h"
 #include "cpcc_SelfTest.h"
-#include <assert.h>
+
 #include <cmath>
 
 
@@ -35,7 +35,7 @@ void cpccColorT<T>::selfTest()
 	cf1.r=0.8f; cf1.g=0.6f; cf1.b=0.4f; cf1.a=0.5f;
 	cf1.amplifyComponents(0.5f, 0.5f, 0.5f);
 			
-	assert( practicallyEqual(cf1.r , 0.4f) && 
+	assert( practicallyEqual(cf1.r , 0.4f) && 	
 			practicallyEqual(cf1.g , 0.3f) && 
 			practicallyEqual(cf1.b , 0.2f) && 
 			practicallyEqual(cf1.a , 0.5f) && 
@@ -83,4 +83,9 @@ void cpccColorT<T>::selfTest()
 SELFTEST_BEGIN(cpccColorT_SelfTest)
 	if (cpccColorT<float>::config_RunSelfTest)
 		cpccColorT<float>::selfTest();
+SELFTEST_END
+
+
+SELFTEST_BEGIN(cpccColor32_t_SelfTest)
+	cpccColor32_t::selfTest();
 SELFTEST_END

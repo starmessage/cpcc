@@ -17,17 +17,32 @@
 #define cpccTypes_h
 
 
+//  the Intel x86 processor represents a common little-endian architecture
+//  Little-endian systems store the least significant byte in the smallest address
+#define cpccLITTLEENDIAN
+
+
 typedef unsigned char		cpccUint8_t;
-
-//	A 16-bit unsigned integer. The range is 0 through 65535 decimal.
-//	This type is declared in WinDef.h as follows:
-typedef unsigned short 		cpccUint16_t;
-// typedef unsigned int 		cpccUint16;
+typedef unsigned char		cpccBYTE;
 
 
-// 	A 32-bit unsigned integer. The range is 0 through 4294967295 decimal.
-//	This type is declared in IntSafe.h as follows:
-typedef unsigned long 		cpccUint32_t;
+#if defined(_MSC_VER) 
+	#include <stdio.h>
+	typedef unsigned __int16	uint16_t;
+	typedef unsigned __int32	uint32_t;
+#endif
+
+typedef uint16_t            cpccWORD;
+typedef uint32_t            cpccDWORD;
+
+// these types are part of C99
+static union
+{
+	char   cpccBYTE_incorrect[sizeof(cpccBYTE)  == 1 ? 1 : -1];
+	char	   WORD_incorrect[sizeof(cpccWORD)  == 2 ? 1 : -1];
+	char    int32_t_incorrect[sizeof(cpccDWORD) == 4 ? 1 : -1];
+    char   uint32_t_incorrect[sizeof(uint32_t)  == 4 ? 1 : -1];
+};
 
 
 /*

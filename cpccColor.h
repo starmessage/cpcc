@@ -21,7 +21,8 @@
 
 #include "cpccTypes.h"
 #include <algorithm>
-
+#include <assert.h>
+#include <iostream>
 
 #ifdef _WIN32
 	#include <windows.h>	// for COLORREF
@@ -39,7 +40,48 @@
 #endif
 
 
-typedef cpccUint32_t    cpccColorARGB;
+// new class
+struct cpccColor32_t
+{
+    union
+    {
+        cpccDWORD data;
+
+		struct
+        {
+#ifdef cpccLITTLEENDIAN 
+            cpccBYTE b, g, r, a;
+#else
+            cpccBYTE a: 8, r: 8, g: 8, b: 8;
+#endif
+        };
+    };
+    
+    cpccColor32_t(): data(0) { }
+    cpccColor32_t(const unsigned long aHexColor): data(aHexColor) { } // do not use a CORORREF as aHexColor
+    cpccColor32_t(const cpccColor32_t &c) { data = c.data; }
+    cpccColor32_t(const unsigned char a_, const unsigned char r_, const unsigned char g_, const unsigned char b_):
+        a(a_), r(r_), g(g_), b(b_) { }
+    cpccColor32_t(const unsigned char r_, const unsigned char g_, const unsigned char b_):
+        a(255), r(r_), g(g_), b(b_) { }
+    
+    
+    inline const bool operator ==(const cpccColor32_t& c2)  { return (c2.data == data); }
+    inline const bool operator !=(const cpccColor32_t& c2)  { return (c2.data != data); }
+    
+    static void selfTest(void)
+    {
+        std::cout << "cpccColor32_t::selfTest() starting\n";
+        assert((sizeof(cpccDWORD)==4) && "#7614a cpccColor32_t: expecting data to be 4 bytes long");
+        cpccColor32_t c1(1,2,3,4), c2(0x01020304);
+        
+        std::cout << "SizeOf(cpccColor32_t)=" << sizeof(cpccColor32_t) << " sizeof(unsigned char)=" << sizeof(unsigned char) << " c1.data=" << c1.data << " c2.data=" << c2.data << "\n";
+        
+        assert((c1==c2) && "#7614b cpccColor32_t contructor problem from hex color. Maybe a big/litte endian mismatch?");
+    }
+};
+
+
 
 
 #define applyMinMax(xLow, xHigh, x)		(((x>xHigh)?xHigh:x)<xLow)?xLow:((x>xHigh)?xHigh:x)
@@ -116,9 +158,10 @@ class cpccColorT
 
 	public: // functions
 
-	
-	
-		cpccColorARGB asARGB(void)
+	/*
+        // typedef cpccUint32_t    cpccColorARGB;
+        
+        cpccColorARGB asARGB(void)
 		{
 			return	((a << 24) | (r << 16) | (g << 8) | b);
 		}
@@ -128,7 +171,8 @@ class cpccColorT
 		{
 			return	((r << 16) | (g << 8) | b);
 		}
-		
+	*/
+        
 
 		void amplifyComponents(const float x)
 		{
@@ -219,7 +263,7 @@ public:
 	cpccColor() : cpccColorT<cpccUint8_t>() { }
 
 
-	cpccColor(cpccUint32_t aColorHex) 
+	cpccColor(cpccDWORD aColorHex)
 	{		// The COLORREF RGB value in Win32 is defined as #00BBGGRR. 
 			// so do not pass a COLORREF to this constructor
 			b = aColorHex & 0xFF;
@@ -267,7 +311,7 @@ public:
 		a=aA*255;
     }
 	
-	
+	/*
 	CGColorRef asCGColorRef(void)
 	{
 		// You create a CGColor object by calling the function CGColorCreate, passing a CGColorspace object 
@@ -276,7 +320,8 @@ public:
 		
 		return CGColorCreateGenericRGB(r/255.0, g/255.0, b/255.0, a/255.0);
 	}
-	
+	*/
+    
     
 	/// get the color components from CGColorRef and put them in cpccColor
 	void fromCGColorRef(CGColorRef c)
@@ -301,9 +346,8 @@ public:
 }; 
 
 
-typedef 	cpccColorT<float>				cpccColorF;
+// typedef 	cpccColorT<float>				cpccColorF;
 
-//	http://www.rapidtables.com/web/color/RGB_Color.htm
 
 static const cpccColor	cpccBlack(          0x00, 0x00, 0x00);
 static const cpccColor	cpccWhite(          0xFF, 0xFF, 0xFF);

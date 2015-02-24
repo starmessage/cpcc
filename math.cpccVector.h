@@ -134,7 +134,7 @@ public: // Overloaded operators
 			}
 			 
 		for (int i=0; i<DIM; i++)
-			 data[i] /= Scalar;
+			 data[i] = (T) (data[i] / Scalar);
 
 		return (*this);
 	}
