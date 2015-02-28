@@ -16,6 +16,19 @@
 #pragma once
 #include "cpccUnicodeSupport.h"
 
+/* you need to allocate these global variables somewhere in one of your cpp files like this:
+
+	const cpcc_char *cpccAppInfo::CompanyName			= "StarMessage software";
+	const cpcc_char *cpccAppInfo::ProgramName			= "StarMessage screensaver";
+	const cpcc_char *cpccAppInfo::Version				= "5.0";
+	const cpcc_char *cpccAppInfo::ProgramNameAndVersion = "StarMessage screensaver v5.0";
+	const cpcc_char *cpccAppInfo::WebSiteNoHttp			= "www.StarMessageSoftware.com";
+	const cpcc_char *cpccAppInfo::WebSite				= "www.StarMessageSoftware.com";
+	const char		*cpccAppInfo::EmailSales			= "xxx@ccc.aaa";
+	const char		*cpccAppInfo::EmailSupport			= "yyy@ccc.aaa";
+
+*/
+
 class cpccAppInfo
 {
 public:
@@ -27,6 +40,6 @@ public:
 		*WebSiteNoHttp,
 		*WebSite;
 	const static char
-		*EmailSale,
+		*EmailSales,
 		*EmailSupport;
 };

@@ -27,7 +27,7 @@
 //////////////////////////////////////////////
 
 
-class cpccDrawingToolsMacOnFocused: public cpccDrawingToolsAbstract<NSRect>
+class cpccDrawingToolsMacOnFocused: public cpcciDrawingTools<NSRect>
 {
 private:
 

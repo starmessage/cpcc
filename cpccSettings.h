@@ -42,7 +42,7 @@ private:
 public:	// class metadata and selftest
 	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
 	
-	static const char * getClassVersion(void) { return "0.50"; };
+	static const char * getClassVersion(void) { return "0.51"; };
 
 #if defined(cpccSettings_DoSelfTest)
 	static void selfTest(void);
@@ -55,16 +55,34 @@ public: 	// ctors
 	cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoftwareName, const settingsScope aScope=scopeCurrentUser);
 	~cpccSettings();
 	
-
+private:
+    
+    const cpcc_char * createKeyWithIndex(const cpcc_char *aKey, const int index) const
+    {
+        std::ostringstream s;
+        s << aKey << index;
+        return s.str().c_str();
+    }
+    
 public:		// functions
 	cpcc_string getFilename(void) { return mFilename; }
 	
 	cpcc_string readString(		const cpcc_char *aKey, const cpcc_char *aDefaultValue);
-	bool		readBool(		const cpcc_char *aKey, const bool aDefaultValue);
+    cpcc_string readStringN(	const cpcc_char *aKey, const int n, const cpcc_char *aDefaultValue)
+    {
+        return readString(createKeyWithIndex(aKey, n), aDefaultValue);
+    }
+    
+    bool		readBool(		const cpcc_char *aKey, const bool aDefaultValue);
 	long		readLongint(	const cpcc_char *aKey, const long aDefaultValue);
 	double		readReal(		const cpcc_char *aKey, const double aDefaultValue);
 	void		writeString(	const cpcc_char *aKey, const cpcc_char *aValue);
-	void		writeBool(		const cpcc_char *aKey, const bool aValue);
+    void		writeStringN(	const cpcc_char *aKey, const int n, const cpcc_char *aValue)
+    {
+        writeString(createKeyWithIndex(aKey, n), aValue);
+    }
+    
+    void		writeBool(		const cpcc_char *aKey, const bool aValue);
 	void		writeLongint(	const cpcc_char *aKey, const long int aValue);
 	void		writeReal(		const cpcc_char *aKey, const double aValue);
 
@@ -72,14 +90,14 @@ public:		// functions
 	bool		load(void);
 	bool		save(void);
 
-	void		pauseSaving(void) { instantSaving = false; }
-	void		resumeSaving(void);
+	void		pauseInstantSaving(void) { instantSaving = false; }
+	void		resumeInstantSaving(void);
 	
 							  
 };
 
 
-
+/*
 class cpccPersistentVar
 {
 protected:
@@ -171,3 +189,8 @@ public:
 	}
 	
 };
+*/
+
+
+cpccSettings &appUserSettings(void);
+cpccSettings &appSystemSettings(void);

@@ -28,7 +28,7 @@
 //////////////////////////////////////////////
 //		cpccDrawingToolsWinDC
 //////////////////////////////////////////////
-class cpccDrawingToolsWinDC: public cpccDrawingToolsAbstract<RECT>
+class cpccDrawingToolsWinDC : public cpcciDrawingTools<RECT>
 {
 private:
 

@@ -50,9 +50,9 @@ struct cpccColor32_t
 		struct
         {
 #ifdef cpccLITTLEENDIAN 
-            cpccBYTE b, g, r, a;
+            cpccBYTE a, b, g, r;
 #else
-            cpccBYTE a: 8, r: 8, g: 8, b: 8;
+			cpccBYTE r: 8, g: 8, b: 8, a: 8;
 #endif
         };
     };
@@ -60,15 +60,61 @@ struct cpccColor32_t
     cpccColor32_t(): data(0) { }
     cpccColor32_t(const unsigned long aHexColor): data(aHexColor) { } // do not use a CORORREF as aHexColor
     cpccColor32_t(const cpccColor32_t &c) { data = c.data; }
-    cpccColor32_t(const unsigned char a_, const unsigned char r_, const unsigned char g_, const unsigned char b_):
-        a(a_), r(r_), g(g_), b(b_) { }
-    cpccColor32_t(const unsigned char r_, const unsigned char g_, const unsigned char b_):
-        a(255), r(r_), g(g_), b(b_) { }
-    
+	cpccColor32_t(const unsigned char r_, const unsigned char g_, const unsigned char b_, const unsigned char a_=255 ) :
+		r(r_), g(g_), b(b_), a(a_) {}
+	   
     
     inline const bool operator ==(const cpccColor32_t& c2)  { return (c2.data == data); }
     inline const bool operator !=(const cpccColor32_t& c2)  { return (c2.data != data); }
     
+#ifdef _WIN32
+	inline const COLORREF asColorref(void) const		{ return RGB(r, g, b);  }
+#endif
+
+#ifdef __APPLE__
+
+	NSColor *asNSColor(void) const 	{ return[NSColor colorWithDeviceRed : (r/255.0f) green : (g/255.0f) blue : (b/255.0f) alpha : a/255.0f]; }
+
+	void fromNSColor(NSColor *c)
+	{
+		CGFloat aR, aG, aB, aA;
+		[c getRed : &aR green : &aG blue : &aB alpha : &aA];
+
+		r = aR * 255; g = aG * 255; b = aB * 255; a = aA * 255;
+	}
+
+
+	CGColorRef asCGColorRef(void)
+	{
+	// You create a CGColor object by calling the function CGColorCreate, passing a CGColorspace object
+	// and an array of floating-point values that specify the intensity values for the color.
+	// The last component in the array specifies the alpha value
+
+	return CGColorCreateGenericRGB(r/255.0, g/255.0, b/255.0, a/255.0);
+	}
+
+
+	/// get the color components from CGColorRef and put them in cpccColor
+	void fromCGColorRef(CGColorRef c)
+	{
+		const CGFloat *components = CGColorGetComponents(c);
+		int numComponents = CGColorGetNumberOfComponents(c);
+		if (numComponents >= 3)
+		{
+			r = 255 * components[0];
+			g = 255 * components[1];
+			b = 255 * components[2];
+		}
+
+		if (numComponents == 4)
+			a = 255 * components[3];
+		else
+			a = 255;
+	}
+#endif
+
+	inline const cpccBYTE getBrightness(void) const		{ return (r + g + b) / 3; }
+
     static void selfTest(void)
     {
         std::cout << "cpccColor32_t::selfTest() starting\n";
@@ -138,7 +184,7 @@ class cpccColorT
 		cpccColorT(T red, T green, T blue, T alpha)
 			: r(red), g(green), b(blue), a(alpha)
 		{ }
-			
+		
 
 		cpccColorT( const cpccColorT<T> &src ) 
 			: r( src.r ), g( src.g ), b( src.b ), a( src.a )
@@ -157,22 +203,6 @@ class cpccColorT
 
 
 	public: // functions
-
-	/*
-        // typedef cpccUint32_t    cpccColorARGB;
-        
-        cpccColorARGB asARGB(void)
-		{
-			return	((a << 24) | (r << 16) | (g << 8) | b);
-		}
-		
-
-		cpccColorARGB asRGB(void)
-		{
-			return	((r << 16) | (g << 8) | b);
-		}
-	*/
-        
 
 		void amplifyComponents(const float x)
 		{
@@ -274,16 +304,17 @@ public:
 			a = 255;
 	}
 
-
+	
 	cpccColor(cpccUint8_t aRed, cpccUint8_t aGreen, cpccUint8_t aBlue, cpccUint8_t aAlpha=255) : cpccColorT<cpccUint8_t>(aRed, aGreen, aBlue, aAlpha)
 	{ }
 
-	// this is a dangerous function. Someone might misunderstand tha the floats are in the interval 0..1
+	// this is a dangerous function. Someone might misunderstand that the floats are in the interval 0..1
 	cpccColor(float aRed, float aGreen, float aBlue, float aAlpha=255) : cpccColorT<cpccUint8_t>((cpccUint8_t)aRed, (cpccUint8_t)aGreen, (cpccUint8_t)aBlue, (cpccUint8_t)aAlpha)
 	{ }
 
 	cpccColor(int aRed, int aGreen, int aBlue, int aAlpha=255) : cpccColorT<cpccUint8_t>((cpccUint8_t)aRed, (cpccUint8_t)aGreen, (cpccUint8_t)aBlue, (cpccUint8_t)aAlpha)
 	{ }
+	
 
 #ifdef _WIN32
 	const COLORREF asColorref(void) const

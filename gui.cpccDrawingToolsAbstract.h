@@ -106,7 +106,7 @@
 
 */
 template<typename TNativeRect>
-class cpccDrawingToolsAbstract
+class cpcciDrawingTools
 {
 private:
 	
@@ -125,7 +125,8 @@ public:		// functions
 	virtual cpccColor			getPixel(const int x, const int y) const =0;
 	virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)=0;
 	virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor) = 0;
-    // todo: make this abstract
-	// virtual void				bitBlitFrom(const int x, const int y, const TdrawContext &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL)=0;
+    // cannot be done abstract because one clild class does not need it
+    //virtual void				bitBlitFrom(const int x, const int y, const TNativeSurface &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor = NULL) = 0;
+	
 };
 

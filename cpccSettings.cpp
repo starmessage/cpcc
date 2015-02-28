@@ -24,11 +24,61 @@
 #include <errno.h>
 
 #include "cpccSettings.h"
+#include "cpccAppInfo.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #if defined(cpccSettings_DoSelfTest)
 	#include "cpcc_SelfTest.h"
 #endif
+
+
+// encode characters to fit to the INI file (e.g. multiline text)
+const cpcc_char *encodedCharacters[][2] =
+{
+    //             normal     ->       encoded
+    {(cpcc_char *)  "=",  (cpcc_char *) "\\="},
+    {(cpcc_char *)  "\\", (cpcc_char *) "\\\\"},
+    {(cpcc_char *)  "\n", (cpcc_char *) "\\n"},
+    {(cpcc_char *)  "\r", (cpcc_char *) "\\r"}
+};
+
+
+class iniFileEncodings
+{
+private:
+    // a pity the whole std library does not contain a ready function for this
+    static void findAndReplaceAll( cpcc_string& source, const cpcc_char* find, const cpcc_char* replace )
+    {
+        if (!find || !replace)
+            return;
+        
+        size_t findLen = strlen(find);
+        size_t replaceLen = strlen(replace);
+        size_t pos = 0;
+        
+        while ((pos = source.find(find, pos)) != std::string::npos)
+        {
+            source.replace( pos, findLen, replace );
+            pos += replaceLen;
+        }
+    }
+    
+public:
+    
+    static void    encode(cpcc_string &str)
+    {
+        for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
+            findAndReplaceAll(str, encodedCharacters[i][0], encodedCharacters[i][1]);
+    }
+    
+    static void    decode(cpcc_string &str)
+    {
+        for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
+            findAndReplaceAll(str, encodedCharacters[i][1], encodedCharacters[i][0]);
+    }
+    
+};
+
 
 
 
@@ -52,11 +102,6 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	// http://stackoverflow.com/questions/6993527/c-mac-os-x-cannot-write-to-library-application-support-appname
 	
 	cpcc_string companySubFolder(aCompanyName);
-	 
-#ifdef __APPLE__
-	// apple prefixes the entries with a com.
-	companySubFolder = "com." + companySubFolder;
-#endif
 	
 	mFilename = ph.pathCat(settingsRootFolder.c_str(), companySubFolder.c_str());
 	if (!fs.createFolder(mFilename))
@@ -87,11 +132,7 @@ bool cpccSettings::load(void)
 	if (!fs.fileExists(mFilename))
 		return true;
 	
-	// http://stackoverflow.com/questions/10951447/load-stdmap-from-text-file
-	// http://stackoverflow.com/questions/16135285/iterate-over-ini-file-on-c-probably-using-boostproperty-treeptree
-	// http://www.cplusplus.com/forum/beginner/29576/
 	
-	cpcc_string key, value;
 	std::ifstream iniFile(mFilename.c_str());
 	if (!iniFile.is_open())
 	{
@@ -100,14 +141,45 @@ bool cpccSettings::load(void)
 	}
 		
 	mSettings.clear();
-	
+	cpcc_string key, value;
+    
 	while(std::getline(iniFile, key, '='))
     {
 		std::getline(iniFile, value);
+        iniFileEncodings::decode(key);
+        iniFileEncodings::decode(value);
 		mSettings[key] = value;
     }
 	
 	return true;
+}
+
+
+bool cpccSettings::save(void)
+{
+    //	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
+    
+#pragma warning(disable : 4996)
+    FILE *fp = fopen(mFilename.c_str(), "w");
+    if (!fp)
+    {
+        // If it fails returns NULL", yes. The global variable errno (found in <errno.h>)
+        // contains information about what went wrong;
+        // you can use perror() to print that information as a readable string.
+        std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
+        return false;
+    }
+    
+    cpcc_string key, value;
+    for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
+    {
+        key = it->first;    iniFileEncodings::encode(key);
+        value = it->second; iniFileEncodings::encode(value);
+        fprintf(fp, "%s=%s\n", key.c_str(), value.c_str());
+    }
+    fclose(fp);
+    
+    return true;
 }
 
 
@@ -195,37 +267,11 @@ void cpccSettings::clear(void)
 }
 
 
-void cpccSettings::resumeSaving(void)
+void cpccSettings::resumeInstantSaving(void)
 {
 	instantSaving = true;
 	if (!save())
 		std::cerr << "Error #1353: saving cpccSettings to file:" << mFilename << std::endl;
-}
-
-
-
-
-
-bool cpccSettings::save(void)
-{
-	//	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
-
-	#pragma warning(disable : 4996)
-	FILE *fp = fopen(mFilename.c_str(), "w");
-	if (!fp)
-	{
-		// If it fails returns NULL", yes. The global variable errno (found in <errno.h>) 
-		// contains information about what went wrong; 
-		// you can use perror() to print that information as a readable string.
-		std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
-		return false;
-	}
-	
-	for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it) 
-		fprintf(fp, "%s=%s\n", it->first.c_str(), it->second.c_str());
-    fclose(fp);
-
-	return true;
 }
 
 
@@ -283,10 +329,24 @@ void cpccSettings::selfTest(void)
 }
 #endif
 
+// lazy but early enough constructor for the application's settings objects
+cpccSettings &appUserSettings(void)
+{
+	static cpccSettings m_appUserSettings(cpccAppInfo::CompanyName, cpccAppInfo::ProgramName, cpccSettings::scopeCurrentUser);
+	return m_appUserSettings;
+}
+
+cpccSettings &appSystemSettings(void)
+{
+	static cpccSettings m_appSystemSettings(cpccAppInfo::CompanyName, cpccAppInfo::ProgramName, cpccSettings::scopeAllUsers);
+	return m_appSystemSettings;
+}
+
 
 #if defined(cpccSettings_DoSelfTest)
 	SELFTEST_BEGIN(cpccSettings_SelfTest)
-		cpccPersistentVar_SelfTest::selfTest();
+        cpccSettings::selfTest();
+		// cpccPersistentVar_SelfTest::selfTest();
 	SELFTEST_END
 #endif
 
