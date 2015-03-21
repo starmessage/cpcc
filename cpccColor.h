@@ -26,23 +26,25 @@
 
 #ifdef _WIN32
 	#include <windows.h>	// for COLORREF
-    //typedef COLORREF    TcpccNativeColor;
+    typedef COLORREF    TcpccNativeColor;
 
 #endif
 
 #ifdef __APPLE__
 	#include <appkit/NSColor.h>	// for NSColor
-    //typedef NSColor    TcpccNativeColor;
-/*
-    To convert back and forth between CGColorRef and NSColor objects, get the color component values 
-    from one object and use those values to create the other object.
- */
+    typedef NSColor *   TcpccNativeColor;
 #endif
 
 
+
+//#define applyMinMax(xLow, xHigh, x)		(((x>xHigh)?xHigh:x)<xLow)?xLow:((x>xHigh)?xHigh:x)
+
+
+
 // new class
-struct cpccColor32_t
+class cpccColor32
 {
+public:
     union
     {
         cpccDWORD data;
@@ -57,15 +59,51 @@ struct cpccColor32_t
         };
     };
     
-    cpccColor32_t(): data(0) { }
-    cpccColor32_t(const unsigned long aHexColor): data(aHexColor) { } // do not use a CORORREF as aHexColor
-    cpccColor32_t(const cpccColor32_t &c) { data = c.data; }
-	cpccColor32_t(const unsigned char r_, const unsigned char g_, const unsigned char b_, const unsigned char a_=255 ) :
+    cpccColor32(): data(0) { a = 255; }
+    
+    cpccColor32(unsigned long aHexColor) // do not use a CORORREF as aHexColor. COLORREF is defined as #00BBGGRR.
+    {   b = aHexColor & 0xFF; aHexColor = aHexColor >> 8;
+        g = aHexColor & 0xFF; aHexColor = aHexColor >> 8;
+        r = aHexColor & 0xFF;
+        a = 255;
+    }
+    
+    cpccColor32(const cpccColor32 &c) { data = c.data; }
+	cpccColor32(const unsigned char r_, const unsigned char g_, const unsigned char b_, const unsigned char a_=255 ) :
 		r(r_), g(g_), b(b_), a(a_) {}
 	   
     
-    inline const bool operator ==(const cpccColor32_t& c2)  { return (c2.data == data); }
-    inline const bool operator !=(const cpccColor32_t& c2)  { return (c2.data != data); }
+    inline const bool operator ==(const cpccColor32& c2)  { return (c2.data == data); }
+    inline const bool operator !=(const cpccColor32& c2)  { return (c2.data != data); }
+	template <typename T> static const cpccBYTE applyLimits(const T x) 
+	{
+		if (x > 255) return 255;
+		if (x < 0)	 return 0;
+		return (cpccBYTE) x;
+	}
+    
+    TcpccNativeColor toNativeColor(const cpccColor32 &c) const
+    {
+    #ifdef _WIN32
+        return RGB(r, g, b);
+    #elif __APPLE__
+        return[NSColor colorWithDeviceRed: (r/255.0f) green: (g/255.0f) blue: (b/255.0f) alpha: a/255.0f];
+    #endif
+        return (TcpccNativeColor) 0;
+    }
+
+    
+    void fromNativeColor(const TcpccNativeColor &c)
+    {
+    #ifdef _WIN32
+        r = GetRValue(c); g = GetGValue(c); b = GetBValue(c); a=255;
+    #elif __APPLE__
+        CGFloat aR, aG, aB, aA;
+        [c getRed : &aR green : &aG blue : &aB alpha : &aA];
+        r = aR * 255; g = aG * 255; b = aB * 255; a = aA * 255;
+    #endif
+    }
+    
     
 #ifdef _WIN32
 	inline const COLORREF asColorref(void) const		{ return RGB(r, g, b);  }
@@ -86,11 +124,11 @@ struct cpccColor32_t
 
 	CGColorRef asCGColorRef(void)
 	{
-	// You create a CGColor object by calling the function CGColorCreate, passing a CGColorspace object
-	// and an array of floating-point values that specify the intensity values for the color.
-	// The last component in the array specifies the alpha value
+		// You create a CGColor object by calling the function CGColorCreate, passing a CGColorspace object
+		// and an array of floating-point values that specify the intensity values for the color.
+		// The last component in the array specifies the alpha value
 
-	return CGColorCreateGenericRGB(r/255.0, g/255.0, b/255.0, a/255.0);
+		return CGColorCreateGenericRGB(r/255.0, g/255.0, b/255.0, a/255.0);
 	}
 
 
@@ -115,22 +153,41 @@ struct cpccColor32_t
 
 	inline const cpccBYTE getBrightness(void) const		{ return (r + g + b) / 3; }
 
+    
+    void amplifyComponents(const float xR, const float xG, const float xB)
+    {
+        r = applyLimits( r*xR );
+		g = applyLimits( g*xG );
+		b = applyLimits( b*xB );
+    }
+    
+    cpccColor32& operator *=(const float f)
+    {
+        amplifyComponents(f,f,f);
+        return *this;
+    }
+    
     static void selfTest(void)
     {
         std::cout << "cpccColor32_t::selfTest() starting\n";
         assert((sizeof(cpccDWORD)==4) && "#7614a cpccColor32_t: expecting data to be 4 bytes long");
-        cpccColor32_t c1(1,2,3,4), c2(0x01020304);
         
-        std::cout << "SizeOf(cpccColor32_t)=" << sizeof(cpccColor32_t) << " sizeof(unsigned char)=" << sizeof(unsigned char) << " c1.data=" << c1.data << " c2.data=" << c2.data << "\n";
+        cpccColor32 c(0x00223344); // a is set to 255
         
-        assert((c1==c2) && "#7614b cpccColor32_t contructor problem from hex color. Maybe a big/litte endian mismatch?");
+        assert((c.r==0x22) && (c.g==0x33) && (c.b==0x44) &&  "#7614b cpccColor32 contructor problem from hex color");
+        
+        
+        cpccColor32 c1(2,3,4, 255), c2(0x01020304); // a is set to 255
+        
+        std::cout << "SizeOf(cpccColor32_t)=" << sizeof(cpccColor32) << " sizeof(unsigned char)=" << sizeof(unsigned char) << " c1.data=" << c1.data << " c2.data=" << c2.data << "\n";
+        
+        assert((c1==c2) && "#7614c cpccColor32 contructor problem from hex color. Maybe a big/litte endian mismatch?");
     }
 };
 
 
-
-
-#define applyMinMax(xLow, xHigh, x)		(((x>xHigh)?xHigh:x)<xLow)?xLow:((x>xHigh)?xHigh:x)
+// #define USE_COLOR_V1
+#ifdef USE_COLOR_V1
 
 template<typename T>
 class colorChannelTypes	{  };
@@ -376,6 +433,9 @@ public:
 
 }; 
 
+#else
+    typedef 	cpccColor32				cpccColor;
+#endif
 
 // typedef 	cpccColorT<float>				cpccColorF;
 

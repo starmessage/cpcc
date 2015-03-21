@@ -20,7 +20,11 @@
 //  the Intel x86 processor represents a common little-endian architecture
 //  Little-endian systems store the least significant byte in the smallest address
 #define cpccLITTLEENDIAN
-
+#if powerpc
+	// big endian
+#elif intel
+	// little endian
+#endif
 
 typedef unsigned char		cpccUint8_t;
 typedef unsigned char		cpccBYTE;

@@ -19,7 +19,7 @@
 
 
 
-
+#ifdef USE_COLOR_V1
 
 #define practicallyEqual(x,y)		(std::abs(x-y)<0.00001f)
 
@@ -85,7 +85,8 @@ SELFTEST_BEGIN(cpccColorT_SelfTest)
 		cpccColorT<float>::selfTest();
 SELFTEST_END
 
+#endif
 
 SELFTEST_BEGIN(cpccColor32_t_SelfTest)
-	cpccColor32_t::selfTest();
+	cpccColor32::selfTest();
 SELFTEST_END

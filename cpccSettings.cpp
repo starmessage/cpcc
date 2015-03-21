@@ -43,7 +43,7 @@ const cpcc_char *encodedCharacters[][2] =
 };
 
 
-class iniFileEncodings
+class iniFileStringEncodings
 {
 private:
     // a pity the whole std library does not contain a ready function for this
@@ -65,13 +65,13 @@ private:
     
 public:
     
-    static void    encode(cpcc_string &str)
+    static void    encodeStr(cpcc_string &str)
     {
         for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
             findAndReplaceAll(str, encodedCharacters[i][0], encodedCharacters[i][1]);
     }
     
-    static void    decode(cpcc_string &str)
+    static void    decodeStr(cpcc_string &str)
     {
         for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
             findAndReplaceAll(str, encodedCharacters[i][1], encodedCharacters[i][0]);
@@ -80,7 +80,86 @@ public:
 };
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//		stringConversions
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class stringConversions
+{
+public:
 
+	static double fromStr(const cpcc_char* strValue, const double aDefaultValue) 
+	{
+		char* end;
+		double n = strtod(strValue, &end);
+		return end > strValue ? n : aDefaultValue;
+	}
+
+
+	static float fromStr(const cpcc_char* strValue, const float aDefaultValue)
+	{
+		char* end;
+		float n = (float)strtod(strValue, &end);
+		return end > strValue ? n : aDefaultValue;
+	}
+
+    
+	static long fromStr(const cpcc_char*  strValue, const long aDefaultValue)
+	{
+		char* end;
+		// This parses "1234" (decimal) and also "0x4D2" (hex)
+		long n = strtol(strValue, &end, 0);
+		return end > strValue ? n : aDefaultValue;
+	}
+
+	static int fromStr(const cpcc_char*  strValue, const int aDefaultValue)
+	{
+		char* end;
+		// This parses "1234" (decimal) and also "0x4D2" (hex)
+		int n = strtol(strValue, &end, 0);
+		return end > strValue ? n : aDefaultValue;
+	}
+
+	static bool fromStr(const cpcc_char*  strValue, const bool aDefaultValue)  { return fromStr(cpcc_string(strValue), aDefaultValue); }
+	static bool fromStr(const cpcc_string&  strValue, const bool aDefaultValue)
+	{ 
+		if (strValue.compare("yes") == 0 || strValue.compare("true") == 0 || strValue.compare("1") == 0 || strValue.compare("on") == 0)
+			return true;
+
+		if (strValue.compare("no") == 0 || strValue.compare("false") == 0 || strValue.compare("0") == 0 || strValue.compare("off") == 0)
+			return false;
+
+		return aDefaultValue;
+	}
+		
+    static cpcc_string toStr(const bool value) { return cpcc_string(value?"yes":"no"); }
+    
+    static cpcc_string toStr(const long int value)
+    {   std::stringstream ss; ss << value; return ss.str(); }
+    
+    static cpcc_string toStr(const int value)
+    {   std::stringstream ss; ss << value; return ss.str(); }
+    
+    static cpcc_string toStr(const float value)
+    {
+        char buf[100];
+        #pragma warning(disable : 4996)
+        sprintf(buf,"%.12f",value);
+        return cpcc_string(buf);
+    }
+    
+    static cpcc_string toStr(const double value)
+    {
+        char buf[200];
+        #pragma warning(disable : 4996)
+        sprintf(buf,"%.12f",value);
+        return cpcc_string(buf);
+    }
+};
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//		cpccSettings
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoftwareName, const settingsScope aScope):
 	instantSaving(true)
@@ -146,8 +225,8 @@ bool cpccSettings::load(void)
 	while(std::getline(iniFile, key, '='))
     {
 		std::getline(iniFile, value);
-        iniFileEncodings::decode(key);
-        iniFileEncodings::decode(value);
+        iniFileStringEncodings::decodeStr(key);
+        iniFileStringEncodings::decodeStr(value);
 		mSettings[key] = value;
     }
 	
@@ -173,8 +252,8 @@ bool cpccSettings::save(void)
     cpcc_string key, value;
     for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
     {
-        key = it->first;    iniFileEncodings::encode(key);
-        value = it->second; iniFileEncodings::encode(value);
+        key = it->first;    iniFileStringEncodings::encodeStr(key);
+        value = it->second; iniFileStringEncodings::encodeStr(value);
         fprintf(fp, "%s=%s\n", key.c_str(), value.c_str());
     }
     fclose(fp);
@@ -183,79 +262,37 @@ bool cpccSettings::save(void)
 }
 
 
-cpcc_string cpccSettings::readString(const cpcc_char *aKey, const cpcc_char *aDefaultValue)
+cpcc_string cpccSettings::read(const cpcc_char *aKey, const cpcc_char *aDefaultValue)
 {
 	return mSettings.count(aKey) ? mSettings[aKey] : cpcc_string(aDefaultValue);
 }
 
 
-long cpccSettings::readLongint(const cpcc_char *aKey, const long aDefaultValue)
+template <typename T>
+T cpccSettings::read(const cpcc_char *aKey, const T aDefaultValue)
 {
-	//		http://code.google.com/p/inih/source/browse/trunk/cpp/INIReader.cpp
-
-    cpcc_string valstr = readString(aKey, "");
-    const char* value = valstr.c_str();
-    char* end;
-    // This parses "1234" (decimal) and also "0x4D2" (hex)
-    long n = strtol(value, &end, 0);
-    return end > value ? n : aDefaultValue;
+	return stringConversions::fromStr(read(aKey, "").c_str(), aDefaultValue);
 }
 
 
-double cpccSettings::readReal(const cpcc_char *aKey, const double aDefaultValue)
+
+
+template <typename T>
+void		cpccSettings::write(const cpcc_char *aKey, const T aValue)
 {
-    cpcc_string valstr = readString(aKey, "");
-    const char* value = valstr.c_str();
-    char* end;
-    double n = strtod(value, &end);
-    return end > value ? n : aDefaultValue;
+	write(aKey, stringConversions::toStr(aValue));
 }
 
 
-bool cpccSettings::readBool(const cpcc_char *aKey, const bool aDefaultValue)
+void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
 {
-	cpcc_string tmp=readString(aKey, aDefaultValue?"yes":"no");
-	if (tmp.compare("yes")==0 || tmp.compare("true")==0 || tmp.compare("1")==0 || tmp.compare("on")==0)
-		return true;
-
-	if (tmp.compare("no")==0 || tmp.compare("false")==0 || tmp.compare("0")==0 || tmp.compare("off")==0)
-		return false;
-
-	return aDefaultValue;
+    mSettings[cpcc_string(aKey)] = aValue;
+    
+    if (instantSaving)
+        if (!save())
+            std::cerr << "Error #1352c: saving cpccSettings to file:" << mFilename << std::endl;
 }
 
-
-void	cpccSettings::writeString(const cpcc_char *aKey, const cpcc_char *aValue)
-{
-	mSettings[cpcc_string(aKey)] = cpcc_string(aValue);
-
-	if (instantSaving)
-		if (!save())
-			std::cerr << "Error #1352c: saving cpccSettings to file:" << mFilename << std::endl;
-}
-
-
-void	cpccSettings::writeBool(const cpcc_char *aKey, const bool aValue)
-{
-	writeString(aKey, aValue?"yes":"no");
-}
-
-
-void	cpccSettings::writeLongint(const cpcc_char *aKey, const long int aValue)
-{
-	std::stringstream ss;
-	ss << aValue;
-	writeString(aKey, ss.str().c_str());
-}
-
-
-void	cpccSettings::writeReal(const cpcc_char *aKey, const double aValue)
-{
-	char buf[100];
-	#pragma warning(disable : 4996)
-	sprintf(buf,"%.12f",aValue);
-	writeString(aKey, buf);
-}
 
 
 void cpccSettings::clear(void)	
@@ -282,24 +319,29 @@ void cpccSettings::selfTest(void)
 	std::cout << "cpccSettings::SelfTest starting\n";
 	cpccFileSystemMini fs;
 	double pi = 3.14159265359;
-
+    float  bigFloat = 1.3456798e16f;
+    
 	{
 		// writing 
 		cpccSettings settingsUser("testCompanyName","testSoftwareName", scopeCurrentUser);
 		cpccSettings settingsApp("testCompanyName","testSoftwareName", scopeAllUsers);
 
-		settingsUser.writeString("testStringKeyA", "testStringValueA");
+		settingsUser.write("testStringKeyA", "testStringValueA");
 		assert(fs.fileExists(settingsUser.getFilename()) && "SelfTest #7711a: file does not exist");
 
-		settingsUser.writeString("testStringKeyB", "tmpValue");
-		settingsUser.writeString("testStringKeyB", "B");
+		settingsUser.write("testStringKeyB", "tmpValue");
+		settingsUser.write("testStringKeyB", "B");
 
-		settingsUser.writeBool("testTrueKey", true);
-		settingsUser.writeBool("testFalseKey", false);
-		settingsUser.writeReal("pi", pi);
-		settingsUser.writeLongint("twentythree", 23);
+		settingsUser.write("testTrueKey", true);
+		settingsUser.write("testFalseKey", false);
+		settingsUser.write("pi", pi);
+		settingsUser.write("twentythree", 23);
+        settingsUser.write("bigFloat", bigFloat);
+		settingsApp.write("AppSettingsOfSoftware", "testSoftwareName");
 
-		settingsApp.writeString("AppSettingsOfSoftware", "testSoftwareName");
+		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt");
+		tmpPersistentInt.write(456);
+		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
 	{
@@ -307,22 +349,28 @@ void cpccSettings::selfTest(void)
 		cpccSettings settingsUser("testCompanyName","testSoftwareName", scopeCurrentUser);
 		cpccSettings settingsSystem("testCompanyName","testSoftwareName", scopeAllUsers);
 
-		cpcc_string tmp = settingsUser.readString("testStringKeyA","default");
+		cpcc_string tmp = settingsUser.read("testStringKeyA","default");
 		assert(tmp.compare("testStringValueA")==0 && "SelfTest #7711b: readString error");
 
-		tmp = settingsUser.readString("NonExistingKey","default");
+		tmp = settingsUser.read("NonExistingKey","default");
 		assert(tmp.compare("default")==0 && "SelfTest #7711c: readString error on default value");
 
-		tmp = settingsUser.readString("testStringKeyB","default");
+		tmp = settingsUser.read("testStringKeyB","default");
 		assert(tmp.compare("B")==0 && "SelfTest #7711d: writeString error: does not update values");
 
-		assert(settingsUser.readBool("testTrueKey",false)		&& "SelfTest #7711e: readBool error 1");
-		assert(!settingsUser.readBool("testFalseKey",true)		&& "SelfTest #7711e: readBool error 2");
-		assert(settingsUser.readBool("testMissingKey1",true)	&& "SelfTest #7711e: readBool error 3");
-		assert(!settingsUser.readBool("testMissingKey2",false)	&& "SelfTest #7711e: readBool error 4");
+		assert(settingsUser.read("testTrueKey",false)		&& "SelfTest #7711e: readBool error 1");
+		assert(!settingsUser.read("testFalseKey",true)		&& "SelfTest #7711e: readBool error 2");
+		assert(settingsUser.read("testMissingKey1",true)	&& "SelfTest #7711e: readBool error 3");
+		assert(!settingsUser.read("testMissingKey2",false)	&& "SelfTest #7711e: readBool error 4");
 
-		assert(settingsUser.readReal("pi",1.0)==pi	&& "SelfTest #7711f: readReal");
-		assert(settingsUser.readLongint("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
+		assert(settingsUser.read("pi",1.0)==pi	&& "SelfTest #7711f: readReal");
+        assert(settingsUser.read("bigFloat",2.0)==bigFloat	&& "SelfTest #7711k: readReal bigFloat");
+        
+		assert(settingsUser.read("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
+
+		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt");
+		assert((tmpPersistentInt.read(-1) == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
+		assert((tmpPersistentInt.readAtIndex(3, -10) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
 	}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";
@@ -346,7 +394,6 @@ cpccSettings &appSystemSettings(void)
 #if defined(cpccSettings_DoSelfTest)
 	SELFTEST_BEGIN(cpccSettings_SelfTest)
         cpccSettings::selfTest();
-		// cpccPersistentVar_SelfTest::selfTest();
 	SELFTEST_END
 #endif
 

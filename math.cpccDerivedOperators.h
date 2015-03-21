@@ -21,26 +21,26 @@
 	Can be used to complete the operators of classes that only have 
 	the following operators: ==, <, +=, -=, *=, /=
  */
-template <class C> 
+template <class T> 
 class cpccDerivedOperators
 {
-    friend C operator+(C const& lhs, C const& rhs)
-    { C tmp = lhs; tmp += rhs; return tmp; }
+    friend T operator+(T const& lhs, T const& rhs)
+    { T tmp = lhs; tmp += rhs; return tmp; }
     
     
-    friend C operator-(C const& lhs, C const& rhs)
-    { C tmp = lhs; tmp -= rhs; return tmp; }
+    friend T operator-(T const& lhs, T const& rhs)
+    { T tmp = lhs; tmp -= rhs; return tmp; }
     
     
-    friend inline bool operator>=(C const& lhs, C const& rhs)
+    friend inline bool operator>=(T const& lhs, T const& rhs)
     { return !(lhs < rhs); }
     
     
-    friend inline bool operator<=(C const& lhs, C const& rhs)
+    friend inline bool operator<=(T const& lhs, T const& rhs)
     { return !(lhs > rhs); }
     
     
-    friend inline bool operator>(C const& lhs, C const& rhs)
+    friend inline bool operator>(T const& lhs, T const& rhs)
     { return (rhs < lhs); }
     
     
