@@ -80,82 +80,6 @@ public:
 };
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//		stringConversions
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class stringConversions
-{
-public:
-
-	static double fromStr(const cpcc_char* strValue, const double aDefaultValue) 
-	{
-		char* end;
-		double n = strtod(strValue, &end);
-		return end > strValue ? n : aDefaultValue;
-	}
-
-
-	static float fromStr(const cpcc_char* strValue, const float aDefaultValue)
-	{
-		char* end;
-		float n = (float)strtod(strValue, &end);
-		return end > strValue ? n : aDefaultValue;
-	}
-
-    
-	static long fromStr(const cpcc_char*  strValue, const long aDefaultValue)
-	{
-		char* end;
-		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		long n = strtol(strValue, &end, 0);
-		return end > strValue ? n : aDefaultValue;
-	}
-
-	static int fromStr(const cpcc_char*  strValue, const int aDefaultValue)
-	{
-		char* end;
-		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = strtol(strValue, &end, 0);
-		return end > strValue ? n : aDefaultValue;
-	}
-
-	static bool fromStr(const cpcc_char*  strValue, const bool aDefaultValue)  { return fromStr(cpcc_string(strValue), aDefaultValue); }
-	static bool fromStr(const cpcc_string&  strValue, const bool aDefaultValue)
-	{ 
-		if (strValue.compare("yes") == 0 || strValue.compare("true") == 0 || strValue.compare("1") == 0 || strValue.compare("on") == 0)
-			return true;
-
-		if (strValue.compare("no") == 0 || strValue.compare("false") == 0 || strValue.compare("0") == 0 || strValue.compare("off") == 0)
-			return false;
-
-		return aDefaultValue;
-	}
-		
-    static cpcc_string toStr(const bool value) { return cpcc_string(value?"yes":"no"); }
-    
-    static cpcc_string toStr(const long int value)
-    {   std::stringstream ss; ss << value; return ss.str(); }
-    
-    static cpcc_string toStr(const int value)
-    {   std::stringstream ss; ss << value; return ss.str(); }
-    
-    static cpcc_string toStr(const float value)
-    {
-        char buf[100];
-        #pragma warning(disable : 4996)
-        sprintf(buf,"%.12f",value);
-        return cpcc_string(buf);
-    }
-    
-    static cpcc_string toStr(const double value)
-    {
-        char buf[200];
-        #pragma warning(disable : 4996)
-        sprintf(buf,"%.12f",value);
-        return cpcc_string(buf);
-    }
-};
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //		cpccSettings
@@ -262,17 +186,6 @@ bool cpccSettings::save(void)
 }
 
 
-cpcc_string cpccSettings::read(const cpcc_char *aKey, const cpcc_char *aDefaultValue)
-{
-	return mSettings.count(aKey) ? mSettings[aKey] : cpcc_string(aDefaultValue);
-}
-
-
-template <typename T>
-T cpccSettings::read(const cpcc_char *aKey, const T aDefaultValue)
-{
-	return stringConversions::fromStr(read(aKey, "").c_str(), aDefaultValue);
-}
 
 
 
@@ -339,7 +252,7 @@ void cpccSettings::selfTest(void)
         settingsUser.write("bigFloat", bigFloat);
 		settingsApp.write("AppSettingsOfSoftware", "testSoftwareName");
 
-		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt");
+		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt", 98);
 		tmpPersistentInt.write(456);
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
@@ -368,9 +281,9 @@ void cpccSettings::selfTest(void)
         
 		assert(settingsUser.read("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
 
-		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt");
-		assert((tmpPersistentInt.read(-1) == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
-		assert((tmpPersistentInt.readAtIndex(3, -10) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt", 92);
+		assert((tmpPersistentInt.read() == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
+		assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
 	}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";
