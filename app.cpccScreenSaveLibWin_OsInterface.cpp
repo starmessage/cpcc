@@ -301,7 +301,7 @@ Prepei na yparxei ena dialog template me to parakato ID
 			Otherwise, the function should return TRUE, in which case the 
 			system sets the keyboard focus to the first control in the 
 			dialog box that can be given the focus. */
-			//MessageBox(NULL,"ConfigureSheet that must have been overiden by the child class",NULL,NULL); 
+			MessageBox(NULL,"ConfigureSheet that must have been overiden by the child class",NULL,NULL); 
 			
 			if (!screensaverPtr)
 			{
@@ -310,7 +310,7 @@ Prepei na yparxei ena dialog template me to parakato ID
 
 			if (screensaverPtr)
 				if (screensaverPtr->hasConfigureSheet())
-					screensaverPtr->showConfigureSheet();
+					screensaverPtr->showConfigureSheetWin(hDlg);
 				
 			PostMessage(hDlg,WM_COMMAND, IDOK, NULL);
 			return TRUE; 

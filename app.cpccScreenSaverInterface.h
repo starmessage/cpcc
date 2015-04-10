@@ -17,7 +17,14 @@
 
 #pragma once
 
-#include "gui.cpccWindowBase.h"
+
+#if defined(__APPLE__)
+	#include <Cocoa/Cocoa.h>
+#elif defined(_WIN32)
+	#include <Windows.h>
+#else
+	#error Unknown platform for cpccScreenSaverInterface
+#endif
 
 
 
@@ -40,25 +47,22 @@
 
 class cpccScreenSaverInterface
 {
-private:	// data
-	
 		
-private:	// functions
-		
-	
-protected:	// functions
-	
-
-public: // constructor/destructor
-	cpccScreenSaverInterface()	{ 	}
+public: // screensaver interface functions: calls that the operating system dispatches to the screensaver
+    
     virtual ~cpccScreenSaverInterface() { }
-		
-public: // screensaver interface functions: calls that the operating system dispatches to the screensaver	
-
+    
 	/// initWithWindowHandle should not do any drawing. Allocate the screensaver here
-	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle,
-                                      const int monitorId /* -1=preview, 0=first monitor, 1=second monitor, etc */)=0;
-	
+	/// monitodID: -1=preview, 0=first monitor, 1=second monitor, etc
+#ifdef _WIN32
+	virtual void initWithWindowHandle(HWND wHandle, const int monitorId ) = 0;
+	virtual void showConfigureSheet(HWND wHandleOwner) = 0;
+#endif
+#ifdef __APPLE__
+	virtual void initWithWindowHandle(NSView* wHandle, const int monitorId) = 0;
+	virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
+#endif
+
 	virtual void animateOneFrame(void)=0;
 	virtual void drawOneFrame(void)=0;
 	virtual void flushOneFrame(void)=0;
@@ -66,12 +70,9 @@ public: // screensaver interface functions: calls that the operating system disp
 	virtual bool getPreserveDeskopContents() const = 0;
 	virtual void setPreserveDeskopContents(const bool a) = 0;
 
-	/// free the allocated screensaver
+	/// free the allocated resources
 	virtual void shutDown()=0;
-	
-	virtual bool hasConfigureSheet(void)  { return false; }
-	virtual void showConfigureSheet(void) { }
-
+	virtual bool hasConfigureSheet(void) = 0;
 };
 
 
@@ -84,8 +85,8 @@ namespace cpccScreenSaverFactory
 
 // Example: in your mySsClass.cpp file, put:
 // cpccScreenSaverInterface* createScreenSaver(void) { return new mySsClass; };
-
-// You can also use the following macro to do the same job
+//      OR
+// You can use the following macro to do the same job
 #define DECLARE_SCREENSAVER_CLASS(T) namespace cpccScreenSaverFactory { cpccScreenSaverInterface* createScreenSaver(void) { return new T; }; }
 // Example:
 // DECLARE_SCREENSAVER_CLASS(mySsClass)

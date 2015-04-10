@@ -33,6 +33,10 @@
 /*
  Screensavers need to be compiled 32/64-bit with garbage collection supported or required 
  in the 64-bit architecture if they are to work on 64-bit systems. 
+ 
+ apple documentation
+ https://developer.apple.com/library/mac/documentation/UserExperience/Reference/ScreenSaver/Classes/ScreenSaverView_Class/
+ 
  */
 
 /* multiple displays
@@ -99,7 +103,8 @@
  */
 
  
- /*
+ /* cpcc instructions:
+    ------------------
 	creation of the screensaver object in MACOSX
 	You have to declare your screensaver class as NSPrincipalClass in the project
 	so that when OSX knows which class to instanciate when it starts the screensaver
@@ -116,7 +121,8 @@ cpccApp	app;
 
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
-{	// ScreenSaverView class is a subclass of NSView 
+{	// ScreenSaverView class is a subclass of NSView
+    IBOutlet id m_configureSheet;
 }
 
 /*
@@ -193,7 +199,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 + (BOOL)performGammaFade { return NO; }
 
 
-- (cpccNativeWindowHandle)util_getNativeWindowHandle
+- (NSView *)util_getNativeWindowHandle
 {
 	return self; // this returns an NSView
 }
@@ -210,7 +216,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 - (void)util_initScreensaverWithWindowHandle
 {
-    cpccNativeWindowHandle windowHandle = [self util_getNativeWindowHandle];
+    NSView * windowHandle = [self util_getNativeWindowHandle];
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
@@ -494,25 +500,29 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 
 - (BOOL)hasConfigureSheet
-{	
+{
+    
 	infoLog().add(  "cpccScreenSaveLibMac_OsInterface hasConfigureSheet()");
-	return false;
-	/*
 	bool result;
-	TmioanScreenSaverAbstract *tmpSsPtr;
-	tmpSsPtr = new ClassOfScreensaver;
-	
+    cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
+    assert(tmpSsPtr && "Error 8351: tmpSsPtr = nil");
 	result = tmpSsPtr->hasConfigureSheet();
 	delete tmpSsPtr;
     return result;
-	 */
 }
 
 
 - (NSWindow*)configureSheet
-{
-	infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
-    // ToDo: a code like the following example must be put here
+{   /*
+     This window will be run as a sheet, so it must include buttons that allow the user to end the modal session 
+     in which the sheet runs. When the user dismisses the sheet, the controller in charge of the sheet must end 
+     the document modal session by calling the NSApplication method endSheet: with the sheet’s window as the argument.
+     */
+    
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
+    // IBOutlet id m_configureSheet;
+    
+	// ToDo: a code like the following example must be put here
 	/*
 	TmioanScreenSaverAbstract *tmpSsPtr;
 	tmpSsPtr = new ClassOfScreensaver;
@@ -522,7 +532,14 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	
 	delete tmpSsPtr;
     */
-	 return nil;
+    
+    /* from cinder:
+     if( getAppImpl()->mApp->getSettings().getProvidesMacConfigDialog() )
+        return static_cast<NSWindow*>( getAppImpl()->mApp->createMacConfigDialog() );
+     else
+        return nil;
+     */
+    return nil;
 }
 
 

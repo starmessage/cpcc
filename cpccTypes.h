@@ -16,6 +16,7 @@
 #ifndef cpccTypes_h
 #define cpccTypes_h
 
+#include <stdint.h>
 
 //  the Intel x86 processor represents a common little-endian architecture
 //  Little-endian systems store the least significant byte in the smallest address

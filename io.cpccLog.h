@@ -148,8 +148,8 @@ cpccLogSink			&errorLog(void);
 
 class logObjectLife
 {
-private:
-    cpcc_string tag;
+protected:
+    const cpcc_string tag;
 public:
 	logObjectLife(const cpcc_char *aTag) : tag(aTag) 
 	{ 
@@ -179,7 +179,7 @@ public:
 
 	~logTimeCountrer(void)
 	{
-		infoLog().addf("timer result: %.2f sec", timer.getSecondsElapsed());
+		infoLog().addf("timer result for %s: %.2f sec", tag.c_str(), timer.getSecondsElapsed());
 	}
 
 };

@@ -24,7 +24,7 @@
  */
 /// Fast float class. It uses internally integer arithmetics to speed up simple (+, -, *, /) calculations.
 /// It can directly replace float and double variables.
-/// T is the internal integer type to use.
+/// T is the internal integer type to use. E.g. long, int, etc
 /// fBits is the number of bits for the fractional part.
 template <typename T, int fBits>
 class cpccFastFloat
@@ -72,7 +72,7 @@ public: // comparison operators
     inline const bool operator == (const float a) const                             { return getReal() ==  a; }
     inline const bool operator  < (const cpccFastFloat<T, fBits>& a) const   { return m_value <   a.m_value;  }
     inline const bool operator  < (const float a) const								{ return getReal() <   a;  }
-	inline const bool practicallyEqual(const float a)								{ return abs(m_value - (T) real2integer(a)) <= ((m_value + (T) real2integer(a))>> (fBits+3)); }
+    inline const bool practicallyEqual(const float a)								{ return std::abs(m_value - (T) real2integer(a)) <= ((m_value + (T) real2integer(a))>> (fBits+3)); }
     inline const T	  getPracticallyEqualThresshold(const float a)					{ return ((m_value + (T) real2integer(a))>> (fBits+3)); }
     
 	// the rest comparison operators will be automatically implemented by the helper class

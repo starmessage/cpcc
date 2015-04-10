@@ -91,7 +91,7 @@ protected:  // abstract functions for the ancenstor to implement
     
 protected: // screensaver standard functions	
 
-	virtual void initWithWindowHandle(const cpccNativeWindowHandle wHandle, const int monitorId)
+	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId)
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
 		if (!DesktopWindowPtr)

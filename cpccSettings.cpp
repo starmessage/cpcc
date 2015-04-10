@@ -24,7 +24,7 @@
 #include <errno.h>
 
 #include "cpccSettings.h"
-#include "cpccAppInfo.h"
+#include "app.cpccAppInfo.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #if defined(cpccSettings_DoSelfTest)
