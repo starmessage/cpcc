@@ -310,7 +310,7 @@ Prepei na yparxei ena dialog template me to parakato ID
 
 			if (screensaverPtr)
 				if (screensaverPtr->hasConfigureSheet())
-					screensaverPtr->showConfigureSheetWin(hDlg);
+					screensaverPtr->showConfigureSheet(hDlg);
 				
 			PostMessage(hDlg,WM_COMMAND, IDOK, NULL);
 			return TRUE; 

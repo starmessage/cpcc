@@ -20,22 +20,22 @@
 class cpcciShareware
 {
 public:	
-	enum licenseExpiryType	{ freeTrial, fullVersionLicense, licenseForUpgrades };
+	enum licenseType	{ freeTrial, fullVersion, licenseForUpgrades };
 	
-	inline const bool  					fullVersionIsRegistered(void) { return getRemainingDaysUntilExpiry(fullVersionLicense)>=0; }
-	virtual inline const int  			getRemainingDaysUntilExpiry(const licenseExpiryType aLicense) const =0;
+	inline const bool  					fullVersionIsRegistered(void) { return getRemainingDaysUntilExpiry(fullVersion)>=0; }
+	virtual inline const int  			getRemainingDaysUntilExpiry(const licenseType aLicense) const = 0;
 	virtual const char * 				getBuyUrl(void) const =0;
-	virtual inline const cpcc_char *	getComputerID(void) const =0;
-	virtual inline const cpcc_char *	getCustomerID(void) const =0;
-	virtual inline const cpcc_char *	getLicenseDetails(void) const =0;
+	virtual inline const cpcc_string	getComputerID(void) const =0;
+	virtual inline const cpcc_string	getCustomerID(void) const = 0;
+	virtual inline const cpcc_string	getLicenseDetails(void) const = 0;
 	virtual inline const bool			applyLicenseCode(const cpcc_char * aLicenseCode) =0;
 	virtual inline const bool			quickChecklLicenseCode(const cpcc_char * aLicenseCode) =0;
 	virtual inline void					removeInstalledLicense(void) =0;
 	virtual const long int				getDaysSinceFirstInstallation(void) const =0;
 	
 protected:
-	virtual inline void					secureSave(void) =0;
-	virtual inline void					secureLoad(void) =0;
+	virtual inline void					secureSaveLicense(void) =0;
+	virtual inline void					secureLoadLicense(void) =0;
 	
 
 };

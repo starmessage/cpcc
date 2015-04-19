@@ -20,7 +20,7 @@
 #include <string>
 #include <map>
 #include <assert.h>
-
+#include <sstream>
 #include "cpccUnicodeSupport.h"
 
 
@@ -90,12 +90,12 @@ public:
 
 	static cpcc_string toStr(const long int value)
 	{
-		std::stringstream ss; ss << value; return ss.str();
+		std::ostringstream ss; ss << value; return ss.str();
 	}
 
 	static cpcc_string toStr(const int value)
 	{
-		std::stringstream ss; ss << value; return ss.str();
+		std::ostringstream  ss; ss << value; return ss.str();
 	}
 
 	static cpcc_string toStr(const float value)

@@ -63,7 +63,7 @@ public: // functions
 		if (m_filename.length()==0)
 			return;
 		
-		cpccFileSystemMini fs;
+		cpccFileSystemMiniEx fs;
 		if (!fs.fileExists(m_filename) && (m_disableIfFileDoesNotExist) ) 
 			return;
 			
@@ -86,27 +86,23 @@ public: // functions
 		m_isEmpty = false;
 	}
 	
-	
-	void addf(const cpcc_char* format, va_list args)
-	{
-		const int MAX_LOG_STRING=8000;
-		cpcc_char buff[MAX_LOG_STRING];
-		#if (_MSC_VER >= 1400) // Visual Studio 2005
-			// vsprintf_s( buff, MAX_LOG_STRING, format, args);
-			_vstprintf_s( buff, MAX_LOG_STRING, format, args);
-		#else
-			vsprintf(buff, format, args);
-		#endif
-		add(buff);
-	}
-	
     
 	void addf(const cpcc_char* format, ...)
 	{ 
+		const int MAX_LOG_STRING = 8000;
+		cpcc_char buff[MAX_LOG_STRING+1];
+		
 		va_list args;
 		va_start(args, format);
-		addf(format, args);
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+		// vsprintf_s( buff, MAX_LOG_STRING, format, args);
+		_vstprintf_s(buff, MAX_LOG_STRING, format, args);
+#else
+		vsprintf(buff, format, args);
+#endif
 		va_end(args);
+
+		add(buff);
 	}
 
 	///  Get the current datetime as a human readable string

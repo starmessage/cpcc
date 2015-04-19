@@ -77,8 +77,17 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	return report;
 }
  
+#ifdef _WIN32
+const cpcc_string cpccFileSystemMini::getFolder_Windows(void) const
+{
+	cpcc_char buffer[300];
+	GetWindowsDirectory(buffer, 300);
+	return cpcc_string(buffer) + "\\";
+}
+#endif
 
-const cpcc_string cpccFileSystemMini::getFolder_UserHome(void)
+
+const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -144,7 +153,7 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
 }
 
 
-const cpcc_string  cpccFileSystemMini::getFolder_UserData(void)
+const cpcc_string cpccFileSystemMini::getFolder_UserData(void) const
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -357,7 +366,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 	
 	int parentPermissions = getFileOrFolderPermissions_OSX(parentFolder.c_str());
 	
-	std::cout << "permissions of " << parentFolder << " : " << parentPermissions << "\n";
+	//std::cout << "permissions of " << parentFolder << " : " << parentPermissions << "\n";
 	
 	// http://stackoverflow.com/questions/675039/how-can-i-create-directory-tree-in-c-linux
 	// https://discussions.apple.com/thread/844719?start=0&tstart=0
@@ -374,7 +383,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 }
 
 
-bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
+bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 {
 #ifdef _WIN32
 	DWORD attrib = GetFileAttributes(aFoldername);
@@ -413,7 +422,7 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
 }
 
 
-bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
+bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
 {
 #ifdef _WIN32
 	struct _stat fileinfo;
@@ -653,6 +662,20 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 }
 
 
+time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename) const
+{	// http://linux.die.net/man/2/stat
+
+	if (!fileExists(aFilename) && !folderExists(aFilename))
+		return 0;
+
+	struct stat attrib;         // create a file attribute structure
+	stat(aFilename, &attrib);     // get the attributes of afile.txt
+	return attrib.st_mtime; 
+}
+
+
+
+
 
 #if defined(cpccFileSystemMini_DoSelfTest)
 
@@ -661,8 +684,8 @@ void cpccFileSystemMini::selfTest(void)
 std::cout << "cpccFileSystemMini::SelfTest starting\n";
 
 	
-	cpccFileSystemMini	fs;
-	cpccPathHelper		ph;		
+	cpccFileSystemMiniEx	fs;
+	cpccPathHelper			ph;		
 
 	// "#5349a: path delimiter"
 	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();

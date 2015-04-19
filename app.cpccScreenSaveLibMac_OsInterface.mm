@@ -122,7 +122,7 @@ cpccApp	app;
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
 {	// ScreenSaverView class is a subclass of NSView
-    IBOutlet id m_configureSheet;
+    IBOutlet id configSheet; // this name should exist in the nib file of the screensaver configuration screen
 }
 
 /*
@@ -501,7 +501,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 - (BOOL)hasConfigureSheet
 {
-    
 	infoLog().add(  "cpccScreenSaveLibMac_OsInterface hasConfigureSheet()");
 	bool result;
     cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
@@ -520,28 +519,42 @@ cpccScreenSaverInterface *ssPtr=NULL;
      */
     
     infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
-    // IBOutlet id m_configureSheet;
     
-	// ToDo: a code like the following example must be put here
-	/*
-	TmioanScreenSaverAbstract *tmpSsPtr;
-	tmpSsPtr = new ClassOfScreensaver;
-	
-	if (tmpSsPtr->hasConfigureSheet())
-		tmpSsPtr->showConfigureSheet();
-	
-	delete tmpSsPtr;
-    */
-    
-    /* from cinder:
-     if( getAppImpl()->mApp->getSettings().getProvidesMacConfigDialog() )
-        return static_cast<NSWindow*>( getAppImpl()->mApp->createMacConfigDialog() );
-     else
-        return nil;
-     */
-    return nil;
+    cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
+    assert(tmpSsPtr && "Error 8351: tmpSsPtr = nil");
+    if (tmpSsPtr->hasConfigureSheet())
+        tmpSsPtr->showConfigureSheet(self);
+    delete tmpSsPtr;
+    return configSheet;
 }
 
+- (IBAction) okClick: (id)sender
+{
+    /*
+    ScreenSaverDefaults *defaults;
+    
+    defaults = [ScreenSaverDefaults defaultsForModuleWithName:MyModuleName];
+    
+    // Update our defaults
+    [defaults setBool:[drawFilledShapesOption state]
+               forKey:@"DrawFilledShapes"];
+    [defaults setBool:[drawOutlinedShapesOption state]
+               forKey:@"DrawOutlinedShapes"];
+    [defaults setBool:[drawBothOption state]
+               forKey:@"DrawBoth"];
+    
+    // Save the settings to disk
+    [defaults synchronize];
+    */
+    
+    // Close the sheet
+    [[NSApplication sharedApplication] endSheet:configSheet];
+}
+
+- (IBAction)cancelClick:(id)sender
+{
+    [[NSApplication sharedApplication] endSheet:configSheet];
+}
 
 
 @end

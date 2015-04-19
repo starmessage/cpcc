@@ -131,7 +131,7 @@ cpccSettings::~cpccSettings()
 
 bool cpccSettings::load(void)
 {
-	cpccFileSystemMini	fs; 
+	cpccFileSystemMiniEx	fs; 
 	if (!fs.fileExists(mFilename))
 		return true;
 	
@@ -187,9 +187,6 @@ bool cpccSettings::save(void)
 
 
 
-
-
-
 template <typename T>
 void		cpccSettings::write(const cpcc_char *aKey, const T aValue)
 {
@@ -230,7 +227,7 @@ void cpccSettings::resumeInstantSaving(void)
 void cpccSettings::selfTest(void) 
 {
 	std::cout << "cpccSettings::SelfTest starting\n";
-	cpccFileSystemMini fs;
+	cpccFileSystemMiniEx fs;
 	double pi = 3.14159265359;
     float  bigFloat = 1.3456798e16f;
     

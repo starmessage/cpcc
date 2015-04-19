@@ -60,7 +60,7 @@ public: // screensaver interface functions: calls that the operating system disp
 #endif
 #ifdef __APPLE__
 	virtual void initWithWindowHandle(NSView* wHandle, const int monitorId) = 0;
-	virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
+	virtual void /* NSWindow* */ showConfigureSheet(NSView* wOwnerHandle) =0;
 #endif
 
 	virtual void animateOneFrame(void)=0;
