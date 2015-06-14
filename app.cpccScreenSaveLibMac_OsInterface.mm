@@ -64,6 +64,13 @@
 // http://cocoadevcentral.com/articles/000089.php
 
 
+/*
+ Running a screensaver as your desktop background [permalink]
+ In a terminal, run
+ 
+ % /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background &
+ */
+
 
 /*
  http://www.mactech.com/articles/mactech/Vol.20/20.06/ScreenSaversInCocoa/index.html
@@ -513,20 +520,48 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 - (NSWindow*)configureSheet
 {   /*
+     http://www.cocoabuilder.com/archive/cocoa/14759-screensaver-configure-sheet.html
+     you need to create a nib file, "load" the nib file into your
+     screen saver at run time, and return the window pointer in your
+     ScreenSaverView subclasses -configureSheet method.
+     
      This window will be run as a sheet, so it must include buttons that allow the user to end the modal session 
      in which the sheet runs. When the user dismisses the sheet, the controller in charge of the sheet must end 
      the document modal session by calling the NSApplication method endSheet: with the sheet’s window as the argument.
      */
+    
+    /*
+     1) create an NSWindow in a nib file in Interface Builder
+     2) add the file to your project
+     3) return an instance of that window from the configureSheet method that you’ll be overriding
+     
+     NSBundle’s loadNibNamed: works just fine for loading your window and any controller objects you need.
+     */
+    
+    /*
+     In My_ScreensaverView.h, declare an outlet for your panel:
+     
+     IBOutlet id configSheet;
+     
+     Note that I used id instead of NSWindow * or NSPanel *, simply because I don’t know what class you actually are using for the sheet. (Ideally, a NSPanel should be used for a sheet.)
+     
+     In your nib file, make sure that the File's Owner is an instance of My_ScreensaverView. You can determine this by selecting the icon for this object and then using the Identity inspector to specify the class.
+     
+     Make the connection between the configSheet outlet and the panel. One way of doing this is to hold down the Control key while dragging from the File's Owner object to the window or panel icon, then selecting configSheet from the pop-up that appears.
+     */
+    
+    // http://troz.net/making-a-mac-screen-saver/
     
     infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
     
     cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
     assert(tmpSsPtr && "Error 8351: tmpSsPtr = nil");
     if (tmpSsPtr->hasConfigureSheet())
-        tmpSsPtr->showConfigureSheet(self);
+        configSheet = tmpSsPtr->showConfigureSheet(self);
     delete tmpSsPtr;
     return configSheet;
 }
+
 
 - (IBAction) okClick: (id)sender
 {
@@ -548,8 +583,9 @@ cpccScreenSaverInterface *ssPtr=NULL;
     */
     
     // Close the sheet
-    [[NSApplication sharedApplication] endSheet:configSheet];
+    [[NSApplication sharedApplication] endSheet:configSheet returnCode: NSOKButton];
 }
+
 
 - (IBAction)cancelClick:(id)sender
 {

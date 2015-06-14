@@ -2,7 +2,7 @@
 
 A set of classes and functions that are missing from the standard C++
 
-Version: 0.54.88
+Version: 0.54.89
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 

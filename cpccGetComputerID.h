@@ -18,7 +18,14 @@
 
 #include "io.cpccFileSystemMini.h"
 #include "cpccUnicodeSupport.h"
-#include "io.cpccLog.h"
+#include <sstream>
+#ifdef __APPLE__
+    #include <ext/hash_map>
+    #include <tr1/functional>
+    typedef std::tr1::hash<cpcc_string> portableHashString;
+#elif defined(_WIN32)
+    typedef std::hash<cpcc_string>      portableHashString;
+#endif
 
 /**	cpccGetComputerID: a cross platform GetComputerID()
 	Algorithm: 
@@ -43,19 +50,19 @@ struct sOsFile
 */
 
 sOsFile	listOfWindowsFiles[] =
-{	{ "<WINDOWS>", "notepad.exe" },
-	{ "<WINDOWS>", "regedit.exe" },
-	{ "<WINDOWS>", "explorer.exe" }
+{	{ (char *)"<WINDOWS>", (char *)"notepad.exe" },
+	{ (char *)"<WINDOWS>", (char *)"regedit.exe" },
+	{ (char *)"<WINDOWS>", (char *)"explorer.exe" }
 };
 
 
 sOsFile	listOfOSXFiles[] =
-{	{ "/Applications/", "Calculator.app/Contents/MacOSX/Calculator" }, // 23/2/2015
+{	{ (char *)"/Applications/", (char *)"Calculator.app/Contents/MacOSX/Calculator" }, // 23/2/2015
     
-	{ "/Applications/", "SimpleText.app/Contents/MacOSX/SimpleText" }   // 2/11/2007
+	{ (char *)"/Applications/", (char *)"SimpleText.app/Contents/MacOSX/SimpleText" }   // 2/11/2007
 };
 
-
+//  http://www.cplusplus.com/reference/functional/hash/
 
 template<int UNIQUE_SEED>
 class cpccGetComputerID
@@ -81,6 +88,48 @@ public:
     cpcc_string getSelfFilename(void)    { return fs.getAppFullPathFilename(); }
     time_t      getSelfModifyDate(void)	 { return fs.getFileModificationDate(getSelfFilename().c_str()); }
 	time_t      getOSModifyDate(void)	 { return fs.getFileModificationDate(getCharacteristicOSFile().c_str()); }
+
+
+	const cpcc_string getHash(const cpcc_string &aTxt)
+	{	// 	http://www.cplusplus.com/reference/functional/hash/
+		portableHashString str_hash;
+		size_t result = str_hash(aTxt);
+
+		std::stringstream ss;
+		ss << result;
+
+		return cpcc_string(ss.str());
+	}
+
+
+	const cpcc_string getComputerName(void)
+	{
+#ifdef _WIN32
+		cpcc_char name[255]; DWORD size;
+		size = sizeof(name) - 1;
+		GetComputerName(name, &size);
+		return cpcc_string(name);
+#endif
+#ifdef __APPLE__
+		cpcc_char name[_POSIX_HOST_NAME_MAX + 1];
+        if (gethostname(name, sizeof name) == -1 )
+            return cpcc_string("getComputerName failed.");
+        else
+            return cpcc_string(name);
+        
+		/*
+		[[NSDictionary
+		dictionaryWithContentsOfFile:@"/var/db/SystemConfiguration/preferences.xml"
+		] valueForKeyPath:@"System.System.ComputerName"];
+		*/
+
+		/*
+		[[NSProcessInfo processInfo] hostName]
+		*/
+#endif
+
+	}
+
 
 	const cpcc_string getCharacteristicOSFile(void) 
 	{
@@ -140,7 +189,7 @@ public:
 		return cachedID;
 	}
     
-    
+    /* move to the cpp file 
     static void selfTest(void)
     {
         logObjectLife logThis("cpccGetComputerID::selfTest()");
@@ -166,5 +215,6 @@ public:
         std::strftime(buffer, 32, "%a, %d.%m.%Y %H:%M:%S", ptm);
         infoLog().addf("modification date of OS folder:%s",buffer);
     }
-    
+    */
+	
 };

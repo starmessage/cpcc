@@ -1,14 +1,12 @@
 ﻿/*  *****************************************
  *  File:		cpccFileSystemMini.h
- *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
+ *  Copyright: 	2015 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
  *  Download:	https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
@@ -69,14 +67,9 @@ public:
 #ifdef _WIN32
 	const cpcc_string getFolder_Windows(void) const;
 #endif
-	// file functions --------------------------------
 
-#if defined(__APPLE__)
-	mode_t              getFileOrFolderPermissions_OSX(const cpcc_char *aFilename);
-	bool                createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions);
-    const std::string   expandTilde_OSX(const char *aPath);
-#endif
-	
+    // file functions --------------------------------
+
 	bool fileExists(const cpcc_char * aFilename) const;
 	
 	cpccFileSize_t getFileSize(const cpcc_char *aFilename); 
@@ -91,7 +84,7 @@ public:
 	bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
 	bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
 	bool createEmptyFile(const cpcc_char * aFilename);
-	bool fileAppend(const cpcc_char* aFilename, const cpcc_char *txt);
+	bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
 	bool deleteFile(const cpcc_char * filename);
 	bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);	
 	
@@ -118,7 +111,7 @@ public:
 	virtual bool fileExists(const cpcc_string &aFilename)	{ return cpccFileSystemMini::fileExists(aFilename.c_str()); };
 
 	virtual bool copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
-	virtual bool fileAppend(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::fileAppend(aFilename, text.c_str()); };
-	virtual bool fileAppend(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::fileAppend(aFilename.c_str(), text.c_str()); };
+	virtual bool appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
+	virtual bool appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
 
 };

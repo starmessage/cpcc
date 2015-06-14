@@ -22,15 +22,14 @@
 //
 //////////////////////////////////////////
 
+#include "io.cpccLog.h"
 #define _WINSOCKAPI_    // stops windows.h including winsock.h
 #include <windows.h>
 #include <ScrnSave.h>
 #include <commctrl.h>
-#include "io.cpccLog.h"
 #include "app.cpccScreenSaverInterface.h"
 #include "app.cpccApp.h"
 #include "core.cpccOS.h"
-
 
 
 /*  Handling Screen Savers

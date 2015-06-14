@@ -19,7 +19,7 @@
 
 #include <ctime>
 #include <iostream> 
-#include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
+// #include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
 #include <assert.h>
 
 #include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
@@ -75,7 +75,7 @@ public: // functions
 		for (int i = 0; i<m_IdentLevel; ++i)
 			output.insert(0, m_IdentText);
 
-		fs.fileAppend(m_filename, output);
+		fs.appendTextFile(m_filename, output);
 		if (m_echoToConsole)
 		{
 			std::cout << output;

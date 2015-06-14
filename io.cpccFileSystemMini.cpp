@@ -32,11 +32,10 @@
 	#include	<sys/stat.h>
 
 #elif defined(__APPLE__)
-	#include <unistd.h> // for access on unix, mac	
-	#include <CoreFoundation/CoreFoundation.h>
+    #include "io.cpccFileSystemMiniOSX.h"
+    #include <CoreFoundation/CoreFoundation.h>
 	#include <Carbon/Carbon.h> // for the DialogRef
-	#include <libproc.h>
-	#include <pwd.h>
+
 #endif
 
 #include "io.cpccFileSystemMini.h"
@@ -47,14 +46,10 @@
 
 
 #if defined(__APPLE__)
-const std::string  cpccFileSystemMini::expandTilde_OSX(const char *aPath)
-{
-    std::string result(aPath);
-    if (result.length()>0)
-        if (result.at(0)=='~')
-            result.replace(0,1, getFolder_UserHome());
-    return result;
-}
+
+
+
+
 #endif
 
 // main class
@@ -104,15 +99,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 	std::cerr << "Error #6531 in getFolder_UserHome\n";
 	
 #elif defined(__APPLE__)
-	// http://macosx.com/forums/software-programming-web-scripting/301243-get-current-user-path.html
-	// https://github.com/ehsan/ogre/blob/master/Samples/Browser/src/FileSystemLayerImpl_OSX.cpp#L46
-
-	struct passwd* pwd = getpwuid(getuid());
-	if (pwd)
-	{
-		return std::string(pwd->pw_dir);
-	}
-	return  std::string("~");
+    return getUserFolder_OSX();
 	
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_UserHome()");	
@@ -276,9 +263,14 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 
 
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
-{	
-	cpcc_string destFile=destFileOrFolder;
-	if (folderExists(destFileOrFolder)) 
+{
+#ifdef __APPLE__
+    cpcc_string destFile=expandTilde_OSX(destFileOrFolder);
+#else
+    cpcc_string destFile=destFileOrFolder;
+#endif
+    
+	if (folderExists(destFileOrFolder))
 		{
 		cpccPathHelper ph;
 		ph.addTrailingPathDelimiter(destFile);
@@ -290,13 +282,19 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 
 
-bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char *txt)
+bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
+    const cpcc_char *finalFilename = aFilename;
+#ifdef __APPLE__
+    if (startsWithTilde_OSX(aFilename))
+        finalFilename = expandTilde_OSX(aFilename).c_str();
+#endif
+    
 	FILE *fp; 
 	#ifdef _WIN32
 		#pragma warning(disable : 4996)
 	#endif
-	fp= cpcc_fopen(aFilename, _T("at")); // write append
+	fp= cpcc_fopen(finalFilename, _T("at")); // write append
 	if (!fp) return false;
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
@@ -311,40 +309,6 @@ bool cpccFileSystemMini::fileAppend(const cpcc_char* aFilename, const cpcc_char 
 	#define		cpcc_rename			std::rename 	
  #endif
 
-
-#if defined(__APPLE__)
-mode_t cpccFileSystemMini::getFileOrFolderPermissions_OSX(const cpcc_char *aFilename)
-{
-	struct stat statInfo;  
-	stat(aFilename, &statInfo);
-	//  Octal numbers begin with 0.  hex numbers begin with 0x.
-	return statInfo.st_mode & 0777;
-}
-#endif
-
-
-#if defined(__APPLE__)
-bool cpccFileSystemMini::createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions)
-{	/* tutorial:
-	int mkdir(const char *pathname, mode_t mode);
-	The argument mode specifies the permissions to use. 
-	It is modified by the processís umask in the usual way: 
-	the permissions of the created directory are (mode & ~umask & 0777).
-	*/
-	if (folderExists(aFilename) )
-		return true;
-		
-	mode_t previous_umask = umask(0);
-	int rc=mkdir( aFilename, permissions );
-	// chmod(): This POSIX function is deprecated. Use the ISO C++ conformant _chmod instead.
-	// http://msdn.microsoft.com/en-us/library/1z319a54.aspx
-	//	chmod(aFilename, permissions);
-	umask(previous_umask);
-	if (rc!=0) 
-		std::cerr << "Error no " <<  rc << " (" << strerror(rc) << ") while creating directory:" << aFilename << "\n";
-	return (rc == 0);
-}
-#endif
 
 
 bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
@@ -392,29 +356,8 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
 	
 #elif defined(__APPLE__)
-	// example with lstat()
-	// http://stackoverflow.com/questions/3543231/how-to-find-out-if-a-file-or-directory-exists
-	// expand the tilde ~ 
-	// http://www.davidverhasselt.com/2009/09/16/expanding-a-leading-tilde-in-cc/
-	
-	cpcc_string finalPath(aFoldername);
-	
-	if (aFoldername[0]=='~')
-	{
-		cpccPathHelper ph;
-		// finalPath = ph.expandTilde(aFoldername);
-		finalPath = ph.pathCat(getFolder_UserHome().c_str(), &aFoldername[1]);
-	}
-	
-	struct stat fileinfo;
-	if (stat(finalPath.c_str(), &fileinfo) == -1)
-	{	// On success, zero is returned. 
-		// On error, -1 is returned, and errno is set appropriately. 
-		return false;
-	}
-	else
-		return (S_ISDIR(fileinfo.st_mode));
-	
+    return folderExists_OSX(aFoldername);
+    
 #else
 	#error 	Error #5414: unsupported platform for folderExists()
 #endif
@@ -467,15 +410,17 @@ bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 */
 cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile)
 {
-	#ifdef _WIN32
-		#pragma warning(disable : 4996)
-	#endif
-	if (!buffer)
-		return -3;
-
-	FILE * pFile;
-	
-	pFile = cpcc_fopen (aFilename, (appendToFile)? _T("ab") : _T("wb") );
+    if (!buffer)
+        return -3;
+    
+    const cpcc_char *finalFilename = aFilename;
+#ifdef __APPLE__
+    if (startsWithTilde_OSX(aFilename))
+        finalFilename = expandTilde_OSX(aFilename).c_str();
+#endif
+    
+    #pragma warning(disable : 4996)
+	FILE * pFile = cpcc_fopen (aFilename, (appendToFile)? _T("ab") : _T("wb") );
 	if (pFile==NULL) 
 		return -1;
 	
@@ -512,10 +457,6 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 
 cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
 {	
-	// http://www.codeproject.com/Articles/9016/Quick-and-Dirty-Series-C-FileSize-function
-	// GetFileSizeEx()
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa364957%28v=vs.85%29.aspx
-
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
 	return static_cast<cpccFileSize_t>(f.tellg());
 /*
@@ -534,8 +475,7 @@ cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
 bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
 {
 	/*
-	 http://www.cplusplus.com/reference/clibrary/cstdio/remove/
-	 If the file is successfully deleted, a zero value is returned.
+     If the file is successfully deleted, a zero value is returned.
 	 On failure, a nonzero value is reurned and the errno variable is 
 	 set to the corresponding error code. A string interpreting 
 	 this value can be printed to the standard error stream by a call to perror.
@@ -715,7 +655,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 			
 			
 	const cpcc_char * fileContent= _T("kalimera sas");
-	fs.fileAppend(tmpFile.c_str(),fileContent);
+	fs.appendTextFile(tmpFile.c_str(),fileContent);
 			
 	//std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
