@@ -460,6 +460,10 @@ cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
 	return static_cast<cpccFileSize_t>(f.tellg());
 /*
+ 	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(),
+ 	// on linux this is implemented as a lstat64(), and 
+ 	// on the Macintosh it uses the Mac specific call getattrlist(). 
+ 
 #ifdef _WIN32
 	struct _tstat stat_buf;
 	int rc = _tstat(aFilename, &stat_buf);

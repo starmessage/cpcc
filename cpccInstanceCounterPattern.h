@@ -1,13 +1,12 @@
 ﻿/*  *****************************************
  *  File:		cpccInstanceCounterPattern.h
- *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
+ *  Copyright: 	2015 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
+ *	Web:		http://www.starmessagesoftware.com/cpcclibrary/
  *  Download:	https://code.google.com/p/cpcc/
  *              https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
@@ -21,9 +20,6 @@
 	Counts how many objects of a specific class were created.
 	Special functions onFirstCreate(), onLastDestroy can be overwritten 
 	to allow clildren classes perform initialization/finalisation.
-	
-	Dependencies: cpcc_SelfTest.h
- 
 */
 
 
@@ -31,44 +27,18 @@
 class cpccInstanceCounterPattern
 {
 private:
-	int * nCountPtr;
-	
-public:	// class metadata and selftest
-	static const char * getClassVersion(void) { return "1.01"; };
-	
-	static void selfTest(void)
-	{
-		//
-	};
-
-protected:
+	int &_nCount;
 
 
 public:	// ctor/dtor
 
-	cpccInstanceCounterPattern(int *aStaticCounterPtr): nCountPtr(aStaticCounterPtr)
-	{
-		if (nCountPtr)
-			*nCountPtr = *nCountPtr + 1;
-		
-	};
+	cpccInstanceCounterPattern(int &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }
 
-	~cpccInstanceCounterPattern(void)
-	{
-	
-		if (nCountPtr)
-			*nCountPtr = *nCountPtr - 1;
-	};
+	~cpccInstanceCounterPattern(void)   {   --_nCount;  }
 		
 public: // functions
 
-	const int getInstancesCount(void)	
-	{ 
-		if (nCountPtr)
-			return *nCountPtr; 
-		return -999; 	// error indication
-	};
-
+	const int getInstancesCount(void)   {   return _nCount; }
 
 };
 

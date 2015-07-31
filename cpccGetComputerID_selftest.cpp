@@ -53,10 +53,11 @@ SELFTEST_BEGIN(cpccGetComputerID_SelfTest)
     
 		time_t _tm = time(NULL);
 		struct tm * curtime = localtime(&_tm);
-		cpcc_string txt;
-		txt.append(mid.getComputerName());
+		cpcc_string txt ("V2: ");
+        cpcc_string compName = cpccOS::getComputerName();
+        txt.append(compName);
 		txt.append(_T("\tHash:")); 
-		txt.append(mid.getHash(mid.getComputerName()));
+		txt.append(mid.getHash(compName));
 		txt.append(_T("\t"));
 		txt.append(asctime(curtime)); // asctime contains a CRLF
 		//txt.append(_T("\n"));

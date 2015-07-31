@@ -17,7 +17,9 @@
 #pragma once
 
 #include "io.cpccFileSystemMini.h"
-#include "cpccUnicodeSupport.h"
+#include "core.cpccOS.h"
+
+
 #include <sstream>
 #ifdef __APPLE__
     #include <ext/hash_map>
@@ -64,6 +66,10 @@ sOsFile	listOfOSXFiles[] =
 
 //  http://www.cplusplus.com/reference/functional/hash/
 
+
+
+
+
 template<int UNIQUE_SEED>
 class cpccGetComputerID
 {
@@ -102,36 +108,10 @@ public:
 	}
 
 
-	const cpcc_string getComputerName(void)
-	{
-#ifdef _WIN32
-		cpcc_char name[255]; DWORD size;
-		size = sizeof(name) - 1;
-		GetComputerName(name, &size);
-		return cpcc_string(name);
-#endif
-#ifdef __APPLE__
-		cpcc_char name[_POSIX_HOST_NAME_MAX + 1];
-        if (gethostname(name, sizeof name) == -1 )
-            return cpcc_string("getComputerName failed.");
-        else
-            return cpcc_string(name);
-        
-		/*
-		[[NSDictionary
-		dictionaryWithContentsOfFile:@"/var/db/SystemConfiguration/preferences.xml"
-		] valueForKeyPath:@"System.System.ComputerName"];
-		*/
+	
+    
 
-		/*
-		[[NSProcessInfo processInfo] hostName]
-		*/
-#endif
-
-	}
-
-
-	const cpcc_string getCharacteristicOSFile(void) 
+	const cpcc_string getCharacteristicOSFile(void)
 	{
 		cpcc_string theFilename;
 		#if defined(__APPLE__)

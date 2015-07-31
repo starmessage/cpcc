@@ -2,7 +2,7 @@
 
 A set of classes and functions that are missing from the standard C++
 
-Version: 0.54.89
+Version: 0.54.90
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
@@ -43,6 +43,7 @@ Classes in the current queue:
 [ok] portable window class with drawing tools
 [ok] portable image class with drawing tools
 [ok] Windows GDI helper class with common GDI drawing objects (Brush, HBITMAT, HFONT, etc).
+[ok] Cross platform (Windows, OSX) getComputerName() function
 [  ] Cross platform getComputerID function
 
 Please come back to check every few weeks.

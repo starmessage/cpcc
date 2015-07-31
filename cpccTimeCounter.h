@@ -45,8 +45,6 @@ private:
 	
 	void		gettimeofdayCrossPlatform(struct timeval *currentTime);
 
-public:	// class metadata and selftest
-	const char * getClassVersion(void) { return "1.02"; };
 
 	
 public: // ctor

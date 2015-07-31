@@ -147,8 +147,9 @@ cpccApp	app;
 
 @implementation cpccScreenSaveLibMac_OsInterface
 
-bool previousPreserveDeskopContents = false;
-bool m_isOpaque = true;
+bool            m_previousPreserveDeskopContents = false;
+bool            m_isOpaque = true;
+logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
 
 cpccScreenSaverInterface *ssPtr=NULL;
 
@@ -343,7 +344,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //infoLog().add( "before [super startAnimation];");
     [super startAnimation];
 
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation exiting");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation exiting");
 }
 
 
@@ -401,13 +402,13 @@ cpccScreenSaverInterface *ssPtr=NULL;
     
     
     if (ssPtr)
-        if (ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents)
+        if (ssPtr->getPreserveDeskopContents() != m_previousPreserveDeskopContents)
         {
             infoLog().add("ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents");
             infoLog().addf("ssPtr->getPreserveDeskopContents(): %s", ssPtr->getPreserveDeskopContents()?"YES":"NO");
             
-            previousPreserveDeskopContents = ssPtr->getPreserveDeskopContents();
-            [self util_setTransparency: previousPreserveDeskopContents];
+            m_previousPreserveDeskopContents = ssPtr->getPreserveDeskopContents();
+            [self util_setTransparency: m_previousPreserveDeskopContents];
             //self.alphaValue = 0.3;
             //[[self window] setBackgroundColor:[NSColor clearColor]];
             //[[self window] setOpaque:NO];
@@ -519,7 +520,9 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 
 - (NSWindow*)configureSheet
-{   /*
+{
+    
+    /*
      http://www.cocoabuilder.com/archive/cocoa/14759-screensaver-configure-sheet.html
      you need to create a nib file, "load" the nib file into your
      screen saver at run time, and return the window pointer in your
@@ -559,6 +562,9 @@ cpccScreenSaverInterface *ssPtr=NULL;
     if (tmpSsPtr->hasConfigureSheet())
         configSheet = tmpSsPtr->showConfigureSheet(self);
     delete tmpSsPtr;
+    
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet() exiting");
+    
     return configSheet;
 }
 

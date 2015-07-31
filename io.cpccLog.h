@@ -21,6 +21,7 @@
 #include <iostream> 
 // #include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
 #include <assert.h>
+#include <string> 
 
 #include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
 #include "cpccUnicodeSupport.h"
@@ -86,6 +87,24 @@ public: // functions
 		m_isEmpty = false;
 	}
 	
+    static cpcc_string toString(const cpcc_char* format, ...)
+    {
+        const int MAX_LOG_STRING = 8000;
+        cpcc_char buff[MAX_LOG_STRING+1];
+        
+        va_list args;
+        va_start(args, format);
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+        // vsprintf_s( buff, MAX_LOG_STRING, format, args);
+        _vstprintf_s(buff, MAX_LOG_STRING, format, args);
+#else
+        vsprintf(buff, format, args);
+#endif
+        va_end(args);
+        
+        return buff;
+    }
+    
     
 	void addf(const cpcc_char* format, ...)
 	{ 
@@ -145,7 +164,7 @@ cpccLogSink			&errorLog(void);
 class logObjectLife
 {
 protected:
-    const cpcc_string tag;
+    cpcc_string tag;
 public:
 	logObjectLife(const cpcc_char *aTag) : tag(aTag) 
 	{ 
@@ -175,7 +194,7 @@ public:
 
 	~logTimeCountrer(void)
 	{
-		infoLog().addf("timer result for %s: %.2f sec", tag.c_str(), timer.getSecondsElapsed());
+        tag.append(cpccLogSink::toString(". Duration:%.3f sec",timer.getSecondsElapsed()));
 	}
 
 };
