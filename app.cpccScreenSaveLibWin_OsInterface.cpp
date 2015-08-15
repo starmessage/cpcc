@@ -300,7 +300,8 @@ Prepei na yparxei ena dialog template me to parakato ID
 			Otherwise, the function should return TRUE, in which case the 
 			system sets the keyboard focus to the first control in the 
 			dialog box that can be given the focus. */
-			MessageBox(NULL,"ConfigureSheet that must have been overiden by the child class",NULL,NULL); 
+			
+			//MessageBox(NULL,"WM_INITDIALOG",NULL,NULL); 
 			
 			if (!screensaverPtr)
 			{
