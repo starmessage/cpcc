@@ -228,6 +228,8 @@ cpccScreenSaverInterface *ssPtr=NULL;
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
+	
+
 }
 
 
@@ -258,6 +260,15 @@ cpccScreenSaverInterface *ssPtr=NULL;
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
     
 	infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame()");
+    
+    {	// report on monitors found
+        cpccMonitorList mList;
+        int n = cpccOS::getListOfMonitors(mList);
+        infoLog().addf("Number of monitors:%i", n);
+        for (int i = 0; i < n; ++i)
+            infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, mList[i].left, mList[i].top, mList[i].right, mList[i].bottom );
+    }
+    
     //cpccOS::sleep(2000);
     
     //[[self window] setBackgroundColor:[NSColor clearColor]];

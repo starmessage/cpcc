@@ -19,6 +19,7 @@
 #include "cpccTimeCounter.h"
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
+#include "core.cpccOS.h"
 
 
 class cpccScreenSaverAbstract: public cpccScreenSaverInterface
@@ -29,6 +30,8 @@ private:
     logObjectLife       objLog;
 	
 protected:	// data
+	cpccMonitorList		m_monitorList;
+
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				mPreserveDeskopContents;
@@ -41,7 +44,14 @@ protected: // constructor/destructor
 			m_windowIsOwned(true),
             mPreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
-	{  }
+	{  
+		int n = cpccOS::getListOfMonitors(m_monitorList);
+
+		// report on monitors found
+		infoLog().addf("Number of monitors:%i", n);
+		for (int i = 0; i < n; ++i)
+			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
+	}
 
 
 	virtual ~cpccScreenSaverAbstract()
@@ -98,6 +108,7 @@ protected: // screensaver standard functions
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
+        
 		mSecondsTimer.resetTimer();
 		m_windowIsOwned = true;
 	}

@@ -29,7 +29,6 @@
 #include <commctrl.h>
 #include "app.cpccScreenSaverInterface.h"
 #include "app.cpccApp.h"
-#include "core.cpccOS.h"
 
 
 /*  Handling Screen Savers
@@ -98,6 +97,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
 			infoLog().add("ScreenSaverProc() received WM_CREATE");
+			
 
 			if (!screensaverPtr)
 			{

@@ -25,8 +25,7 @@
 
 #include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
 #include "cpccUnicodeSupport.h"
-#include "io.cpccFileSystemMini.h"
-#include "io.cpccPathHelper.h"
+
 
 
 
@@ -59,70 +58,11 @@ public: // constructor / destructor
 public: // functions
 	bool isEmpty(void) { return m_isEmpty; }
 	
-	void add(const cpcc_char* txt)
-	{	
-		if (m_filename.length()==0)
-			return;
-		
-		cpccFileSystemMiniEx fs;
-		if (!fs.fileExists(m_filename) && (m_disableIfFileDoesNotExist) ) 
-			return;
-			
-		cpcc_string output = getCurrentTime( _T("%X") );
-		output.append( " " );
-		output.append( m_tag );
-		output.append( txt );
-		output.append( "\n" );
-		for (int i = 0; i<m_IdentLevel; ++i)
-			output.insert(0, m_IdentText);
-
-		fs.appendTextFile(m_filename, output);
-		if (m_echoToConsole)
-		{
-			std::cout << output;
-			#if defined(_WIN32)
-				OutputDebugString(output.c_str());		
-			#endif
-		}
-		m_isEmpty = false;
-	}
+	void add(const cpcc_char* txt);
 	
-    static cpcc_string toString(const cpcc_char* format, ...)
-    {
-        const int MAX_LOG_STRING = 8000;
-        cpcc_char buff[MAX_LOG_STRING+1];
-        
-        va_list args;
-        va_start(args, format);
-#if (_MSC_VER >= 1400) // Visual Studio 2005
-        // vsprintf_s( buff, MAX_LOG_STRING, format, args);
-        _vstprintf_s(buff, MAX_LOG_STRING, format, args);
-#else
-        vsprintf(buff, format, args);
-#endif
-        va_end(args);
-        
-        return buff;
-    }
+	static cpcc_string toString(const cpcc_char* format, ...);
     
-    
-	void addf(const cpcc_char* format, ...)
-	{ 
-		const int MAX_LOG_STRING = 8000;
-		cpcc_char buff[MAX_LOG_STRING+1];
-		
-		va_list args;
-		va_start(args, format);
-#if (_MSC_VER >= 1400) // Visual Studio 2005
-		// vsprintf_s( buff, MAX_LOG_STRING, format, args);
-		_vstprintf_s(buff, MAX_LOG_STRING, format, args);
-#else
-		vsprintf(buff, format, args);
-#endif
-		va_end(args);
-
-		add(buff);
-	}
+	void addf(const cpcc_char* format, ...);
 
 	///  Get the current datetime as a human readable string
 	/**
@@ -131,20 +71,7 @@ public: // functions
 		 @param  fmt the format specifier according to C++ strftime()
 		 @return the current datetime formatted with the standard function strftime
 	*/
-	static cpcc_string getCurrentTime(const cpcc_char * fmt)
-	{
-		time_t t = time(0);   // get time now
-		#pragma warning( disable : 4996 )
-		struct tm timeStruct = *localtime( & t );
-		
-		cpcc_char buffer[100];
-		
-		// More information about date/time format
-		// http://www.cplusplus.com/reference/clibrary/ctime/strftime/
-		// strftime(buffer, sizeof(buffer), fmt, &timeStruct);
-		cpcc_strftime(buffer, sizeof(buffer), fmt, &timeStruct);
-		return cpcc_string(buffer);  // e.g. 13:44:04
-	}
+	static cpcc_string getCurrentTime(const cpcc_char * fmt);
 };
 
 
