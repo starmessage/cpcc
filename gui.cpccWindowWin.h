@@ -107,10 +107,10 @@ protected:		// functions ////////////////////////////////
 			*height = size.y();
 	}
 
-	int 		getHeight(void)												{ return m_rect.bottom - m_rect.top; }
-	int 		getWidth(void) 												{ return m_rect.right - m_rect.left; }
-	int         getTop(void)												{ return m_rect.top; }
-	int         getLeft(void)												{ return m_rect.left; }
+	int 		getHeight(void)	const										{ return m_rect.bottom - m_rect.top; }
+	int 		getWidth(void) 	const										{ return m_rect.right - m_rect.left; }
+	int         getTop(void)	const										{ return m_rect.top; }
+	int         getLeft(void)	const										{ return m_rect.left; }
 
 	void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
 	void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }

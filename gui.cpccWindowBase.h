@@ -162,10 +162,13 @@ public:  // abstract functions
 	virtual void			popCss(cpccCSS* aCssPtr)=0;
     virtual cpccColor		getPixel(const int x, const int y)=0;
     virtual void 			setPixel(int x, int y, const cpccColor &c)=0;
-    virtual int				getWidth(void)=0;
-    virtual int             getHeight(void)=0;
-    virtual int             getTop(void)=0;
-    virtual int             getLeft(void)=0;
+    virtual int				getWidth(void)	const =0;
+    virtual int             getHeight(void)	const =0;
+	virtual int             getTop(void)	const =0;
+    virtual int             getLeft(void)	const =0;
+
+	virtual int             getBottom(void) const { return getTop() + getHeight(); };
+	virtual int             getRight(void)	const { return getLeft() + getWidth(); };;
     virtual void            getTextSize(const cpcc_char *txt, int *width, int *height)=0;
 	virtual void			useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
 };
