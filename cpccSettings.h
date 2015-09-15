@@ -195,10 +195,13 @@ public:
             mDefaultValue(aDefaultValue)
 	{ }
 
-	T read(void) { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
-	T readAtIndex(const int index) { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
+	inline  operator const T(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
+	// T read(void) const { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
+	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
+	inline const T operator[](const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
 
-	void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }
+	void operator=(const T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); }
+	//void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }
 	void writeAtIndex(const int index, const T aValue) { mIniPtr.write(createIndexedKey(index).c_str(), aValue); }
 };
 

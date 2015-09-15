@@ -250,7 +250,7 @@ void cpccSettings::selfTest(void)
 		settingsApp.write("AppSettingsOfSoftware", "testSoftwareName");
 
 		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt", 98);
-		tmpPersistentInt.write(456);
+		tmpPersistentInt = 456;
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
@@ -279,8 +279,9 @@ void cpccSettings::selfTest(void)
 		assert(settingsUser.read("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
 
 		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt", 92);
-		assert((tmpPersistentInt.read() == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
-		assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		assert((tmpPersistentInt == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
+		// assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		assert((tmpPersistentInt[3] == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
 	}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";

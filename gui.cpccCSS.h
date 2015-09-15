@@ -34,10 +34,7 @@ private:
 
 public:
 	cpccProperty(): m_isNull(true) { }
-	
-	//T* operator()(const T& a)	{ m_value = a; return get(); }
-	//T* operator()(void)         { return get(); }
-    
+		
     // convert to T
     inline operator T(void)     { return get(); }
     
