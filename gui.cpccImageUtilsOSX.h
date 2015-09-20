@@ -73,7 +73,7 @@ public:
         
     }
     
-    
+    /*
     static NSBitmapImageRep * getRepresentationOfNSImage(NSImage * aImagePtr, const int index=0)
     {
         //infoLog().add("cpccImageMacBase.getBmpRepresentation() entering");
@@ -104,8 +104,10 @@ public:
         // http://www.cocoabuilder.com/archive/cocoa/185814-nsimage-representations.html
         // return [ NSBitmapImageRep imageRepWithData:[m_imagePtr TIFFRepresentation]];
     }
+    */
     
     
+    /*
     static NSBitmapImageRep * getBmpRepresentationOfNSImage(NSImage * aImagePtr)
     {
         //infoLog().add("cpccImageMacBase.getBmpRepresentation() entering");
@@ -129,7 +131,7 @@ public:
         warningLog().add("getBmpRepresentationOfNSImage no BmpRepresentation found");
         return NULL;
     }
-    
+    */
     
     static NSBitmapImageRep * createBmpScreenshotOfLockedImage(const int aWidth, const int aHeight)
     {

@@ -45,12 +45,7 @@ protected: // constructor/destructor
             mPreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
 	{  
-		int n = cpccOS::getListOfMonitors(m_monitorList);
 
-		// report on monitors found
-		infoLog().addf("Number of monitors:%i", n);
-		for (int i = 0; i < n; ++i)
-			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 	}
 
 
@@ -108,7 +103,15 @@ protected: // screensaver standard functions
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
-        
+		
+		int n = cpccOS::getListOfMonitors(m_monitorList);
+
+		// report on monitors found
+		infoLog().addf("Number of monitors:%i", n);
+		for (int i = 0; i < n; ++i)
+			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
+
+
 		mSecondsTimer.resetTimer();
 		m_windowIsOwned = true;
 	}
