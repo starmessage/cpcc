@@ -16,16 +16,118 @@
  */
  
 #include "io.cpccLog.h"
+#include "io.cpccFileSystemMini.h"
+#include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
+
+
+#define cpccLogOpeningStamp		_T("cpccLog starting")
+#define cpccLogClosingStamp		_T("cpccLog closing")
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class cpccLogSink
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+void cpccLogSink::add(const cpcc_char* txt)
+{
+	if (m_filename.length() == 0)
+		return;
+
+	cpccFileSystemMiniEx fs;
+	if (!fs.fileExists(m_filename) && (m_disableIfFileDoesNotExist))
+		return;
+
+	cpcc_string output = getCurrentTime(_T("%X"));
+	output.append(" ");
+	output.append(m_tag);
+	output.append(txt);
+	output.append("\n");
+	for (int i = 0; i<m_IdentLevel; ++i)
+		output.insert(0, m_IdentText);
+
+	fs.appendTextFile(m_filename, output);
+	if (m_echoToConsole)
+	{
+		std::cout << output;
+#if defined(_WIN32)
+		OutputDebugString(output.c_str());
+#endif
+	}
+	m_isEmpty = false;
+}
+
+
+cpcc_string cpccLogSink::toString(const cpcc_char* format, ...)
+{
+	const int MAX_LOG_STRING = 8000;
+	cpcc_char buff[MAX_LOG_STRING + 1];
+
+	va_list args;
+	va_start(args, format);
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
+	_vstprintf_s(buff, MAX_LOG_STRING, format, args);
+#else
+	vsprintf(buff, format, args);
+#endif
+	va_end(args);
+
+	return buff;
+}
+
+
+void cpccLogSink::addf(const cpcc_char* format, ...)
+{
+	const int MAX_LOG_STRING = 8000;
+	cpcc_char buff[MAX_LOG_STRING + 1];
+
+	va_list args;
+	va_start(args, format);
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
+	_vstprintf_s(buff, MAX_LOG_STRING, format, args);
+#else
+	vsprintf(buff, format, args);
+#endif
+	va_end(args);
+
+	add(buff);
+}
+
+
+///  Get the current datetime as a human readable string
+/**
+This function is used to create the timestamp field of the logRecord
+
+@param  fmt the format specifier according to C++ strftime()
+@return the current datetime formatted with the standard function strftime
+*/
+cpcc_string cpccLogSink::getCurrentTime(const cpcc_char * fmt)
+{
+	time_t t = time(0);   // get time now
+#pragma warning( disable : 4996 )
+	struct tm timeStruct = *localtime(&t);
+
+	cpcc_char buffer[100];
+
+	// More information about date/time format
+	// http://www.cplusplus.com/reference/clibrary/ctime/strftime/
+	// strftime(buffer, sizeof(buffer), fmt, &timeStruct);
+	cpcc_strftime(buffer, sizeof(buffer), fmt, &timeStruct);
+	return cpcc_string(buffer);  // e.g. 13:44:04
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // class cpccLog
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-#define cpccLogOpeningStamp		_T("cpccLog starting")
-#define cpccLogClosingStamp		_T("cpccLog closing")
 
 
 class cpccLog

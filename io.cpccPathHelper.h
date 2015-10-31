@@ -63,12 +63,12 @@ public:
 	// virtual const cpcc_string expandTilde(const cpcc_char *aPathWithTilde);
 #endif
 	
-	virtual const cpcc_char	 getPreferredPathDelimiter(void);
-	virtual const cpcc_char	*getAllPathDelimiters(void);
+	static const cpcc_char	getPreferredPathDelimiter(void);
+	static const cpcc_char*	getAllPathDelimiters(void);
 
-	virtual void removeLeadingPathDelimiter(cpcc_string &aPath);
-	virtual void removeTrailingPathDelimiter(cpcc_string &aPath);
-	virtual void addTrailingPathDelimiter(cpcc_string &aFolder);
+	static void				removeLeadingPathDelimiter(cpcc_string &aPath);
+	static void				removeTrailingPathDelimiter(cpcc_string &aPath);
+	static void				addTrailingPathDelimiter(cpcc_string &aFolder);
 	
 	virtual const cpcc_string getParentFolderOf(const cpcc_string &aFullpathFilename);
 	virtual const cpcc_string getParentFolderOf(const cpcc_char *aFilename) { return getParentFolderOf(cpcc_string(aFilename)); };
@@ -80,10 +80,10 @@ public:
 	cpcc_string		getExtension(const cpcc_char *aFilename);
 
 	/// concatenates two paths
-	cpcc_string		pathCat(const cpcc_char *a, const cpcc_char *b);
+	static cpcc_string		pathCat(const cpcc_char *a, const cpcc_char *b);
 	
-	bool	endsWithPathDelimiter(const cpcc_char *aPath);
-	bool	startsWithPathDelimiter(const cpcc_char *aPath);
+	static bool	endsWithPathDelimiter(const cpcc_char *aPath);
+	static bool	startsWithPathDelimiter(const cpcc_char *aPath);
 };
 
 

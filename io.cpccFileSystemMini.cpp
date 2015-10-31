@@ -182,7 +182,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 	
 	#elif defined(__APPLE__)
 		std::string userTempFolder( expandTilde_OSX("~/Library/Caches/temp-cpcc"));
-		createFolder(userTempFolder);
+		createFolder(userTempFolder.c_str());
 		return userTempFolder;
 	
 	#else
@@ -365,7 +365,7 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 }
 
 
-bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
+const bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
 {
 #ifdef _WIN32
 	struct _stat fileinfo;
@@ -620,6 +620,34 @@ time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename)
 
 
 
+/////////////////////////////////////////////
+// class cpccPathString
+/////////////////////////////////////////////
+
+void		cpccPathString::appendPathSegment(const cpcc_char* aPathSegment)
+{
+	assign(cpccPathHelper::pathCat(c_str(), aPathSegment));
+}
+
+
+cpccPathString::cpccPathString(const standardFolderIds aFolderID)
+{
+	cpccFileSystemMiniEx fs;
+
+	switch (aFolderID)
+	{ 
+	case standardFolderIds::CommonAppData:
+		assign(fs.getFolder_CommonAppData());
+		break;
+
+	default:	assign("");
+	}
+
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(cpccFileSystemMini_DoSelfTest)
 
@@ -686,6 +714,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 }
 
 #endif
+
 
 /////////////////////////////////////////////
 // Selftest cpccFileSystemMini

@@ -129,7 +129,7 @@ cpccApp	app;
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
 {	// ScreenSaverView class is a subclass of NSView
-    IBOutlet id configSheet; // this name should exist in the nib file of the screensaver configuration screen
+    // IBOutlet NSWindow* configSheet; // this name should exist in the nib file of the screensaver configuration screen
 }
 
 /*
@@ -228,6 +228,8 @@ cpccScreenSaverInterface *ssPtr=NULL;
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
+	
+
 }
 
 
@@ -258,6 +260,15 @@ cpccScreenSaverInterface *ssPtr=NULL;
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
     
 	infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame()");
+    
+    {	// report on monitors found
+        cpccMonitorList mList;
+        int n = cpccOS::getListOfMonitors(mList);
+        infoLog().addf("Number of monitors:%i", n);
+        for (int i = 0; i < n; ++i)
+            infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, mList[i].left, mList[i].top, mList[i].right, mList[i].bottom );
+    }
+    
     //cpccOS::sleep(2000);
     
     //[[self window] setBackgroundColor:[NSColor clearColor]];
@@ -509,18 +520,16 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 - (BOOL)hasConfigureSheet
 {
-	infoLog().add(  "cpccScreenSaveLibMac_OsInterface hasConfigureSheet()");
-	bool result;
-    cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
-    assert(tmpSsPtr && "Error 8351: tmpSsPtr = nil");
-	result = tmpSsPtr->hasConfigureSheet();
-	delete tmpSsPtr;
-    return result;
+    if (!ssPtr)
+        return false;
+    
+    return (ssPtr -> hasConfigureSheet());
 }
 
 
 - (NSWindow*)configureSheet
 {
+    logObjectLife routineMark("inside cpccScreenSaveLibMac_OsInterface configureSheet()");
     
     /*
      http://www.cocoabuilder.com/archive/cocoa/14759-screensaver-configure-sheet.html
@@ -555,40 +564,25 @@ cpccScreenSaverInterface *ssPtr=NULL;
     
     // http://troz.net/making-a-mac-screen-saver/
     
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet()");
+    if (!ssPtr)
+        return nil;
     
-    cpccScreenSaverInterface *tmpSsPtr= cpccScreenSaverFactory::createScreenSaver();
-    assert(tmpSsPtr && "Error 8351: tmpSsPtr = nil");
-    if (tmpSsPtr->hasConfigureSheet())
-        configSheet = tmpSsPtr->showConfigureSheet(self);
-    delete tmpSsPtr;
+    if (!ssPtr->hasConfigureSheet())
+        return nil;
     
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface configureSheet() exiting");
-    
+    /*
+    if (configSheet == nil)
+        configSheet = ssPtr->showConfigureSheet(self);
+
     return configSheet;
+     */
+    return ssPtr->showConfigureSheet(self);
 }
 
 
+/*
 - (IBAction) okClick: (id)sender
 {
-    /*
-    ScreenSaverDefaults *defaults;
-    
-    defaults = [ScreenSaverDefaults defaultsForModuleWithName:MyModuleName];
-    
-    // Update our defaults
-    [defaults setBool:[drawFilledShapesOption state]
-               forKey:@"DrawFilledShapes"];
-    [defaults setBool:[drawOutlinedShapesOption state]
-               forKey:@"DrawOutlinedShapes"];
-    [defaults setBool:[drawBothOption state]
-               forKey:@"DrawBoth"];
-    
-    // Save the settings to disk
-    [defaults synchronize];
-    */
-    
-    // Close the sheet
     [[NSApplication sharedApplication] endSheet:configSheet returnCode: NSOKButton];
 }
 
@@ -597,7 +591,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 {
     [[NSApplication sharedApplication] endSheet:configSheet];
 }
-
+*/
 
 @end
 

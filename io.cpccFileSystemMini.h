@@ -52,10 +52,9 @@ public:
 	// folder functions --------------------------------
 
 	bool createFolder(const cpcc_char *  aFoldername);
-	bool createFolder(const cpcc_string& aFoldername) { return createFolder(aFoldername.c_str()); }
 	
 	bool folderExists(const cpcc_char *  aFoldername) const;
-	bool folderExists(const cpcc_string& aFoldername) const { return folderExists(aFoldername.c_str()); };
+	
 
 	const cpcc_string getFolder_Desktop(void);
 	const cpcc_string getFolder_SystemsTemp(void);
@@ -70,7 +69,7 @@ public:
 
     // file functions --------------------------------
 
-	bool fileExists(const cpcc_char * aFilename) const;
+	const bool		fileExists(const cpcc_char * aFilename) const;
 	
 	cpccFileSize_t getFileSize(const cpcc_char *aFilename); 
 	
@@ -105,13 +104,39 @@ public:
 class cpccFileSystemMiniEx : public cpccFileSystemMini
 {
 public:
-	virtual bool createEmptyFile(const cpcc_string & aFilename) { return cpccFileSystemMini::createEmptyFile(aFilename.c_str()); };
-	virtual bool deleteFile(const cpcc_string& aFilename)  { return cpccFileSystemMini::deleteFile(aFilename.c_str()); };
+	bool createEmptyFile(const cpcc_string & aFilename) { return cpccFileSystemMini::createEmptyFile(aFilename.c_str()); };
+	bool deleteFile(const cpcc_string& aFilename)  { return cpccFileSystemMini::deleteFile(aFilename.c_str()); };
 	cpccFileSize_t getFileSize(const cpcc_string &aFilename) { return cpccFileSystemMini::getFileSize(aFilename.c_str()); };
-	virtual bool fileExists(const cpcc_string &aFilename)	{ return cpccFileSystemMini::fileExists(aFilename.c_str()); };
-
-	virtual bool copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
-	virtual bool appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
-	virtual bool appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
+	const bool fileExists(const cpcc_string &aFilename)	const { return cpccFileSystemMini::fileExists(aFilename.c_str()); };
+	const bool folderExists(const cpcc_string& aFoldername) const { return cpccFileSystemMini::folderExists(aFoldername.c_str()); };
+	bool copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
+	bool appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
+	bool appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
+	bool createFolder(const cpcc_string& aFoldername) { return cpccFileSystemMini::createFolder(aFoldername.c_str()); }
 
 };
+
+
+class cpccPathString: public cpcc_string
+{
+protected:
+	cpccFileSystemMiniEx	fs;
+
+public:
+	enum standardFolderIds { none = 0, CommonAppData };
+
+	cpccPathString(cpcc_char * aPath=NULL) : cpcc_string(aPath)
+	{	}
+
+	cpccPathString(cpcc_string & aPath) : cpcc_string(aPath)
+	{	}
+
+	cpccPathString(const standardFolderIds aFolderID);
+		
+	const bool	pathExists(void)	const { return (fs.fileExists(*this) || fs.folderExists(*this)); }
+	void		appendPathSegment(const cpcc_char* aPathSegment);
+
+
+};
+
+

@@ -32,53 +32,6 @@
 #endif
 
 
-// encode characters to fit to the INI file (e.g. multiline text)
-const cpcc_char *encodedCharacters[][2] =
-{
-    //             normal     ->       encoded
-    {(cpcc_char *)  "=",  (cpcc_char *) "\\="},
-    {(cpcc_char *)  "\\", (cpcc_char *) "\\\\"},
-    {(cpcc_char *)  "\n", (cpcc_char *) "\\n"},
-    {(cpcc_char *)  "\r", (cpcc_char *) "\\r"}
-};
-
-
-class iniFileStringEncodings
-{
-private:
-    // a pity the whole std library does not contain a ready function for this
-    static void findAndReplaceAll( cpcc_string& source, const cpcc_char* find, const cpcc_char* replace )
-    {
-        if (!find || !replace)
-            return;
-        
-        size_t findLen = strlen(find);
-        size_t replaceLen = strlen(replace);
-        size_t pos = 0;
-        
-        while ((pos = source.find(find, pos)) != std::string::npos)
-        {
-            source.replace( pos, findLen, replace );
-            pos += replaceLen;
-        }
-    }
-    
-public:
-    
-    static void    encodeStr(cpcc_string &str)
-    {
-        for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
-            findAndReplaceAll(str, encodedCharacters[i][0], encodedCharacters[i][1]);
-    }
-    
-    static void    decodeStr(cpcc_string &str)
-    {
-        for (int i=0 ; i< sizeof(encodedCharacters) / sizeof(encodedCharacters[0]); ++i)
-            findAndReplaceAll(str, encodedCharacters[i][1], encodedCharacters[i][0]);
-    }
-    
-};
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,8 +44,8 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	// std::cout << "cpccSettings constructor\n";
 	
 	// setup the filename
-	cpccFileSystemMini	fs; 
-	cpccPathHelper		ph;
+	cpccFileSystemMiniEx	fs; 
+	cpccPathHelper			ph;
 	
 	assert(cpcc_strlen(aCompanyName)>0 && "#5351: cpccSettings: blank company name");
 	assert(cpcc_strlen(aSoftwareName)>0 && "#5351: cpccSettings: blank Software name");
@@ -149,8 +102,7 @@ bool cpccSettings::load(void)
 	while(std::getline(iniFile, key, '='))
     {
 		std::getline(iniFile, value);
-        iniFileStringEncodings::decodeStr(key);
-        iniFileStringEncodings::decodeStr(value);
+		stringConversions::decodeStrFromINI(value);
 		mSettings[key] = value;
     }
 	
@@ -176,8 +128,8 @@ bool cpccSettings::save(void)
     cpcc_string key, value;
     for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
     {
-        key = it->first;    iniFileStringEncodings::encodeStr(key);
-        value = it->second; iniFileStringEncodings::encodeStr(value);
+		key = it->first;   
+		value = it->second; stringConversions::encodeStrForINI(value);
         fprintf(fp, "%s=%s\n", key.c_str(), value.c_str());
     }
     fclose(fp);
@@ -230,7 +182,7 @@ void cpccSettings::selfTest(void)
 	cpccFileSystemMiniEx fs;
 	double pi = 3.14159265359;
     float  bigFloat = 1.3456798e16f;
-    
+	const char * tmpTestString = "abc-καλημέρα=good\x0A\x0Dmorning to all.";
 	{
 		// writing 
 		cpccSettings settingsUser("testCompanyName","testSoftwareName", scopeCurrentUser);
@@ -248,9 +200,9 @@ void cpccSettings::selfTest(void)
 		settingsUser.write("twentythree", 23);
         settingsUser.write("bigFloat", bigFloat);
 		settingsApp.write("AppSettingsOfSoftware", "testSoftwareName");
-
+		settingsApp.write("extremeString", tmpTestString);
 		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt", 98);
-		tmpPersistentInt.write(456);
+		tmpPersistentInt = 456;
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
@@ -279,8 +231,13 @@ void cpccSettings::selfTest(void)
 		assert(settingsUser.read("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
 
 		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt", 92);
-		assert((tmpPersistentInt.read() == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
-		assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		assert((tmpPersistentInt == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
+		// assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		assert((tmpPersistentInt[3] == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+
+		tmp = settingsSystem.read("extremeString", "----");
+		assert(tmp.compare(tmpTestString) == 0 && "SelfTest #7711k: readString error");
+		
 	}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";
@@ -304,6 +261,7 @@ cpccSettings &appSystemSettings(void)
 #if defined(cpccSettings_DoSelfTest)
 	SELFTEST_BEGIN(cpccSettings_SelfTest)
         cpccSettings::selfTest();
+		cpccKeyValue::selfTest();
 	SELFTEST_END
 #endif
 
