@@ -238,7 +238,8 @@ void cpccSettings::selfTest(void)
 		tmp = settingsSystem.read("extremeString", "----");
 		assert(tmp.compare(tmpTestString) == 0 && "SelfTest #7711k: readString error");
 		
-	}
+
+		}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";
 }
