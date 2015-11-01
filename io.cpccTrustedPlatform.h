@@ -45,18 +45,20 @@ protected:
 	}
 
 
-	cpcc_string& 	getStorageFolder(const cpcc_char *userOverrideFolder = NULL)
+	const cpcc_string& 	getStorageFolder(const cpcc_char *userOverrideFolder = NULL)
 	{
-		static cpcc_string _folder("");
+		static cpccPathString _folder((cpcc_char *)"");
 		if (userOverrideFolder)
-			_folder = userOverrideFolder;
+			_folder.assign(userOverrideFolder);
 
 		if (_folder.length() == 0)
 		{
 			cpccFileSystemMiniEx fs;
-			_folder = fs.getFolder_CommonAppData();
-			_folder.append(".secstore");
-			_folder.append(m_AppID);
+			_folder.assign(fs.getFolder_CommonAppData());
+            cpcc_string codedSubfolder;
+            computeHash(m_AppID, codedSubfolder);
+            codedSubfolder.insert(0, ".");
+			_folder.appendPathSegment(codedSubfolder.c_str());
 
 			if (!fs.folderExists(_folder))
 				fs.createFolder(_folder);
@@ -78,7 +80,19 @@ public:
 
 	void				getComputerID(cpcc_string & aComputerID)  { computeHash(cpccOS::getComputerName(), aComputerID); }
 
-	const long int		getDaysSinceFirstRun(void)  { return 0; }
+	const long int		getDaysSinceFirstRun(void)
+    {
+        cpccFileSystemMiniEx    fs;
+        int    days;
+        time_t current_time, firstrun_time;
+        /* Obtain current time as seconds elapsed since the Epoch. */
+        current_time = time(NULL);
+        firstrun_time=fs.getFileModificationDate(getStorageFolder().c_str());
+        days = (current_time - firstrun_time)/ (60*60*24); // convert from seconds to days
+        
+        return days;
+    }
+    
 	const time_t		getTrustedCurrentDate(void)  { return 0; }
 
 	inline void			saveText(const int aTextID, cpcc_char *aText) { }

@@ -75,9 +75,16 @@ void			cpccTrustedPlatform::selfTest(void)
 	tp.getComputerID(MID);
 	txt.append(MID);
 	
+    txt.append(_T("\tDays since first run:"));
+    std::ostringstream oss;
+    oss << tp.getDaysSinceFirstRun();
+    txt += oss.str();
+    
 	txt.append(_T("\tSecureFolder:"));
 	txt.append(tp.getStorageFolder());
 	
+    
+    // write the current time
 	txt.append(_T("\tTime:"));
 	time_t _tm = time(NULL);
 	#pragma warning( disable : 4996 )
