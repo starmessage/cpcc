@@ -107,6 +107,12 @@
  (or continue to execute) after you call stopAnimation.
  Do not attempt to use stopAnimation to gate against animation occurring while you modify 
  preferences or other state variables. It is not a mutex.
+ 
+ 
+ 11.
+    When a user clicks Preview in Screen Saver System Preferences, your ScreenSaverView subclass is instantiated.
+ 
+ 
  */
 
  
@@ -130,6 +136,8 @@ cpccApp	app;
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
 {	// ScreenSaverView class is a subclass of NSView
     // IBOutlet NSWindow* configSheet; // this name should exist in the nib file of the screensaver configuration screen
+    
+    
 }
 
 /*
@@ -145,21 +153,23 @@ cpccApp	app;
 
 
 
-@implementation cpccScreenSaveLibMac_OsInterface
+@implementation cpccScreenSaveLibMac_OsInterface {
 
+    // instance variables
+    cpccScreenSaverInterface *ssPtr;
+}
+
+// these are static variables. Move them to instance variables
 bool            m_previousPreserveDeskopContents = false;
 bool            m_isOpaque = true;
-logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
+//logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
+// cpccScreenSaverInterface *ssPtr=NULL;
 
-cpccScreenSaverInterface *ssPtr=NULL;
 
 /*
  -(BOOL)isAnimating
     Check if your screen saver is currently between startAnimation and stopAnimation.
     Useful for pausing calculations you don't want to perform while the screen saver is idle.
- 
- -(BOOL)isPreview
-    Call this method to see if you're being asked to draw the small preview.
  
  + (NSBackingStoreType) backingStoreType; { return NSBackingStoreBuffered; }
 */
@@ -213,6 +223,33 @@ cpccScreenSaverInterface *ssPtr=NULL;
 }
 
 
+-(void) util_setTransparency: (bool) isTransparent
+{
+    infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", isTransparent?"Yes":"No");
+    
+    if (isTransparent)
+    {
+        //self.alphaValue = 0.0;
+        [[self window] setBackgroundColor:[NSColor clearColor]];
+        [[self window] setOpaque:NO];
+    }
+    else
+    {
+        //self.alphaValue = 0.3;
+        [[self window] setOpaque:YES];
+    }
+    
+    m_isOpaque = !isTransparent;
+}
+
+
+- (void) viewDidLoad
+{
+    infoLog().add( "cpccScreenSaveLibMac_OsInterface.viewDidLoad()");
+    
+}
+
+
 - (void)util_createScreensaver
 {
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
@@ -232,25 +269,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
 
 }
 
-
--(void) util_setTransparency: (bool) isTransparent
-{
-    infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", isTransparent?"Yes":"No");
-    
-    if (isTransparent)
-        {
-        //self.alphaValue = 0.0;
-        [[self window] setBackgroundColor:[NSColor clearColor]];
-        [[self window] setOpaque:NO];
-        }
-    else
-        {
-        //self.alphaValue = 0.3;
-        [[self window] setOpaque:YES];
-        }
-    
-    m_isOpaque = !isTransparent;
-}
 
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
@@ -300,7 +318,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
     [self util_createScreensaver];
     [self util_initScreensaverWithWindowHandle];
     
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
     
     if (ssPtr)
         [self util_setTransparency: ssPtr->getPreserveDeskopContents()];
@@ -310,13 +328,13 @@ cpccScreenSaverInterface *ssPtr=NULL;
     //[[NSColor orangeColor] set];
     // [NSBezierPath fillRect:frame];
     
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 3");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 3");
     
     
     // [NSBezierPath fillRect:frame];
     
     // cpccOS::sleep(3000);
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
+    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
     
     return self;
 }
@@ -372,6 +390,12 @@ cpccScreenSaverInterface *ssPtr=NULL;
 	 do any other cleanup you want before your screen saver goes away. 
 	 */
 	
+    /* 
+     when the user is in the screensaver preferences and presses [preview]
+     OSX will call stopAnimation() and then initWithFrame().
+     It will be a different window as it will cover all the screen.
+     */
+    
     [super stopAnimation];
 }
 
@@ -503,7 +527,7 @@ cpccScreenSaverInterface *ssPtr=NULL;
 -(void)dealloc 
 {
 	/* 
-	 -dealloc is called when the screen saver was instantiated by SaverLab or System Preferences; 
+	 -dealloc is called when the screen saver was instantiated by SSystem Preferences;
 	 -dealloc is not called when ScreenSaverEngine runs the saver.
 	 */
 	if (ssPtr)
@@ -579,19 +603,6 @@ cpccScreenSaverInterface *ssPtr=NULL;
     return ssPtr->showConfigureSheet(self);
 }
 
-
-/*
-- (IBAction) okClick: (id)sender
-{
-    [[NSApplication sharedApplication] endSheet:configSheet returnCode: NSOKButton];
-}
-
-
-- (IBAction)cancelClick:(id)sender
-{
-    [[NSApplication sharedApplication] endSheet:configSheet];
-}
-*/
 
 @end
 

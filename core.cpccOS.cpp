@@ -29,7 +29,10 @@
 
 #include "core.cpccOS.h"
 #ifdef _WIN32
+	# pragma warning (disable: 4005)
 	#include <windows.h>
+	# pragma warning (default: 4005)
+
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>

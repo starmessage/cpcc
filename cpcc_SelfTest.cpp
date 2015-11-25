@@ -17,9 +17,13 @@
 
 
 #include "cpcc_SelfTest.h"
+
+#if (ENABLE_SELF_TESTS==1)
+
+
+// some selftests of other classes
+
 #include "math.cpccVector.h"
-
-
 SELFTEST_BEGIN(aTest_NumberXd)
 	// MessageBox(NULL, "selftest"	, NULL, NULL);
 	cpccVector<int,3>::selfTest();
@@ -39,3 +43,5 @@ SELFTEST_END
 SELFTEST_BEGIN(cpccFixedPointNumber_SelfTest)
     cpccFastFloat13::selfTest();
 SELFTEST_END
+
+#endif

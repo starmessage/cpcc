@@ -18,6 +18,15 @@
 #ifndef cpcc_SelfTest_h
 #define cpcc_SelfTest_h
 
+/// Central switch to close all selfTests in your application
+#ifdef _DEBUG
+	#define ENABLE_SELF_TESTS	0
+#else
+	#define ENABLE_SELF_TESTS	1
+#endif
+
+
+
 #include "cpccUnicodeSupport.h"
 #ifdef _WIN32
 	#include <Windows.h>
@@ -28,8 +37,7 @@
 
 
 
-/// Central switch to close all selfTests in your application
-#define ENABLE_SELF_TESTS	1
+
 
 /**
 	How to use the self test macro:
