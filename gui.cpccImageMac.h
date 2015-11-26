@@ -32,7 +32,7 @@
 #include "gui.cpccWindowMac.h"
 
 #include <AppKit/NSGraphics.h>
-#include <CoreGraphics/CoreGraphics.h>
+// #include <CoreGraphics/CoreGraphics.h>
 
 /*
  notes:
