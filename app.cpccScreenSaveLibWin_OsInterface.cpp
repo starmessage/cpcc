@@ -24,7 +24,12 @@
 
 #include "io.cpccLog.h"
 #define _WINSOCKAPI_    // stops windows.h including winsock.h
+
+#pragma warning( push )
+#pragma warning( disable : 4005 )
 #include <windows.h>
+#pragma warning( pop )
+
 #include <ScrnSave.h>
 #include <commctrl.h>
 #include "app.cpccScreenSaverInterface.h"

@@ -253,8 +253,8 @@ bool            m_isOpaque = true;
 - (void)util_createScreensaver
 {
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
-	//TmioanUtils::DebugLogLn("cpccScreenSaveLibMac_OsInterface BEFORE new ClassOfScreensaver");
-	ssPtr = cpccScreenSaverFactory::createScreenSaver();
+	
+    ssPtr = cpccScreenSaverFactory::createScreenSaver();
 	assert(ssPtr && "Error 4567: ssPtr = nil");
 }
 

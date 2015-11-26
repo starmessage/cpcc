@@ -1,5 +1,5 @@
 ﻿/*  *****************************************
- *  File:		cpccUnicode.h
+ *  File:		cpccUnicodeSupport.h
  *  Version:	1.0
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking
  *	*****************************************
