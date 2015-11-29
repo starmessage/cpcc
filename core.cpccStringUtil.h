@@ -168,6 +168,7 @@ public:
 	}
 
 	static const bool fromStr(const cpcc_char*  strValue, const bool aDefaultValue)  { return fromStr(cpcc_string(strValue), aDefaultValue); }
+    
 	static const bool fromStr(const cpcc_string&  strValue, const bool aDefaultValue)
 	{
 		if (strValue.compare("yes") == 0 || strValue.compare("true") == 0 || strValue.compare("1") == 0 || strValue.compare("on") == 0)
@@ -180,6 +181,7 @@ public:
 	}
 
 	static cpcc_string toStr(const bool value) { return cpcc_string(value ? "yes" : "no"); }
+    //static cpcc_string toStr(bool value) { return cpcc_string(value ? "yes" : "no"); }
 
 	static cpcc_string toStr(const long int value)
 	{
@@ -194,7 +196,7 @@ public:
 	static cpcc_string toStr(const float value)
 	{
 		char buf[100];
-#pragma warning(disable : 4996)
+        #pragma warning(disable : 4996)
 		sprintf(buf, "%.12f", value);
 		return cpcc_string(buf);
 	}
@@ -202,7 +204,7 @@ public:
 	static cpcc_string toStr(const double value)
 	{
 		char buf[200];
-#pragma warning(disable : 4996)
+        #pragma warning(disable : 4996)
 		sprintf(buf, "%.12f", value);
 		return cpcc_string(buf);
 	}

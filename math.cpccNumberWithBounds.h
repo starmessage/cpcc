@@ -78,6 +78,7 @@ class cpccNumberWithBounds
 	#if defined(cpccNumberWithBounds_DoSelfTest)
 		static void  selfTest(void)
 		{
+        #ifndef NDEBUG
 			std::cout << "cpccNumberWithBounds::SelfTest starting\n";
 
 			cpccNumberWithBounds<float, 0, 1, 1>		f;
@@ -107,6 +108,8 @@ class cpccNumberWithBounds
 			assert( newf == 0.2f && "#9621d: cpccNumberWithBounds");
 
 			std::cout << "cpccNumberWithBounds::SelfTest ended\n";
+        #endif 
+            
 		}
 	#endif
 		

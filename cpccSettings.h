@@ -31,8 +31,9 @@
 	Dependencies: cpcc_SelfTest.h
 */
 
-#define cpccSettings_DoSelfTest		true
-
+#ifndef NDEBUG
+    #define cpccSettings_DoSelfTest		true
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,10 +72,16 @@ public:		// functions
     
 
 
-	template <typename T>
+	void		write(const cpcc_char *aKey, const cpcc_char *aValue);
+    void        write(const cpcc_char *aKey, const cpcc_string &aValue) { write(aKey, aValue.c_str()); };
+    template <typename T>
 	void		write(const cpcc_char *aKey, const T aValue);
-    void        write(const cpcc_char *aKey, const cpcc_string aValue) { write(aKey, aValue.c_str()); };
-    void		write(	const cpcc_char *aKey, const cpcc_char *aValue);
+    
+//#define BYPASS_RELEASE_ERROR
+#ifdef  BYPASS_RELEASE_ERROR
+    void		write(const cpcc_char *aKey, const bool aValue);
+    void		write(const cpcc_char *aKey, const int aValue);
+#endif
     
 	void		clear(void);
 	bool		load(void);

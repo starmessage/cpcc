@@ -29,6 +29,7 @@
 
 void			cpccTrustedPlatform::selfTest(void)
 {
+#ifndef NDEBUG
 	logObjectLife logThis("cpccTrustedPlatform::selfTest()");
 
 	/*
@@ -94,6 +95,7 @@ void			cpccTrustedPlatform::selfTest(void)
 
 	cpccFileSystemMiniEx fs;
 	assert(fs.appendTextFile(dumpFile, txt) && "#9572: cpccTrustedPlatform_SelfTest: Failed to write to dumpFile");
+#endif
 }
 
 

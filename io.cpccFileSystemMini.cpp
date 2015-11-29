@@ -420,7 +420,7 @@ cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const
 #endif
     
     #pragma warning(disable : 4996)
-	FILE * pFile = cpcc_fopen (aFilename, (appendToFile)? _T("ab") : _T("wb") );
+	FILE * pFile = cpcc_fopen (finalFilename, (appendToFile)? _T("ab") : _T("wb") );
 	if (pFile==NULL) 
 		return -1;
 	
@@ -653,7 +653,8 @@ cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 
 void cpccFileSystemMini::selfTest(void)
 {
-std::cout << "cpccFileSystemMini::SelfTest starting\n";
+#ifndef NDEBUG
+    std::cout << "cpccFileSystemMini::SelfTest starting\n";
 
 	
 	cpccFileSystemMiniEx	fs;
@@ -711,6 +712,7 @@ std::cout << "cpccFileSystemMini::SelfTest starting\n";
 #endif
 	
 	std::cout << "cpccFileSystemMini::SelfTest ended\n";
+#endif
 }
 
 #endif

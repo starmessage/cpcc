@@ -114,14 +114,15 @@ bool cpccSettings::save(void)
 {
     //	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
     
-#pragma warning(disable : 4996)
+    #pragma warning(suppress : 4996)
     FILE *fp = fopen(mFilename.c_str(), "w");
     if (!fp)
     {
         // If it fails returns NULL", yes. The global variable errno (found in <errno.h>)
         // contains information about what went wrong;
         // you can use perror() to print that information as a readable string.
-        std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
+		#pragma warning(suppress : 4996)
+		std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
         return false;
     }
     
@@ -138,14 +139,6 @@ bool cpccSettings::save(void)
 }
 
 
-
-template <typename T>
-void		cpccSettings::write(const cpcc_char *aKey, const T aValue)
-{
-	write(aKey, stringConversions::toStr(aValue));
-}
-
-
 void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
 {
     mSettings[cpcc_string(aKey)] = aValue;
@@ -154,6 +147,16 @@ void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
         if (!save())
             std::cerr << "Error #1352c: saving cpccSettings to file:" << mFilename << std::endl;
 }
+
+#ifdef  BYPASS_RELEASE_ERROR
+void		cpccSettings::write(const cpcc_char *aKey, const bool aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
+void		cpccSettings::write(const cpcc_char *aKey, const int aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
+#endif
+
+template <typename T>
+void		cpccSettings::write(const cpcc_char *aKey, const T aValue)  { write(aKey, stringConversions::toStr(aValue)); }
+
+
 
 
 
@@ -237,11 +240,10 @@ void cpccSettings::selfTest(void)
 
 		tmp = settingsSystem.read("extremeString", "----");
 		assert(tmp.compare(tmpTestString) == 0 && "SelfTest #7711k: readString error");
-		
-
 		}
 		
 	std::cout << "cpccSettings::SelfTest ended\n";
+
 }
 #endif
 

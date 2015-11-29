@@ -72,6 +72,7 @@ public:	// class metadata and selftest
 
 	static void selfTest(void)
 	{
+    #ifndef NDEBUG
 		cpccKeyValue testSubject;
 		testSubject.set("value123", 123);
 		testSubject.set("keyMike", "Mike Value");
@@ -91,7 +92,7 @@ public:	// class metadata and selftest
 		cpcc_string tmp_s;
 		assert((testSubject.get("keyMike", tmp_s) == true) && "SelfTest #8622e: key not found");
 		assert((tmp_s.compare("Mike Value") == 0) && "SelfTest #8622f: string write/read failed");
-
+    #endif
 	}
 };
 

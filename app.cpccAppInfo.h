@@ -21,7 +21,7 @@
 	const cpcc_char *cpccAppInfo::CompanyName			= "StarMessage software";
 	const cpcc_char *cpccAppInfo::ProgramName			= "StarMessage screensaver";
 	const cpcc_char *cpccAppInfo::Version				= "5.0";
-	const cpcc_char *cpccAppInfo::ProgramNameAndVersion = "StarMessage screensaver v5.0";
+	const cpcc_char *cpccAppInfo::ProgramNameAndVersion = "StarMessage screensaver vX.X";
 	const cpcc_char *cpccAppInfo::WebSiteNoHttp			= "www.StarMessageSoftware.com";
 	const cpcc_char *cpccAppInfo::WebSite				= "www.StarMessageSoftware.com";
 	const char		*cpccAppInfo::EmailSales			= "xxx@ccc.aaa";
