@@ -59,9 +59,6 @@ protected:
 
 public:
 
-#if defined(__APPLE__)
-	// virtual const cpcc_string expandTilde(const cpcc_char *aPathWithTilde);
-#endif
 	
 	static const cpcc_char	getPreferredPathDelimiter(void);
 	static const cpcc_char*	getAllPathDelimiters(void);

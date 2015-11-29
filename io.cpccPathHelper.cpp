@@ -46,37 +46,6 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 }
 
 
-#if defined(__APPLE__)
-/*
-const cpcc_string cpccPathHelper::expandTilde(const cpcc_char *aPathWithTilde)
-{
-	// xtypaei merikes fores
-	
-	//	http://www.davidverhasselt.com/2009/09/16/expanding-a-leading-tilde-in-cc/
-	//  http://www.dreamincode.net/forums/topic/197372-how-to-expand-a-path-linux/
-	
-	if (!aPathWithTilde)
-		return cpcc_string(_T(""));
-	
-	if (strlen(aPathWithTilde)==0)
-		return cpcc_string(_T(""));
-	
-	if (aPathWithTilde[0]!='~')
-		return cpcc_string(aPathWithTilde);
-		
-	std::cout << "expandTilde:" << aPathWithTilde << "\n->\n"; 
-	cpcc_string result;	
-	
-	wordexp_t exp_result;
-	wordexp(aPathWithTilde, &exp_result, 0);
-	result = exp_result.we_wordv[0];
-	wordfree(&exp_result);
-	
-	std::cout << result << "\n";
-	return result;
-}
-*/
-#endif
 
 
 const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)

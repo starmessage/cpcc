@@ -90,6 +90,8 @@ public: // functions
 		}
 		cpccFileSystemMini fs;
         
+        
+        
 		if (!fs.fileExists(afullpathfilename))
 		{
 			warningLog().addf( _T("cpccImage.initWithFile: file does not exist:[%s]") , afullpathfilename);

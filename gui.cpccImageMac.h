@@ -26,6 +26,8 @@
 
 #include <string>
 #include "io.cpccLog.h"
+#include "io.cpccFileSystemMiniOSX.h"
+
 #include "gui.cpccImageBase.h"
 #include "gui.cpccImageUtilsOSX.h"
 #include "gui.cpccDrawingToolsNSBitmapImageRep.h"
@@ -288,12 +290,18 @@ protected: // functions
 		*/
         infoLog().addf("cpccImageMacBmpRep.initWithFile_impl(%s)", aFullPathFilename);
         
+        cpcc_string finalFilename = aFullPathFilename;
+        #ifdef __APPLE__
+        if (fileSystemOSX_helper::startsWithTilde_OSX(aFullPathFilename))
+            finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFullPathFilename);
+        #endif
+        
 		bmpPtr = NULL;
-		NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:aFullPathFilename] autorelease];
+		NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:finalFilename.c_str()] autorelease];
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:[NSData dataWithContentsOfFile:tmpFilename]];
 		if	(! bmpPtr)
 		{
-			errorLog().addf("#2834: initWithFile_impl() failed:%s", aFullPathFilename);
+			errorLog().addf("#2834: initWithFile_impl() failed:%s", finalFilename.c_str());
 			return NULL;
 		}
         

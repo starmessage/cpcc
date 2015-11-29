@@ -24,7 +24,12 @@
 #include "cpccUnicodeSupport.h"
 
 
-const cpcc_string getUserFolder_OSX(void)
+class fileSystemOSX_helper
+{
+    
+public:
+
+static const cpcc_string getUserFolder_OSX(void)
 {
     struct passwd* pwd = getpwuid(getuid());
     if (pwd)
@@ -33,7 +38,7 @@ const cpcc_string getUserFolder_OSX(void)
 }
 
 
-const bool createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions)
+static const bool createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions)
 {
     
     
@@ -55,7 +60,7 @@ const bool createFolder_Linux(const cpcc_char *aFilename, const mode_t permissio
 }
 
 
-const bool  startsWithTilde_OSX(const char *aPath)
+static const bool  startsWithTilde_OSX(const char *aPath)
 {
     if (aPath)
         if (strlen(aPath)>0)
@@ -65,7 +70,7 @@ const bool  startsWithTilde_OSX(const char *aPath)
 }
 
 
-const std::string  expandTilde_OSX(const char *aPath)
+static const std::string  expandTilde_OSX(const char *aPath)
 {
     std::string result(aPath);
     if (result.length()>0)
@@ -75,7 +80,7 @@ const std::string  expandTilde_OSX(const char *aPath)
 }
 
 
-const bool folderExists_OSX(const cpcc_char * aFoldername)
+static const bool folderExists_OSX(const cpcc_char * aFoldername)
 {
     cpcc_string finalPath(expandTilde_OSX(aFoldername));
 
@@ -91,7 +96,7 @@ const bool folderExists_OSX(const cpcc_char * aFoldername)
 
 
 
-const mode_t getFileOrFolderPermissions_OSX(const cpcc_char *aFilename)
+static const mode_t getFileOrFolderPermissions_OSX(const cpcc_char *aFilename)
 {
     cpcc_string finalPath(expandTilde_OSX(aFilename));
 
@@ -100,3 +105,5 @@ const mode_t getFileOrFolderPermissions_OSX(const cpcc_char *aFilename)
     //  Octal numbers begin with 0.  hex numbers begin with 0x.
     return statInfo.st_mode & 0777;
 }
+    
+};

@@ -99,7 +99,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 	std::cerr << "Error #6531 in getFolder_UserHome\n";
 	
 #elif defined(__APPLE__)
-    return getUserFolder_OSX();
+    return fileSystemOSX_helper::getUserFolder_OSX();
 	
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_UserHome()");	
@@ -181,7 +181,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 		return  cpcc_string(buffer);
 	
 	#elif defined(__APPLE__)
-		std::string userTempFolder( expandTilde_OSX("~/Library/Caches/temp-cpcc"));
+		std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/temp-cpcc"));
 		createFolder(userTempFolder.c_str());
 		return userTempFolder;
 	
@@ -265,7 +265,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
 {
 #ifdef __APPLE__
-    cpcc_string destFile=expandTilde_OSX(destFileOrFolder);
+    cpcc_string destFile=fileSystemOSX_helper::expandTilde_OSX(destFileOrFolder);
 #else
     cpcc_string destFile=destFileOrFolder;
 #endif
@@ -284,17 +284,17 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
-    const cpcc_char *finalFilename = aFilename;
+    cpcc_string finalFilename = aFilename;
 #ifdef __APPLE__
-    if (startsWithTilde_OSX(aFilename))
-        finalFilename = expandTilde_OSX(aFilename).c_str();
+    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
+        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 #endif
     
 	FILE *fp; 
 	#ifdef _WIN32
 		#pragma warning(disable : 4996)
 	#endif
-	fp= cpcc_fopen(finalFilename, _T("at")); // write append
+	fp= cpcc_fopen(finalFilename.c_str(), _T("at")); // write append
 	if (!fp) return false;
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
@@ -324,11 +324,11 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
      */
 	cpccPathHelper ph;
 
-	cpcc_string finalPath(expandTilde_OSX( aFoldername));
+	cpcc_string finalPath(fileSystemOSX_helper::expandTilde_OSX( aFoldername));
 	
 	cpcc_string parentFolder = ph.getParentFolderOf(finalPath);
 	
-	int parentPermissions = getFileOrFolderPermissions_OSX(parentFolder.c_str());
+	int parentPermissions = fileSystemOSX_helper::getFileOrFolderPermissions_OSX(parentFolder.c_str());
 	
 	//std::cout << "permissions of " << parentFolder << " : " << parentPermissions << "\n";
 	
@@ -340,7 +340,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 	//mode_t p775 = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
 	// full permissions for all
 	//mode_t p777 = S_IRWXU | S_IRWXG | S_IRWXO;
-	return createFolder_Linux(finalPath.c_str(), parentPermissions);
+	return fileSystemOSX_helper::createFolder_Linux(finalPath.c_str(), parentPermissions);
 #endif
 
     return(folderExists(aFoldername));
@@ -356,7 +356,7 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
 	
 #elif defined(__APPLE__)
-    return folderExists_OSX(aFoldername);
+    return fileSystemOSX_helper::folderExists_OSX(aFoldername);
     
 #else
 	#error 	Error #5414: unsupported platform for folderExists()
@@ -377,11 +377,16 @@ const bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
 	return ((fileinfo.st_mode & _S_IFREG) != 0);
 	
 #elif defined(__APPLE__)
+    cpcc_string finalFilename = aFilename;
+    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
+        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
+
+    
 	struct stat fileinfo;
 	
 	// On success, zero is returned. 
 	// On error, -1 is returned, and errno is set appropriately. 
-	if (stat(aFilename, &fileinfo) == -1)
+	if (stat(finalFilename.c_str(), &fileinfo) == -1)
 		return false;
 	return (S_ISREG(fileinfo.st_mode));
 	
@@ -413,14 +418,14 @@ cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const
     if (!buffer)
         return -3;
     
-    const cpcc_char *finalFilename = aFilename;
+    cpcc_string finalFilename = aFilename;
 #ifdef __APPLE__
-    if (startsWithTilde_OSX(aFilename))
-        finalFilename = expandTilde_OSX(aFilename).c_str();
+    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
+        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 #endif
     
     #pragma warning(disable : 4996)
-	FILE * pFile = cpcc_fopen (finalFilename, (appendToFile)? _T("ab") : _T("wb") );
+	FILE * pFile = cpcc_fopen (finalFilename.c_str(), (appendToFile)? _T("ab") : _T("wb") );
 	if (pFile==NULL) 
 		return -1;
 	
@@ -597,7 +602,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
 	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
 		
 #elif defined(__APPLE__)
-	return  expandTilde_OSX(_T("~/Desktop"));
+	return  fileSystemOSX_helper::expandTilde_OSX(_T("~/Desktop"));
 	
 #else
 	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	

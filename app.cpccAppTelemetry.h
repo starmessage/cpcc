@@ -15,9 +15,8 @@
 
 #pragma once
 
-
+// ToDo: these paths must be neutralised to work on any developement environment
 #ifdef _WIN32
-	// typedef		wchar_t*	telemetryTextType;
 
     #include "../libs/trackerBird/win/Trackerbird.h"
 	#if defined _M_X64
@@ -27,32 +26,16 @@
 	#endif
 	
 #elif defined(__APPLE__)
-	// typedef		char*		telemetryTextType;
 
 	#include "../libs/trackerBird/osx/libstdc++/TrackerbirdSDK.h"
     // #include "../libs/trackerBird/osx/libc++/TrackerbirdSDK.h"
 #endif
 
 
-/*
-class cpccAppTelemetry
-{
-private:
-	const char* m_productID, m_productName, m_callhomeURL;
-	
-public:
-	cpccAppTelemetry(const char* productID, const char* productName, const char* callhomeURL) :
-		m_productID(productID), m_productName(productName), m_callhomeURL(callhomeURL)
-	{ 
-		
-	}
 
 
-};
-*/
 
-
-/*  TrackerBird
+/*  TrackerBird info
 
 -------------------------------
 Windows:
@@ -104,7 +87,7 @@ OSX:
 
  */
 
-
+// helper class
 class wchar_from_char
 {
 private:
@@ -123,6 +106,12 @@ public:
 };
 
 
+// cross platform wrapper class/
+// usage: in your main() or other central location of your program, just create a variable out of this class
+// e.g.
+// cpccAppTelemetryTrackerBird telemetry( "http://xxxxx.tbnet1.com",  "xxxxxx", SM_VERSION,  __DATE__, false, TM_PRODUCT_EDITION);
+
+// todo: support multiple sessions
 class cpccAppTelemetryTrackerBird
 {
 private:
