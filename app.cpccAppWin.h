@@ -48,7 +48,7 @@ public:		// abstract functions to be implemented by Windows or OSX specific code
 		#endif
 		*/
 
-		// delete the part having the program.exe what remains is the path with a trailing \ 
+		// delete the part having the program.exe What remains is the path with a trailing \ 
 		if (_tcsrchr(tempDir,'\\')) *(_tcsrchr(tempDir,'\\') +1)=0;
 
 		return cpcc_string(tempDir);

@@ -252,6 +252,7 @@ bool            m_isOpaque = true;
 
 - (void)util_createScreensaver
 {
+    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
 	
     ssPtr = cpccScreenSaverFactory::createScreenSaver();
@@ -261,6 +262,7 @@ bool            m_isOpaque = true;
 
 - (void)util_initScreensaverWithWindowHandle
 {
+    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     NSView * windowHandle = [self util_getNativeWindowHandle];
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
@@ -277,7 +279,7 @@ bool            m_isOpaque = true;
     // at
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
     
-	infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame()");
+	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     
     {	// report on monitors found
         cpccMonitorList mList;
@@ -345,7 +347,7 @@ bool            m_isOpaque = true;
 	// This method should not do any drawing.
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
-	infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation");
+	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     // cpccOS::sleep(3000);
     
     //[[self window] setAlphaValue:0.3];
@@ -381,7 +383,7 @@ bool            m_isOpaque = true;
 {
     // You must at least call [super stopAnimation] as shown in the standard template.
     // stopAnimation, it will get called if the display goes to sleep.
-	infoLog().add( "cpccScreenSaveLibMac_OsInterface stopAnimation");
+	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
 	
 	/*
 	 Deactivates the timer that advances the animation.
@@ -402,6 +404,8 @@ bool            m_isOpaque = true;
 
 - (void)drawRect:(NSRect)rect
 {
+	// infoLog().add( __PRETTY_FUNCTION__ );
+	
     //static bool firstDrawRectCall = true;
     
     
@@ -501,9 +505,9 @@ bool            m_isOpaque = true;
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface animateOneFrame");
     //cpccOS::sleep(1000);
 
+	// infoLog().add( __PRETTY_FUNCTION__ );
 		
 	if (ssPtr)
 		{
@@ -526,6 +530,7 @@ bool            m_isOpaque = true;
 
 -(void)dealloc 
 {
+	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
 	/* 
 	 -dealloc is called when the screen saver was instantiated by SSystem Preferences;
 	 -dealloc is not called when ScreenSaverEngine runs the saver.
@@ -544,6 +549,7 @@ bool            m_isOpaque = true;
 
 - (BOOL)hasConfigureSheet
 {
+	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     if (!ssPtr)
         return false;
     
@@ -553,7 +559,7 @@ bool            m_isOpaque = true;
 
 - (NSWindow*)configureSheet
 {
-    logObjectLife routineMark("inside cpccScreenSaveLibMac_OsInterface configureSheet()");
+    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     
     /*
      http://www.cocoabuilder.com/archive/cocoa/14759-screensaver-configure-sheet.html

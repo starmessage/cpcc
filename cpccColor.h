@@ -452,6 +452,7 @@ static const cpccColor	cpccMagenta(        0xFF, 0x00, 0xFF);
 static const cpccColor	cpccSilver(         0xC0, 0xC0, 0xC0);
 static const cpccColor	cpccMaroon(         0x80, 0x00, 0x00);
 static const cpccColor	cpccNavy(           0x00, 0x00, 0x80);
+static const cpccColor	cpccCyan(           0x00, 0xFF, 0xFF);
 static const cpccColor	cpccMidnightBlue( 	0x19, 0x19, 0x70);
 static const cpccColor	cpccDarkBlue(       0x00, 0x00, 0x8B);
 static const cpccColor	cpccAntiqueWhite( 	0xFA, 0xEB, 0xD7);

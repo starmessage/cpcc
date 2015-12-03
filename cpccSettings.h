@@ -77,7 +77,7 @@ public:		// functions
     template <typename T>
 	void		write(const cpcc_char *aKey, const T aValue);
     
-//#define BYPASS_RELEASE_ERROR
+#define BYPASS_RELEASE_ERROR
 #ifdef  BYPASS_RELEASE_ERROR
     void		write(const cpcc_char *aKey, const bool aValue);
     void		write(const cpcc_char *aKey, const int aValue);

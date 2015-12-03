@@ -56,14 +56,12 @@ public: // constructor / destructor
 	
     
 public: // functions
-	bool isEmpty(void) { return m_isEmpty; }
-	
-	void add(const cpcc_char* txt);
-	
-	static cpcc_string toString(const cpcc_char* format, ...);
+	bool 				isEmpty(void) { return m_isEmpty; }
+	const cpcc_string &	getFilename(void) const { return m_filename; };
+	void 				add(const cpcc_char* txt);
+	void 				addf(const cpcc_char* format, ...);
+	static cpcc_string 	toString(const cpcc_char* format, ...);
     
-	void addf(const cpcc_char* format, ...);
-
 	///  Get the current datetime as a human readable string
 	/**
 		This function is used to create the timestamp field of the logRecord
@@ -71,7 +69,7 @@ public: // functions
 		 @param  fmt the format specifier according to C++ strftime()
 		 @return the current datetime formatted with the standard function strftime
 	*/
-	static cpcc_string getCurrentTime(const cpcc_char * fmt);
+	static cpcc_string 	getCurrentTime(const cpcc_char * fmt);
 };
 
 
