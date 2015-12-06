@@ -28,6 +28,8 @@ class cpccAppBase
 {
 
 public:		// abstract functions to be implemented by Windows or OSX specific code
+    virtual ~cpccAppBase() { }
+    
     virtual cpcc_string getCommandLine(void)=0;
 	virtual cpcc_string getAppDir(void)=0;
 

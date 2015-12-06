@@ -28,10 +28,13 @@ private:
 	bool	m_isNull;
 	T		m_value;
 	void	set(const T &a) { m_value = a; m_isNull=false; }
+
+public:
 	T 		get(void) const { return m_value; }
 
 public:
 	cpccProperty(): m_isNull(true) { }
+	cpccProperty(const T aDefault) : m_isNull(true), m_value(aDefault) { }
 		
     // convert to T
     inline operator T(void)     { return get(); }
@@ -52,7 +55,10 @@ public: // enums
 	enum	TcssTextAlignValue { taNone, taLeft, taRight, taCenter } ;
 
 public: // constructors
-		// cpccCss(cpccCSS *aParentCSS=NULL): parentCSS(aParentCSS) { }
+		cpccCSS(void) : fontSize(10)
+		{ 
+
+		}
 
 public: // data
 		// cpccCss *						parentCSS;

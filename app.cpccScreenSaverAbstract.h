@@ -26,7 +26,7 @@ class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
 	cpccTimeCounter		mSecondsTimer;
-	double				mTimeElapsed_inSec;
+	// double				mTimeElapsed_inSec;
     logObjectLife       objLog;
 	
 protected:	// data
@@ -40,7 +40,7 @@ protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
-			mTimeElapsed_inSec(0.0),
+			// mTimeElapsed_inSec(0.0),
 			m_windowIsOwned(true),
             mPreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
@@ -63,6 +63,8 @@ private:	// functions
     
     void animateOneFrame(void)
     {
+        
+        /*
         //appLog.addInfof("cpccScreenSaverAbstract.animateOneFrame() #%i", mFramesElapsed);
         static double mPrev_TimeElapsed_inSec=0.0;
         
@@ -77,6 +79,9 @@ private:	// functions
         
         // 4. call the animation now that I know the dt
         animateOneFrameByDt(mDeltaTime_inSec);
+         */
+        
+        animateOneFrameByDt(0.040);
     }
     
 
@@ -123,7 +128,7 @@ protected: // screensaver standard functions
 
 public:	// other functions
 
-	inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
+	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
     virtual bool    getPreserveDeskopContents() const     { return mPreserveDeskopContents; }

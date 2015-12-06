@@ -221,10 +221,10 @@ const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
         // the following 3 pragma directives is to suppress the warning that tmpnam is deprecated
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-		tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
+		char * pointer = tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
 						// it returns the SYSTEM's temp
         #pragma GCC diagnostic pop
-		assert(buffer && "#6753b: tmpnam() failed");
+		assert(pointer && "#6753b: tmpnam() failed");
 		cpccPathHelper ph;
 		return ph.getParentFolderOf(std::string(buffer));
 	
@@ -637,8 +637,6 @@ void		cpccPathString::appendPathSegment(const cpcc_char* aPathSegment)
 
 cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 {
-	cpccFileSystemMiniEx fs;
-
 	switch (aFolderID)
 	{ 
 	case standardFolderIds::CommonAppData:

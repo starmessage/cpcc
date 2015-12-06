@@ -48,6 +48,7 @@ protected:
 	const cpcc_string& 	getStorageFolder(const cpcc_char *userOverrideFolder = NULL)
 	{
 		static cpccPathString _folder((cpcc_char *)"");
+        
 		if (userOverrideFolder)
 			_folder.assign(userOverrideFolder);
 
@@ -95,7 +96,7 @@ public:
     
 	const time_t		getTrustedCurrentDate(void)  { return 0; }
 
-	inline void			saveText(const int aTextID, cpcc_char *aText) { }
+	inline void			saveText(const int, cpcc_char *aText) { }
 
 	/// returns false if the aTextID is not found or text loading fails.
     inline bool			loadText(const int aTextID, cpcc_string & aText) { return false; }

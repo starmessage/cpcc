@@ -123,10 +123,10 @@ int cpccOS::getListOfMonitors(cpccMonitorList &list)
   		NSRect screenRect = [screen frame];
   		cpccMonitorInfoT<void *, void *> info;
 		
-        info.top	= screenRect.origin.y;
-        info.bottom = screenRect.origin.y + screenRect.size.height;
-		info.left	= screenRect.origin.x;
-		info.right	= screenRect.origin.x + screenRect.size.width;
+        info.top	= (int) screenRect.origin.y;
+        info.bottom = (int) (screenRect.origin.y + screenRect.size.height);
+		info.left	= (int) screenRect.origin.x;
+		info.right	= (int) (screenRect.origin.x + screenRect.size.width);
 		list.push_back(info);
 	}
 

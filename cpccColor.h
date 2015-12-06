@@ -82,6 +82,7 @@ public:
 		return (cpccBYTE) x;
 	}
     
+    /*
     TcpccNativeColor toNativeColor(const cpccColor32 &c) const
     {
     #ifdef _WIN32
@@ -91,8 +92,9 @@ public:
     #endif
         return (TcpccNativeColor) 0;
     }
-
+     */
     
+    /*
     void fromNativeColor(const TcpccNativeColor &c)
     {
     #ifdef _WIN32
@@ -103,7 +105,7 @@ public:
         r = aR * 255; g = aG * 255; b = aB * 255; a = aA * 255;
     #endif
     }
-    
+    */
     
 #ifdef _WIN32
 	inline const COLORREF asColorref(void) const		{ return RGB(r, g, b);  }
@@ -118,7 +120,10 @@ public:
 		CGFloat aR, aG, aB, aA;
 		[c getRed : &aR green : &aG blue : &aB alpha : &aA];
 
-		r = aR * 255; g = aG * 255; b = aB * 255; a = aA * 255;
+		r = (cpccBYTE) ( aR * 255);
+        g = (cpccBYTE) ( aG * 255);
+        b = (cpccBYTE) ( aB * 255);
+        a = (cpccBYTE) ( aA * 255);
 	}
 
 

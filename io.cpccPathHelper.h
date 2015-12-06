@@ -58,6 +58,9 @@ public:	// class metadata and selftest
 protected:
 
 public:
+    virtual ~cpccPathHelper() { }
+    
+public:
 
 	
 	static const cpcc_char	getPreferredPathDelimiter(void);

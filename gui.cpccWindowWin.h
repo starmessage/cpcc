@@ -73,6 +73,7 @@ public:
 	virtual void	useDblBuffer(const bool a)	
 	{ 
 		cpccWindowBase::useDblBuffer(a); 
+		#pragma warning(suppress  : 6240)
 		m_DrawDC = (a && config_HasDoubleBuffer) ? m_renderBuffer->dc() : m_WindowDC;
 	}
 
