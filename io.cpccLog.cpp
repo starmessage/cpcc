@@ -42,20 +42,31 @@ void cpccLogSink::add(const cpcc_char* txt)
 	if (!fs.fileExists(m_filename) && (m_disableIfFileDoesNotExist))
 		return;
 
-	cpcc_string output = getCurrentTime(_T("%X"));
-	output.append(" ");
-	output.append(m_tag);
-	output.append(txt);
-	output.append("\n");
-	for (int i = 0; i<m_IdentLevel; ++i)
-		output.insert(0, m_IdentText);
+	static cpcc_string m_outputBuffer;
+	m_outputBuffer = m_tag;
 
-	fs.appendTextFile(m_filename, output);
+	static cpcc_string previousTime, currentTime;
+	currentTime = getCurrentTime(_T("%X"));
+
+	if (currentTime != previousTime)	// log the time only when it changes, in a separate line
+	{
+		previousTime = currentTime;
+		currentTime.append("\n");
+		m_outputBuffer.insert(0, currentTime);
+	}
+	
+	for (int i = 0; i<m_IdentLevel; ++i)
+		m_outputBuffer.append(m_IdentText);
+
+	m_outputBuffer.append(txt);
+	m_outputBuffer.append("\n");
+
+	fs.appendTextFile(m_filename, m_outputBuffer);
 	if (m_echoToConsole)
 	{
-		std::cout << output;
+		std::cout << m_outputBuffer;
 #if defined(_WIN32)
-		OutputDebugString(output.c_str());
+		OutputDebugString(m_outputBuffer.c_str());
 #endif
 	}
 	m_isEmpty = false;

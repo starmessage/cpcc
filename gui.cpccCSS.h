@@ -34,7 +34,7 @@ public:
 
 public:
 	cpccProperty(): m_isNull(true) { }
-	cpccProperty(const T aDefault) : m_isNull(true), m_value(aDefault) { }
+	cpccProperty(const T& aDefault) : m_isNull(true), m_value(aDefault) { }
 		
     // convert to T
     inline operator T(void)     { return get(); }

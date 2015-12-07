@@ -63,7 +63,7 @@ public:		// functions
 
 	template <typename T>
 	void		set(const cpcc_char *aKey, const T aValue)				{ m_map[aKey] = stringConversions::toStr(aValue); }
-	void        set(const cpcc_char *aKey, const cpcc_string aValue)	{ m_map[aKey] = aValue; }
+	void        set(const cpcc_char *aKey, const cpcc_string &aValue)	{ m_map[aKey] = aValue; }
     void		set(const cpcc_char *aKey, const cpcc_char *aValue)		{ m_map[aKey] = aValue; }
 	void		clear(void)												{ m_map.clear(); }
 	const bool	keyExists(const cpcc_char *aKey) const					{ return (m_map.find(aKey) != m_map.end()); }
@@ -91,7 +91,8 @@ public:	// class metadata and selftest
 
 		cpcc_string tmp_s;
 		assert((testSubject.get("keyMike", tmp_s) == true) && "SelfTest #8622e: key not found");
-		assert((tmp_s.compare("Mike Value") == 0) && "SelfTest #8622f: string write/read failed");
+		// assert((tmp_s.compare("Mike Value") == 0) && "SelfTest #8622f: string write/read failed");
+		assert((tmp_s == "Mike Value") && "SelfTest #8622f: string write/read failed");
     #endif
 	}
 };

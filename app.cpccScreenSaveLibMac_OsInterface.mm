@@ -157,11 +157,13 @@ cpccApp	app;
 
     // instance variables
     cpccScreenSaverInterface *ssPtr;
+
 }
 
 // these are static variables. Move them to instance variables
-bool            m_previousPreserveDeskopContents = false;
-bool            m_isOpaque = true;
+//const bool      m_previousPreserveDeskopContents = false;
+const bool      m_isOpaque = true;
+const float     animatePeriod = 1.0f / config_FramesPerSec;
 //logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
 // cpccScreenSaverInterface *ssPtr=NULL;
 
@@ -222,7 +224,7 @@ bool            m_isOpaque = true;
 	return self; // this returns an NSView
 }
 
-
+/*
 -(void) util_setTransparency: (bool) isTransparent
 {
     infoLog().addf( "cpccScreenSaveLibMac_OsInterface.util_setTransparency(%s)", isTransparent?"Yes":"No");
@@ -241,6 +243,7 @@ bool            m_isOpaque = true;
     
     m_isOpaque = !isTransparent;
 }
+*/
 
 
 - (void) viewDidLoad
@@ -322,8 +325,10 @@ bool            m_isOpaque = true;
     
     //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
     
+    /*
     if (ssPtr)
         [self util_setTransparency: ssPtr->getPreserveDeskopContents()];
+    */
     
     // this reports an error in cerr:
     //[[self window] setBackgroundColor:[NSColor clearColor]];
@@ -439,20 +444,24 @@ bool            m_isOpaque = true;
     
     //infoLog().add("drawRect()");
     
-    
+#ifdef DoNotComplileThis
     if (ssPtr)
         if (ssPtr->getPreserveDeskopContents() != m_previousPreserveDeskopContents)
         {
             infoLog().add("ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents");
             infoLog().addf("ssPtr->getPreserveDeskopContents(): %s", ssPtr->getPreserveDeskopContents()?"YES":"NO");
             
+            /*
             m_previousPreserveDeskopContents = ssPtr->getPreserveDeskopContents();
             [self util_setTransparency: m_previousPreserveDeskopContents];
+             */
             //self.alphaValue = 0.3;
             //[[self window] setBackgroundColor:[NSColor clearColor]];
             //[[self window] setOpaque:NO];
         }
-    
+#endif
+
+
 	/*
      ScreenSaverView implements drawRect: to draw a black background.
      Subclasses can do their drawing here or in animateOneFrame.
@@ -513,7 +522,7 @@ bool            m_isOpaque = true;
 		{
 		//NSDisableScreenUpdates();
 		
-		ssPtr->animateOneFrame();
+		ssPtr->animateOneFrame(animatePeriod);
 			
 #ifndef drawInDrawRect
 		ssPtr->drawOneFrame();

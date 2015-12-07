@@ -25,7 +25,7 @@
 class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
-	cpccTimeCounter		mSecondsTimer;
+	// cpccTimeCounter		mSecondsTimer;
 	// double				mTimeElapsed_inSec;
     logObjectLife       objLog;
 	
@@ -59,32 +59,7 @@ protected: // constructor/destructor
 	}
 	
 private:	// functions
-		
-    
-    void animateOneFrame(void)
-    {
-        
-        /*
-        //appLog.addInfof("cpccScreenSaverAbstract.animateOneFrame() #%i", mFramesElapsed);
-        static double mPrev_TimeElapsed_inSec=0.0;
-        
-        // 1. update seconts counter
-        double mTimeElapsed_inSec = mSecondsTimer.getSecondsElapsed();
-
-        // 2. update DT
-        float mDeltaTime_inSec = (mPrev_TimeElapsed_inSec>0.0 ? (float)(mTimeElapsed_inSec - mPrev_TimeElapsed_inSec) : 0.04f);
-    
-        // 3. store the new time
-        mPrev_TimeElapsed_inSec = mTimeElapsed_inSec;
-        
-        // 4. call the animation now that I know the dt
-        animateOneFrameByDt(mDeltaTime_inSec);
-         */
-        
-        animateOneFrameByDt(0.040);
-    }
-    
-
+	    
     // bit blit from buffer to screen
     virtual void flushOneFrame(void)
     {	// appLog.addInfof("cpccScreenSaverAbstract.flushOneFrame() #%i", mFramesElapsed);
@@ -96,7 +71,7 @@ private:	// functions
     
 protected:  // abstract functions for the ancenstor to implement
     
-    virtual void animateOneFrameByDt(const float dt)=0;
+	virtual void animateOneFrame(const float dt_inSec) = 0;
 
     
 protected: // screensaver standard functions	
@@ -117,7 +92,7 @@ protected: // screensaver standard functions
 			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 
 
-		mSecondsTimer.resetTimer();
+		// mSecondsTimer.resetTimer();
 		m_windowIsOwned = true;
 	}
 

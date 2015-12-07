@@ -83,7 +83,7 @@ private:
 						time_t		SelfTimeStamp; 
 				};
 
-	cpcc_string combineComponents(const components c);
+	cpcc_string combineComponents(const components &c);
 	components	splitComponents(const cpcc_string& combined);
 	cpcc_string getSecretFilename(void);
 	cpcc_string createGUID(void);

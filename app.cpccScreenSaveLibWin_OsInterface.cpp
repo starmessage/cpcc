@@ -93,9 +93,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static bool		isDrawing=false;
 	static cpccApp	app;	
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
-	static bool		screensaverWindowInitialised = false;
-	static int		monitorID = 0;
-
+	
 	switch(wMessage)
 		{
 
@@ -114,8 +112,11 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	
 			if (screensaverPtr)
 			{
+				static bool		screensaverWindowInitialised = false;
+				
 				if (!screensaverWindowInitialised)
 				{
+					int	monitorID = 0;
 					stringlist args;
 					app.getArgcArgv(args);
 					if (args.size() > 1)
@@ -205,7 +206,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 
 			if (screensaverPtr)
 			{
-				screensaverPtr->animateOneFrame();
+				static const float animatePeriod_inSec = 1.0f / FramesPerSec;
+				screensaverPtr->animateOneFrame(animatePeriod_inSec);
 
 				#if (USE_WM_PAINT)
 					// ask windows for a redraw

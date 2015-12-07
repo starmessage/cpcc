@@ -200,7 +200,8 @@ public: /// functions
          [bmpPtr release];
          
          */
-        bmpPtr = NULL;
+		 
+        // bmpPtr = NULL;
         
         /*
          If planes is NULL or an array of NULL pointers, this method allocates enough memory
@@ -336,7 +337,7 @@ protected: // functions
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
         
         // infoLog().addf("resized. width:%i height:%i", getWidth(), getHeight());
-        assert((getWidth()==newWidth) && (getWidth()==newWidth) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+        assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
     }
     
     

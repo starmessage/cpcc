@@ -32,14 +32,14 @@
 class cpccLogSink
 {
 private:
-	const cpcc_char *m_tag;
-	cpcc_string		 m_filename;
-	bool  			 m_isEmpty,
-					 m_disableIfFileDoesNotExist,
-					 m_echoToConsole;
+	const cpcc_char *	m_tag;
+	cpcc_string			m_filename;
+	bool  				m_isEmpty,
+						m_disableIfFileDoesNotExist,
+						m_echoToConsole;
 
-	static int		 m_IdentLevel;
-	static cpcc_char *m_IdentText;
+	static int			m_IdentLevel;
+	static cpcc_char *	m_IdentText;
 
 public:
 	static void		 increaseIdent(void) { ++m_IdentLevel; }

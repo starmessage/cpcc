@@ -35,7 +35,6 @@ protected:
 public:
 	enum licenseElementType	{ undefined, freeTrial, freeTrialWithExpiry, fullVersion, fullVersionWithExpiry, licenseForUpgrades };
 	
-	cpccLicenseElement() :m_licenseType(undefined), m_hasExpiryDate(false), m_hasUsageLimit(false) {}
 
 	// data ////////////////////////
 
@@ -46,6 +45,15 @@ public:
 	bool				m_hasUsageLimit;
 	int					m_usageLimit,
 						m_usageCount;
+
+	// constructor //////////////////
+	cpccLicenseElement() :
+			m_licenseType(undefined), 
+			m_hasExpiryDate(false),
+			m_usageLimit(0),
+			m_usageCount(0),
+			m_hasUsageLimit(false) 
+	{}
 
 	// functions ////////////////////////
 

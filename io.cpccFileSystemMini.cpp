@@ -639,7 +639,7 @@ cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 {
 	switch (aFolderID)
 	{ 
-	case standardFolderIds::CommonAppData:
+	case /* standardFolderIds:: */ CommonAppData:
 		assign(fs.getFolder_CommonAppData());
 		break;
 

@@ -64,7 +64,7 @@ public: // screensaver interface functions: calls that the operating system disp
 
 #endif
 
-	virtual void animateOneFrame(void)=0;
+	virtual void animateOneFrame(const float dt_inSec)=0;
 	virtual void drawOneFrame(void)=0;
 	virtual void flushOneFrame(void)=0;
 	virtual void backgroundWasInvalidatedByOS(void) = 0;

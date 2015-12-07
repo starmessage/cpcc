@@ -90,6 +90,7 @@ void			cpccTrustedPlatform::selfTest(void)
 	time_t _tm = time(NULL);
 	#pragma warning( disable : 4996 )
 	struct tm * curtime = localtime(&_tm);
+	// Obsolete function 'asctime' called. It is recommended to use the function 'strftime' instead.
 	txt.append(asctime(curtime)); // asctime contains a CRLF
 	
 
