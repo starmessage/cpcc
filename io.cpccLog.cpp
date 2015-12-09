@@ -145,10 +145,14 @@ class cpccLog
 {
 private: // configuation
 	enum    {
-            CreateFileOnInfo=true,  // you might want to set this to false when compiling for production
+            CreateFileOnInfo=true,  // you might want to set this to false when compiling for release
             CreateFileOnWarning=true,
             CreateFileOnError=true,
-            echoToCOUT=true
+	#ifdef NDEBUG
+            echoToCOUT=false
+	#else
+	        echoToCOUT=true
+	#endif
             };
     
 public: 	// data

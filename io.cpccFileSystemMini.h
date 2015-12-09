@@ -52,9 +52,7 @@ public:
 	// folder functions --------------------------------
 
 	bool createFolder(const cpcc_char *  aFoldername);
-	
 	bool folderExists(const cpcc_char *  aFoldername) const;
-	
 
 	const cpcc_string getFolder_Desktop(void);
 	const cpcc_string getFolder_SystemsTemp(void);

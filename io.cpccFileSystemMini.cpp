@@ -182,7 +182,9 @@ const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 	
 	#elif defined(__APPLE__)
 		std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/temp-cpcc"));
-		createFolder(userTempFolder.c_str());
+		if (!folderExists(userTempFolder.c_str()))
+			createFolder(userTempFolder.c_str());
+			
 		return userTempFolder;
 	
 	#else

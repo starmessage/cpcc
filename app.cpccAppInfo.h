@@ -70,7 +70,7 @@ public:
 		}
 
 		infoText.append("\nBuild: ");
-		infoText.append( __DATE__ );
+		infoText.append( __DATE__ _T("  ")  __TIME__ );
 
 		return infoText;
 	}

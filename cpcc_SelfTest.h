@@ -20,9 +20,9 @@
 
 /// Central switch to close all selfTests in your application
 #ifdef NDEBUG
-	#define ENABLE_SELF_TESTS	1
-#else
 	#define ENABLE_SELF_TESTS	0
+#else
+	#define ENABLE_SELF_TESTS	1
 #endif
 
 
