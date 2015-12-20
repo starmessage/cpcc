@@ -136,6 +136,56 @@ int cpccOS::getListOfMonitors(cpccMonitorList &list)
 }
 
 
+const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
+{
+#ifdef _WIN32
+	return false;
+#elif __APPLE__
+    //  https://developer.apple.com/library/mac/qa/qa1340/_index.html
+    //  kIOPMAssertionTypeNoDisplaySleep prevents display sleep,
+    //  kIOPMAssertionTypeNoIdleSleep prevents idle sleep
+    
+    //  NOTE: IOPMAssertionCreateWithName limits the string to 128 characters.
+    CFStringRef reasonForActivity;
+    reasonForActivity = CFStringCreateWithCString(NULL, textualReason, kCFStringEncodingASCII);
+    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep,
+                                                   kIOPMAssertionLevelOn,
+                                                   reasonForActivity,
+                                                   &preventSleepAssertionID);
+    CFRelease(reasonForActivity);
+    return (success == kIOReturnSuccess);
+    
+    /*  other idea:
+     
+     create an NSTimer that fires a function with this
+     UpdateSystemActivity(OverallAct);
+     
+     */
+#else
+    #error #8724: Unknown platform for cpccOS
+	return false;
+#endif
+}
+
+
+const bool cpccOS::restoreMonitorSleep()
+{
+#ifdef _WIN32
+	return false; 
+#elif __APPLE__
+    if (preventSleepAssertionID==0) return
+        false;
+    IOReturn success = IOPMAssertionRelease(preventSleepAssertionID);
+    preventSleepAssertionID =0 ;
+    return (success == kIOReturnSuccess);
+#else
+    #error #8724: Unknown platform for cpccOS
+	return false;
+#endif
+}
+
+
+
 void cpccOS::sleep(const int msec)
 {
 #ifdef _WIN32
@@ -182,6 +232,8 @@ const cpcc_string cpccOS::getComputerName(void)
 #endif
         
 }
-    
+
+
+
 
 #endif

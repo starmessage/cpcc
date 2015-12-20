@@ -117,7 +117,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				if (!screensaverWindowInitialised)
 				{
 					int	monitorID = 0;
-					stringlist args;
+					cpcc_stringList args;
 					app.getArgcArgv(args);
 					if (args.size() > 1)
 						monitorID = args[1] == "/p" ? -1 : 0;

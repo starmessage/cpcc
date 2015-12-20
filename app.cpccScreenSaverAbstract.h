@@ -61,7 +61,7 @@ protected: // constructor/destructor
 private:	// functions
 	    
     // bit blit from buffer to screen
-    virtual void flushOneFrame(void)
+    virtual void flushOneFrame(void) override
     {	// appLog.addInfof("cpccScreenSaverAbstract.flushOneFrame() #%i", mFramesElapsed);
         if (DesktopWindowPtr)
             DesktopWindowPtr->flush();
@@ -71,12 +71,12 @@ private:	// functions
     
 protected:  // abstract functions for the ancenstor to implement
     
-	virtual void animateOneFrame(const float dt_inSec) = 0;
+	//virtual void animateOneFrame(const float dt_inSec) override = 0;
 
     
 protected: // screensaver standard functions	
 
-	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId)
+	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
 		if (!DesktopWindowPtr)
@@ -97,7 +97,7 @@ protected: // screensaver standard functions
 	}
 
     
-	virtual void shutDown(void)    { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
+	virtual void shutDown(void) override   { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
     
 
 

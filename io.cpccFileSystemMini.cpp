@@ -224,7 +224,10 @@ const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 		char * pointer = tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
-						// it returns the SYSTEM's temp
+		#pragma unused(pointer)
+    
+    
+				// it returns the SYSTEM's temp
         #pragma GCC diagnostic pop
 		assert(pointer && "#6753b: tmpnam() failed");
 		cpccPathHelper ph;

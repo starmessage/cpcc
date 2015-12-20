@@ -60,7 +60,7 @@ public:		// data
 
 public:		// functions
 	
-	void clear(void)
+	void clear(void) override
 	{
 		//infoLog().add(_T("cpccWindow.clear()"));
 		fillWithColor(bgColor.getCurrent());
@@ -119,7 +119,7 @@ public:		// functions
 	}
 
 
-	void 	drawText(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr)
+	void 	drawText(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr) override
 	{
 		// prepare drawing tools
 		pushCss(aCssPtr);

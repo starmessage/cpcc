@@ -17,7 +17,9 @@
 
 #include <vector>
 #include "cpccUnicodeSupport.h"
-
+#ifdef __APPLE__
+    #import <IOKit/pwr_mgt/IOPMLib.h>
+#endif
 
 template<typename T1, typename T2>
 struct cpccMonitorInfoT
@@ -34,8 +36,18 @@ typedef std::vector<cpccMonitorInfoT<void *, void *> > cpccMonitorList;
 
 class cpccOS
 {
+private:
+#ifdef __APPLE__
+    IOPMAssertionID preventSleepAssertionID;
+#endif
 
 public:
+    cpccOS()
+#ifdef __APPLE__
+		: preventSleepAssertionID(0)
+#endif
+    { }
+    
 
 	/*	cross platform (windows and MAC OSX) function that finds and enumerates the monitors and their coordinates
 		return value: number of monitors,
@@ -48,5 +60,8 @@ public:
     // portable / cross platform C function for Windows, OSX
     // returns the computer name of the computer
 	static const cpcc_string getComputerName(void);
+    
+    const bool preventMonitorSleep(const cpcc_char *textualReason);
+    const bool restoreMonitorSleep(void);
     
 };

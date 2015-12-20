@@ -61,6 +61,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 #ifdef	_WIN32
 	#include <tchar.h>
@@ -116,3 +117,5 @@
 	typedef		std::string			cpcc_string;
  #endif
  
+
+typedef std::vector<cpcc_string> cpcc_stringList;

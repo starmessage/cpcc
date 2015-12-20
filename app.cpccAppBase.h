@@ -21,7 +21,7 @@
 #include "cpccUnicodeSupport.h"
 #include "io.cpccLog.h"
 
-typedef std::vector<cpcc_string> stringlist;
+
 
 
 class cpccAppBase
@@ -36,7 +36,7 @@ public:		// abstract functions to be implemented by Windows or OSX specific code
 	void logInformation(void)
 	{
 		infoLog().addf( _T("Application command line: %s"), getCommandLine().c_str());
-		stringlist args;
+		cpcc_stringList args;
 		getArgcArgv(args);
 		for (unsigned int i=0; i<args.size(); i++)
 			infoLog().addf( _T("arg[%i]:%s") , i , args[i].c_str());
@@ -45,7 +45,7 @@ public:		// abstract functions to be implemented by Windows or OSX specific code
 public:		// platform independent functions 
 
 
-    void				getArgcArgv(stringlist &argList)
+	void				getArgcArgv(cpcc_stringList &argList)
 	{
 		cmdline2Vector(getCommandLine().c_str(), argList);
 	}
@@ -54,7 +54,7 @@ public:		// platform independent functions
 protected:	// platform independent functions 
 
 
-	static void				argcArgv2Vector(int argc, cpcc_char **argvPtr, stringlist &argList)
+	static void				argcArgv2Vector(int argc, cpcc_char **argvPtr, cpcc_stringList &argList)
 	{
 		argList.clear();
 		for(int i=0 ; i<argc ; ++i)
@@ -63,7 +63,7 @@ protected:	// platform independent functions
 	}
 	
 
-	static void				cmdline2Vector(const cpcc_char *aCmdLine, stringlist &argList)
+	static void				cmdline2Vector(const cpcc_char *aCmdLine, cpcc_stringList &argList)
 	{
 		argList.clear();
 		cpcc_char	*token, 
