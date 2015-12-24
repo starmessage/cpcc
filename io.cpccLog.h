@@ -17,13 +17,14 @@
  
 #pragma once
 
+#include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
 #include <ctime>
 #include <iostream> 
 // #include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
 #include <assert.h>
 #include <string> 
 
-#include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
+
 #include "cpccUnicodeSupport.h"
 
 
@@ -114,7 +115,7 @@ public:
 
 	logTimeCountrer(const cpcc_char *aTag) : logObjectLife(aTag)
 	{
-		timer.resetTimer();
+		// timer.resetTimer();
 	}
 
 	~logTimeCountrer(void)

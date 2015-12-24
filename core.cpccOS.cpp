@@ -136,6 +136,31 @@ int cpccOS::getListOfMonitors(cpccMonitorList &list)
 }
 
 
+/*
+void cpccOS::keepAwakeTrigger(void)
+{
+#ifdef _WIN32
+	
+#elif __APPLE__
+    
+    // removed document:
+    // https://developer.apple.com/library/mac/qa/qa1160/_index.html
+    // 'UpdateSystemActivity' is deprecated: first deprecated in OS X 10.8
+    // all these parameters stop the screensaver from running
+	// UpdateSystemActivity(OverallAct);
+    // UpdateSystemActivity(IdleActivity);
+    // UpdateSystemActivity(HDActivity);
+    // UpdateSystemActivity(UsrActivity);
+    UpdateSystemActivity(NetActivity);
+    
+#else
+    #error #8724f: Unknown platform for cpccOS
+	
+#endif
+}
+*/
+
+
 const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
 {
 #ifdef _WIN32

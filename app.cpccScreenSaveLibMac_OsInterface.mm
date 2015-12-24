@@ -132,11 +132,17 @@
  
 cpccApp	app;	
 
+class   logObjectLife4ScreenSaveLibMac: logObjectLife
+{
+public:
+    logObjectLife4ScreenSaveLibMac(): logObjectLife((char *)"cpccScreenSaveLibMac_OsInterface object")
+    { }
+};
+
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
 {	// ScreenSaverView class is a subclass of NSView
     // IBOutlet NSWindow* configSheet; // this name should exist in the nib file of the screensaver configuration screen
-    
     
 }
 
@@ -157,6 +163,9 @@ cpccApp	app;
 
     // instance variables
     cpccScreenSaverInterface *ssPtr;
+    
+    //logObjectLife   m_objLife( "cpccScreenSaveLibMac_OsInterface" );
+    logObjectLife4ScreenSaveLibMac m_objLife_ssView;
 
 }
 
@@ -166,15 +175,6 @@ const bool      m_isOpaque = true;
 const float     animatePeriod = 1.0f / config_FramesPerSec;
 //logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
 // cpccScreenSaverInterface *ssPtr=NULL;
-
-
-/*
- -(BOOL)isAnimating
-    Check if your screen saver is currently between startAnimation and stopAnimation.
-    Useful for pausing calculations you don't want to perform while the screen saver is idle.
- 
- + (NSBackingStoreType) backingStoreType; { return NSBackingStoreBuffered; }
-*/
 
 
 
@@ -537,20 +537,30 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 }
 
 
+-(void)util_destroy
+{
+    infoLog().add( __PRETTY_FUNCTION__ );
+    
+    if (ssPtr)
+    {
+        infoLog().add( "cpccScreenSaveLibMac_OsInterface util_destroy killing ssPtr");
+        ssPtr->shutDown();
+        delete ssPtr;
+        ssPtr = NULL;
+    }
+}
+
+
 -(void)dealloc 
 {
+    /* ATTENTION: badly designed by Apple:
+     -dealloc is called when the screen saver was instantiated by SSystem Preferences;
+     -dealloc is not called when ScreenSaverEngine runs the saver.
+     */
+    
 	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
-	/* 
-	 -dealloc is called when the screen saver was instantiated by SSystem Preferences;
-	 -dealloc is not called when ScreenSaverEngine runs the saver.
-	 */
-	if (ssPtr)
-		{
-		infoLog().add( "cpccScreenSaveLibMac_OsInterface dealloc");
-		ssPtr->shutDown();
-		delete ssPtr;
-		ssPtr = NULL;
-		}
+	
+    [self util_destroy];
 	
 	[super dealloc];
 }

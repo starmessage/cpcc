@@ -17,6 +17,7 @@
 #include <string>
 #include <assert.h>
 #include <sstream>
+#include <time.h>
 #include "cpccUnicodeSupport.h"
 
 
@@ -143,6 +144,8 @@ public:
 	}
 
 
+
+
 	static const float fromStr(const cpcc_char* strValue, const float aDefaultValue)
 	{
 		char* end;
@@ -158,6 +161,17 @@ public:
 		long n = strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
+
+#ifndef __APPLE__
+    // in OSX, time_t is defined as long, so there is a ready function for it
+	static const time_t fromStr(const cpcc_char*  strValue, const time_t aDefaultValue)
+	{
+		char* end;
+		// This parses "1234" (decimal) and also "0x4D2" (hex)
+		time_t n = strtoll(strValue, &end, 0);
+		return end > strValue ? n : aDefaultValue;
+	}
+#endif
 
 	static const int fromStr(const cpcc_char*  strValue, const int aDefaultValue)
 	{
@@ -183,11 +197,20 @@ public:
 	static cpcc_string toStr(const bool value) { return cpcc_string(value ? "yes" : "no"); }
     //static cpcc_string toStr(bool value) { return cpcc_string(value ? "yes" : "no"); }
 
+#ifndef __APPLE__
+    // in OSX, time_t is defined as long, so there is a ready function for it
 	static cpcc_string toStr(const long int value)
 	{
 		std::ostringstream ss; ss << value; return ss.str();
 	}
+#endif
+	
+	static cpcc_string toStr(const time_t value)
+	{
+		std::ostringstream ss; ss << value; return ss.str();
+	}
 
+	
 	static cpcc_string toStr(const int value)
 	{
 		std::ostringstream  ss; ss << value; return ss.str();

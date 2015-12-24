@@ -57,8 +57,9 @@ public:
 
 	static void sleep(const int msec);
     
-    // portable / cross platform C function for Windows, OSX
-    // returns the computer name of the computer
+	// static void keepAwakeTrigger(void);
+    
+    // portable / cross platform C function for Windows, OSX returns the computer name
 	static const cpcc_string getComputerName(void);
     
     const bool preventMonitorSleep(const cpcc_char *textualReason);

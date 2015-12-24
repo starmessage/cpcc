@@ -151,6 +151,7 @@ void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
 #ifdef  BYPASS_RELEASE_ERROR
 void		cpccSettings::write(const cpcc_char *aKey, const bool aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
 void		cpccSettings::write(const cpcc_char *aKey, const int aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
+void		cpccSettings::write(const cpcc_char *aKey, const long int aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
 #endif
 
 template <typename T>

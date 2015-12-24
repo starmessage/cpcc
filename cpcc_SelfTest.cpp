@@ -44,4 +44,17 @@ SELFTEST_BEGIN(cpccFixedPointNumber_SelfTest)
     cpccFastFloat13::selfTest();
 SELFTEST_END
 
+
+#include "core.cpccStringUtil.h"
+SELFTEST_BEGIN(cpccStringUtil_SelfTest)
+{
+	time_t aTime = time(NULL);
+	cpcc_string str(stringConversions::toStr(aTime));
+	time_t bTime = stringConversions::fromStr(str.c_str(), (time_t)1000);
+	assert((aTime == bTime) && "#9687: stringConversions problem with time_t");
+}
+SELFTEST_END
+
+
+
 #endif

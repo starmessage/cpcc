@@ -80,8 +80,10 @@ time_t
 class cpccTime
 {
 public:
-	static time_t UTCsecondToCompleteDays(const time_t seconds)	{ return (seconds / 3600) / 24; }
+	static inline const time_t UTCsecondToCompleteDays(const time_t seconds)	{ return (seconds / 3600) / 24; }
 
+    static inline const time_t UTCsecondToCompleteHours(const time_t seconds)	{ return (seconds / 3600); }
+    
 	static time_t getUTC2LocalTimeOffset_inSeconds(void)
 	{
 		struct tm *gmTime;
