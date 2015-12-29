@@ -15,6 +15,7 @@
 
 #pragma once
 #include "cpccUnicodeSupport.h"
+#include "core.cpccOS.h"
 
 /* you need to allocate these global variables somewhere in one of your cpp files like this:
 
@@ -37,17 +38,21 @@ public:
 	const static cpcc_char
 		*CompanyName,
 		*ProgramName,
-		*Version,
-		*ProgramNameAndVersion,		
+        *Version,
 		*WebSiteNoHttp,
 		*WebSite;
 	const static char
 		*EmailSales,
 		*EmailSupport;
 
+    
+    
 	static cpcc_string getText_AboutThisSoftware(const int xi =0)
 	{
-		static std::string infoText(cpccAppInfo::ProgramNameAndVersion);
+		static std::string infoText(cpccAppInfo::ProgramName);
+        infoText += " ";
+        infoText += cpccAppInfo::Version;
+        
 		infoText.append("\n(c) ");
 		infoText.append(cpccAppInfo::CompanyName);
 
@@ -74,5 +79,7 @@ public:
 
 		return infoText;
 	}
+    
+
 
 };

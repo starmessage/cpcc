@@ -51,12 +51,21 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
 {
 	//size_t pos = aFullpathFilename.find_last_of("/\\");
-	const size_t pos = aFullpathFilename.find_last_of(getAllPathDelimiters());
-	
+    cpcc_string result = aFullpathFilename;
+    removeTrailingPathDelimiter(result);
+	const size_t pos = result.find_last_of(getAllPathDelimiters());
+	if(pos != cpcc_string::npos)
+        result.erase(pos+1);
+    
+    addTrailingPathDelimiter(result);
+    return result;
+    /*
 	if(pos != cpcc_string::npos)
 		return aFullpathFilename.substr(0,pos+1);
 	else
 		return aFullpathFilename;
+     */
+    
 };
 
 
@@ -233,6 +242,12 @@ void cpccPathHelper::selfTest(void)
         #endif
 		assert(ph.pathCat(_T("/folderroot"), _T("/subfolder")).compare(expectedResult) ==0);
 		assert(ph.pathCat(_T("/folderroot"), _T("subfolder")).compare(expectedResult) ==0);
+        
+        cpcc_string aLongPath ("/folder/Subfolder/file.txt");
+        cpcc_string aParentPath = ph.getParentFolderOf(aLongPath);
+        assert((aParentPath=="/folder/Subfolder/") && "#4972a: getParentFolderOf()");
+        cpcc_string aParentPath2 = ph.getParentFolderOf(aParentPath);
+        assert((aParentPath2=="/folder/") && "#4972b: getParentFolderOf()");
 
 	}
 #endif

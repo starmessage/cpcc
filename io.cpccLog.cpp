@@ -177,7 +177,8 @@ public:
             consolePut( "Disabling log becase file does not exist at:" << aFilename );
         
         info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.add("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary\n");
+		info.add("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary");
+        info.add(fs.getFileSystemReport().c_str());
 	}
 	
     

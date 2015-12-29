@@ -57,8 +57,14 @@
 const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
-	report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
-	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));	
+    report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
+    
+    report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
+	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));
+#ifdef __APPLE__
+    report.append(_T("App bundle path:") + getAppBundlePath() + _T("\n"));
+#endif
+    
 	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
 	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
 
@@ -71,7 +77,8 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	report.append(_T("End of file system report\n----------------------\n"));
 	return report;
 }
- 
+
+
 #ifdef _WIN32
 const cpcc_string cpccFileSystemMini::getFolder_Windows(void) const
 {
@@ -594,6 +601,19 @@ const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 #endif	
 	return cpcc_string( _T(""));
 }
+
+
+#ifdef __APPLE__
+const cpcc_string cpccFileSystemMini::getAppBundlePath(void)
+{
+    cpccPathHelper ph;
+    cpcc_string parentPath(ph.getParentFolderOf(getAppFullPath()));
+    cpcc_string parentParentPath(ph.getParentFolderOf(parentPath));
+    
+    ph.removeTrailingPathDelimiter(parentParentPath);
+    return parentParentPath;
+}
+#endif
 
 
 const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)

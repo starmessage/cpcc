@@ -28,6 +28,8 @@
 
 
 #include "core.cpccOS.h"
+#include "io.cpccFileSystemMini.h"
+
 #ifdef _WIN32
 	#include <windows.h>
 
@@ -258,6 +260,51 @@ const cpcc_string cpccOS::getComputerName(void)
         
 }
 
+
+#ifdef __APPLE__
+cpcc_string cpccOS::readProgramVersionByPrincipalClass(const cpcc_char *aClassName)
+{
+    NSString *aNSClassName = [NSString stringWithCString: aClassName encoding:NSASCIIStringEncoding ];
+    // NSString *tmpVersion = [[NSBundle bundleForClass: aNSClassName] objectForInfoDictionaryKey:@"CFBundleVersion"];
+    NSString *tmpVersion = [[NSBundle bundleForClass: aNSClassName] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    
+    cpcc_string ver = [tmpVersion UTF8String];
+    // [tmpVersion release];
+    return ver;
+}
+#endif
+
+
+cpcc_string& cpccOS::readProgramVersion(void)
+{
+    static cpcc_string ver("Version N/A");
+    if (ver!="Version N/A")
+        return ver;
+    
+#ifdef __APPLE__
+    
+    // how to get the .saver bundle:
+    // http://stackoverflow.com/questions/8490562/using-a-system-plug-in-saver-bundle-inside-a-cocoa-application-as-a-resource
+    // http://stackoverflow.com/questions/17391380/macosx-screensaver-how-to-get-the-path-to-saver-bundle
+    /*
+     cpccFileSystemMini fs;
+     
+     NSString *appBundlePath = [NSString stringWithCString:fs.getAppBundlePath().c_str() encoding:NSASCIIStringEncoding];
+     NSBundle *bundle = [NSBundle bundleWithPath:appBundlePath ] ;
+     NSString *tmpVersion = [bundle objectForInfoDictionaryKey:@"CFBundleVersion"];
+     [bundle release];
+     //[appBundlePath release]; // already deallocated
+     */
+    
+    NSString *tmpVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+    ver = [tmpVersion UTF8String];
+    [tmpVersion release];
+    
+    
+#endif
+    
+    return ver;
+}
 
 
 

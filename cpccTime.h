@@ -127,6 +127,18 @@ public:
 	}
 	*/
 
+	static const char* intToMonth(int index)
+	{
+		const char* allMonths[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+		if ((index >= 0) && (index < 12))
+			return allMonths[index];
+		else
+		{
+			// errorLog().addf("#5858: intToMonth called with i=%i", index);
+			return "intToMonth() called with index out of 0..11";
+		}
+	}
+
 
 };
 

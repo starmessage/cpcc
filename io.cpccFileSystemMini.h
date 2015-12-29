@@ -91,6 +91,9 @@ public:
 	
 	// Other functions --------------------------------
 	const cpcc_string getAppFullPath(void);
+#ifdef __APPLE__
+    const cpcc_string getAppBundlePath(void);
+#endif
 	const cpcc_string getAppFullPathFilename(void);
 	const cpcc_string getAppFilename(void);
 	const cpcc_string getFileSystemReport(void);

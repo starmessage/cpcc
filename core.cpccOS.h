@@ -65,4 +65,10 @@ public:
     const bool preventMonitorSleep(const cpcc_char *textualReason);
     const bool restoreMonitorSleep(void);
     
+    
+    static cpcc_string& readProgramVersion(void);
+#ifdef __APPLE__
+    static cpcc_string readProgramVersionByPrincipalClass(const cpcc_char *aClassName);
+#endif
+    
 };
