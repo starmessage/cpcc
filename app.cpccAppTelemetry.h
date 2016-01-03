@@ -116,7 +116,7 @@ class cpccAppTelemetryTrackerBird
 {
 private:
     bool m_multipleSessionsEnabled;
-    
+    bool m_wasStarted;
 public:
 	cpccAppTelemetryTrackerBird(const char* callhomeURL,
 								const char* productID,
@@ -124,7 +124,8 @@ public:
 								const char* productBuildNumber,
                                 bool        multiSessionEnabled,
 								const char* productEdition) :
-                        m_multipleSessionsEnabled(multiSessionEnabled)
+                        m_multipleSessionsEnabled(multiSessionEnabled),
+                        m_wasStarted(false)
     {
 		#ifdef _WIN32
 			wchar_from_char	callhomeURL_w(callhomeURL),
@@ -135,8 +136,19 @@ public:
 			tbCreateConfig(callhomeURL_w, productID_w, productVersion_w, productBuildNumber_w, m_multipleSessionsEnabled);
 			tbStart();
 		#elif defined(__APPLE__)
-			TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, multiSessionEnabled, productEdition, "en", "");
-			TrackerbirdSDK::TBApp::start(config, NULL);
+            try {
+                TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, multiSessionEnabled, productEdition, "en", "");
+                TrackerbirdSDK::TBApp::start(config, NULL);
+                m_wasStarted = true;
+                }
+            catch( const std::exception& e )
+                {
+                    std::cerr << "TrackerbirdSDK exception:\n" << e.what();
+                }
+            catch( ... )
+                {
+                    std::cerr << "TrackerbirdSDK exception:";
+                }
 		#endif
     }
     
@@ -149,7 +161,18 @@ public:
 		#ifdef _WIN32
 			tbStop();
 		#elif defined(__APPLE__)
-			TrackerbirdSDK::TBApp::stop(NULL);
+            if (m_wasStarted)
+                try {
+                    TrackerbirdSDK::TBApp::stop(NULL);
+                    }
+                catch( const std::exception& e )
+                    {
+                    std::cerr << "~cpccAppTelemetryTrackerBird() exception:\n" << e.what();
+                    }
+                catch( ... )
+                    {
+                        std::cerr << "~cpccAppTelemetryTrackerBird() exception:";
+                    }
 		#endif
     }
     

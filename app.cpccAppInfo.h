@@ -14,6 +14,7 @@
  */
 
 #pragma once
+#include <string.h>
 #include "cpccUnicodeSupport.h"
 #include "core.cpccOS.h"
 
@@ -42,6 +43,7 @@ public:
 		*WebSiteNoHttp,
 		*WebSite;
 	const static char
+        *DonateURL,
 		*EmailSales,
 		*EmailSupport;
 
@@ -57,7 +59,7 @@ public:
 		infoText.append(cpccAppInfo::CompanyName);
 
 		if ((strlen(WebSiteNoHttp)>0) && (xi & includeWebsite))
-		{ 
+		{
 			infoText.append("\n\nWebsite: ");
 			infoText.append(WebSiteNoHttp);
 		}
