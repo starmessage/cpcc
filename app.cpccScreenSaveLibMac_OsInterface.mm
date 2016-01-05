@@ -17,10 +17,10 @@
  */
 
 #include	"io.cpccLog.h"
+#include	"core.cpccOS.h"
 #include	"app.cpccScreenSaverInterface.h"
 #import		<ScreenSaver/ScreenSaver.h>
-#include 	"app.cpccApp.h"
-#include 	"core.cpccOS.h"
+
 
 ////////////////////////////////
 // configuration parameters
@@ -120,17 +120,17 @@
     ------------------
 	creation of the screensaver object in MACOSX
 	You have to declare your screensaver class as NSPrincipalClass in the project
-	so that when OSX knows which class to instanciate when it starts the screensaver
+	so that OSX knows which class to instanciate when it starts the screensaver
 	The setting will be written like this in the info.plist file:
 	<key>NSPrincipalClass</key>
 	<string>cpccScreenSaveLibMac_OsInterface</string>
 	
 	If editing the info.plist file from xcode, find the key "Principal class" and put a value of cpccScreenSaveLibMac_OsInterface
-	Todo: rename cpccScreenSaveLibMac_OsInterface to cpccScreenSaveLibMac_OsInterface
+
  */
  
  
-cpccApp	app;	
+
 
 class   logObjectLife4ScreenSaveLibMac: logObjectLife
 {
@@ -162,21 +162,13 @@ public:
 @implementation cpccScreenSaveLibMac_OsInterface {
 
     // instance variables
-    cpccScreenSaverInterface *ssPtr;
+    cpccScreenSaverInterface *ssPtr,
+                             *ssConfigurePtr;
     
     //logObjectLife   m_objLife( "cpccScreenSaveLibMac_OsInterface" );
     logObjectLife4ScreenSaveLibMac m_objLife_ssView;
 
 }
-
-// these are static variables. Move them to instance variables
-//const bool      m_previousPreserveDeskopContents = false;
-const bool      m_isOpaque = true;
-const float     animatePeriod = 1.0f / config_FramesPerSec;
-//logObjectLife   m_objLife("cpccScreenSaveLibMac_OsInterface");
-// cpccScreenSaverInterface *ssPtr=NULL;
-
-
 
 
 
@@ -184,15 +176,15 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 - (BOOL)isFlipped  { return YES; }
 
 
-/*  If your subclass of NSView implements the isOpaque method to return YES,
-    then the framework will never clear anything behind your view or draw any of the views under it.
-    YES = this keeps Cocoa from unneccessarily redrawing our superview 
-    
-    The drawing system needs to know whether it should bother updating views that lie behind yours.
-    In non-transparent windows you use [self setOpaque:YES]; to speed up drawing.
- */
+
 - (BOOL)isOpaque
-/*
+/*  If your subclass of NSView implements the isOpaque method to return YES,
+ then the framework will never clear anything behind your view or draw any of the views under it.
+ YES = this keeps Cocoa from unneccessarily redrawing our superview
+ 
+ The drawing system needs to know whether it should bother updating views that lie behind yours.
+ In non-transparent windows you use [self setOpaque:YES]; to speed up drawing.
+ 
  View Opacity
  
  The display... methods must find an opaque background behind the view that requires displaying and begin drawing from there forward. The display... methods search up the view hierarchy to locate the first view that responds YES to an isOpaque message, bringing the invalidated rectangles along.
@@ -206,7 +198,7 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     return [[self backgroundColor] alphaComponent] >= 1.0 ? YES : NO;
  */
 { 	// infoLog().add( "cpccScreenSaveLibMac_OsInterface.isOpaque()");
-    return m_isOpaque;
+    return true;
 }
 
 
@@ -219,10 +211,7 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 + (BOOL)performGammaFade { return NO; }
 
 
-- (NSView *)util_getNativeWindowHandle
-{
-	return self; // this returns an NSView
-}
+
 
 /*
 -(void) util_setTransparency: (bool) isTransparent
@@ -246,35 +235,34 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 */
 
 
-- (void) viewDidLoad
-{
-    infoLog().add( "cpccScreenSaveLibMac_OsInterface.viewDidLoad()");
-    
-}
 
 
-- (void)util_createScreensaver
+- (void)util_createAndInitScreensaverWithWindowHandle
 {
-    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
+    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
 	
     ssPtr = cpccScreenSaverFactory::createScreenSaver();
 	assert(ssPtr && "Error 4567: ssPtr = nil");
-}
-
-
-- (void)util_initScreensaverWithWindowHandle
-{
-    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
-    NSView * windowHandle = [self util_getNativeWindowHandle];
+	
+	NSView * windowHandle = self;
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
-	
-
 }
 
 
+- (void)util_destroyScreensaver
+{
+    infoLog().add( __PRETTY_FUNCTION__ );
+    if (ssPtr)
+    {
+        ssPtr->shutDown();
+        delete(ssPtr);
+        ssPtr = NULL;
+    }
+	
+}
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
@@ -282,23 +270,15 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     // at
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
     
-	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
-    
-    {	// report on monitors found
-        cpccMonitorList mList;
-        int n = cpccOS::getListOfMonitors(mList);
-        infoLog().addf("Number of monitors:%i", n);
-        for (int i = 0; i < n; ++i)
-            infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, mList[i].left, mList[i].top, mList[i].right, mList[i].bottom );
-    }
-    
-    //cpccOS::sleep(2000);
+	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    ssConfigurePtr = NULL;
     
     //[[self window] setBackgroundColor:[NSColor clearColor]];
     //[[self window] setBackgroundColor:[NSColor orangeColor]];
 
     
     self = [super initWithFrame:frame isPreview:isPreview];
+    assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
     
     /*
     NSRect windowframe = frame;
@@ -310,7 +290,7 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     [self setFrame:windowframe];
     */
 
-     assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
+    
 	
     /*
      https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/c/tdef/NSBackingStoreType
@@ -320,8 +300,7 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     
     // https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/occ/instm/NSWindow/setBackingType:
     //[[self window] setBackingType:NSBackingStoreRetained];
-    [self util_createScreensaver];
-    [self util_initScreensaverWithWindowHandle];
+    
     
     //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
     
@@ -343,6 +322,9 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     // cpccOS::sleep(3000);
     //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
     
+    // 05-01-2016: moved into startAnimation()
+    // [self util_createAndInitScreensaverWithWindowHandle];
+    [self util_createAndInitScreensaverWithWindowHandle];
     return self;
 }
 
@@ -352,7 +334,11 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 	// This method should not do any drawing.
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
-	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
+	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    if (!ssPtr) // if it was deleted from a previous stopAnimation
+        [self util_createAndInitScreensaverWithWindowHandle];
+
+    
     // cpccOS::sleep(3000);
     
     //[[self window] setAlphaValue:0.3];
@@ -387,23 +373,27 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 - (void)stopAnimation
 {
     // You must at least call [super stopAnimation] as shown in the standard template.
-    // stopAnimation, it will get called if the display goes to sleep.
-	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
+    // StopAnimation, will also get called if the display goes to sleep.
+    // When the system will awake from sleep, WILL it call InitWithFrame + StartAnimation ?
+    // If YES, then allocation of the screensaver can be done on InitWithFrame() and Deallocation on stopAnimation()
+	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
 	
 	/*
 	 Deactivates the timer that advances the animation.
 	 When Mac OS X wants your screen saver to stop doing its thing, it calls stopAnimation.
 	 You can override stopAnimation to release resources or 
-	 do any other cleanup you want before your screen saver goes away. 
-	 */
-	
-    /* 
+	 do any other cleanup you want before your screen saver goes away.
+     
      when the user is in the screensaver preferences and presses [preview]
-     OSX will call stopAnimation() and then initWithFrame().
+     OSX will call stopAnimation() and then initWithFrame() for another instance of the class.
      It will be a different window as it will cover all the screen.
      */
     
     [super stopAnimation];
+	cpccOS::sleep(50);
+    
+    if (ssPtr)
+        [self util_destroyScreensaver];
 }
 
 
@@ -444,22 +434,6 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
     
     //infoLog().add("drawRect()");
     
-#ifdef DoNotComplileThis
-    if (ssPtr)
-        if (ssPtr->getPreserveDeskopContents() != m_previousPreserveDeskopContents)
-        {
-            infoLog().add("ssPtr->getPreserveDeskopContents() != previousPreserveDeskopContents");
-            infoLog().addf("ssPtr->getPreserveDeskopContents(): %s", ssPtr->getPreserveDeskopContents()?"YES":"NO");
-            
-            /*
-            m_previousPreserveDeskopContents = ssPtr->getPreserveDeskopContents();
-            [self util_setTransparency: m_previousPreserveDeskopContents];
-             */
-            //self.alphaValue = 0.3;
-            //[[self window] setBackgroundColor:[NSColor clearColor]];
-            //[[self window] setOpaque:NO];
-        }
-#endif
 
 
 	/*
@@ -522,7 +496,7 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 		{
 		//NSDisableScreenUpdates();
 		
-		ssPtr->animateOneFrame(animatePeriod);
+        ssPtr->animateOneFrame(1.0f / config_FramesPerSec);
 			
 #ifndef drawInDrawRect
 		ssPtr->drawOneFrame();
@@ -530,24 +504,8 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 #else
         [self setNeedsDisplay:YES];
 #endif
-            
 		//NSEnableScreenUpdates();
 		}
-	
-}
-
-
--(void)util_destroy
-{
-    infoLog().add( __PRETTY_FUNCTION__ );
-    
-    if (ssPtr)
-    {
-        infoLog().add( "cpccScreenSaveLibMac_OsInterface util_destroy killing ssPtr");
-        ssPtr->shutDown();
-        delete ssPtr;
-        ssPtr = NULL;
-    }
 }
 
 
@@ -555,20 +513,28 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 {
     /* ATTENTION: badly designed by Apple:
      -dealloc is called when the screen saver was instantiated by SSystem Preferences;
-     -dealloc is not called when ScreenSaverEngine runs the saver.
+     -dealloc is not called when ScreenSaverEngine runs the saver. (normal run by timeout or hotcorners)
+	 For these reasons I decided to move the allocation/deallocation of the screensaver to StartAnimation/StopAnimation
      */
+	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
     
-	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
-	
-    [self util_destroy];
-	
+    // 05-01-2016: moved into stopAnimation()
+    //if (ssPtr)
+    //    [self util_destroyScreensaver];
+    
+    if (ssConfigurePtr)
+    {
+        delete(ssConfigurePtr);
+        ssConfigurePtr = NULL;
+    }
+    
 	[super dealloc];
 }
 
 
-- (BOOL)hasConfigureSheet
+- (BOOL)hasConfigureSheet_orig
 {
-	logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
+	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
     if (!ssPtr)
         return false;
     
@@ -576,7 +542,37 @@ const float     animatePeriod = 1.0f / config_FramesPerSec;
 }
 
 
+- (BOOL)hasConfigureSheet
+{
+    logTimeCountrer   m_objLife( __PRETTY_FUNCTION__ );
+    
+    if (!ssConfigurePtr)
+        ssConfigurePtr = cpccScreenSaverFactory::createScreenSaver();
+    
+    assert(ssConfigurePtr && "Error 7692: ssPtr = nil");
+    if (!ssConfigurePtr)
+        return false;
+    
+    bool result = (ssConfigurePtr -> hasConfigureSheet());
+    return result;
+}
+
+
 - (NSWindow*)configureSheet
+{
+    logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
+    if (!ssConfigurePtr)
+        ssConfigurePtr = cpccScreenSaverFactory::createScreenSaver();
+    
+    if (!ssConfigurePtr->hasConfigureSheet())
+        return nil;
+    
+    return ssConfigurePtr->showConfigureSheet(self);
+}
+
+
+
+- (NSWindow*)configureSheet_orig
 {
     logObjectLife   m_objLife( __PRETTY_FUNCTION__ );
     

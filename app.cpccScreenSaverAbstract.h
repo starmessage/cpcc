@@ -33,7 +33,7 @@ protected:	// data
 
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
-    bool				mPreserveDeskopContents;
+    bool				m_PreserveDeskopContents;
     
 protected: // constructor/destructor
 
@@ -41,7 +41,7 @@ protected: // constructor/destructor
 			DesktopWindowPtr(NULL),
 			// mTimeElapsed_inSec(0.0),
 			m_windowIsOwned(true),
-            mPreserveDeskopContents(false),  // opaque by default
+            m_PreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
 	{  
 
@@ -95,8 +95,8 @@ protected: // screensaver standard functions
 		m_windowIsOwned = true;
 	}
 
-    
-	virtual void shutDown(void) override   { infoLog().add( "cpccScreenSaverAbstract::shutDown()"); }
+    	virtual void shutDown(void) override   {  }
+
     
 
 
@@ -105,8 +105,8 @@ public:	// other functions
 	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
-    virtual bool    getPreserveDeskopContents() const     { return mPreserveDeskopContents; }
-    virtual void    setPreserveDeskopContents(const bool a) { mPreserveDeskopContents = a; }
+    virtual bool    getPreserveDeskopContents() const     { return m_PreserveDeskopContents; }
+    virtual void    setPreserveDeskopContents(const bool a) { m_PreserveDeskopContents = a; }
 
 };
 

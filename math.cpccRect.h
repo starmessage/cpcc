@@ -28,7 +28,7 @@
 /**
  Rectangle C++ class with lots of convenience functions
  Depends on cpccVector
- Constructors from RECT (WINDOWS) and NSRect (SOX)
+ Constructors from RECT (WINDOWS) and NSRect (OS X)
  Convert to RECT and NSRect
  */
 template<typename T>

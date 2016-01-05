@@ -86,34 +86,50 @@ cpccLogSink			&errorLog(void);
 /////////////////////////////////////////////////////////////////////////
 // this class is used to automatically log creation/desctuction messages
 // when the container object is created / destructed
-
-class logObjectLife
+class logBlockOfCode
 {
 protected:
-    cpcc_string tag;
+    cpcc_string tag, startTag, endTag;
+    
 public:
-	logObjectLife(const cpcc_char *aTag) : tag(aTag) 
-	{ 
-		infoLog().addf("creating: %s", tag.c_str()); 
-		cpccLogSink::increaseIdent();
-	}
-
-    ~logObjectLife(void)  
-	{ 
-		cpccLogSink::decreaseIdent();
-		infoLog().addf("destroying: %s", tag.c_str());
-	}
+    logBlockOfCode(const cpcc_char *aTag, const cpcc_char *aStartTag, const cpcc_char *aEndTag) :
+        tag(aTag), startTag(aStartTag), endTag(aEndTag)
+    {
+        infoLog().addf("%s: %s", startTag.c_str(), tag.c_str());
+        cpccLogSink::increaseIdent();
+    }
+    
+    ~logBlockOfCode(void)
+    {
+        cpccLogSink::decreaseIdent();
+        infoLog().addf("%s: %s", endTag.c_str(), tag.c_str());
+    }
 };
 
 
+class logObjectLife: protected logBlockOfCode
+{
+public:
+	logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "creating", "destroying")
+	{ }
+};
 
-class logTimeCountrer : public logObjectLife
+
+class logFunctionLife: protected logBlockOfCode
+{
+public:
+    logFunctionLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "Entering", "Exiting")
+    { }
+};
+
+
+class logTimeCountrer : public logFunctionLife
 {
 private:
 	cpccTimeCounter timer;
 public:
 
-	logTimeCountrer(const cpcc_char *aTag) : logObjectLife(aTag)
+	logTimeCountrer(const cpcc_char *aTag) : logFunctionLife(aTag)
 	{
 		// timer.resetTimer();
 	}
