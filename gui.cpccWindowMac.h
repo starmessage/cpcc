@@ -86,21 +86,13 @@ public:  // functions
         params.fontSize = &fontSize.getCurrent();
         params.kerning  = &kerning.getCurrent();
         
-        cpccVector2i	textSize = dtool.getTextSize(txt, params);
-        
-        if (width)
-            *width = textSize.x();
-        
-        if (height)
-            *height = textSize.y();
-
+        dtool.getTextSize(txt, params, width, height);
     }
 	
     
 	void 		flush() override { };
 	int 		getHeight(void) const	{ return m_windowRect.size.height; }
 	int 		getWidth(void) 	const	{ return m_windowRect.size.width; }
-	
     int         getTop(void)    const	{ return m_windowRect.origin.y; }
     int         getLeft(void)   const	{ return m_windowRect.origin.x; }
     

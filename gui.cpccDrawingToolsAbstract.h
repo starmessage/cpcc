@@ -22,7 +22,7 @@
 #include "cpccColor.h"
 #include "cpccUnicodeSupport.h"
 #include "gui.cpccText.h"
-#include "math.cpccRect.h"
+// #include "math.cpccRect.h"
 
 
 
@@ -121,7 +121,7 @@ public:		// functions
     virtual void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
 	virtual void 				fillRectWithColor(const TNativeRect &r, const cpccColor& aColor) =0;
 	virtual void 				drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const =0;
-	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const =0;
+	virtual void				getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const = 0;
 	virtual cpccColor			getPixel(const int x, const int y) const =0;
 	virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)=0;
 	virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor) = 0;

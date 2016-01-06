@@ -246,8 +246,9 @@ public:
         // to adjust the flipped copy
         // [bmpPtr drawInRect:NSMakeRect(0, getHeight(), getWidth(), -getHeight())];
         
-        cpccVector2i textSize =	m_dtool.getTextSize(text, params);
-        m_dtool.drawText(x, getHeight() - y - textSize.getY()  , text, params);
+        int tmpHeight;
+        m_dtool.getTextSize(text, params, NULL, &tmpHeight);
+        m_dtool.drawText(x, getHeight() - y - tmpHeight  , text, params);
         [tmpImageWithText unlockFocus];
         
         // tmpImageWithText has the text now. Copy it back to a new bmpPtr.

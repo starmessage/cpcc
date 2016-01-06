@@ -101,21 +101,17 @@ protected:		// functions ////////////////////////////////
 		params.fontQuality	= fontQuality.getCurrent();
 		params.kerning		= &kerning.getCurrent();
 		
-		cpccVector2i size = m_dtool.getTextSize(txt, params);
-		if (width)
-			*width = size.x();
-		if (height)
-			*height = size.y();
+		m_dtool.getTextSize(txt, params, width, height);
 	}
 
-	int 		getHeight(void)	const										{ return m_rect.bottom - m_rect.top; }
-	int 		getWidth(void) 	const										{ return m_rect.right - m_rect.left; }
-	int         getTop(void)	const										{ return m_rect.top; }
-	int         getLeft(void)	const										{ return m_rect.left; }
+	inline int 		getHeight(void)	const										{ return m_rect.bottom - m_rect.top; }
+	inline int 		getWidth(void) 	const										{ return m_rect.right - m_rect.left; }
+	inline int      getTop(void)	const										{ return m_rect.top; }
+	inline int      getLeft(void)	const										{ return m_rect.left; }
 
-	void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
-	void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
-	void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) 
+	inline void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
+	inline void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
+	inline void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
 					{ m_dtool.fillEllipseWithColor( left, top, right, bottom, c); } 
 	
 	

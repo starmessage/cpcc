@@ -153,7 +153,7 @@ public:		// functions
     }
 	
 
-	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const
+	virtual void	getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const
 	{
 		NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
 		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
@@ -167,8 +167,11 @@ public:		// functions
 			styleHelper.setFont(textAttrib, (params.fontName)? params.fontName : "Arial", (params.fontSize)? *params.fontSize : 10.0f);
       
         NSSize tmpSize = [macString sizeWithAttributes: textAttrib];
-        return cpccVector2i(tmpSize.width, tmpSize.height);
-	}
+        if (width)
+            *width =tmpSize.width;
+        if (height)
+            *height =tmpSize.height;
+    }
 
   
     

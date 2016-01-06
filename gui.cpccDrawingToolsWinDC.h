@@ -96,7 +96,7 @@ public:		// functions
 	}
 	
 
-	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const 
+	void getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const override
 	{	RECT tmpRect = {0,0,0,0};
 
 		cpccWinGDIFont useFont(m_hDC, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
@@ -110,7 +110,10 @@ public:		// functions
 		if (params.kerning)		// restore the drawing tools
 			delete applyKerningPtr;
 
-		return cpccVector2i(tmpRect.right-tmpRect.left, tmpRect.bottom-tmpRect.top);
+		if (width)
+			*width = tmpRect.right - tmpRect.left;
+		if (height)
+			*height = tmpRect.bottom - tmpRect.top;
 	}
 
     
