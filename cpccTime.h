@@ -86,21 +86,29 @@ public:
     
 	static time_t getUTC2LocalTimeOffset_inSeconds(void)
 	{
-		struct tm *gmTime;
-		time_t localEpoch, gmEpoch;
+		static bool isFirstCall = true;
+		static time_t result;
 
-		/*First get local epoch time*/
-		localEpoch = time(NULL);
+		if (isFirstCall)
+		{
+			struct tm *gmTime;
+			time_t localEpoch, gmEpoch;
 
-		#pragma warning(suppress : 4996)
-		/* Using local time epoch get the GM Time */
-		gmTime = gmtime(&localEpoch);
+			/*First get local epoch time*/
+			localEpoch = time(NULL);
 
-		/* Convert gm time in to epoch format */
-		gmEpoch = mktime(gmTime);
+			#pragma warning(suppress : 4996)
+			/* Using local time epoch get the GM Time */
+			gmTime = gmtime(&localEpoch);
 
-		/* get the absolute different between them */
-		return localEpoch - gmEpoch;
+			/* Convert gm time in to epoch format */
+			gmEpoch = mktime(gmTime);
+
+			/* get the absolute different between them */
+			result = localEpoch - gmEpoch;
+			isFirstCall = false;
+		}
+		return result;
 	}
 
 
