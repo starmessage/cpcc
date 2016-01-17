@@ -134,6 +134,19 @@ public:		// functions
 	}	
 	
 
+	inline virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB)
+	{
+		if (!m_hDC)
+			return;
+
+		COLORREF c = ::GetPixel(m_hDC, x, y);
+		int R = (int) (GetRValue(c) * xR),
+			G = (int) (GetGValue(c) * xG),
+			B = (int) (GetBValue(c) * xB);
+		::SetPixel(m_hDC, x, y, RGB(std::min(255, R), std::min(255, G), std::min(255, B)));
+	}
+
+
 	virtual void		bitBlitFrom(const int x, const int y, const HDC &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL) 
 	{ 
 		if (!m_hDC)

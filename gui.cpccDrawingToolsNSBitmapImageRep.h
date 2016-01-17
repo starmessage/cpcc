@@ -63,7 +63,7 @@ public:		// functions
 	
 
 	   
-	virtual cpccColor getPixel(const int x, const int y) const
+	virtual cpccColor getPixel(const int x, const int y) const override
 	{
         if (!m_imgRep)
 			return cpccGreen;
@@ -74,13 +74,23 @@ public:		// functions
     }
 	
     
-	virtual void setPixel(const int x, const int y, const cpccColor &aColor)
+	virtual void setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (!m_imgRep)
             return;
         [m_imgRep setColor: aColor.asNSColor() atX:x y:y];
 	}
     
+    
+    virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB ) 
+    {
+        if (!m_imgRep)
+            return;
+        NSColor* color = [m_imgRep colorAtX:x y:y];
+        NSColor* newColor = [NSColor colorWithDeviceRed : ([color redComponent] * xR)  green : ([color greenComponent] * xG) blue : ([color blueComponent] * xB) alpha : [color alphaComponent]]; 
+    
+        [m_imgRep setColor: newColor atX:x y:y];
+    }
     
 };
 

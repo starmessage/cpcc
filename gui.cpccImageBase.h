@@ -48,6 +48,7 @@ public:  // abstract functions
     virtual bool			initWithFile(const cpcc_char* afullpathfilename, const bool hasTransparentCorner=false)=0;
 	virtual cpccColor		getPixel(const int x, const int y) const =0;
     virtual void 			setPixel(const int x, const int y, const cpccColor &aColor)=0;
+    virtual void            amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB )=0;
     const virtual int       getWidth(void) const =0;
     const virtual int       getHeight(void) const =0;
     virtual void 			drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)=0;

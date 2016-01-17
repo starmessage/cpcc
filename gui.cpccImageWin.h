@@ -194,19 +194,17 @@ protected: // functions
 
 
 	inline cpccColor getPixel(const int x, const int y) const
-	{
-		return m_dtool.getPixel(x,y);
+	{	return m_dtool.getPixel(x,y);
 	}
 	
 
 	inline virtual void setPixel(const int x, const int y, const cpccColor &aColor)
-	{
-		m_dtool.setPixel(x,y,aColor);
+	{	m_dtool.setPixel(x,y,aColor);
 	}
 
-	
+	inline virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB)
+	{	m_dtool.amplifyPixel(x, y, xR, xG, xB);
+	}
 };
-
-
 
 

@@ -364,19 +364,21 @@ protected: // functions
 		*/
     }
     
-    inline cpccColor getPixel(const int x, const int y) const
+    inline cpccColor getPixel(const int x, const int y) const override
     {
         return m_dtool.getPixel(x,y);
     }
     
          
-	inline virtual void setPixel(const int x, const int y, const cpccColor &aColor)
+	inline virtual void setPixel(const int x, const int y, const cpccColor &aColor) override
     {
         m_dtool.setPixel(x,y,aColor);
     }
 
-    
-	
+    inline virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB ) override
+    {
+        m_dtool.amplifyPixel(x, y, xR, xG, xB);
+    }
     
     virtual void setAlpha_impl(int x, int y, const CGFloat a)
 	{

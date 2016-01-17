@@ -4,7 +4,7 @@
  *	Purpose:	Portable (cross-platform), light-weight, library
   *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2014 StarMessage software.
+ *  Copyright: 	2016 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary

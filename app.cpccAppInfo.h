@@ -40,6 +40,7 @@ public:
 		*CompanyName,
 		*ProgramName,
         *Version,
+		*Build,
 		*WebSiteNoHttp,
 		*WebSite;
 	const static char
@@ -77,7 +78,7 @@ public:
 		}
 
 		infoText.append("\nBuild: ");
-		infoText.append( __DATE__ _T("  ")  __TIME__ );
+		infoText.append( Build );
 
 		return infoText;
 	}

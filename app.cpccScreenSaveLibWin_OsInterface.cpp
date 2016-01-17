@@ -91,7 +91,6 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 
 	static UINT_PTR	uTimer=NULL; /* timer identifier */
 	static bool		isDrawing=false;
-	static cpccApp	app;	
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
 	
 	switch(wMessage)
@@ -117,6 +116,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				if (!screensaverWindowInitialised)
 				{
 					int	monitorID = 0;
+					cpccApp	app;
 					cpcc_stringList args;
 					app.getArgcArgv(args);
 					if (args.size() > 1)

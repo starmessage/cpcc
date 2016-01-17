@@ -15,6 +15,20 @@
  */
 
 #pragma once
+/*
+	windows solutions:
+	• High performance timer on Windows https://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29.aspx 
+	  It gives highest possible level of precision (<1us).
+	• GetTickCount - 10 to 16 milliseconds of resolution
+	• timeGetTime - Uses system clock (so the same resolution as GetTickCount), 
+	  but resolution can be increased up to even 1ms (via timeBeginPeriod). 
+	• std::chrono - 
+		◦ system_clock - System time
+		◦ steady_clock - Monotonic clock
+		◦ high_resolution_clock - Highest possible resolution, multiplatform. 
+		  It might be alias for system or steady clock… depending on the system capabilities.
+		  Has problems with VS2013. Ok in VS2015.
+*/
 
 // PimplIdiom to move the inclusion of winsock2.h into the .cpp file
 struct timeval;
