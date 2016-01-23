@@ -183,8 +183,8 @@ public: /// ctors
 	
     
 public: /// functions
-	virtual const int getWidth(void) const	{   return bmpPtr ? bmpPtr.pixelsWide : 0;  }
-	virtual const int getHeight(void) const	{	return bmpPtr ? bmpPtr.pixelsHigh : 0;  }
+	virtual const int getWidth(void) const	override {   return bmpPtr ? bmpPtr.pixelsWide : 0;  }
+	virtual const int getHeight(void) const	override {	return bmpPtr ? bmpPtr.pixelsHigh : 0;  }
     
     virtual void initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor)
     {

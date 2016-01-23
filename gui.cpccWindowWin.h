@@ -47,6 +47,7 @@ protected:		// ctors.
 		m_DrawDC = m_WindowDC = GetDC(m_windowHandle);
 		SetBkMode(m_WindowDC, TRANSPARENT);
 		GetWindowRect(m_windowHandle, &m_rect);
+		infoLog().addf("cpccWindowWin() with hWND:%X, rect top:%i, left:%i, bottom:%i, right:%i", m_windowHandle, m_rect.top, m_rect.left, m_rect.bottom, m_rect.right );
 
 		if (config_HasDoubleBuffer)
 		{
@@ -109,7 +110,7 @@ protected:		// functions ////////////////////////////////
 	inline int      getTop(void)	const										{ return m_rect.top; }
 	inline int      getLeft(void)	const										{ return m_rect.left; }
 
-	inline void 		fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
+	inline void 	fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
 	inline void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
 	inline void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
 					{ m_dtool.fillEllipseWithColor( left, top, right, bottom, c); } 

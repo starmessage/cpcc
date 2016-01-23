@@ -14,7 +14,7 @@
  *	*****************************************
  */
  
- 
+
 #pragma once
 
 #include <windows.h>
@@ -206,7 +206,9 @@ private:
 	cpccWinGDIBitmap	*m_bitmapPtr;
 	HDC					m_hDCmemoryBuffer;
 	int					w,h;
+
 public:
+
 	HDC dc(void) { return m_hDCmemoryBuffer; };
 
 
@@ -232,16 +234,20 @@ public:
 	}
 
 
-	void blitFrom(const HDC sourceDC)
+private:
+
+	void blitFrom(const HDC sourceDC /* , const int topLeft_x, const int topLeft_y */)
 	{
 		//infoLog().addf("cpccWinGDIMemoryDC.blitFrom w:%i, h:%i", w, h);
-		::BitBlt(m_hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0, 0, SRCCOPY /* |CAPTUREBLT */ );
+		::BitBlt(m_hDCmemoryBuffer, 0, 0, w, h, sourceDC, 0,0, /* topLeft_x, topLeft_y, */ SRCCOPY /* |CAPTUREBLT */ );
 	}
 
 
-	void blitTo(const HDC destDC)
+public:
+
+	void blitTo(const HDC destDC /* , const int topLeft_x, const int topLeft_y */ )
 	{
-		::BitBlt(destDC, 0, 0, w, h, m_hDCmemoryBuffer, 0, 0, SRCCOPY);
+		::BitBlt(destDC, /* topLeft_x, topLeft_y, */ 0, 0, w, h, m_hDCmemoryBuffer, 0, 0, SRCCOPY);
 	}
 
 };

@@ -45,6 +45,7 @@ public:
 		*WebSite;
 	const static char
         *DonateURL,
+		*CheckForUpdatesURL,
 		*EmailSales,
 		*EmailSupport;
 

@@ -48,9 +48,19 @@
  ScreenSaver /s        - Run the Screen Saver.
  ScreenSaver /sm	   - emulate multi-monitor
 
- Note: if you've only got a single monitor, you can still test multi-monitor support with "fake" monitors by running your saver with argument
+ Multiple monitors:
+ 1) if you've only got a single monitor, you can still test multi-monitor support with "fake" monitors 
+ by running your saver with argument
     mysaver.scr /sm         // test multi-monitor
-
+ 
+ 2) Example of two monitors, where the main monitor A is 1920 x 1080 
+    the 2nd monitor 1280x1024, is placed on the left of the main monitor
+	the OS passes a single window handle to cover the merged area of both monitors.
+	Window rect: TopLeft:-74,-1280 screen width:3200, height:1154
+	Monitor 0: Left 0, top 0, right 1920, bottom 1080
+	Monitor 1: Left -1280, top -74, right 0, bottom 950
+ 
+	These are cases where the top left is not at 0,0
  */
 
 

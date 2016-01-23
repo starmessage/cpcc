@@ -35,7 +35,8 @@ private:
 protected:
 	HDC &m_hDC;
 
-public:  // constructor
+public:		// constructor
+
 	cpccDrawingToolsWinDC(HDC &aDC): m_hDC(aDC) { }
 
 public:		// data
@@ -43,14 +44,14 @@ public:		// data
 
 public:		// functions
 
-	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor)
+	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor) override
 	{
 		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
 		Ellipse(m_hDC, left, top, right, bottom);
 	}
 
 
-	void 		fillRectWithColor(const RECT &r, const cpccColor& aColor) 
+	void 	fillRectWithColor(const RECT &r, const cpccColor& aColor)  override
 	{
 		// const COLORREF c = /* (DWORD) */ aColor.asColorref();
 		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
@@ -62,7 +63,7 @@ public:		// functions
 	}
 	
 
-	virtual void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
+	virtual void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const override
 	{
 		RECT tmpRect;
 		tmpRect.left = tmpRect.right = x;
@@ -87,7 +88,6 @@ public:		// functions
 		
 		cpccWinGDIFont useFont(m_hDC, params.fontName, params.fontSize, params.fontWeight, params.fontQuality);
 		
-
 		DrawText(m_hDC, text, -1, &tmpRect, alignment | DT_NOCLIP | DT_NOPREFIX);
 
 		// restore the drawing tools
@@ -117,7 +117,7 @@ public:		// functions
 	}
 
     
-	virtual cpccColor	getPixel(const int x, const int y) const 
+	virtual cpccColor	getPixel(const int x, const int y) const  override
 	{	
 		if (!m_hDC)
 			return cpccRed;
@@ -127,7 +127,7 @@ public:		// functions
 	}
 	
 
-	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor)
+	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (m_hDC)
 			::SetPixel (m_hDC, x, y, aColor.asColorref());
@@ -143,7 +143,7 @@ public:		// functions
 		int R = (int) (GetRValue(c) * xR),
 			G = (int) (GetGValue(c) * xG),
 			B = (int) (GetBValue(c) * xB);
-		::SetPixel(m_hDC, x, y, RGB(std::min(255, R), std::min(255, G), std::min(255, B)));
+		::SetPixel(m_hDC, x, y, RGB(std::min(255, R), std::min(255, G), std::min(255, B) ) );
 	}
 
 

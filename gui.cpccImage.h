@@ -43,7 +43,7 @@ public:	// ctors
 public: // functions
 
 
-	virtual void setPixel(const int x, const int y, const cpccColor &aColor)
+	virtual void setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (x<0 || x>=getWidth() || y<0 || y>=getHeight()) 
 			return;
@@ -52,7 +52,7 @@ public: // functions
 	}
 	
 	
-	virtual cpccColor	getPixel(const int x, const int y)
+	virtual cpccColor	getPixel(const int x, const int y) const override
 	{
 		if (x<0 || x>=getWidth() || y<0 || y>=getHeight()) 
 			return cpccMoccasin;
@@ -61,7 +61,7 @@ public: // functions
 	}
 	
 
-	virtual void 		resizeTo(const int newWidth, const int newHeight)
+	virtual void 		resizeTo(const int newWidth, const int newHeight) override
 	{ 
 		if (newWidth==getWidth() && newHeight==getHeight())
 			return;
@@ -69,7 +69,7 @@ public: // functions
 	}
 	
 	
-	virtual void 		cropTo(const int newTop, int newLeft, int newWidth, int newHeight)
+	virtual void 		cropTo(const int newTop, int newLeft, int newWidth, int newHeight) override
 	{
         if ( newTop<0 || newTop >= getHeight() ||  newLeft<0 || newLeft >= getWidth() ||
 			newWidth>=getWidth() || newHeight>=getHeight() ||  newWidth<0 || newHeight<0)

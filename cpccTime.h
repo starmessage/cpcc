@@ -112,8 +112,21 @@ public:
 	}
 
 
-	static struct tm getCurrentLocalTime(void)	{ return getLocalTimeFromUTCtime(time(NULL)); }
+	inline static struct tm getCurrentLocalTime(void)	{ return getLocalTimeFromUTCtime(time(NULL)); }
 
+	inline static int getMinutesOfCurrentTime(void)
+	{
+		time_t	a = time(NULL);
+		#pragma warning(suppress : 4996)
+		return localtime(&a)->tm_min;
+	}
+
+	inline static int getHoursOfCurrentTime(void)
+	{
+		time_t	a = time(NULL);
+		#pragma warning(suppress : 4996)
+		return localtime(&a)->tm_hour;
+	}
 
 	static struct tm getLocalTimeFromUTCtime(const time_t a)
 	{
