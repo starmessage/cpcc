@@ -84,10 +84,11 @@ void 	cpccSound::playResourceSound(NSString *aBundleClass, NSString *aResourceFi
 {
     logFunctionLife tmpLog("playResourceSound()");
 
-    
     NSBundle *pBundle = [NSBundle bundleForClass:aBundleClass];
     NSString *resourcePath = [pBundle pathForResource: aResourceFile ofType:@"wav"];
     [pBundle release];
+    
+    //infoLog().addf("path of sound:%s", [resourcePath UTF8String]);
     
 	if (nsSoundPtr)
 		[nsSoundPtr release];
@@ -111,10 +112,11 @@ void 	cpccSound::playResourceSound(NSString *aBundleClass, NSString *aResourceFi
     // Someone found out that to play back more than once you can use
     // [nsSoundPtr setCurrentTime:0];
 
-    //[nsSoundPtr loops] = loop?YES:NO;
-    // [nsSoundPtr setLoops] = loop?YES:NO;
+    [nsSoundPtr setLoops: loop?YES:NO];
     if (![nsSoundPtr isPlaying])
         [nsSoundPtr play];
+    else
+        warningLog().add("playResourceSound() : a sound was playing already");
     
 }
 #endif
