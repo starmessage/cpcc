@@ -73,6 +73,8 @@ public:
 		r(r_), g(g_), b(b_), a(a_) {}
 	   
     
+	inline const cpccColor32 & operator =(const cpccColor32& c2)  { data = c2.data;  return(*this); }
+
     inline const bool operator ==(const cpccColor32& c2)  { return (c2.data == data); }
     inline const bool operator !=(const cpccColor32& c2)  { return (c2.data != data); }
 	template <typename T> static const cpccBYTE applyLimits(const T x) 
@@ -165,6 +167,15 @@ public:
 		g = applyLimits( g*xG );
 		b = applyLimits( b*xB );
     }
+
+
+	cpccColor32 operator *(const float f)
+	{
+		cpccColor32 c(*this);
+		c.amplifyComponents(f, f, f);
+		return c;
+	}
+
     
     cpccColor32& operator *=(const float f)
     {

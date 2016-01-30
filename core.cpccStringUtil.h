@@ -18,6 +18,11 @@
 #include <assert.h>
 #include <sstream>
 #include <time.h>
+#include <iostream>
+#include <vector>
+#include <iterator>
+#include <algorithm>
+
 #include "cpccUnicodeSupport.h"
 
 
@@ -235,4 +240,26 @@ public:
 
 
 
+class stringUtils
+{
 
+public:
+	static void stringSplit(std::string s, const cpcc_char delimiter, cpcc_stringList &v)
+	{
+		size_t start = 0;
+		size_t end = s.find_first_of(delimiter);
+		v.clear();
+	
+		while (end <= std::string::npos)
+		{
+			v.push_back(s.substr(start, end - start));
+
+			if (end == std::string::npos)
+				break;
+
+			start = end + 1;
+			end = s.find_first_of(delimiter, start);
+		}
+	}
+
+};
