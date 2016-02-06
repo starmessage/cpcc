@@ -484,4 +484,5 @@ static const cpccColor	cpccSteelBlue(  	0x46, 0x82, 0xB4);
 static const cpccColor	cpccSpringGreen(  	0x00, 0xFF, 0x7F);
 static const cpccColor	cpccTomato(         0xFF, 0x63, 0x47);
 static const cpccColor	cpccPapayaWhip(  	0xFF, 0xEF, 0xD5);
+//static const cpccColor	cpccBurlyWood(		0xDE, 0xB8, 0x87);
 

@@ -311,13 +311,19 @@ protected: // functions
         
         // now make the color transparent
         if (transparentCorner)
-		{
-			[bmpPtr setAlpha:true];
-			makeTransparentPixelsOfColor(getPixel(0,0));
-		}
-        
+		    setTransparentColor(getPixel(0,0));
+		
         return true;
     }
+    
+    
+    virtual void		setTransparentColor(const cpccColor &aColor) override
+    {
+        cpccImageBase::setTransparentColor(aColor);
+        [bmpPtr setAlpha:true];
+        makeTransparentPixelsOfColor(aColor);
+    }
+
     
          
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)

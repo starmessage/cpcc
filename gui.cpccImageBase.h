@@ -39,7 +39,7 @@ public:  // constructor
 public:		// concrete functions
 
 	const cpccColor*	getTransparentColor(void) const					{ return m_hasTrasparentColor? &m_transparentColor: NULL; }
-	void				setTransparentColor(const cpccColor &aColor)	{ m_transparentColor=aColor; m_hasTrasparentColor=true; }
+	virtual void		setTransparentColor(const cpccColor &aColor)	{ m_transparentColor=aColor; m_hasTrasparentColor=true; }
 	void				removeTransparency(void)						{ m_hasTrasparentColor=false; }
 
 	

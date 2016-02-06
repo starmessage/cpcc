@@ -60,7 +60,9 @@ public:		// operators
 	inline const bool operator==(const cpccRect<T>& aRect)const { return (top==aRect.top) && (left==aRect.left) && (width==aRect.width) && (height==aRect.height);   }
 	inline cpccRect<T>& operator=(const cpccRect<T>& aRect)			{ top=aRect.top;  left=aRect.left; width=aRect.width;  height=aRect.height; return (*this); };
 	
-   
+	template<typename T2>
+	inline cpccRect<T>& operator=(const cpccRect<T2>& aRect)			{ top = (T)aRect.top;  left = (T)aRect.left; width = (T)aRect.width;  height = (T)aRect.height; return (*this); };
+
 public:		// functions
 	inline cpccRect<T> &fromTLBR(const T &t, const T &l, const T &b, const T &r) { return fromXYWH(l, t, r - l, b - t); }
 
@@ -88,9 +90,31 @@ public:		// functions
 #endif
     
 public:		// convenience functions
-	inline const T	getBottom(void) const	{ return top + height; }
-	inline const T	getRight(void)	const	{ return left + width; }
-	inline void     setXY(const T aX, const T aY) { x = aX; y = aY; }
+	inline virtual const T		getBottom(void) const	{ return top + height; }
+	inline virtual const T		getRight(void)	const	{ return left + width; }
+	inline virtual const void	setBottom(const T v)	{ height = v - top; }
+	inline virtual const void	setRight(const T v)		{ width = v - left; }
+	inline void			setXY(const T aX, const T aY) { x = aX; y = aY; }
+
+	inline const bool   overlapsWithRect(const cpccRect<T> &aRect) const
+	{
+		if (getBottom() < aRect.top) return false;
+		if (getRight() < aRect.left) return false;
+		if (top > aRect.getBottom()) return false;
+		if (left > aRect.getRight()) return false;
+		return true;
+	}
+
+
+	inline const bool   isContainedInRect(const cpccRect<T> &aContainerRect) const
+	{
+		if (left < aContainerRect.left) return false;
+		if (top < aContainerRect.top) return false;
+		if (getBottom() > aContainerRect.getBottom()) return false;
+		if (getRight() > aContainerRect.getRight()) return false;
+		return true;
+	}
+
 };
 
 
