@@ -4,18 +4,19 @@
  *	Purpose:	Portable (cross-platform), light-weight, library
   *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2015 StarMessage software.
+ *  Copyright: 	2016 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *  Download:	https://github.com/starmessage/cpcc
- *	email:		sales -at- starmessage.info
+ *	email:		sales (at) starmessage.info
  *	*****************************************
  */
 
 #pragma once
 
 // ToDo: these paths must be neutralised to work on any developement environment
+//		 This is solved if the TB files are stored in the IDE's search path
 #ifdef _WIN32
 
     #include "../libs/trackerBird/win/Trackerbird.h"
@@ -87,7 +88,7 @@ OSX:
 
  */
 
-// helper class
+// helper class for Windows, to convert the paremeters from char * to wchar_t as expected by TB libraries
 class wchar_from_char
 {
 private:
@@ -116,7 +117,8 @@ class cpccAppTelemetryTrackerBird
 {
 private:
     bool m_multipleSessionsEnabled;
-public:
+	
+public:	// ctors
 	cpccAppTelemetryTrackerBird(const char* callhomeURL,
 								const char* productID,
 								const char* productVersion,
@@ -153,6 +155,46 @@ public:
 		#endif
     }
     
+	
+public: // functions
+    
+    
+    
+	void trackEvent(const char *eventCategory, const char *eventName)
+	{
+	/*
+		windows: 	http://docs.trackerbird.com/CPP/event-tracking.html
+		TBRESULT tbEventTrack(const wchar_t* category, const wchar_t* eventName, const wchar_t* sessionID, [BOOL allowExtendedNames=FALSE])
+	
+	
+		http://blog.trackerbird.com/content/getting-started-with-trackerbird-part2-event-tracking/#sthash.ydaejNDj.dpuf
+		
+		TBApp.EventTrack("Feature Usage", eventName, null); 
+		TBApp.EventTrack accepts 3 string parameters, the category of the event being tracked, 
+		the name of the event, and the session ID. The category is used to group events in the 
+		reports and in this example we have called it “Feature Usage”
+		
+		TBApp.EventTrackTxt("Feedback", "User Comments", txtFeedback.Text, null);     
+		TBApp.EventTrackTxt accepts 4 parameters, the category of the event being tracked, 
+		the name of the event, a string value, and the session ID. 
+		In this example we have called the category “Feedback” and the event name “User Comments”.
+
+    */
+		#ifdef _WIN32
+			wchar_from_char	eventCategory_w(eventCategory),
+							eventName_w(eventName);
+			
+			//TBRESULT result = 
+			tbEventTrack(eventCategory_w, eventName_w, NULL);
+			// return (result==TB_OK);
+			
+		#elif defined(__APPLE__)
+			TrackerbirdSDK::TBApp::eventTrack(eventCategory, eventName, NULL);
+            //TrackerbirdSDK::TBApp::EventTrackTxt(eventCategory, eventName, "#9594 text from user", null);
+			
+		#endif
+    }
+
     
 };
 
