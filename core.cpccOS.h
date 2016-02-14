@@ -70,5 +70,14 @@ public:
 #ifdef __APPLE__
     static cpcc_string readProgramVersionByPrincipalClass(const cpcc_char *aClassName);
 #endif
-    
+
+
+#ifdef _WIN32
+	static const HWND getWindowHandleOfProgram(const cpcc_char *aClassName)
+	{
+		// FindWindow("Notepad", "Untitled - Notepad");
+		return FindWindow(aClassName, NULL);
+	}
+#endif
+
 };

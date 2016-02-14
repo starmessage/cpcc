@@ -244,21 +244,21 @@ class stringUtils
 {
 
 public:
-	static void stringSplit(std::string s, const cpcc_char delimiter, cpcc_stringList &v)
+	static void stringSplit(const std::string inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
 		size_t start = 0;
-		size_t end = s.find_first_of(delimiter);
-		v.clear();
+		size_t end = inputStr.find_first_of(delimiter);
+		outputList.clear();
 	
 		while (end <= std::string::npos)
 		{
-			v.push_back(s.substr(start, end - start));
+			outputList.push_back(inputStr.substr(start, end - start));
 
 			if (end == std::string::npos)
 				break;
 
 			start = end + 1;
-			end = s.find_first_of(delimiter, start);
+			end = inputStr.find_first_of(delimiter, start);
 		}
 	}
 

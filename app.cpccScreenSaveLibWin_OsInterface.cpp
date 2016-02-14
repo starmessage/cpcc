@@ -34,6 +34,7 @@
 #include <commctrl.h>
 #include "app.cpccScreenSaverInterface.h"
 #include "app.cpccApp.h"
+#include "core.cpccOS.h"
 
 
 /*  Handling Screen Savers
@@ -103,13 +104,26 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static bool		isDrawing=false;
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
 	
+	/*
+	// idea from
+	// http://www.wischik.com/scr/howtoscr.html#ScrPrevCode
+	HWND hwnd = cpccOS::getWindowHandleOfProgram("Notepad");
+	if (!hwnd)
+		hwnd = aHwnd;
+	*/
+
 	switch(wMessage)
 		{
 
 		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
 			infoLog().add("ScreenSaverProc() received WM_CREATE");
-			
+			infoLog().addf("notepad window handle:%i", cpccOS::getWindowHandleOfProgram("Notepad"));
+			/*	to run the screensaver under the notepad's window:
+				open notepad, run the screensaver normally, open the log file and get the notepad's HWND
+				run:
+				myscreensaver.scr /p HWND_number_from_log
+			*/
 
 			if (!screensaverPtr)
 			{

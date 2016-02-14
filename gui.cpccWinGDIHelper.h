@@ -29,9 +29,11 @@ class cpccWinGDIObject
 protected:
 	HDC		m_dc;
 	HGDIOBJ m_OldObject, m_object;
+	int		m_width, m_height;
+	bool	m_sizeNotValid;
 
 public:
-	cpccWinGDIObject(const HDC hdc, const HGDIOBJ aNewObj): m_dc(hdc), m_object(aNewObj)
+	cpccWinGDIObject(const HDC hdc, const HGDIOBJ aNewObj): m_dc(hdc), m_object(aNewObj), m_sizeNotValid(true)
 	{
 		// change the drawing parameters
 		m_OldObject = SelectObject(m_dc, m_object);
@@ -50,6 +52,7 @@ public:
 	{
 		DeleteObject( SelectObject(m_dc, aNewObj));
 		m_object = aNewObj;
+		m_sizeNotValid = true;
 	}
 
 };
@@ -110,6 +113,15 @@ public:
 //////////////////////////////////////////////
 class cpccWinGDIBitmap: public cpccWinGDIObject
 {
+protected:
+	void	recalculateSize(void)
+	{
+		BITMAP bm;
+		::GetObject((HBITMAP)m_object, sizeof(bm), &bm);
+		m_width = bm.bmWidth;
+		m_height = bm.bmHeight;
+		m_sizeNotValid = false;
+	}
 
 public:
 	// constructor by a ready HBITMAP
@@ -125,21 +137,19 @@ public:
 	/// convert to HBITMAP
     inline operator HBITMAP(void) const   { return (HBITMAP) m_object; }
 
-
-
-	const int getWidth(void) const
+	const int getWidth(void) 
 	{ 
-		BITMAP bm;
-        ::GetObject ((HBITMAP) m_object, sizeof (bm), &bm);
-        return bm.bmWidth;
+		if (m_sizeNotValid)
+			recalculateSize();
+		return m_width;
 	} 
 
 
-	const int getHeight(void) const
+	const int getHeight(void) 
 	{ 
-		BITMAP bm;
-        ::GetObject ((HBITMAP) m_object, sizeof (bm), &bm);
-        return bm.bmHeight;
+		if (m_sizeNotValid)
+			recalculateSize();
+		return m_height;
 	}
 
 };

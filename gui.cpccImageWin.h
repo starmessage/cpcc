@@ -98,33 +98,13 @@ public:		// functions
 	}
 
 
-	const virtual int getWidth(void) const
-	{ 
-		return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0;
-		/*
-		BITMAP bm;
-        ::GetObject (hBitmap, sizeof (bm), &bm);
-        return bm.bmWidth;
-		*/
-	} 
 
 	
-	const virtual int getHeight(void) const
-	{ 
-		return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0;
-		/*
-		BITMAP bm;
-        ::GetObject (hBitmap, sizeof (bm), &bm);
-        return bm.bmHeight;
-		*/
-	} 
-	
 
-	virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
-	{
-		m_dtool.drawText(x, y, text, params);
-	}
+	virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) {  	m_dtool.drawText(x, y, text, params); }
 
+	const virtual int getWidth(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0; }
+	const virtual int getHeight(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0; 	}
 
 protected:
 
@@ -153,8 +133,7 @@ protected:
 		SetStretchBltMode(resizedBitmapBuffer.dc(), COLORONCOLOR);
 		StretchBlt(resizedBitmapBuffer.dc(), 0,0, newWidth, newHeight, m_hDC, 0, 0, getWidth(), getHeight(), SRCCOPY);
 		
-		if (m_GDIHBitmap)
-			m_GDIHBitmap->deleteCurrentAndSelectAnother(CreateCompatibleBitmap(m_hDC, newWidth, newHeight));
+		m_GDIHBitmap->deleteCurrentAndSelectAnother(CreateCompatibleBitmap(m_hDC, newWidth, newHeight));
 
 		// copy back
 		BitBlt(m_hDC, 0, 0,  newWidth, newHeight, resizedBitmapBuffer.dc(), 0,0, SRCCOPY);
