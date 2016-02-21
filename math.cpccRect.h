@@ -21,9 +21,6 @@
 	#include <Windows.h>
 #endif
 
-// #include "math.cpccVectorTypes.h"
-
-
 
 /**
  Rectangle C++ class with lots of convenience functions

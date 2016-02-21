@@ -95,7 +95,8 @@ public:  // functions
 	int 		getWidth(void) 	const	{ return m_windowRect.size.width; }
     int         getTop(void)    const	{ return m_windowRect.origin.y; }
     int         getLeft(void)   const	{ return m_windowRect.origin.x; }
-    
+    void        lockFocus(void) override { [m_windowHandle lockFocus]; }
+    void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     
 	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)
 	{

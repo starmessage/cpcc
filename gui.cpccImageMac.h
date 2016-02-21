@@ -34,7 +34,7 @@
 #include "gui.cpccWindowMac.h"
 
 #include <AppKit/NSGraphics.h>
-// #include <CoreGraphics/CoreGraphics.h>
+
 
 /*
  notes:
@@ -195,23 +195,12 @@ public: /// functions
         if(aWidth < 1 || aHeight < 1)
             return;
         
-        /* not needed if the previous creation was done with autoRelease
-         if (bmpPtr)
-         [bmpPtr release];
-         
-         */
-		 
-        // bmpPtr = NULL;
-        
         /*
          If planes is NULL or an array of NULL pointers, this method allocates enough memory
          to hold the image described by the other arguments. You can then obtain pointers to
          this memory (with the getPixel:atX:y: or bitmapData method) and fill in the image data.
          In this case, the allocated memory will belong to the object and will be freed when it’s freed.
          */
-		
-        // see initForXPMWithDepth
-        // http://web.mit.edu/Emacs/source/emacs/src/nsimage.m
         bmpPtr = [[NSBitmapImageRep alloc]
                                  initWithBitmapDataPlanes: NULL
                                  pixelsWide: aWidth
@@ -235,8 +224,6 @@ public:
     
     virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
     {
-        // http://stackoverflow.com/questions/4754973/images-in-nsimageviews-randomly-turned-upside-down
-        
         NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(getWidth(), getHeight())] autorelease];
         //[tmpImageWithText setFlipped:YES];
         
@@ -263,11 +250,14 @@ public:
 
     const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
     {
+        // todo: lockFocus and unlockFocus seems to take too much CPU.
+        // Can it remain locked with some smart monitoring if it has not changed?
         assert(bmpPtr && "#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
-        cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;
-        NSView * tmpView = tmpWindow->getNativeWindowHandle();
-        [tmpView lockFocus];
-        //[bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())];
+        
+        //cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;
+        //NSView * tmpView = tmpWindow->getNativeWindowHandle();
+        //[tmpView lockFocus];
+        
         [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
                   fromRect:NSZeroRect
                  operation:NSCompositeSourceOver
@@ -275,7 +265,7 @@ public:
             respectFlipped:YES
                      hints:nil];
         
-        [tmpView unlockFocus];
+        //[tmpView unlockFocus];
     }
     
     

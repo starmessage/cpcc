@@ -171,5 +171,7 @@ public:  // abstract functions
 	virtual int             getRight(void)	const { return getLeft() + getWidth(); };;
     virtual void            getTextSize(const cpcc_char *txt, int *width, int *height)=0;
 	virtual void			useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
+    virtual void            lockFocus(void)=0;
+    virtual void            unlockFocus(void)=0;
 };
 

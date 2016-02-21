@@ -114,8 +114,11 @@ public:		// functions
         // To apply color to text, you must change the attributes associated with the text
         // https://developer.apple.com/library/mac/documentation/cocoa/conceptual/CocoaDrawingGuide/Color/Color.html
         
-		NSString *macString = [[[NSString alloc] initWithUTF8String:text] autorelease];
-		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
+		
+        // NSString *macString = [[[NSString alloc] initWithUTF8String:text] autorelease];
+        NSString *macString = [[[NSString alloc] initWithCString:text encoding:NSASCIIStringEncoding] autorelease];
+        
+        NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
 		
         cpccTextStylesMac	styleHelper;
 		
@@ -155,7 +158,10 @@ public:		// functions
 
 	virtual void	getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const
 	{
-		NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
+        //  If you give -[NSString initWithUTF8String:] a C-string that's not valid UTF-8, it returns nil.
+        // NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];
+        NSString *macString = [[[NSString alloc] initWithCString:txt encoding:NSASCIIStringEncoding] autorelease];
+                               
 		NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
 		
         cpccTextStylesMac	styleHelper;

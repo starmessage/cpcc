@@ -66,6 +66,9 @@ protected:		// ctors.
 			ReleaseDC(m_windowHandle, m_WindowDC);
 	}
 
+	void lockFocus(void) { } // used in OSX. Here, I might add something like BeginPaint()
+	void unlockFocus(void) { } // used in OSX. Here, I might add something like EndPaint()
+
 
 public:
 	

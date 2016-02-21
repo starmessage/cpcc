@@ -7,8 +7,7 @@
  *  Copyright: 	2013 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
@@ -45,12 +44,6 @@
 #endif
 
 
-#if defined(__APPLE__)
-
-
-
-
-#endif
 
 // main class
 
@@ -115,7 +108,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 }
 
 
-const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void)
+const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void) const
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -175,7 +168,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserData(void) const
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
+const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void) const
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
@@ -202,7 +195,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
+const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) const
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
@@ -248,7 +241,7 @@ const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
+const cpcc_string cpccFileSystemMini::getFolder_Fonts(void) const
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -323,7 +316,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 
 
 
-bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
+const bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername) const
 {
 	if (folderExists(aFoldername))
 		return true;
@@ -359,7 +352,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 }
 
 
-bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
+const bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 {
 #ifdef _WIN32
 	DWORD attrib = GetFileAttributes(aFoldername);
@@ -410,7 +403,7 @@ const bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
 }
 
 
-bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
+const bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 {
 	/*
 	If the file referenced by dest_file exists prior to calling rename(), 
@@ -541,7 +534,6 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 	fclose(dest);
 	
 	return (!errorOccured);
-
 }
 
 	
@@ -616,7 +608,7 @@ const cpcc_string cpccFileSystemMini::getAppBundlePath(void)
 #endif
 
 
-const cpcc_string cpccFileSystemMini::getFolder_Desktop(void)
+const cpcc_string cpccFileSystemMini::getFolder_Desktop(void) const
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];

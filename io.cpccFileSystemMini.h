@@ -6,7 +6,7 @@
  *  Copyright: 	2015 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *  Download:	https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
@@ -51,14 +51,14 @@ public:
 	
 	// folder functions --------------------------------
 
-	bool createFolder(const cpcc_char *  aFoldername);
-	bool folderExists(const cpcc_char *  aFoldername) const;
+	const bool createFolder(const cpcc_char *  aFoldername) const;
+	const bool folderExists(const cpcc_char *  aFoldername) const;
 
-	const cpcc_string getFolder_Desktop(void);
-	const cpcc_string getFolder_SystemsTemp(void);
-	const cpcc_string getFolder_UsersTemp(void);
-	const cpcc_string getFolder_Fonts(void);
-	const cpcc_string getFolder_CommonAppData(void);
+	const cpcc_string getFolder_Desktop(void) const;
+	const cpcc_string getFolder_SystemsTemp(void) const;
+	const cpcc_string getFolder_UsersTemp(void) const;
+	const cpcc_string getFolder_Fonts(void) const;
+	const cpcc_string getFolder_CommonAppData(void) const;
 	const cpcc_string getFolder_UserData(void) const;
 	const cpcc_string getFolder_UserHome(void) const;
 #ifdef _WIN32
@@ -69,7 +69,7 @@ public:
 
 	const bool		fileExists(const cpcc_char * aFilename) const;
 	
-	cpccFileSize_t getFileSize(const cpcc_char *aFilename); 
+	cpccFileSize_t 	getFileSize(const cpcc_char *aFilename); 
 	
 	/// returns the number of bytes written, or a negative number in case of error
 	cpccFileSize_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
@@ -79,7 +79,7 @@ public:
 	
 	/// the destFile must be a file specification, not a folder specification
 	bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
-	bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
+	const bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
 	bool createEmptyFile(const cpcc_char * aFilename);
 	bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
 	bool deleteFile(const cpcc_char * filename);
@@ -126,17 +126,16 @@ protected:
 public:
 	enum standardFolderIds { none = 0, CommonAppData };
 
-	cpccPathString(cpcc_char * aPath=NULL) : cpcc_string(aPath)
+	cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string(aPath)
 	{	}
 
-	cpccPathString(cpcc_string & aPath) : cpcc_string(aPath)
+	cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath)
 	{	}
 
 	cpccPathString(const standardFolderIds aFolderID);
 		
 	const bool	pathExists(void)	const { return (fs.fileExists(*this) || fs.folderExists(*this)); }
 	void		appendPathSegment(const cpcc_char* aPathSegment);
-
 
 };
 
