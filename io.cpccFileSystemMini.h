@@ -38,7 +38,8 @@ typedef long cpccFileSize_t;
 class cpccFileSystemMini
 {
 public:	// class metadata and selftest
-	const cpcc_char *	getClassVersion(void) { return _T("1.07"); };
+
+    
 #if defined(cpccFileSystemMini_DoSelfTest)
 	static void			selfTest(void);
 #endif
@@ -51,52 +52,59 @@ public:
 	
 	// folder functions --------------------------------
 
-	const bool createFolder(const cpcc_char *  aFoldername) const;
-	const bool folderExists(const cpcc_char *  aFoldername) const;
+	static bool createFolder(const cpcc_char *  aFoldername);
+	static bool folderExists(const cpcc_char *  aFoldername);
+	static bool	folderExists(const cpcc_string& aFoldername) { return folderExists(aFoldername.c_str()); };
 
-	const cpcc_string getFolder_Desktop(void) const;
-	const cpcc_string getFolder_SystemsTemp(void) const;
-	const cpcc_string getFolder_UsersTemp(void) const;
-	const cpcc_string getFolder_Fonts(void) const;
-	const cpcc_string getFolder_CommonAppData(void) const;
-	const cpcc_string getFolder_UserData(void) const;
-	const cpcc_string getFolder_UserHome(void) const;
+	static cpcc_string getFolder_Desktop(void);
+	static cpcc_string getFolder_SystemsTemp(void);
+	static cpcc_string getFolder_UsersTemp(void);
+	static cpcc_string getFolder_Fonts(void);
+	static cpcc_string getFolder_CommonAppData(void);
+	static cpcc_string getFolder_UserData(void);
+	static cpcc_string getFolder_UserHome(void);
 #ifdef _WIN32
-	const cpcc_string getFolder_Windows(void) const;
+	static cpcc_string getFolder_Windows(void);
 #endif
 
     // file functions --------------------------------
 
-	const bool		fileExists(const cpcc_char * aFilename) const;
 	
-	cpccFileSize_t 	getFileSize(const cpcc_char *aFilename); 
-	
+	static cpccFileSize_t 	getFileSize(const cpcc_char *aFilename); 
+	static cpccFileSize_t	getFileSize(const cpcc_string &aFilename) { return getFileSize(aFilename.c_str()); };
+
 	/// returns the number of bytes written, or a negative number in case of error
-	cpccFileSize_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
+	static cpccFileSize_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
 	
 	/// returns the number of bytes read, or a negative number in case of error
-	cpccFileSize_t	readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize);
+	static cpccFileSize_t	readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize);
 	
+	static bool	fileExists(const cpcc_char * aFilename);
+	static bool	fileExists(const cpcc_string &aFilename) { return fileExists(aFilename.c_str()); };
+
 	/// the destFile must be a file specification, not a folder specification
-	bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
-	const bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
-	bool createEmptyFile(const cpcc_char * aFilename);
-	bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
-	bool deleteFile(const cpcc_char * filename);
-	bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);	
+	static bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
+	static bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
+	static bool createEmptyFile(const cpcc_char * aFilename);
+	static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
+	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
+	static bool deleteFile(const cpcc_char * filename);
+	static bool	deleteFile(const cpcc_string& aFilename) { return deleteFile(aFilename.c_str()); };
+
+	static bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);
 	
 		
 	// date functions --------------------------------
-	time_t		 getFileModificationDate(const cpcc_char * aFilename) const;
+	static time_t		 getFileModificationDate(const cpcc_char * aFilename);
 	
 	// Other functions --------------------------------
-	const cpcc_string getAppFullPath(void);
+	static cpcc_string getAppFullPath(void);
 #ifdef __APPLE__
-    const cpcc_string getAppBundlePath(void);
+	static cpcc_string getAppBundlePath(void);
 #endif
-	const cpcc_string getAppFullPathFilename(void);
-	const cpcc_string getAppFilename(void);
-	const cpcc_string getFileSystemReport(void);
+	static cpcc_string getAppFullPathFilename(void);
+	static cpcc_string getAppFilename(void);
+	static cpcc_string getFileSystemReport(void);
 
 };
 
@@ -105,37 +113,28 @@ public:
 class cpccFileSystemMiniEx : public cpccFileSystemMini
 {
 public:
-	bool createEmptyFile(const cpcc_string & aFilename) { return cpccFileSystemMini::createEmptyFile(aFilename.c_str()); };
-	bool deleteFile(const cpcc_string& aFilename)  { return cpccFileSystemMini::deleteFile(aFilename.c_str()); };
-	cpccFileSize_t getFileSize(const cpcc_string &aFilename) { return cpccFileSystemMini::getFileSize(aFilename.c_str()); };
-	const bool fileExists(const cpcc_string &aFilename)	const { return cpccFileSystemMini::fileExists(aFilename.c_str()); };
-	const bool folderExists(const cpcc_string& aFoldername) const { return cpccFileSystemMini::folderExists(aFoldername.c_str()); };
-	bool copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
-	bool appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
-	bool appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
-	bool createFolder(const cpcc_string& aFoldername) { return cpccFileSystemMini::createFolder(aFoldername.c_str()); }
+	
+	bool			copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
+	bool			appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
+	bool			appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
+	bool			createFolder(const cpcc_string& aFoldername) { return cpccFileSystemMini::createFolder(aFoldername.c_str()); }
 
 };
 
 
 class cpccPathString: public cpcc_string
 {
-protected:
-	cpccFileSystemMiniEx	fs;
-
 public:
-	enum standardFolderIds { none = 0, CommonAppData };
+	enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
 
-	cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string(aPath)
-	{	}
-
-	cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath)
-	{	}
-
+public: // constructors
+	cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string(aPath) 	{	}
+	cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
 	cpccPathString(const standardFolderIds aFolderID);
-		
-	const bool	pathExists(void)	const { return (fs.fileExists(*this) || fs.folderExists(*this)); }
-	void		appendPathSegment(const cpcc_char* aPathSegment);
+
+public: // functions
+	bool	pathExists(void)	const { return (cpccFileSystemMini::fileExists(c_str()) || cpccFileSystemMini::folderExists(c_str())); }
+	void	appendPathSegment(const cpcc_char* aPathSegment);
 
 };
 

@@ -88,11 +88,8 @@ public: // functions
 			warningLog().add( _T("cpccImage.initWithFile(): empty filename") );
 			return false;
 		}
-		cpccFileSystemMini fs;
         
-        
-        
-		if (!fs.fileExists(afullpathfilename))
+		if (!cpccFileSystemMini::fileExists(afullpathfilename))
 		{
 			warningLog().addf( _T("cpccImage.initWithFile: file does not exist:[%s]") , afullpathfilename);
 			return false;

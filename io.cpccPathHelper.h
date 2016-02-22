@@ -32,37 +32,20 @@
 */
 
 
-/*
-	future typedefs:
-	
-	#ifdef UNICODE //Test to see if we're using wchar_ts or not.
-		typedef std::wstring PathString;
-	#else
-		typedef std::string PathString;
-	#endif
 
-
-*/
 
 
 /// path manipulation helper functions
 class cpccPathHelper
 {
-public:	// class metadata and selftest
-	static const cpcc_char * getClassVersion(void) { return _T("1.01"); };
-	static void  selfTest(void);
-	
+private:
 	/// if true then a the selftest function is called automatically on app start
-	enum { config_RunSelfTest=true };
+	enum { config_RunSelfTest = true };
 
-protected:
+public:	
 
-public:
-    virtual ~cpccPathHelper() { }
-    
-public:
-
-	
+	static void				selfTest(void);
+		
 	static const cpcc_char	getPreferredPathDelimiter(void);
 	static const cpcc_char*	getAllPathDelimiters(void);
 
@@ -70,20 +53,20 @@ public:
 	static void				removeTrailingPathDelimiter(cpcc_string &aPath);
 	static void				addTrailingPathDelimiter(cpcc_string &aFolder);
 	
-	virtual const cpcc_string getParentFolderOf(const cpcc_string &aFullpathFilename);
-	virtual const cpcc_string getParentFolderOf(const cpcc_char *aFilename) { return getParentFolderOf(cpcc_string(aFilename)); };
+	static cpcc_string		getParentFolderOf(const cpcc_string &aFullpathFilename);
+	static cpcc_string		getParentFolderOf(const cpcc_char *aFilename) { return getParentFolderOf(cpcc_string(aFilename)); };
 	
-	virtual const cpcc_string extractFilename(const cpcc_string &aFullpathFilename);
+	static cpcc_string		extractFilename(const cpcc_string &aFullpathFilename);
 	
 	/// Returns a file path with a different extension. The newExtension parameter can be specified with or without a leading '.' 
-	cpcc_string		replaceExtension(const cpcc_char *aFilename, const cpcc_char *newExtension);
-	cpcc_string		getExtension(const cpcc_char *aFilename);
+	static cpcc_string		replaceExtension(const cpcc_char *aFilename, const cpcc_char *newExtension);
+	static cpcc_string		getExtension(const cpcc_char *aFilename);
 
 	/// concatenates two paths
 	static cpcc_string		pathCat(const cpcc_char *a, const cpcc_char *b);
 	
-	static bool	endsWithPathDelimiter(const cpcc_char *aPath);
-	static bool	startsWithPathDelimiter(const cpcc_char *aPath);
+	static bool				endsWithPathDelimiter(const cpcc_char *aPath);
+	static bool				startsWithPathDelimiter(const cpcc_char *aPath);
 };
 
 

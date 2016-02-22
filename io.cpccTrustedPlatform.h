@@ -83,12 +83,11 @@ public:
 
 	const long int		getDaysSinceFirstRun(void)
     {
-        cpccFileSystemMiniEx    fs;
         int    days;
         time_t current_time, firstrun_time;
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
-        firstrun_time=fs.getFileModificationDate(getStorageFolder().c_str());
+        firstrun_time= cpccFileSystemMini::getFileModificationDate(getStorageFolder().c_str());
         days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
         
         return days;

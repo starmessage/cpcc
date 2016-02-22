@@ -48,7 +48,7 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 
 
 
-const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
+cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
 {
 	//size_t pos = aFullpathFilename.find_last_of("/\\");
     cpcc_string result = aFullpathFilename;
@@ -69,7 +69,7 @@ const cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpath
 };
 
 
-const cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFilename)
+cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFilename)
 {
 	cpcc_string result = aFullpathFilename;
 	
@@ -183,54 +183,56 @@ cpcc_string		cpccPathHelper::getExtension(const cpcc_char *aFilename)
 
 void cpccPathHelper::selfTest(void)
 {
+
 #ifndef NDEBUG
-	cpccPathHelper ph;
-			
+	if (!cpccPathHelper::config_RunSelfTest)
+		return;
+
 	// "#5349a: path delimiter"
-	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();
+	cpcc_char pDelimiter = cpccPathHelper::getPreferredPathDelimiter();
 	assert(((pDelimiter== _T('/')) || (pDelimiter== _T('\\')) ) );
 			
 	// test extension replacing and getExtension
 	{ 
-		cpcc_string TestExt = ph.replaceExtension( _T("c:\\folderA\\SubFolderB\\filename.oldext"), _T("txt") );
+		cpcc_string TestExt = cpccPathHelper::replaceExtension( _T("c:\\folderA\\SubFolderB\\filename.oldext"), _T("txt") );
 		assert(TestExt.compare(  _T("c:\\folderA\\SubFolderB\\filename.txt" ) )==0);
 
-		TestExt = ph.replaceExtension( _T("hello.filename.o"), _T("n") );
+		TestExt = cpccPathHelper::replaceExtension( _T("hello.filename.o"), _T("n") );
 		assert(TestExt.compare( _T("hello.filename.n") )==0);
 
-		TestExt = ph.replaceExtension( _T("hello.filename with long extension"), _T(".dat") );
+		TestExt = cpccPathHelper::replaceExtension( _T("hello.filename with long extension"), _T(".dat") );
 		assert(TestExt.compare( _T("hello.dat") )==0);
-		assert(ph.getExtension(TestExt.c_str()).compare( _T("dat") )==0);
+		assert(cpccPathHelper::getExtension(TestExt.c_str()).compare( _T("dat") )==0);
 
-		TestExt = ph.replaceExtension(_T("filename without extension"), _T(".ooo") );
+		TestExt = cpccPathHelper::replaceExtension(_T("filename without extension"), _T(".ooo") );
 		assert(TestExt.compare( _T("filename without extension.ooo"))==0);
 
-		TestExt = ph.replaceExtension( _T("\\\\network shares/a/mac path"), _T(".app") );
+		TestExt = cpccPathHelper::replaceExtension( _T("\\\\network shares/a/mac path"), _T(".app") );
 		assert(TestExt.compare( _T("\\\\network shares/a/mac path.app") )==0);
 
-		assert(ph.startsWithPathDelimiter( _T("/a/mac path")  ) && _T("#6928a: cpccPathHelper"));
-		assert(!ph.startsWithPathDelimiter( _T("a/mac path")  ) && _T("#6928b: cpccPathHelper"));
+		assert(cpccPathHelper::startsWithPathDelimiter( _T("/a/mac path")  ) && _T("#6928a: cpccPathHelper"));
+		assert(!cpccPathHelper::startsWithPathDelimiter( _T("a/mac path")  ) && _T("#6928b: cpccPathHelper"));
 
         #ifdef _WIN32
-            assert(ph.endsWithPathDelimiter( _T(".\\a\\path\\") ) && _T("#6928c: cpccPathHelper"));
-            assert(!ph.endsWithPathDelimiter( _T(".\\a\\path")  ) && _T("#6928d: cpccPathHelper"));
+            assert(cpccPathHelper::endsWithPathDelimiter( _T(".\\a\\path\\") ) && _T("#6928c: cpccPathHelper"));
+            assert(!cpccPathHelper::endsWithPathDelimiter( _T(".\\a\\path")  ) && _T("#6928d: cpccPathHelper"));
         #endif
         #ifdef __APPLE__
-            assert(ph.endsWithPathDelimiter( _T(".\\a/path/") ) && _T("#6928c: cpccPathHelper"));
-            assert(!ph.endsWithPathDelimiter( _T(".\\a/path")  ) && _T("#6928d: cpccPathHelper"));
+            assert(cpccPathHelper::endsWithPathDelimiter( _T(".\\a/path/") ) && _T("#6928c: cpccPathHelper"));
+            assert(!cpccPathHelper::endsWithPathDelimiter( _T(".\\a/path")  ) && _T("#6928d: cpccPathHelper"));
         #endif
 		
 		cpcc_string test = _T("c:/tmp/");
-		ph.removeTrailingPathDelimiter(test);
+		cpccPathHelper::removeTrailingPathDelimiter(test);
 		assert(test.compare( _T("c:/tmp") )==0);
 
 
-		assert(ph.pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);
+		assert(cpccPathHelper::pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);
         #ifdef _WIN32
-            assert(ph.pathCat(_T("\\folderroot\\"), _T("subfolder")).compare(_T("\\folderroot\\subfolder")) ==0);
+            assert(cpccPathHelper::pathCat(_T("\\folderroot\\"), _T("subfolder")).compare(_T("\\folderroot\\subfolder")) ==0);
         #endif
         #ifdef __APPLE__
-            assert(ph.pathCat(_T("\\folderroot/"), _T("subfolder")).compare(_T("\\folderroot/subfolder")) ==0);
+            assert(cpccPathHelper::pathCat(_T("\\folderroot/"), _T("subfolder")).compare(_T("\\folderroot/subfolder")) ==0);
         #endif
 		
 		cpcc_string expectedResult;
@@ -240,13 +242,13 @@ void cpccPathHelper::selfTest(void)
         #ifdef __APPLE__
             expectedResult = _T("/folderroot/subfolder");
         #endif
-		assert(ph.pathCat(_T("/folderroot"), _T("/subfolder")).compare(expectedResult) ==0);
-		assert(ph.pathCat(_T("/folderroot"), _T("subfolder")).compare(expectedResult) ==0);
+		assert(cpccPathHelper::pathCat(_T("/folderroot"), _T("/subfolder")).compare(expectedResult) ==0);
+		assert(cpccPathHelper::pathCat(_T("/folderroot"), _T("subfolder")).compare(expectedResult) ==0);
         
         cpcc_string aLongPath ("/folder/Subfolder/file.txt");
-        cpcc_string aParentPath = ph.getParentFolderOf(aLongPath);
+        cpcc_string aParentPath = cpccPathHelper::getParentFolderOf(aLongPath);
         assert((aParentPath=="/folder/Subfolder/") && "#4972a: getParentFolderOf()");
-        cpcc_string aParentPath2 = ph.getParentFolderOf(aParentPath);
+        cpcc_string aParentPath2 = cpccPathHelper::getParentFolderOf(aParentPath);
         assert((aParentPath2=="/folder/") && "#4972b: getParentFolderOf()");
 
 	}
@@ -262,7 +264,7 @@ void cpccPathHelper::selfTest(void)
 
 
 SELFTEST_BEGIN(cpccPathHelper_SelfTest)
-	if (cpccPathHelper::config_RunSelfTest)
+	
 		cpccPathHelper::selfTest();
 SELFTEST_END
 

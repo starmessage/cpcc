@@ -47,7 +47,7 @@
 
 // main class
 
-const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
+cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
     report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
@@ -73,7 +73,7 @@ const cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 
 
 #ifdef _WIN32
-const cpcc_string cpccFileSystemMini::getFolder_Windows(void) const
+cpcc_string cpccFileSystemMini::getFolder_Windows(void) 
 {
 	cpcc_char buffer[300];
 	GetWindowsDirectory(buffer, 300);
@@ -82,7 +82,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Windows(void) const
 #endif
 
 
-const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
+cpcc_string cpccFileSystemMini::getFolder_UserHome(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -92,8 +92,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
 	{
 		cpcc_string result(szPath);
-		cpccPathHelper ph;
-		ph.addTrailingPathDelimiter(result);	
+		cpccPathHelper::addTrailingPathDelimiter(result);
 		return result;
 	}
 	std::cerr << "Error #6531 in getFolder_UserHome\n";
@@ -108,7 +107,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserHome(void) const
 }
 
 
-const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void) const
+cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -118,8 +117,7 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void) const
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) 
 		{
 		cpcc_string result(szPath);
-		cpccPathHelper ph;
-		ph.addTrailingPathDelimiter(result);	
+		cpccPathHelper::addTrailingPathDelimiter(result);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_CommonAppData\n";
@@ -140,7 +138,7 @@ const cpcc_string  cpccFileSystemMini::getFolder_CommonAppData(void) const
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_UserData(void) const
+cpcc_string cpccFileSystemMini::getFolder_UserData(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -150,8 +148,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserData(void) const
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) 
 		{
 		cpcc_string result(szPath);
-		cpccPathHelper ph;
-		ph.addTrailingPathDelimiter(result);	
+		cpccPathHelper::addTrailingPathDelimiter(result);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_AppData::getFolder_UserData\n";
@@ -168,7 +165,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UserData(void) const
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void) const
+cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void) 
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
@@ -195,7 +192,7 @@ const cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void) const
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) const
+cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) 
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
@@ -241,7 +238,7 @@ const cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) const
 }
 
 
-const cpcc_string cpccFileSystemMini::getFolder_Fonts(void) const
+cpcc_string cpccFileSystemMini::getFolder_Fonts(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -250,8 +247,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Fonts(void) const
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_FONTS, NULL, 0, szPath))) 
 		{
 		cpcc_string result(szPath);
-		cpccPathHelper ph;
-		ph.addTrailingPathDelimiter(result);	
+		cpccPathHelper::addTrailingPathDelimiter(result);
 		return result;
 		}
 	std::cerr << "Error #4824 in cpccFileSystemMini::getFolder_Fonts\n";
@@ -277,9 +273,8 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
     
 	if (folderExists(destFileOrFolder))
 		{
-		cpccPathHelper ph;
-		ph.addTrailingPathDelimiter(destFile);
-		destFile = destFile + ph.extractFilename(sourceFile);
+		cpccPathHelper::addTrailingPathDelimiter(destFile);
+		destFile = destFile + cpccPathHelper::extractFilename(sourceFile);
 		}
 
 	return copyFileToaFile(sourceFile, destFile.c_str());
@@ -316,7 +311,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 
 
 
-const bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername) const
+bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername) 
 {
 	if (folderExists(aFoldername))
 		return true;
@@ -352,7 +347,7 @@ const bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername) const
 }
 
 
-const bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
+bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) 
 {
 #ifdef _WIN32
 	DWORD attrib = GetFileAttributes(aFoldername);
@@ -370,7 +365,7 @@ const bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) const
 }
 
 
-const bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
+bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
 {
 #ifdef _WIN32
 	struct _stat fileinfo;
@@ -403,7 +398,7 @@ const bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename) const
 }
 
 
-const bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
+bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 {
 	/*
 	If the file referenced by dest_file exists prior to calling rename(), 
@@ -546,21 +541,20 @@ bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 }
 
 
-const cpcc_string cpccFileSystemMini::getAppFilename(void)
+cpcc_string cpccFileSystemMini::getAppFilename(void)
 {
 	// remove the path part and leave only the filename
-	cpccPathHelper ph;
-	return ph.extractFilename(getAppFullPathFilename());
+	return cpccPathHelper::extractFilename(getAppFullPathFilename());
 }
 
 
-const cpcc_string cpccFileSystemMini::getAppFullPath(void)
-{	cpccPathHelper ph;
-	return ph.getParentFolderOf(getAppFullPathFilename());
+cpcc_string cpccFileSystemMini::getAppFullPath(void)
+{
+	return cpccPathHelper::getParentFolderOf(getAppFullPathFilename());
 }
 
 
-const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
+cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 {
 
 #ifdef _WIN32
@@ -596,19 +590,18 @@ const cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 
 
 #ifdef __APPLE__
-const cpcc_string cpccFileSystemMini::getAppBundlePath(void)
+cpcc_string cpccFileSystemMini::getAppBundlePath(void)
 {
-    cpccPathHelper ph;
-    cpcc_string parentPath(ph.getParentFolderOf(getAppFullPath()));
-    cpcc_string parentParentPath(ph.getParentFolderOf(parentPath));
+    cpcc_string parentPath(cpccPathHelper::getParentFolderOf(getAppFullPath()));
+    cpcc_string parentParentPath(cpccPathHelper::getParentFolderOf(parentPath));
     
-    ph.removeTrailingPathDelimiter(parentParentPath);
+    cpccPathHelper::removeTrailingPathDelimiter(parentParentPath);
     return parentParentPath;
 }
 #endif
 
 
-const cpcc_string cpccFileSystemMini::getFolder_Desktop(void) const
+cpcc_string cpccFileSystemMini::getFolder_Desktop(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -628,7 +621,7 @@ const cpcc_string cpccFileSystemMini::getFolder_Desktop(void) const
 }
 
 
-time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename) const
+time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename) 
 {	// http://linux.die.net/man/2/stat
 
 	if (!fileExists(aFilename) && !folderExists(aFilename))
@@ -656,9 +649,17 @@ cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 {
 	switch (aFolderID)
 	{ 
-	case /* standardFolderIds:: */ CommonAppData:
-		assign(fs.getFolder_CommonAppData());
+	case sfCommonAppData:
+		assign(cpccFileSystemMini::getFolder_CommonAppData());
 		break;
+
+	case sfUsersTemp:
+		assign(cpccFileSystemMini::getFolder_UsersTemp());
+		break;
+		
+	case sfUserData:
+		assign(cpccFileSystemMini::getFolder_UserData());
+		break;	
 
 	default:	assign("");
 	}
@@ -676,12 +677,11 @@ void cpccFileSystemMini::selfTest(void)
 #ifndef NDEBUG
     std::cout << "cpccFileSystemMini::SelfTest starting\n";
 
-	
 	cpccFileSystemMiniEx	fs;
-	cpccPathHelper			ph;		
+
 
 	// "#5349a: path delimiter"
-	cpcc_char pDelimiter = ph.getPreferredPathDelimiter();
+	cpcc_char pDelimiter = cpccPathHelper::getPreferredPathDelimiter();
 	assert(((pDelimiter=='/') || (pDelimiter=='\\') ) );
 		
 	//std::cout << "cpccFileSystemMini::SelfTest point1\n";
@@ -692,7 +692,7 @@ void cpccFileSystemMini::selfTest(void)
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point2\n";
 	
-	ph.addTrailingPathDelimiter(tmpFolder);
+	cpccPathHelper::addTrailingPathDelimiter(tmpFolder);
 				
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");

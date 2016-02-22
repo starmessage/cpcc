@@ -164,21 +164,19 @@ public:
 		warning("Warning>\t", aFilename, !CreateFileOnWarning, echoToCOUT),
 		info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
 	{
-		cpccFileSystemMini fs;
-    
 		// empty the file
-		if (fs.fileExists(aFilename))
-			fs.createEmptyFile(aFilename);
+		if (cpccFileSystemMini::fileExists(aFilename))
+			cpccFileSystemMini::createEmptyFile(aFilename);
         
         info.add(cpccLogOpeningStamp);
         consolePut( "Log filename:" << aFilename );
         info.addf("Log filename:%s", aFilename);
-        if (!fs.fileExists(aFilename))
+        if (!cpccFileSystemMini::fileExists(aFilename))
             consolePut( "Disabling log becase file does not exist at:" << aFilename );
         
         info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
 		info.add("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary");
-        info.add(fs.getFileSystemReport().c_str());
+        info.add(cpccFileSystemMini::getFileSystemReport().c_str());
 	}
 	
     
@@ -206,14 +204,11 @@ public:
 	cpccLogAutoFilename():	cpccLog(getAutoFilename().c_str())
 	{  }
     
-	static cpcc_string getAutoFilename(void)
+	static const cpcc_string &getAutoFilename(void)
 	{
-		cpccFileSystemMini	fs;
-		cpccPathHelper		ph;
-		static cpcc_string result;
-		result = fs.getFolder_UsersTemp();
-		ph.addTrailingPathDelimiter(result);
-		result.append(fs.getAppFilename() + _T(".cpccLog.txt"));
+		static cpccPathString result(cpccPathString::sfUsersTemp);
+		result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
+		result.append(_T(".cpccLog.txt"));
 		return result;
 	}
     

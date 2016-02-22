@@ -42,28 +42,26 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 {
 	// std::cout << "cpccSettings constructor\n";
 	
-	// setup the filename
-	cpccFileSystemMiniEx	fs; 
-	cpccPathHelper			ph;
-	
 	assert(cpcc_strlen(aCompanyName)>0 && "#5351: cpccSettings: blank company name");
 	assert(cpcc_strlen(aSoftwareName)>0 && "#5351: cpccSettings: blank Software name");
 
-	cpcc_string settingsRootFolder = aScope==scopeAllUsers? fs.getFolder_CommonAppData(): fs.getFolder_UserData();
-	//std::cout << "settingsRootFolder:" << settingsRootFolder << "\n";
-	assert(fs.folderExists(settingsRootFolder) && "#5381: settings folder does not exist");
+	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccPathString::sfCommonAppData : cpccPathString::sfUserData);
+
+	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && "#5381: settings folder does not exist");
 	
 	// problem with writing:
 	// http://stackoverflow.com/questions/6993527/c-mac-os-x-cannot-write-to-library-application-support-appname
 	
-	cpcc_string companySubFolder(aCompanyName);
+	_settingsFilename.appendPathSegment(aCompanyName);
+
+	//cpcc_string companySubFolder(aCompanyName);
+	if (! _settingsFilename.pathExists())
+		if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
+			std::cerr << "During cpccSettings constructor could not create folder:" << _settingsFilename << "\n";
 	
-	mFilename = ph.pathCat(settingsRootFolder.c_str(), companySubFolder.c_str());
-	if (!fs.createFolder(mFilename))
-		std::cerr << "During cpccSettings constructor could not create folder:" << mFilename << "\n";
-	
-	mFilename = ph.pathCat(mFilename.c_str(), aSoftwareName);	
-	mFilename.append(".ini");
+	_settingsFilename.appendPathSegment(aSoftwareName);
+	_settingsFilename.append(".ini");
+	mFilename = _settingsFilename;
 	std::cout << "cpccSettings constructor: filename:" << mFilename << "\n";
 	
 	if (!load())
@@ -83,8 +81,7 @@ cpccSettings::~cpccSettings()
 
 bool cpccSettings::load(void)
 {
-	cpccFileSystemMiniEx	fs; 
-	if (!fs.fileExists(mFilename))
+	if (!cpccFileSystemMini::fileExists(mFilename))
 		return true;
 	
 	
@@ -182,7 +179,7 @@ void cpccSettings::resumeInstantSaving(void)
 void cpccSettings::selfTest(void) 
 {
 	std::cout << "cpccSettings::SelfTest starting\n";
-	cpccFileSystemMiniEx fs;
+	
 	double pi = 3.14159265359;
     float  bigFloat = 1.3456798e16f;
 	const char * tmpTestString = "abc-καλημέρα=good\x0A\x0Dmorning to all.";
@@ -192,7 +189,7 @@ void cpccSettings::selfTest(void)
 		cpccSettings settingsApp("testCompanyName","testSoftwareName", scopeAllUsers);
 
 		settingsUser.write("testStringKeyA", "testStringValueA");
-		assert(fs.fileExists(settingsUser.getFilename()) && "SelfTest #7711a: file does not exist");
+		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename()) && "SelfTest #7711a: file does not exist");
 
 		settingsUser.write("testStringKeyB", "tmpValue");
 		settingsUser.write("testStringKeyB", "B");
