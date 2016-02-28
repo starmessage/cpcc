@@ -68,7 +68,7 @@ public:		// functions
 
 	
 
-    void	pushCss(cpccCSS *aCssPtr)
+    void	pushCss(cpccCSS *aCssPtr)  override
 	{
 		if (!aCssPtr)
 			return;
@@ -99,7 +99,7 @@ public:		// functions
 	}
 
 
-	void	popCss(cpccCSS* aCssPtr)
+	void	popCss(cpccCSS* aCssPtr) override
 	{
 		if (!aCssPtr)
 			return;
@@ -131,7 +131,7 @@ public:		// functions
 	}
     
 	
-	cpccColor	getPixel(const int x, const int y)
+	cpccColor	getPixel(const int x, const int y) override
 	{
 		if (x<0 || x>= (int) getWidth()) 
 			return cpccBlack;
@@ -143,7 +143,7 @@ public:		// functions
 	}
 
 
-	void setPixel(int x, int y, const cpccColor &aColor)
+	void setPixel(int x, int y, const cpccColor &aColor) override
 	{
 		if (x<0 || x>= (int) getWidth()) 
 			return;

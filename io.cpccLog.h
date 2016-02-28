@@ -82,6 +82,14 @@ cpccLogSink			&infoLog(void);
 cpccLogSink			&warningLog(void);
 cpccLogSink			&errorLog(void);
 
+#ifdef NDEBUG
+    //#define COMMENT SLASH(/)
+    //#define SLASH(s) /##s
+	//#define debugLog()	COMMENT
+    #define debugLog()	if (false) infoLog()
+#else
+	#define debugLog()	infoLog()
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 // this class is used to automatically log creation/desctuction messages

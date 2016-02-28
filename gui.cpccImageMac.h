@@ -186,7 +186,7 @@ public: /// functions
 	virtual const int getWidth(void) const	override {   return bmpPtr ? bmpPtr.pixelsWide : 0;  }
 	virtual const int getHeight(void) const	override {	return bmpPtr ? bmpPtr.pixelsHigh : 0;  }
     
-    virtual void initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor)
+    virtual void initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor) override
     {
         const bool hasAlpha = true;
         
@@ -222,7 +222,7 @@ public: /// functions
     
 public:
     
-    virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
+    virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) override
     {
         NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(getWidth(), getHeight())] autorelease];
         //[tmpImageWithText setFlipped:YES];
@@ -248,7 +248,7 @@ public:
     }
     
 
-    const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
+    const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const override
     {
         // todo: lockFocus and unlockFocus seems to take too much CPU.
         // Can it remain locked with some smart monitoring if it has not changed?
@@ -318,6 +318,8 @@ protected: // functions
          
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
     {
+        // logFunctionLife _tmpLog((char *)"cpccImageMacBmpRep.resizeTo_impl()");
+        
         NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
         
         [imageOfNewSize lockFocus];

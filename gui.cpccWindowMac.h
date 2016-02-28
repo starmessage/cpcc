@@ -78,7 +78,7 @@ protected:		// ctors. Protected because this class should not be created alone, 
     
 public:  // functions
     
-    void		getTextSize(const cpcc_char *txt, int *width, int *height)
+    void		getTextSize(const cpcc_char *txt, int *width, int *height) override
     {
         cpccTextParams  params;
 
@@ -91,24 +91,24 @@ public:  // functions
 	
     
 	void 		flush() override { };
-	int 		getHeight(void) const	{ return m_windowRect.size.height; }
-	int 		getWidth(void) 	const	{ return m_windowRect.size.width; }
-    int         getTop(void)    const	{ return m_windowRect.origin.y; }
-    int         getLeft(void)   const	{ return m_windowRect.origin.x; }
+	int 		getHeight(void) const override	{ return m_windowRect.size.height; }
+	int 		getWidth(void) 	const override	{ return m_windowRect.size.width; }
+    int         getTop(void)    const override	{ return m_windowRect.origin.y; }
+    int         getLeft(void)   const override	{ return m_windowRect.origin.x; }
     void        lockFocus(void) override { [m_windowHandle lockFocus]; }
     void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     
-	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor)
+	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) override
 	{
         dtool.fillRectWithColor(aRect.asNSRect(), aColor);
 	}
 	
     
-    virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
+    virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) override
     { dtool.fillEllipseWithColor(left, top, right, bottom, c); }
 
 	
-    void 		fillWithColor(const cpccColor& aColor)	{ dtool.fillRectWithColor(m_windowRect, aColor); }
+    void 		fillWithColor(const cpccColor& aColor) override	{ dtool.fillRectWithColor(m_windowRect, aColor); }
     
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor

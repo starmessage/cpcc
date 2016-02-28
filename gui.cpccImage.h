@@ -81,7 +81,7 @@ public: // functions
 	}
 	
 
-	virtual bool		initWithFile(const cpcc_char* afullpathfilename, const bool hasTransparentCorner=false)
+	virtual bool		initWithFile(const cpcc_char* afullpathfilename, const bool hasTransparentCorner=false) override
 	{
 		if (!afullpathfilename)
 		{

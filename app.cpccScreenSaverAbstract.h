@@ -105,8 +105,8 @@ public:	// other functions
 	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
-    virtual bool    getPreserveDeskopContents() const     { return m_PreserveDeskopContents; }
-    virtual void    setPreserveDeskopContents(const bool a) { m_PreserveDeskopContents = a; }
+    virtual bool    getPreserveDeskopContents() const   override   { return m_PreserveDeskopContents; }
+    virtual void    setPreserveDeskopContents(const bool a)  override { m_PreserveDeskopContents = a; }
 
 };
 

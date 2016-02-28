@@ -50,7 +50,7 @@ public:		// functions
     }
     
     
-	virtual void 		fillRectWithColor(const NSRect &r, const cpccColor& aColor)
+	virtual void fillRectWithColor(const NSRect &r, const cpccColor& aColor) override
 	{
         if (!m_imgRep)
 			return;
