@@ -166,7 +166,10 @@ void cpccOS::keepAwakeTrigger(void)
 const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
 {
 #ifdef _WIN32
-	return false;
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373208%28v=vs.85%29.aspx
+	return SetThreadExecutionState( ES_AWAYMODE_REQUIRED | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED) != NULL;
+	
+
 #elif __APPLE__
     //  https://developer.apple.com/library/mac/qa/qa1340/_index.html
     //  kIOPMAssertionTypeNoDisplaySleep prevents display sleep,

@@ -148,6 +148,12 @@ void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
 void		cpccSettings::write(const cpcc_char *aKey, const bool aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
 void		cpccSettings::write(const cpcc_char *aKey, const int aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
 void		cpccSettings::write(const cpcc_char *aKey, const long int aValue)   {   write(aKey, stringConversions::toStr(aValue)); }
+
+	#ifndef __APPLE__
+	// in OSX, time_t is defined as long, so there is a ready function for it
+	// in Windows time_t is _int64
+	void	cpccSettings::write(const cpcc_char *aKey, const time_t aValue) { write(aKey, stringConversions::toStr(aValue)); }
+	#endif
 #endif
 
 template <typename T>

@@ -79,6 +79,12 @@ public:		// functions
     
 #define BYPASS_RELEASE_ERROR
 #ifdef  BYPASS_RELEASE_ERROR
+
+#ifndef __APPLE__
+	// in OSX, time_t is defined as long, so there is a ready function for it
+	// in Windows time_t is _int64
+	void		write(const cpcc_char *aKey, const time_t aValue);
+#endif
     void		write(const cpcc_char *aKey, const bool aValue);
     void		write(const cpcc_char *aKey, const int aValue);
     void		write(const cpcc_char *aKey, const long int aValue);
@@ -124,6 +130,7 @@ public:
 	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
 	inline const T operator[](const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
 
+	// void operator=(T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); } // try a non-const version
 	void operator=(const T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); }
 	//void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }
 	void writeAtIndex(const int index, const T aValue) { mIniPtr.write(createIndexedKey(index).c_str(), aValue); }

@@ -204,22 +204,13 @@ public:
 
 #ifndef __APPLE__
     // in OSX, time_t is defined as long, so there is a ready function for it
-	static cpcc_string toStr(const long int value)
-	{
-		std::ostringstream ss; ss << value; return ss.str();
-	}
-#endif
-	
-	static cpcc_string toStr(const time_t value)
-	{
-		std::ostringstream ss; ss << value; return ss.str();
-	}
+	// in Windows time_t is _int64
+	static cpcc_string toStr(const time_t value) { 	std::ostringstream ss; ss << value; return ss.str(); }
 
-	
-	static cpcc_string toStr(const int value)
-	{
-		std::ostringstream  ss; ss << value; return ss.str();
-	}
+#endif
+
+	static cpcc_string toStr(const long int value)	{	std::ostringstream ss; ss << value; return ss.str();	}
+	static cpcc_string toStr(const int value) { std::ostringstream  ss; ss << value; return ss.str(); }
 
 	static cpcc_string toStr(const float value)
 	{

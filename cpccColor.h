@@ -169,7 +169,7 @@ public:
     }
 
 
-	cpccColor32 operator *(const float f)
+	cpccColor32 operator *(const float f) const
 	{
 		cpccColor32 c(*this);
 		c.amplifyComponents(f, f, f);

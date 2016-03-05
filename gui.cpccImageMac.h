@@ -362,6 +362,7 @@ protected: // functions
 		*/
     }
     
+    
     inline cpccColor getPixel(const int x, const int y) const override
     {
         return m_dtool.getPixel(x,y);
