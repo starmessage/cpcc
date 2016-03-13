@@ -1,8 +1,9 @@
 ﻿
 /*  *****************************************
  *  File:		core.cpccErrorCollector.h
- *	Purpose:	Portable (cross-platform), light-weight, library
-  *	*****************************************
+ *	Purpose:	Portable (cross-platform), light-weight, class
+ *				to help with the error reporting from inside your classes
+ *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2016 StarMessage software.
  *  License: 	Free for opensource projects.

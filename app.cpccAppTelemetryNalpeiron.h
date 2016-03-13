@@ -49,7 +49,7 @@ public:	// functions
 	NalpLibOpen_t			NalpLibOpen_ptr = NULL; 
 	NalpLibClose_t			NalpLibClose_ptr = NULL;	// Shuts down the library.  Returns 0 for success and a negative number for an error.
 	NSAApStart_t			NSAApStart_ptr= NULL;
-	NSAApStop_t				NSAApStop_ptr = NULL;
+	NSAApStop_t				NSAAppStop_ptr = NULL;
 	NSASetPrivacy_t			NSASetPrivacy_ptr = NULL;
 	NSAFree_t				NSAFree_ptr = NULL;
 
@@ -64,14 +64,13 @@ public:
 			return;
 
 		int ret;
-		
 
 		// Returns 0 for success and a negative number for an error.  
 		if (!NalpLibOpen_ptr) return;
 		ret = NalpLibOpen_ptr(xmlConfiguration);
 		if (ret!=0)
 		{
-			errorDump << "#6822: error NalpLibOpen_ptr()" << std::endl;
+			errorDump << "#6822a: error NalpLibOpen_ptr()" << std::endl;
 			reportErrorMsg(ret);
 			return;
 		}
@@ -88,34 +87,58 @@ public:
 				If they match, 0 is returned
 				*/
 			{
-				errorDump << "#5934: error validating nap library" << std::endl;
+				errorDump << "#6822b: error validating nap library" << std::endl;
 				reportErrorMsg(ret);
 				return;
 			}
 		
 		// http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
-		if (!NSASetPrivacy_ptr) return;
-		NSASetPrivacy_ptr(1);
-
-
-		if (!NSAApStart_ptr) return;
-		ret = NSAApStart_ptr((char *)"my custom data", &transIDA);
-		// Returns 0 on success and a negative number for an error.
-		if (ret != 0)
-		{	// I get the error: Can't complete do to privacy set
-			errorDump << "#6592: error calling NSAApStart_ptr()" << std::endl;
-			reportErrorMsg(ret);
-			return;
+		if (NSASetPrivacy_ptr)
+		{
+			ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
+			if (ret<0)
+			{ 
+				errorDump << "#6822c: error calling NSAApStart_ptr()" << std::endl;
+				reportErrorMsg(ret);
+			}
 		}
+
+		if (NSAApStart_ptr)
+        {
+            ret = NSAApStart_ptr((char *)"my custom data", &transIDA);
+            // Returns 0 on success and a negative number for an error.
+            if (ret != 0)
+            {	// if I do not call NSASetPrivacy_ptr(0) before, I get the error: Can't complete do to privacy set
+                errorDump << "#6822c: error calling NSAApStart_ptr()" << std::endl;
+                reportErrorMsg(ret);
+                return;
+            }
+        }
 	}
 
 	~dynLib_nalpeiron(void) override
 	{
-		if (NSAApStop_ptr)
-			NSAApStop_ptr((const char *)getLibHandle(), &transIDA);
+		int ret;
+
+		if (NSAAppStop_ptr)
+		{ 
+			ret = NSAAppStop_ptr((const char *)getLibHandle(), &transIDA); // Records shutdown of your application. Returns 0 on success and a negative number for an error.
+			if (ret != 0)
+			{
+				errorDump << "#6822d: error calling NalpLibClose_ptr()" << std::endl;
+				reportErrorMsg(ret);
+			}
+		}
 
 		if (NalpLibClose_ptr)
-			NalpLibClose_ptr();
+		{ 
+			ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
+			if (ret != 0)
+			{
+				errorDump << "#6822e: error calling NalpLibClose_ptr()" << std::endl;
+				reportErrorMsg(ret);
+			}
+		}
 	}
 
 
@@ -147,7 +170,7 @@ public:
 			errorsFound = true;
 		}
 
-		if (!(NSAApStop_ptr = (NSAApStop_t)getFunction("NSAAppStop")))
+		if (!(NSAAppStop_ptr = (NSAApStop_t)getFunction("NSAAppStop")))
 		{
 			errorDump << "error linking to NSAAppStop()\n";
 			errorsFound = true;
@@ -171,7 +194,7 @@ public:
 			errorsFound = true;
 		}
 
-        return errorsFound;
+        return !errorsFound;
 	}
 
 private:
@@ -201,20 +224,28 @@ private:
 };
 
 
-#ifdef _WIN32
-    #define napLibFilename  "StarMessage-ShaferFilechck.DLL"
-#elif defined(__APPLE__)
-    #define napLibFilename  "ShaferFilechck.dylib"
-#endif
+
 
 
 class cpccAppTelemetryNalpeiron
 {
+public:
+    static const char *getDefaultLibFilename(void)
+    {
+    #ifdef _WIN32
+        return  "StarMessage-ShaferFilechck.DLL";
+    #elif defined(__APPLE__)
+        return  "ShaferFilechck.dylib";
+    #endif
+    }
+    
+    
 private:
     dynLib_nalpeiron    *m_dynLibPtr;
 
 public:
-	cpccAppTelemetryNalpeiron(const char*  customerID,
+	cpccAppTelemetryNalpeiron(  const char* nalDynLibraryFilename,
+                                const char* customerID,
 								const char* productID,
 								const char* productVersion,
 								const char* productBuildNumber,
@@ -233,7 +264,7 @@ public:
 		tmpString = productID;
 		long int pid = atoi(tmpString.c_str());
 		*/
-        m_dynLibPtr = new dynLib_nalpeiron(napLibFilename, customerID, productID, parameterTemplate);
+        m_dynLibPtr = new dynLib_nalpeiron(nalDynLibraryFilename, customerID, productID, parameterTemplate);
     }
 	
 	

@@ -63,7 +63,7 @@ public: // screensaver interface functions: calls that the operating system disp
     virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
 
 #endif
-
+    virtual void setContainerFolder(const char *aFolder)=0;
 	virtual void animateOneFrame(const float dt_inSec)=0;
 	virtual void drawOneFrame(void)=0;
 	virtual void flushOneFrame(void)=0;

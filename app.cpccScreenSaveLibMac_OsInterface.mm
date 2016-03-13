@@ -30,6 +30,10 @@
 #define     drawInDrawRect
 #define     config_FramesPerSec 25.0  // 25 frames/sec
 
+
+
+
+
 /*
  Screensavers need to be compiled 32/64-bit with garbage collection supported or required 
  in the 64-bit architecture if they are to work on 64-bit systems. 
@@ -245,10 +249,17 @@ public:
     ssPtr = cpccScreenSaverFactory::createScreenSaver();
 	assert(ssPtr && "Error 4567: ssPtr = nil");
 	
+    NSBundle *saverBundle = [NSBundle bundleForClass:[self class]];
+    NSString* pBundlePath = [saverBundle bundlePath];
+    infoLog().addf(".saver container folder:%s", [pBundlePath UTF8String]);
+    ssPtr->setContainerFolder([pBundlePath UTF8String]);
+    
 	NSView * windowHandle = self;
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
+    
+    
 }
 
 
@@ -280,6 +291,9 @@ public:
     self = [super initWithFrame:frame isPreview:isPreview];
     assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
     
+    
+	
+		
     /*
     NSRect windowframe = frame;
     
@@ -325,6 +339,8 @@ public:
     // 05-01-2016: moved into startAnimation()
     // [self util_createAndInitScreensaverWithWindowHandle];
     [self util_createAndInitScreensaverWithWindowHandle];
+
+    
     return self;
 }
 

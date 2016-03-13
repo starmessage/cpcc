@@ -1,7 +1,8 @@
 /*  *****************************************
  *  File:		core.cpccLinkLibrary.h
  *  Version:	see function getClassVersion()
- *	Purpose:	Portable (cross-platform), light-weight, file system library
+ *	Purpose:	Portable (cross-platform), light-weight class to help with the 
+ *				dynamic library loading and linking of functions (.DLL, .dylib)
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2013 StarMessage software.

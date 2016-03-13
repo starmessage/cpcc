@@ -15,7 +15,7 @@
  */
 #pragma once
 
-
+#include <string>
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
 #include "core.cpccOS.h"
@@ -34,7 +34,8 @@ protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				m_PreserveDeskopContents;
-    
+    std::string			m_containerFolder;
+	
 protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
@@ -73,8 +74,13 @@ protected:  // abstract functions for the ancenstor to implement
 	//virtual void animateOneFrame(const float dt_inSec) override = 0;
 
     
-protected: // screensaver standard functions	
-
+protected: // screensaver standard functions
+    
+    virtual void setContainerFolder(const char *aFolder) override
+    {
+        m_containerFolder = aFolder;
+    }
+    
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
@@ -90,7 +96,7 @@ protected: // screensaver standard functions
 		for (int i = 0; i < n; ++i)
 			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 
-
+		infoLog().addf("Screensaver container folder:%s", m_containerFolder.c_str());
 		// mSecondsTimer.resetTimer();
 		m_windowIsOwned = true;
 	}
