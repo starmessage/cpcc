@@ -18,21 +18,29 @@
 #include "core.cpccLinkLibrary.h"
 
 
-// API
-// http://docs.nalpeiron.com/pages/viewpage.action?pageId=524314
 
-class dynLib_nalpeiron: public cpccLinkedLibrary
+// loads/unloads the .dylib or the dll and and links the functions to functionPointers
+class LinkedLibrary_nalpeiron: public cpccLinkedLibrary
 {
-private:
-	unsigned int	transIDA = 0;		//application
-
+public:
+    
+    static const char *getDefaultLibFilename(void)
+    {
+    #ifdef _WIN32
+        return  "StarMessage-ShaferFilechck.DLL";
+    #elif defined(__APPLE__)
+        return  "ShaferFilechck.dylib";
+    #endif
+    }
+    
+    
 public:	// functions
 	
 	typedef int(*NalpGetErrorMsg_t)(int nalpErrno, char **errMsg);
 	typedef	int(*NSAValidateLibrary_t)(uint32_t custNum, uint32_t prodNum);
 
 	//Routine to inform Nalpeiron server that application has started
-	typedef int(*NSAApStart_t)
+	typedef int(*NSAAppStart_t)
 		(const char *nsaClientData, uint32_t *transID);
 
 	//Routine to inform Nalpeiron server that application has ended
@@ -43,105 +51,38 @@ public:	// functions
 	typedef int(*NalpLibClose_t)(void);
 	typedef int(*NSASetPrivacy_t)(unsigned short nsaPriv);
 	typedef int(*NSAFree_t)(void *memptr);
+	
+	typedef int(*NSATestConnection_t) (const char *nsaClientData, uint32_t *transID); //Checks server connectivity
+    
+    //Send system information from end user's computer to Nalpeiron
+    typedef int (*NSASysInfo_t)
+            (   const char *username, const char *applang, const char *version,
+                const char *edition, const char *build, const char *licenseStat,
+                const char *nsaClientData, uint32_t *transID);
+    
 
 	NalpGetErrorMsg_t		NalpGetErrorMsg_ptr = NULL;
 	NSAValidateLibrary_t	NSAValidateLibrary_ptr = NULL;
 	NalpLibOpen_t			NalpLibOpen_ptr = NULL; 
-	NalpLibClose_t			NalpLibClose_ptr = NULL;	// Shuts down the library.  Returns 0 for success and a negative number for an error.
-	NSAApStart_t			NSAApStart_ptr= NULL;
+	NalpLibClose_t			NalpLibClose_ptr = NULL;	// Shuts down the library. Returns 0 for success and a negative number for an error.
+	NSAAppStart_t			NSAAppStart_ptr= NULL;
 	NSAApStop_t				NSAAppStop_ptr = NULL;
 	NSASetPrivacy_t			NSASetPrivacy_ptr = NULL;
 	NSAFree_t				NSAFree_ptr = NULL;
-
+	NSATestConnection_t		NSATestConnection_ptr = NULL;
+    NSASysInfo_t            NSASysInfo_ptr = NULL;
+    
 public:
     
-	dynLib_nalpeiron(const char *aLibraryfilename, const char *aCustomerID, const char *aProductID, const char *xmlConfiguration) : cpccLinkedLibrary(aLibraryfilename)
+	LinkedLibrary_nalpeiron(const char *aLibraryfilename) : cpccLinkedLibrary(aLibraryfilename)
 	{
-		if (!isLoaded())
-			return;
-		
-		if (!linkFunctions())
-			return;
-
-		int ret;
-
-		// Returns 0 for success and a negative number for an error.  
-		if (!NalpLibOpen_ptr) return;
-		ret = NalpLibOpen_ptr(xmlConfiguration);
-		if (ret!=0)
-		{
-			errorDump << "#6822a: error NalpLibOpen_ptr()" << std::endl;
-			reportErrorMsg(ret);
-			return;
-		}
-
-		int cid = (uint32_t)strtoul(aCustomerID, NULL, 10);
-		int pid = (long)strtoul(aProductID, NULL, 10);
-		if (NSAValidateLibrary_ptr)
-			if ((ret = NSAValidateLibrary_ptr(cid, pid)) != 0 )
-				/*
-				Must be called after NalpLibOpen()
-				int NSAValidateLibrary(uint32_t customerID, uint32_t productID)
-				Verifies that the shared library you are accessing is the library you stamped.
-				It does this by checking the customerID and productID sent in against the stamped values.
-				If they match, 0 is returned
-				*/
-			{
-				errorDump << "#6822b: error validating nap library" << std::endl;
-				reportErrorMsg(ret);
-				return;
-			}
-		
-		// http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
-		if (NSASetPrivacy_ptr)
-		{
-			ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
-			if (ret<0)
-			{ 
-				errorDump << "#6822c: error calling NSAApStart_ptr()" << std::endl;
-				reportErrorMsg(ret);
-			}
-		}
-
-		if (NSAApStart_ptr)
-        {
-            ret = NSAApStart_ptr((char *)"my custom data", &transIDA);
-            // Returns 0 on success and a negative number for an error.
-            if (ret != 0)
-            {	// if I do not call NSASetPrivacy_ptr(0) before, I get the error: Can't complete do to privacy set
-                errorDump << "#6822c: error calling NSAApStart_ptr()" << std::endl;
-                reportErrorMsg(ret);
-                return;
-            }
-        }
+		if (isLoaded())
+			linkFunctions();
 	}
+    
 
-	~dynLib_nalpeiron(void) override
-	{
-		int ret;
-
-		if (NSAAppStop_ptr)
-		{ 
-			ret = NSAAppStop_ptr((const char *)getLibHandle(), &transIDA); // Records shutdown of your application. Returns 0 on success and a negative number for an error.
-			if (ret != 0)
-			{
-				errorDump << "#6822d: error calling NalpLibClose_ptr()" << std::endl;
-				reportErrorMsg(ret);
-			}
-		}
-
-		if (NalpLibClose_ptr)
-		{ 
-			ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
-			if (ret != 0)
-			{
-				errorDump << "#6822e: error calling NalpLibClose_ptr()" << std::endl;
-				reportErrorMsg(ret);
-			}
-		}
-	}
-
-
+private:
+    
 	bool	linkFunctions(void)
 	{
 		bool errorsFound = false;
@@ -164,7 +105,7 @@ public:
 			errorsFound = true;
 		}
 
-		if (!(NSAApStart_ptr = (NSAApStart_t)getFunction("NSAAppStart")))
+		if (!(NSAAppStart_ptr = (NSAAppStart_t)getFunction("NSAAppStart")))
 		{
 			errorDump << "error linking to NSAAppStart()\n";
 			errorsFound = true;
@@ -194,13 +135,26 @@ public:
 			errorsFound = true;
 		}
 
+        if (!(NSATestConnection_ptr = (NSATestConnection_t)getFunction("NSATestConnection")))
+        {
+            errorDump << "error linking to NSATestConnection()\n";
+            errorsFound = true;
+        }
+        
+        if (!(NSASysInfo_ptr = (NSASysInfo_t)getFunction("NSASysInfo")))
+        {
+            errorDump << "error linking to NSASysInfo()\n";
+            errorsFound = true;
+        }
+        
         return !errorsFound;
 	}
 
-private:
-
-	void	reportErrorMsg(const int errorCode)
+protected: 
+	void	reportErrorMsg(const char * myText, const int errorCode)
 	{
+		errorDump << myText << "\nNalp ErrorCode:" << errorCode ;
+
 		/*
 		int NalpGetErrorMsg(int nalpErrorNo, char **errorMsg)
 		Get a descriptive string for Nalpeiron error codes.
@@ -209,13 +163,13 @@ private:
 		*/
 		if (!NalpGetErrorMsg_ptr)
 		{
-			errorDump << "NalpGetErrorMsg_ptr is NULL\n";
+			errorDump << "\nNalpGetErrorMsg_ptr is NULL\n";
 			return;
 		}
 			
 		char *msg;
 		NalpGetErrorMsg_ptr(errorCode, &msg);
-		errorDump << msg << std::endl;
+		errorDump << ":" << msg << std::endl;
 
 		if (NSAFree_ptr)
 			NSAFree_ptr(msg);
@@ -225,61 +179,189 @@ private:
 
 
 
+// API old:	http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
+// API:		http://docs.nalpeiron.com/pages/viewpage.action?pageId=524314
+/*
+	ToDo: include the functions logging the app features
+	int NSAFeatureStart( char *username, char *featureCode)	
+	Records start of use of featureCode by username. Returns 0 on success and a negative number for an error. 
+	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
 
-
-class cpccAppTelemetryNalpeiron
+	int NSAFeatureStop( char *username, char *featureCode)	
+	Records end of use of featureCode by username. Returns 0 on success and a negative number for an error. 
+	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
+*/
+class cpccAppTelemetryNalpeiron: public LinkedLibrary_nalpeiron
 {
-public:
-    static const char *getDefaultLibFilename(void)
-    {
-    #ifdef _WIN32
-        return  "StarMessage-ShaferFilechck.DLL";
-    #elif defined(__APPLE__)
-        return  "ShaferFilechck.dylib";
-    #endif
-    }
-    
-    
 private:
-    dynLib_nalpeiron    *m_dynLibPtr;
+    uint32_t		m_transID = 0;	// To retrieve a transaction ID from any function, set transID = 0 and call the function. 
+									// Upon return, transID will be set with a random number that will be passed to the Nalpeiron server to identify the transaction.  
+									// Send this value into any functions that are to be grouped together.
+	
+    bool            m_appWasStarted = false;
+    bool            m_libWasOpened = false;
+	enum			eNalConfig { config_DoLibValidation=true, config_DoConnectionTest=true	};
 
+	
+	bool openLib(void)
+	{
+		// logTimeCountrer _tmpLog("NalpLibOpen()");
+		
+		if (NalpLibOpen_ptr)
+		{
+			const char * xmlConfiguration =
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+				"<SHAFERXMLParams>"
+				"<NSAEnabled>1</NSAEnabled>"
+				"<NSLEnabled>0</NSLEnabled>"
+				"<LogLevel>1</LogLevel>"
+				"<SecurityValue>0</SecurityValue>"
+				"</SHAFERXMLParams>";
+			
+			int ret = NalpLibOpen_ptr(xmlConfiguration); // Returns 0 for success and a negative number for an error.
+			if (ret == 0) 
+				return true;
+			reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
+		}
+		return false;
+	}
+	
+	bool libClose(void)
+	{
+		if (!NalpLibClose_ptr)
+			return false;
+		
+		int ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
+        if (ret == 0)
+			return true;
+        reportErrorMsg("#6822e: error calling NalpLibClose_ptr()", ret);
+		return false;
+	}
+	
+	
+	bool appStart(const char *nsaClientData, uint32_t *transID)
+	{
+		if (NSAAppStart_ptr)
+        {
+			// Returns 0 on success and a negative number for an error.
+            // if I do not call NSASetPrivacy_ptr(0) before, I get the error: Can't complete do to privacy set
+            int ret = NSAAppStart_ptr((char *)"my custom data", &m_transID);
+            if (ret == 0)
+				return true;
+            reportErrorMsg("#6822c: error calling NSAAppStart_ptr()",ret);
+        }
+		return false;
+	}
+	
+	bool appStop(const char *nsaClientData, uint32_t *transID)
+	{
+		if (NSAAppStop_ptr)
+        {
+			// Records shutdown of your application. Returns 0 on success and a negative number for an error.
+            int ret = NSAAppStop_ptr(NULL, &m_transID); 
+            if (ret == 0) 
+				return true;
+            reportErrorMsg("#6822d: error calling NalpLibClose_ptr()", ret);
+        }
+		return false;
+	}
+	
+	
+	bool validateLibrary(const char* customerID, const char* productID)
+	{
+		// logTimeCountrer _tmpLog("NSAValidateLibrary()");
+		int cid = (uint32_t)strtoul(customerID, NULL, 10);
+        int pid = (long)strtoul(productID, NULL, 10);
+		if (NSAValidateLibrary_ptr)
+		{
+			/*
+			 Must be called after NalpLibOpen()
+			 int NSAValidateLibrary(uint32_t customerID, uint32_t productID)
+			 Verifies that the shared library you are accessing is the library you stamped.
+			 It does this by checking the customerID and productID sent in against the stamped values.
+			 If they match, 0 is returned
+			 */
+			int ret = NSAValidateLibrary_ptr(cid, pid);
+			if (ret == 0)
+				return true;
+			reportErrorMsg("#6822b: error validating nap library", ret);
+		}
+		return false;
+	}
+	
+	bool disablePrivacy(void)
+	{
+		if (!NSASetPrivacy_ptr)
+			return false;
+		int ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
+		if (ret<0)
+		{
+			reportErrorMsg("#6822c: error calling NSAAppStart_ptr()", ret);
+			return false;
+		}
+		return true;
+	}
+	
+	bool connectionTest(uint32_t *param)
+	{
+	    if (NSATestConnection_ptr)
+        {
+            // Connects to Nalpeiron and retrieves a "Hello World". Used only for testing the library and connectivity.
+            // Returns 0 on success and a negative number for an error.
+			// It seems that NSATestConnection() may fail if it is called before disabling privacy: NSASetPrivacy(0)
+            int ret = NSATestConnection_ptr(NULL, &m_transID);
+			if (ret==0)
+				return true;
+            reportErrorMsg("#6822r: Error calling NSATestConnection_ptr()", ret);
+        }
+		return false;
+	}
+	
 public:
-	cpccAppTelemetryNalpeiron(  const char* nalDynLibraryFilename,
-                                const char* customerID,
-								const char* productID,
-								const char* productVersion,
-								const char* productBuildNumber,
-								const char* productEdition) 
-    {
-        // 	http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
-		const char * parameterTemplate = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-			"<SHAFERXMLParams>"
-			"<NSAEnabled>1</NSAEnabled>"
-			"<NSLEnabled>0</NSLEnabled>"
-			"<SecurityValue>0</SecurityValue>"
-			"</SHAFERXMLParams>";
-		/*
-		std::string tmpString = customerID;
-		long int cid = atoi(tmpString.c_str());
-		tmpString = productID;
-		long int pid = atoi(tmpString.c_str());
-		*/
-        m_dynLibPtr = new dynLib_nalpeiron(nalDynLibraryFilename, customerID, productID, parameterTemplate);
+	cpccAppTelemetryNalpeiron(const char* nalDynLibraryFilename,
+				const char* customerID,
+				const char* productID,
+				const char* productVersion,
+				const char* productBuildNumber,
+				const char* productEdition,
+				const char* productLicense) :
+		LinkedLibrary_nalpeiron(nalDynLibraryFilename)
+	{
+		if (!isLoaded())
+			return;
+
+		m_libWasOpened = openLib();
+        
+		if (config_DoLibValidation)
+			if (!validateLibrary(customerID, productID))
+				return;
+
+		disablePrivacy();
+
+		if (config_DoConnectionTest)
+			connectionTest(&m_transID);
+
+		m_appWasStarted = appStart((char *)"my custom data", &m_transID);
+		        		                
+        if (NSASysInfo_ptr)
+        {
+            int ret = NSASysInfo_ptr( "anonymous", "EN", productVersion, productEdition, productBuildNumber, productLicense, "nsaClientData", &m_transID);
+            if (ret<0)
+                reportErrorMsg("#6822k: error calling NSASysInfo()", ret);
+        }
+
+        
     }
 	
 	
-	~cpccAppTelemetryNalpeiron(void)
+	~cpccAppTelemetryNalpeiron(void) override
 	{
-		if (m_dynLibPtr)
-            delete m_dynLibPtr;
-        m_dynLibPtr = NULL;
+		if (m_appWasStarted)
+			appStop((char *)"my custom data", &m_transID);
+                
+		if (m_libWasOpened)
+			libClose();
 	}
 
-	bool		 hasErrors(void) const		{ return (m_dynLibPtr) ? m_dynLibPtr->hasErrors() : false; };
-	const char * getErrorText(void) const	{ return  (m_dynLibPtr) ? m_dynLibPtr->getErrorText() : ""; }
-	void		 clearErrors(void)		
-	{ 
-		if (m_dynLibPtr)
-			m_dynLibPtr->clearErrors();
-	}
+
 };
