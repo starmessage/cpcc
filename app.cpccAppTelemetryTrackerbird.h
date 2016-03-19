@@ -97,6 +97,7 @@ private:
 	std::wstring wstr;
 
 public:
+
 	wchar_from_char(const char *str)
 	{
 		int len = strlen(str);
@@ -156,11 +157,10 @@ public:	// ctors
             TrackerbirdSDK::TBApp::stop(NULL);
 		#endif
     }
-    
-	
+
+
 public: // functions
-    
-    
+
     
 	void trackEvent(const char *eventCategory, const char *eventName)
 	{
