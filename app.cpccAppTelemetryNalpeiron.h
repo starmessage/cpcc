@@ -200,7 +200,11 @@ private:
 	
     bool            m_appWasStarted = false;
     bool            m_libWasOpened = false;
-	enum			eNalConfig { config_DoLibValidation=true, config_DoConnectionTest=true	};
+	enum			eNalConfig 
+						{ 
+						config_DoLibValidation=false,
+						config_DoConnectionTest=false
+						};
 
 	
 	bool openLib(void)
@@ -223,14 +227,20 @@ private:
 				return true;
 			reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
 		}
+		else
+			errorDump << "NULL NalpLibOpen_ptr";
+
 		return false;
 	}
 	
 	bool libClose(void)
 	{
 		if (!NalpLibClose_ptr)
+		{
+			errorDump << "NULL NalpLibClose_ptr";
 			return false;
-		
+		}
+
 		int ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
         if (ret == 0)
 			return true;
@@ -250,6 +260,9 @@ private:
 				return true;
             reportErrorMsg("#6822c: error calling NSAAppStart_ptr()",ret);
         }
+		else
+			errorDump << "NULL NSAAppStart_ptr";
+
 		return false;
 	}
 	
@@ -263,6 +276,9 @@ private:
 				return true;
             reportErrorMsg("#6822d: error calling NalpLibClose_ptr()", ret);
         }
+		else
+			errorDump << "NULL NSAAppStop_ptr";
+
 		return false;
 	}
 	
@@ -286,13 +302,19 @@ private:
 				return true;
 			reportErrorMsg("#6822b: error validating nap library", ret);
 		}
+		else
+			errorDump << "NULL NSAValidateLibrary_ptr";
 		return false;
 	}
 	
 	bool disablePrivacy(void)
 	{
 		if (!NSASetPrivacy_ptr)
+		{
+			errorDump << "NULL NSASetPrivacy_ptr";
 			return false;
+		}
+		
 		int ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
 		if (ret<0)
 		{
@@ -312,8 +334,11 @@ private:
             int ret = NSATestConnection_ptr(NULL, &m_transID);
 			if (ret==0)
 				return true;
-            reportErrorMsg("#6822r: Error calling NSATestConnection_ptr()", ret);
+            reportErrorMsg("#6822r: NSATestConnection() failed", ret);
         }
+		else 
+			errorDump << "NULL NSATestConnection_ptr";
+
 		return false;
 	}
 	
@@ -328,7 +353,11 @@ public:
 		LinkedLibrary_nalpeiron(nalDynLibraryFilename)
 	{
 		if (!isLoaded())
+		{
+			errorDump << "nalpeiron not loaded\n";
 			return;
+		}
+			
 
 		m_libWasOpened = openLib();
         

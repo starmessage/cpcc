@@ -32,6 +32,7 @@
 #include "gui.cpccImageUtilsOSX.h"
 #include "gui.cpccDrawingToolsNSBitmapImageRep.h"
 #include "gui.cpccWindowMac.h"
+#include "core.cpccTryAndCatch.h"
 
 #include <AppKit/NSGraphics.h>
 
@@ -290,8 +291,12 @@ protected: // functions
         
 		bmpPtr = NULL;
 		NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:finalFilename.c_str()] autorelease];
-        bmpPtr = [[NSBitmapImageRep alloc] initWithData:[NSData dataWithContentsOfFile:tmpFilename]];
-		if	(! bmpPtr)
+        
+        CPCC_TRY_AND_CATCH(bmpPtr = [[NSBitmapImageRep alloc] initWithData:[NSData dataWithContentsOfFile:tmpFilename]]
+                           , "#8672: Loading image")
+        
+		
+        if	(! bmpPtr)
 		{
 			errorLog().addf("#2834: initWithFile_impl() failed:%s", finalFilename.c_str());
 			return NULL;

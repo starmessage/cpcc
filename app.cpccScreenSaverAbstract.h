@@ -34,7 +34,7 @@ protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				m_PreserveDeskopContents;
-    std::string			m_containerFolder;
+    cpcc_string			m_containerFolder;
 	
 protected: // constructor/destructor
 

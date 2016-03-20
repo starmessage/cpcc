@@ -27,7 +27,7 @@
 
 #include "io.cpccSound.h"
 #include "io.cpccLog.h"
-
+#include "core.cpccTryAndCatch.h"
 
 #ifdef _WIN32
 	#include	<windows.h> // for _access on windows
@@ -92,7 +92,9 @@ void 	cpccSound::playResourceSound(NSString *aBundleClass, NSString *aResourceFi
     
 	if (nsSoundPtr)
 		[nsSoundPtr release];
-    nsSoundPtr = [[NSSound alloc] initWithContentsOfFile:resourcePath byReference:YES];
+    
+    CPCC_TRY_AND_CATCH(nsSoundPtr = [[NSSound alloc] initWithContentsOfFile:resourcePath byReference:YES], "Loading sound");
+
     // Do something with sound, like [sound play] and release.
     
     /*
