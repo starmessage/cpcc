@@ -17,11 +17,90 @@
 
 #include "core.cpccLinkLibrary.h"
 
+class cpccWorkFlow_advancing
+{
+public:
+	const int	m_WFsteps = 0;
+
+protected:
+	int			m_WFlastCompletedStep =0; // 1..n //
+
+public:
+	cpccWorkFlow_advancing(const int nSteps) : m_WFsteps(nSteps)
+	{
+
+	}
+
+	virtual void doStep(const int stepNo)
+	{
+		// 1. call the previous step in case it was skipped
+		if (m_WFlastCompletedStep < stepNo-1)
+			if (stepNo>1)
+				doStep(stepNo-1);
+
+		// 2. do the step (the anscessor will do it)
+		m_WFlastCompletedStep = stepNo;
+	}
+
+};
 
 
-// loads/unloads the .dylib or the dll and and links the functions to functionPointers
+#if defined(__APPLE__)
+// Mac OS X Specific header stuff here
+	#include <TargetConditionals.h>
+	#define WINAPI
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	typedef int(*NalpGetErrorMsg_t)(int nalpErrno, char **errMsg);
+	typedef	int(*NSAValidateLibrary_t)(uint32_t custNum, uint32_t prodNum);
+
+	//Routine to inform Nalpeiron server that application has started
+	typedef int(*NSAAppStart_t)(const char *nsaClientData, uint32_t *transID);
+
+	//Routine to inform Nalpeiron server that application has ended
+	typedef int(*NSAApStop_t)(const char *nsaClientData, uint32_t *transID);
+	
+	typedef int(*NalpLibOpen_t)(const char *xmlParams);
+	typedef int(*NalpLibClose_t)(void);
+	typedef int(*NSASetPrivacy_t)(unsigned short nsaPriv);
+	typedef int(*NSAFree_t)(void *memptr);
+	
+	typedef int(*NSATestConnection_t) (const char *nsaClientData, uint32_t *transID); //Checks server connectivity
+	typedef int	(*NSLTestConnection_t)();
+
+    //Send system information from end user's computer to Nalpeiron
+    typedef int (*NSASysInfo_t)
+            (   const char *username, const char *applang, const char *version,
+                const char *edition, const char *build, const char *licenseStat,
+                const char *nsaClientData, uint32_t *transID);
+    
+#ifdef __cplusplus
+}
+#endif
+
+
+// loads/unloads the .dylib or the dll and create linked functions to the library functions
 class LinkedLibrary_nalpeiron: public cpccLinkedLibrary
 {
+private:
+
+	NalpGetErrorMsg_t		NalpGetErrorMsg_ptr = NULL;
+	NSAValidateLibrary_t	NSAValidateLibrary_ptr = NULL;
+	NalpLibOpen_t			NalpLibOpen_ptr = NULL;
+	NalpLibClose_t			NalpLibClose_ptr = NULL;
+	NSAAppStart_t			NSAAppStart_ptr = NULL;
+	NSAApStop_t				NSAAppStop_ptr = NULL;
+	NSASetPrivacy_t			NSASetPrivacy_ptr = NULL;
+	NSAFree_t				NSAFree_ptr = NULL;
+	NSATestConnection_t		NSATestConnection_ptr = NULL;
+	NSASysInfo_t            NSASysInfo_ptr = NULL;
+	    
+	std::stringstream		*m_infoDumpPtr = NULL;
+
 public:
     
     static const char *getDefaultLibFilename(void)
@@ -33,127 +112,59 @@ public:
     #endif
     }
     
-    
-public:	// functions
-	
-	typedef int(*NalpGetErrorMsg_t)(int nalpErrno, char **errMsg);
-	typedef	int(*NSAValidateLibrary_t)(uint32_t custNum, uint32_t prodNum);
-
-	//Routine to inform Nalpeiron server that application has started
-	typedef int(*NSAAppStart_t)
-		(const char *nsaClientData, uint32_t *transID);
-
-	//Routine to inform Nalpeiron server that application has ended
-	typedef int(*NSAApStop_t)
-		(const char *nsaClientData, uint32_t *transID);
-	
-	typedef int(*NalpLibOpen_t)(const char *xmlParams);
-	typedef int(*NalpLibClose_t)(void);
-	typedef int(*NSASetPrivacy_t)(unsigned short nsaPriv);
-	typedef int(*NSAFree_t)(void *memptr);
-	
-	typedef int(*NSATestConnection_t) (const char *nsaClientData, uint32_t *transID); //Checks server connectivity
-    
-    //Send system information from end user's computer to Nalpeiron
-    typedef int (*NSASysInfo_t)
-            (   const char *username, const char *applang, const char *version,
-                const char *edition, const char *build, const char *licenseStat,
-                const char *nsaClientData, uint32_t *transID);
-    
-
-	NalpGetErrorMsg_t		NalpGetErrorMsg_ptr = NULL;
-	NSAValidateLibrary_t	NSAValidateLibrary_ptr = NULL;
-	NalpLibOpen_t			NalpLibOpen_ptr = NULL; 
-	NalpLibClose_t			NalpLibClose_ptr = NULL;	// Shuts down the library. Returns 0 for success and a negative number for an error.
-	NSAAppStart_t			NSAAppStart_ptr= NULL;
-	NSAApStop_t				NSAAppStop_ptr = NULL;
-	NSASetPrivacy_t			NSASetPrivacy_ptr = NULL;
-	NSAFree_t				NSAFree_ptr = NULL;
-	NSATestConnection_t		NSATestConnection_ptr = NULL;
-    NSASysInfo_t            NSASysInfo_ptr = NULL;
+   
     
 public:
     
-	LinkedLibrary_nalpeiron(const char *aLibraryfilename) : cpccLinkedLibrary(aLibraryfilename)
+	LinkedLibrary_nalpeiron(const char *aLibraryfilename, std::stringstream &anErrorStream, std::stringstream *anInfoErrorStream) : 
+			cpccLinkedLibrary(aLibraryfilename, anErrorStream ),
+			m_infoDumpPtr(anInfoErrorStream)
 	{
-		if (isLoaded())
-			linkFunctions();
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: LinkedLibrary_nalpeiron constructor\n";
+        if (!isLoaded())
+            errorStream << "nalpeiron library not loaded\n";
 	}
-    
-
-private:
-    
-	bool	linkFunctions(void)
-	{
-		bool errorsFound = false;
-
-		if (!(NSAValidateLibrary_ptr = (NSAValidateLibrary_t)getFunction("NSAValidateLibrary")))
-		{
-			errorDump << "error linking to NSAValidateLibrary()\n";
-			errorsFound = true;
-		}
-
-		if (!(NalpGetErrorMsg_ptr = (NalpGetErrorMsg_t)getFunction("NalpGetErrorMsg")))
-		{
-			errorDump << "error linking to NalpGetErrorMsg()\n";
-			errorsFound = true;
-		}
-
-		if (!(NalpLibOpen_ptr = (NalpLibOpen_t)getFunction("NalpLibOpen")))
-		{
-			errorDump << "error linking to NalpLibOpen()\n";
-			errorsFound = true;
-		}
-
-		if (!(NSAAppStart_ptr = (NSAAppStart_t)getFunction("NSAAppStart")))
-		{
-			errorDump << "error linking to NSAAppStart()\n";
-			errorsFound = true;
-		}
-
-		if (!(NSAAppStop_ptr = (NSAApStop_t)getFunction("NSAAppStop")))
-		{
-			errorDump << "error linking to NSAAppStop()\n";
-			errorsFound = true;
-		}
-
-		if (!(NalpLibClose_ptr = (NalpLibClose_t)getFunction("NalpLibClose")))
-		{
-			errorDump << "error linking to NalpLibClose()\n";
-			errorsFound = true;
-		}
-
-		if (!(NSASetPrivacy_ptr = (NSASetPrivacy_t)getFunction("NSASetPrivacy")))
-		{
-			errorDump << "error linking to NSASetPrivacy()\n";
-			errorsFound = true;
-		}
-
-		if (!(NSAFree_ptr = (NSAFree_t)getFunction("NSAFree")))
-		{
-			errorDump << "error linking to NSAFree()\n";
-			errorsFound = true;
-		}
-
-        if (!(NSATestConnection_ptr = (NSATestConnection_t)getFunction("NSATestConnection")))
-        {
-            errorDump << "error linking to NSATestConnection()\n";
-            errorsFound = true;
-        }
-        
-        if (!(NSASysInfo_ptr = (NSASysInfo_t)getFunction("NSASysInfo")))
-        {
-            errorDump << "error linking to NSASysInfo()\n";
-            errorsFound = true;
-        }
-        
-        return !errorsFound;
-	}
+    	
 
 protected: 
+	
+	bool	NSA_free(void *memptr)
+	{
+		/*
+		The NSAFree functions is available to free any memory allocated by the NSA library. 
+		This function is mandatory on windows as depending on how your binary is built, your 
+		final binary may have a different heap than the NSA library. 
+		This function is provided to ensure that memory allocated from the NSA heap is freed there. 
+		NSAFree should be used on the memory returned from NSAGetStats, ReturnVersion, GetComputerID, 
+		InternetHelloWorld, GetHostName, etc..
+
+		*/
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSA_free()\n";
+
+		if (!NSAFree_ptr)
+			if (!(NSAFree_ptr = (NSAFree_t)getFunction("NSA_free")))
+			{
+				errorStream << "error linking to NSA_free()\n";
+				return false;
+			}
+
+		NSAFree_ptr(memptr);
+		return true;
+	}
+
+
 	void	reportErrorMsg(const char * myText, const int errorCode)
 	{
-		errorDump << myText << "\nNalp ErrorCode:" << errorCode ;
+		errorStream << myText << "\nNalp ErrorCode:" << errorCode ;
+
+		if (!NalpGetErrorMsg_ptr)
+			if (!(NalpGetErrorMsg_ptr = (NalpGetErrorMsg_t)getFunction("NalpGetErrorMsg")))
+			{
+			errorStream << "error linking to NalpGetErrorMsg()\n";
+			return;
+			}
 
 		/*
 		int NalpGetErrorMsg(int nalpErrorNo, char **errorMsg)
@@ -161,160 +172,153 @@ protected:
 		nalpErrorno is a negative return value from one of the Nalpeiron functions and errorMsg is a descriptive string explaining that error.
 		errorMsg should be freed with NSAFree by the caller.
 		*/
-		if (!NalpGetErrorMsg_ptr)
-		{
-			errorDump << "\nNalpGetErrorMsg_ptr is NULL\n";
-			return;
-		}
 			
 		char *msg;
 		NalpGetErrorMsg_ptr(errorCode, &msg);
-		errorDump << ":" << msg << std::endl;
-
-		if (NSAFree_ptr)
-			NSAFree_ptr(msg);
+		errorStream << ":" << msg << std::endl;
+		NSA_free(msg);
 	}
-	
-};
 
 
-
-// API old:	http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
-// API:		http://docs.nalpeiron.com/pages/viewpage.action?pageId=524314
-/*
-	ToDo: include the functions logging the app features
-	int NSAFeatureStart( char *username, char *featureCode)	
-	Records start of use of featureCode by username. Returns 0 on success and a negative number for an error. 
-	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
-
-	int NSAFeatureStop( char *username, char *featureCode)	
-	Records end of use of featureCode by username. Returns 0 on success and a negative number for an error. 
-	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
-*/
-class cpccAppTelemetryNalpeiron: public LinkedLibrary_nalpeiron
-{
-private:
-    uint32_t		m_transID = 0;	// To retrieve a transaction ID from any function, set transID = 0 and call the function. 
-									// Upon return, transID will be set with a random number that will be passed to the Nalpeiron server to identify the transaction.  
-									// Send this value into any functions that are to be grouped together.
-	
-    bool            m_appWasStarted = false;
-    bool            m_libWasOpened = false;
-	enum			eNalConfig 
-						{ 
-						config_DoLibValidation=false,
-						config_DoConnectionTest=false
-						};
-
-	
-	bool openLib(void)
+	bool NalpLibOpen(const char * xmlConfiguration)
 	{
-		// logTimeCountrer _tmpLog("NalpLibOpen()");
-		
-		if (NalpLibOpen_ptr)
-		{
-			const char * xmlConfiguration =
-				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-				"<SHAFERXMLParams>"
-				"<NSAEnabled>1</NSAEnabled>"
-				"<NSLEnabled>0</NSLEnabled>"
-				"<LogLevel>1</LogLevel>"
-				"<SecurityValue>0</SecurityValue>"
-				"</SHAFERXMLParams>";
-			
-			int ret = NalpLibOpen_ptr(xmlConfiguration); // Returns 0 for success and a negative number for an error.
-			if (ret == 0) 
-				return true;
-			reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
-		}
-		else
-			errorDump << "NULL NalpLibOpen_ptr";
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NalpLibOpen()\n";
 
+		// logTimeCountrer _tmpLog("NalpLibOpen()");
+		if (!NalpLibOpen_ptr)
+			if (!(NalpLibOpen_ptr = (NalpLibOpen_t)getFunction("NalpLibOpen")))
+			{
+				errorStream << "error linking to NalpLibOpen()\n";
+				return false;
+			}
+		
+		int ret = NalpLibOpen_ptr(xmlConfiguration); // Returns 0 for success and a negative number for an error.
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
 		return false;
 	}
-	
-	bool libClose(void)
+
+
+	bool NalpLibClose(void)
 	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NalpLibClose()\n";
+		/*
+		During NSAClose, all data remaining in the transaction pool is moved into the cache thread and
+		written to disk as soon as possible.
+		NSAClose does not block. That is, when called, it returns immediately.
+		The decision was made that all NSA library functions should return immediately while necessary
+		processing takes place in thread in the background.
+		This means that under certain circumstances, such as a short lived application,
+		there is the possibilty of data loss.
+		This may occur if the library itself is closed (with a dlclose or similar command)
+		before NSAClose actually completes.
+         
+        Shuts down the library. Returns 0 for success and a negative number for an error.
+		*/
 		if (!NalpLibClose_ptr)
-		{
-			errorDump << "NULL NalpLibClose_ptr";
-			return false;
-		}
+			if (!(NalpLibClose_ptr = (NalpLibClose_t)getFunction("NalpLibClose")))
+			{
+				errorStream << "error linking to NalpLibClose()\n";
+				return false;
+			}
 
 		int ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
-        if (ret == 0)
+		if (ret == 0)
 			return true;
-        reportErrorMsg("#6822e: error calling NalpLibClose_ptr()", ret);
+		reportErrorMsg("#6822e: error calling NalpLibClose_ptr()", ret);
 		return false;
 	}
 	
-	
-	bool appStart(const char *nsaClientData, uint32_t *transID)
-	{
-		if (NSAAppStart_ptr)
-        {
-			// Returns 0 on success and a negative number for an error.
-            // if I do not call NSASetPrivacy_ptr(0) before, I get the error: Can't complete do to privacy set
-            int ret = NSAAppStart_ptr((char *)"my custom data", &m_transID);
-            if (ret == 0)
-				return true;
-            reportErrorMsg("#6822c: error calling NSAAppStart_ptr()",ret);
-        }
-		else
-			errorDump << "NULL NSAAppStart_ptr";
 
-		return false;
-	}
-	
-	bool appStop(const char *nsaClientData, uint32_t *transID)
+	bool NSAAppStart(const char *nsaClientData, uint32_t *transID)
 	{
-		if (NSAAppStop_ptr)
-        {
-			// Records shutdown of your application. Returns 0 on success and a negative number for an error.
-            int ret = NSAAppStop_ptr(NULL, &m_transID); 
-            if (ret == 0) 
-				return true;
-            reportErrorMsg("#6822d: error calling NalpLibClose_ptr()", ret);
-        }
-		else
-			errorDump << "NULL NSAAppStop_ptr";
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSAAppStart()\n";
 
-		return false;
-	}
-	
-	
-	bool validateLibrary(const char* customerID, const char* productID)
-	{
-		// logTimeCountrer _tmpLog("NSAValidateLibrary()");
-		int cid = (uint32_t)strtoul(customerID, NULL, 10);
-        int pid = (long)strtoul(productID, NULL, 10);
-		if (NSAValidateLibrary_ptr)
-		{
-			/*
-			 Must be called after NalpLibOpen()
-			 int NSAValidateLibrary(uint32_t customerID, uint32_t productID)
-			 Verifies that the shared library you are accessing is the library you stamped.
-			 It does this by checking the customerID and productID sent in against the stamped values.
-			 If they match, 0 is returned
-			 */
-			int ret = NSAValidateLibrary_ptr(cid, pid);
-			if (ret == 0)
-				return true;
-			reportErrorMsg("#6822b: error validating nap library", ret);
-		}
-		else
-			errorDump << "NULL NSAValidateLibrary_ptr";
-		return false;
-	}
-	
-	bool disablePrivacy(void)
-	{
-		if (!NSASetPrivacy_ptr)
-		{
-			errorDump << "NULL NSASetPrivacy_ptr";
-			return false;
-		}
+		if (!NSAAppStart_ptr)
+			if (!(NSAAppStart_ptr = (NSAAppStart_t)getFunction("NSAAppStart")))
+			{
+				errorStream << "error linking to NSAAppStart()\n";
+				return false;
+			}
 		
+		// Returns 0 on success and a negative number for an error.
+		// if I do not call NSASetPrivacy_ptr(0) before, I get the error: Can't complete do to privacy set
+		int ret = NSAAppStart_ptr(nsaClientData, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822c: error calling NSAAppStart_ptr()", ret);
+		return false;
+	}
+
+
+	bool NSAAppStop(const char *nsaClientData, uint32_t *transID)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSAAppStop()\n";
+
+		if (!NSAAppStop_ptr)
+			if (!(NSAAppStop_ptr = (NSAApStop_t)getFunction("NSAAppStop")))
+			{
+				errorStream << "error linking to NSAAppStop()\n";
+				return false;
+			}
+		
+		// Records shutdown of your application. Returns 0 on success and a negative number for an error.
+		int ret = NSAAppStop_ptr(nsaClientData, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822d: error calling NalpLibClose_ptr()", ret);
+		return false;
+	}
+
+
+	bool NSA_validateLibrary(const char* customerID, const char* productID)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSA_validateLibrary()\n";
+
+		// logTimeCountrer _tmpLog("NSAValidateLibrary()");
+		if (!NSAValidateLibrary_ptr)
+			if (! (NSAValidateLibrary_ptr = (NSAValidateLibrary_t)getFunction("NSAValidateLibrary")))
+			{
+				errorStream << "error linking to NSAValidateLibrary()\n";
+				return false;
+			}
+
+
+		int cid = (uint32_t)strtoul(customerID, NULL, 10);
+		int pid = (long)strtoul(productID, NULL, 10);
+        /*
+        Must be called after NalpLibOpen()
+        int NSAValidateLibrary(uint32_t customerID, uint32_t productID)
+        Verifies that the shared library you are accessing is the library you stamped.
+        It does this by checking the customerID and productID sent in against the stamped values.
+        If they match, 0 is returned
+        */
+        int ret = NSAValidateLibrary_ptr(cid, pid);
+        if (ret == 0)
+            return true;
+        reportErrorMsg("#6822b: error validating nap library", ret);
+		return false;
+	}
+
+
+	bool NSAdisablePrivacy(void)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSAdisablePrivacy()\n";
+
+		if (!NSASetPrivacy_ptr)
+			if (! (NSASetPrivacy_ptr = (NSASetPrivacy_t)getFunction("NSASetPrivacy")))
+			{
+				errorStream << "error linking to NSASetPrivacy()\n";
+				return false;
+			}
+
 		int ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
 		if (ret<0)
 		{
@@ -323,73 +327,169 @@ private:
 		}
 		return true;
 	}
-	
-	bool connectionTest(uint32_t *param)
-	{
-	    if (NSATestConnection_ptr)
-        {
-            // Connects to Nalpeiron and retrieves a "Hello World". Used only for testing the library and connectivity.
-            // Returns 0 on success and a negative number for an error.
-			// It seems that NSATestConnection() may fail if it is called before disabling privacy: NSASetPrivacy(0)
-            int ret = NSATestConnection_ptr(NULL, &m_transID);
-			if (ret==0)
-				return true;
-            reportErrorMsg("#6822r: NSATestConnection() failed", ret);
-        }
-		else 
-			errorDump << "NULL NSATestConnection_ptr";
 
+
+	bool NSATestConnection(const char *param, uint32_t *transID)
+	{
+
+		if (!NSATestConnection_ptr)
+			if (!(NSATestConnection_ptr = (NSATestConnection_t)getFunction("NSATestConnection")))
+			{
+				errorStream << "error linking to NSATestConnection()\n";
+				return false;
+			}
+		
+		// Connects to Nalpeiron and retrieves a "Hello World". Used only for testing the library and connectivity.
+		// Returns 0 on success and a negative number for an error.
+		// It seems that NSATestConnection() may fail if it is called before disabling privacy: NSASetPrivacy(0)
+		int ret = NSATestConnection_ptr(NULL, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822r: NSATestConnection() failed", ret);
 		return false;
 	}
-	
-public:
-	cpccAppTelemetryNalpeiron(const char* nalDynLibraryFilename,
-				const char* customerID,
-				const char* productID,
-				const char* productVersion,
-				const char* productBuildNumber,
-				const char* productEdition,
-				const char* productLicense) :
-		LinkedLibrary_nalpeiron(nalDynLibraryFilename)
-	{
-		if (!isLoaded())
-		{
-			errorDump << "nalpeiron not loaded\n";
-			return;
-		}
-			
 
-		m_libWasOpened = openLib();
-        
+
+	bool NSASysInfo(const char *username, const char *applang, const char *version,
+					const char *edition, const char *build, const char *licenseStat,
+					const char *nsaClientData, uint32_t *transID)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSASysInfo()\n";
+
+		if (!NSASysInfo_ptr)
+			if (!(NSASysInfo_ptr = (NSASysInfo_t)getFunction("NSASysInfo")))
+			{
+				errorStream << "error linking to NSASysInfo()\n";
+				return false;
+			}
+
+		int ret = NSASysInfo_ptr(username, applang, version, edition, build, licenseStat, nsaClientData, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822k: error calling NSASysInfo()", ret);
+		return false;
+	}
+
+};
+
+
+
+// API old:	http://docs.nalpeiron.com/pages/viewpage.action?pageId=524341
+// API:		http://docs.nalpeiron.com/pages/viewpage.action?pageId=524314
+/*
+	ToDo: include the functions for the llogging of the app features
+	int NSAFeatureStart( char *username, char *featureCode)	
+	Records start of use of featureCode by username. Returns 0 on success and a negative number for an error. 
+	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
+
+	int NSAFeatureStop( char *username, char *featureCode)	
+	Records end of use of featureCode by username. Returns 0 on success and a negative number for an error. 
+	Username and featureCode should be a ANSI C strings or a utf8 encoded unicode strings.
+	
+	 In the NSA library, if any of the calls that connect to the Nalpeiron server fails for any reason, 
+	 the are cached to disk. In your WorkDir you will see a file with the extension .cache. 
+	 All failed calls are stored there. These calls will be sent to Nalpeiron automatically by the library 
+	 at a later time or with the NSASendCache call.
+
+	If you'd like to immediately test the connection and bypass the cache file, you should use the 
+	NSLTestConnection call. It will return an error message immediately if the connection fails.
+	
+	This is the NSL (not NSA) api
+	http://docs.nalpeiron.com/display/NND/NSL+V10+Developers+API
+*/
+
+class cpccAppTelemetryNalpeiron: public LinkedLibrary_nalpeiron, cpccWorkFlow_advancing
+{
+private:
+    uint32_t		m_transID = 0;	// To retrieve a transaction ID from any function, set transID = 0 and call the function. 
+									// Upon return, transID will be set with a random number that will be passed to the Nalpeiron server to identify the transaction.  
+									// Send this value into any functions that are to be grouped together.
+	
+    bool            m_isAppStarted = false;
+    bool            m_isLibOpen = false;
+	enum			eNalConfig 
+						{ 
+						config_DoLibValidation=true,
+						config_DoConnectionTest=false
+						};
+    char *          m_clientData;
+	
+			
+public:
+	cpccAppTelemetryNalpeiron(
+		const char* nalDynLibraryFilename,
+		const char* customerID,
+		const char* productID,
+		const char* productVersion,
+		const char* productBuildNumber,
+		const char* productEdition,
+		const char* productLicense,
+		cpccErrorCollector &aErrorCollector,
+		cpccErrorCollector &anInfoCollector ) :
+		LinkedLibrary_nalpeiron(nalDynLibraryFilename, aErrorCollector.errorDump, &anInfoCollector.errorDump),
+		cpccWorkFlow_advancing(3)
+	{
+		const char * xmlConfiguration =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			"<SHAFERXMLParams>"
+			"<NSAEnabled>1</NSAEnabled>"
+			"<NSLEnabled>0</NSLEnabled>"
+			//"<LogLevel>4</LogLevel>"
+			"<SecurityValue>0</SecurityValue>"
+			"</SHAFERXMLParams>";
+
+		m_clientData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			"<MyData>1</MyData>";
+
+		m_isLibOpen = NalpLibOpen(xmlConfiguration);
+		NSAdisablePrivacy();
+
 		if (config_DoLibValidation)
-			if (!validateLibrary(customerID, productID))
+			if (!NSA_validateLibrary(customerID, productID))
 				return;
 
-		disablePrivacy();
+		m_isAppStarted = NSAAppStart(NULL, &m_transID);
 
-		if (config_DoConnectionTest)
-			connectionTest(&m_transID);
+		NSASysInfo("anonymous", "EN", productVersion, productEdition, productBuildNumber, productLicense, NULL, &m_transID);
+	}
 
-		m_appWasStarted = appStart((char *)"my custom data", &m_transID);
-		        		                
-        if (NSASysInfo_ptr)
-        {
-            int ret = NSASysInfo_ptr( "anonymous", "EN", productVersion, productEdition, productBuildNumber, productLicense, "nsaClientData", &m_transID);
-            if (ret<0)
-                reportErrorMsg("#6822k: error calling NSASysInfo()", ret);
-        }
 
-        
-    }
-	
+	virtual void doStep(const int stepNo) override
+	{
+		cpccWorkFlow_advancing::doStep(stepNo);
+		switch (stepNo)
+		{
+		
+		case 1: 
+			if (m_isAppStarted)
+			{
+				NSAAppStop(NULL, &m_transID);	
+				m_isAppStarted = false;
+			}
+			break;
+
+		case 2: // stop to push the data  / ex-stopTelemetry
+			if (m_isLibOpen)
+			{
+				NalpLibClose();
+				m_isLibOpen = false;
+			}
+			break;
+		case 3: // close / ex-destructor
+
+			break;
+		default:
+			break;
+		}
+	}
+
+
+
 	
 	~cpccAppTelemetryNalpeiron(void) override
 	{
-		if (m_appWasStarted)
-			appStop((char *)"my custom data", &m_transID);
-                
-		if (m_libWasOpened)
-			libClose();
+		doStep(m_WFsteps);
 	}
 
 

@@ -253,7 +253,7 @@ public:
     NSString* pBundlePath = [saverBundle bundlePath];
     infoLog().addf(".saver container folder:%s", [pBundlePath UTF8String]);
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
-    
+    ssPtr->m_framesPerSec = config_FramesPerSec;
 	NSView * windowHandle = self;
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;

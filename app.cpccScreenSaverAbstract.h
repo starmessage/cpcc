@@ -24,13 +24,11 @@
 class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
-	// cpccTimeCounter		mSecondsTimer;
-	// double				mTimeElapsed_inSec;
     logObjectLife       objLog;
 	
 protected:	// data
 	cpccMonitorList		m_monitorList;
-
+	time_t				m_ticksPassed = 0;
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				m_PreserveDeskopContents;
@@ -40,7 +38,6 @@ protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
-			// mTimeElapsed_inSec(0.0),
 			m_windowIsOwned(true),
             m_PreserveDeskopContents(false),  // opaque by default
             objLog((char *) "cpccScreenSaverAbstract")
@@ -72,15 +69,13 @@ private:	// functions
     
 protected:  // abstract functions for the ancenstor to implement
     
-	//virtual void animateOneFrame(const float dt_inSec) override = 0;
+	
 
     
 protected: // screensaver standard functions
     
     virtual void setContainerFolder(const char *aFolder) override
-    {
-        m_containerFolder = aFolder;
-    }
+    {   m_containerFolder = aFolder;   }
     
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
@@ -102,11 +97,9 @@ protected: // screensaver standard functions
 		m_windowIsOwned = true;
 	}
 
-    	virtual void shutDown(void) override   {  }
+    virtual void shutDown(void) override   {  }
 
     
-
-
 public:	// other functions
 
 	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }

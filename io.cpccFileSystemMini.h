@@ -115,8 +115,8 @@ class cpccFileSystemMiniEx : public cpccFileSystemMini
 public:
 	
 	bool			copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
-	bool			appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
-	bool			appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
+	static bool		appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
+	static bool		appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
 	bool			createFolder(const cpcc_string& aFoldername) { return cpccFileSystemMini::createFolder(aFoldername.c_str()); }
 
 };

@@ -56,6 +56,14 @@ public: // constructor / destructor
  	{ }
 	
     
+	/*
+	~cpccLogSink()
+	{
+		cpccFileSystemMiniEx::appendTextFile("c:\\tmp\\b.txt", cpcc_string("this is the end"));
+	}
+	*/
+
+
 public: // functions
 	bool 				isEmpty(void) { return m_isEmpty; }
 	const cpcc_string &	getFilename(void) const { return m_filename; };
@@ -148,4 +156,8 @@ public:
 	}
 
 };
+
+
+
+
 

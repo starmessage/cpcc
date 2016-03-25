@@ -93,9 +93,7 @@ void			cpccTrustedPlatform::selfTest(void)
 	// Obsolete function 'asctime' called. It is recommended to use the function 'strftime' instead.
 	txt.append(asctime(curtime)); // asctime contains a CRLF
 	
-
-	cpccFileSystemMiniEx fs;
-	assert(fs.appendTextFile(dumpFile, txt) && "#9572: cpccTrustedPlatform_SelfTest: Failed to write to dumpFile");
+	assert(cpccFileSystemMiniEx::appendTextFile(dumpFile, txt) && "#9572: cpccTrustedPlatform_SelfTest: Failed to write to dumpFile");
 #endif
 }
 

@@ -8,8 +8,7 @@
  *  Copyright: 	2014 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
@@ -38,15 +37,14 @@ void cpccLogSink::add(const cpcc_char* txt)
 	if (m_filename.length() == 0)
 		return;
 
-	cpccFileSystemMiniEx fs;
-	if (!fs.fileExists(m_filename) && (m_disableIfFileDoesNotExist))
+	if (!cpccFileSystemMiniEx::fileExists(m_filename) && (m_disableIfFileDoesNotExist))
 		return;
 
 	static cpcc_string m_outputBuffer;
 	m_outputBuffer = m_tag;
 
 	static cpcc_string previousTime, currentTime;
-	currentTime = getCurrentTime(_T("%X"));
+	currentTime = getCurrentTime(_T("     \t%F  %X"));
 
 	if (currentTime != previousTime)	// log the time only when it changes, in a separate line
 	{
@@ -61,7 +59,7 @@ void cpccLogSink::add(const cpcc_char* txt)
 	m_outputBuffer.append(txt);
 	m_outputBuffer.append("\n");
 
-	fs.appendTextFile(m_filename, m_outputBuffer);
+	cpccFileSystemMiniEx::appendTextFile(m_filename, m_outputBuffer);
 	if (m_echoToConsole)
 	{
 		std::cout << m_outputBuffer;
@@ -181,7 +179,9 @@ public:
 	
     
 	~cpccLog()
-	{	info.add(cpccLogClosingStamp);
+	{	
+		//cpccFileSystemMiniEx::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
+		info.add(cpccLogClosingStamp);
 	}
 	
     
@@ -215,6 +215,7 @@ public:
 };
 
 
+// static cpccLogAutoFilename m_appLog;
 
 // lazy but early enough constructor for the logging object
 cpccLogAutoFilename &appLogNew(void)
@@ -237,4 +238,5 @@ cpccLogSink			&errorLog(void)		{ return appLogNew().error; }
 
 
 
+static logObjectLife  logFileMarker("logFileMarker");
 

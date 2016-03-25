@@ -5,7 +5,7 @@
  *				dynamic library loading and linking of functions (.DLL, .dylib)
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
+ *  Copyright: 	2016 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.starmessagesoftware.com/cpcclibrary/
@@ -22,7 +22,7 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
-#include "core.cpccErrorCollector.h"
+
 
 #ifdef _WIN32
 	#include <windows.h>
@@ -56,14 +56,11 @@
 			 To get extended error information, call GetLastError.
 			 */
 			return LoadLibrary(aFilename);
-			// add error checking
-            // std::cerr << GetLastError() << std::endl;
-            
 		}
 
 		static void unloadLibrary(const tLibHandle	aHandle) 	{	FreeLibrary(aHandle);	}
 	
-		static void *getFunction(const tLibHandle	aHandle, const char * aFunctionName)
+		static void *getFunctionAddress(const tLibHandle	aHandle, const char * aFunctionName)
 		{
 			void *ptr = (void *)GetProcAddress(aHandle, aFunctionName);
 			if (ptr==NULL)
@@ -87,7 +84,7 @@
 
 		static void unloadLibrary(const tLibHandle	aHandle) 	{	dlclose(aHandle);	}
 	
-		static void *getFunction(const tLibHandle	aHandle, const char * aFunctionName)
+		static void *getFunctionAddress(const tLibHandle	aHandle, const char * aFunctionName)
 		{
 			void *ptr = dlsym(aHandle, aFunctionName);
 			if (ptr==NULL)
@@ -95,28 +92,38 @@
 			return ptr;
 		}
 	};
+
 	typedef cpccLinkedLibraryPortable_OSX PORTABLE_LINKLIBRARYFUNCTIONS;
 #endif
 
 
-class cpccLinkedLibrary: protected PORTABLE_LINKLIBRARYFUNCTIONS, public cpccErrorCollector
+class cpccLinkedLibrary: protected PORTABLE_LINKLIBRARYFUNCTIONS 
 {
-private:
-	tLibHandle 	m_libHandle;
 
+private:
+	tLibHandle 			m_libHandle;
 	
 protected:
-	tLibHandle	getLibHandle(void) const { return m_libHandle;  }
+	tLibHandle			getLibHandle(void) const { return m_libHandle;  }
+	std::stringstream	&errorStream;
+
+public:	// members
 	
-	
+
+
 public: // ctor, dtor
-	cpccLinkedLibrary(const char *aLibraryfilename)
+	cpccLinkedLibrary(const char *aLibraryfilename, std::stringstream &anErrorStream):
+				errorStream(anErrorStream)
 	{
 		m_libHandle = loadLibrary(aLibraryfilename);
 		if (!m_libHandle)
 		{ 
 			std::cerr << "#7524: failed to load DLL: " << aLibraryfilename << std::endl;
-			errorDump << "#7524: failed to load DLL: " << aLibraryfilename << std::endl;
+			errorStream << "#7524: failed to load DLL: " << aLibraryfilename << std::endl;
+			if (cpccFileSystemMini::fileExists(aLibraryfilename))
+				errorStream << "File does not exist\n";
+			else
+				errorStream << "The library file exists\n";
 		}
     };
 
@@ -129,17 +136,16 @@ public: // ctor, dtor
 	};
 	
 
-	void *	getFunction(const char * aFunctionName) 	
+	void *	getFunction(const char * aFunctionName)
 	{ 	
-		void *ptr = PORTABLE_LINKLIBRARYFUNCTIONS::getFunction(m_libHandle, aFunctionName);
+		void *ptr = PORTABLE_LINKLIBRARYFUNCTIONS::getFunctionAddress(m_libHandle, aFunctionName);
 		if (!ptr)
-			errorDump << "#9771: did not find function " << aFunctionName << " in the dynamically loaded library\n";
+			errorStream << "#9771: did not find function " << aFunctionName << " in the dynamically loaded library\n";
 		return  ptr;
 	}
 
 public:		// functions
 	
 	bool	isLoaded(void) const { return (m_libHandle != NULL); };
-
 
 };

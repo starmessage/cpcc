@@ -136,7 +136,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			if (screensaverPtr)
 			{
 				static bool		screensaverWindowInitialised = false;
-				
+				screensaverPtr->m_framesPerSec = FramesPerSec;
 				if (!screensaverWindowInitialised)
 				{
 					int	monitorID = 0;
@@ -318,8 +318,8 @@ Prepei na yparxei ena dialog template me to parakato ID
 #define DLG_SCRNSAVECONFIGURE           2003
 
 */	
-	static cpccScreenSaverInterface* screensaverPtr=NULL;
-
+	//static cpccScreenSaverInterface* screensaverPtr=NULL;
+	cpccScreenSaverInterface* screensaverPtr = NULL;
     switch(message) 
     { 
 		case WM_INITDIALOG: 
@@ -332,17 +332,23 @@ Prepei na yparxei ena dialog template me to parakato ID
 			system sets the keyboard focus to the first control in the 
 			dialog box that can be given the focus. */
 			
-			//MessageBox(NULL,"WM_INITDIALOG",NULL,NULL); 
 			
+			//MessageBox(NULL,"WM_INITDIALOG",NULL,NULL); 
+			/*
 			if (!screensaverPtr)
 			{
 				screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
 			}
+			
+			*/
 
+			screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
 			if (screensaverPtr)
 				if (screensaverPtr->hasConfigureSheet())
 					screensaverPtr->showConfigureSheet(hDlg);
-				
+			
+			delete(screensaverPtr);
+
 			PostMessage(hDlg,WM_COMMAND, IDOK, NULL);
 			return TRUE; 
 

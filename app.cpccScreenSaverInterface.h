@@ -47,7 +47,10 @@
 
 class cpccScreenSaverInterface
 {
-		
+public:	// data
+
+	int		m_framesPerSec = 25;
+
 public: // screensaver interface functions: calls that the operating system dispatches to the screensaver
     
     virtual ~cpccScreenSaverInterface() { }
@@ -74,6 +77,7 @@ public: // screensaver interface functions: calls that the operating system disp
 	/// free the allocated resources
 	virtual void shutDown()=0;
 	virtual bool hasConfigureSheet(void) = 0;
+	
 };
 
 
