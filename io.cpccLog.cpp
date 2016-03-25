@@ -208,45 +208,25 @@ public: // functions
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// class cpccLogAutoFilename
-//
-///////////////////////////////////////////////////////////////////////////////
-
-class cpccLogAutoFilename: public cpccLog
-{
-public:
-	cpccLogAutoFilename()
-	{  }
-    
-	
-    
-};
-
-
-// static cpccLogAutoFilename m_appLog;
-
-// lazy but early enough constructor for the logging object
-cpccLogAutoFilename &appLogNew(void)
-{
-	static cpccLogAutoFilename m_appLog;
-	return m_appLog;
-}
-
 cpcc_char *	cpccLogSink::m_IdentText =  (cpcc_char *)"| ";
 int	cpccLogSink::m_IdentLevel = 0;
+
+namespace ns_globals
+{
+	cpccLog globalAppLog;
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////
 // inside the program use the following functions to write to the 3 logs.
 // all the 3 logs point to the same file.
-
-cpccLogSink			&infoLog(void)		{ return appLogNew().info; }
-cpccLogSink			&warningLog(void)	{ return appLogNew().warning; }
-cpccLogSink			&errorLog(void)		{ return appLogNew().error; }
-
+cpccLogSink			&infoLog(void) { return ns_globals::globalAppLog.info; }
+cpccLogSink			&warningLog(void) { return ns_globals::globalAppLog.warning; }
+cpccLogSink			&errorLog(void) { return ns_globals::globalAppLog.error; }
 
 
-static logObjectLife  logFileMarker("logFileMarker");
-
+namespace ns_globals
+{
+	logObjectLife  logFileMarker("logFileMarker");
+}
