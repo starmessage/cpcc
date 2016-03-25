@@ -30,8 +30,7 @@
 void			cpccTrustedPlatform::selfTest(void)
 {
 #ifndef NDEBUG
-	logObjectLife logThis("cpccTrustedPlatform::selfTest()");
-
+	
 	/*
 	cpccGetComputerID<33> mid;
 	infoLog().addf("current executable (self):%s",mid.getSelfFilename().c_str());

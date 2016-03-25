@@ -57,7 +57,7 @@ class cpccStackWithDefault
 	public:		// selftest ----------------------------------------
 		
 		static const char * getClassVersion(void) { return "0.50"; };
-		static void selfTest() { };
+		// static void selfTest() { };
 
 	};
 
