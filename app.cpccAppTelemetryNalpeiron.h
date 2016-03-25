@@ -16,33 +16,8 @@
 #pragma once
 
 #include "core.cpccLinkLibrary.h"
+#include "algo.cpccWorkFlow_advancing.h"
 
-class cpccWorkFlow_advancing
-{
-public:
-	const int	m_WFsteps = 0;
-
-protected:
-	int			m_WFlastCompletedStep =0; // 1..n //
-
-public:
-	cpccWorkFlow_advancing(const int nSteps) : m_WFsteps(nSteps)
-	{
-
-	}
-
-	virtual void doStep(const int stepNo)
-	{
-		// 1. call the previous step in case it was skipped
-		if (m_WFlastCompletedStep < stepNo-1)
-			if (stepNo>1)
-				doStep(stepNo-1);
-
-		// 2. do the step (the anscessor will do it)
-		m_WFlastCompletedStep = stepNo;
-	}
-
-};
 
 
 #if defined(__APPLE__)

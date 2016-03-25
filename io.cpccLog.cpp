@@ -157,15 +157,21 @@ public: 	// data
 	cpccLogSink	error, warning, info;
     
 public:
-	cpccLog(const char *aFilename):
-		error("ERROR>\t", aFilename, !CreateFileOnError, echoToCOUT),
-		warning("Warning>\t", aFilename, !CreateFileOnWarning, echoToCOUT),
-		info("Info>\t", aFilename, !CreateFileOnInfo, echoToCOUT)
+	cpccLog(/* const char *aFilename*/  void ):
+		error("ERROR>\t",  !CreateFileOnError, echoToCOUT),
+		warning("Warning>\t", !CreateFileOnWarning, echoToCOUT),
+		info("Info>\t",  !CreateFileOnInfo, echoToCOUT)
 	{
+		cpcc_string fn = getAutoFilename();
+		const char *aFilename = fn.c_str();
 		// empty the file
 		if (cpccFileSystemMini::fileExists(aFilename))
 			cpccFileSystemMini::createEmptyFile(aFilename);
         
+		info.m_filename = aFilename;
+		warning.m_filename = aFilename;
+		error.m_filename = aFilename;
+
         info.add(cpccLogOpeningStamp);
         consolePut( "Log filename:" << aFilename );
         info.addf("Log filename:%s", aFilename);
@@ -184,9 +190,19 @@ public:
 		info.add(cpccLogClosingStamp);
 	}
 	
+
     
 public: // functions
 	bool hasErrors(void) { return !error.isEmpty(); }
+
+
+	cpcc_string getAutoFilename(void)
+	{
+		cpccPathString result(cpccPathString::sfUsersTemp);
+		result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
+		result.append(_T(".cpccLog.txt"));
+		return result;
+	}
 	
 };
 
@@ -201,16 +217,10 @@ public: // functions
 class cpccLogAutoFilename: public cpccLog
 {
 public:
-	cpccLogAutoFilename():	cpccLog(getAutoFilename().c_str())
+	cpccLogAutoFilename()
 	{  }
     
-	static const cpcc_string &getAutoFilename(void)
-	{
-		static cpccPathString result(cpccPathString::sfUsersTemp);
-		result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
-		result.append(_T(".cpccLog.txt"));
-		return result;
-	}
+	
     
 };
 

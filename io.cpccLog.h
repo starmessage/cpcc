@@ -8,8 +8,7 @@
  *  Copyright: 	2014 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
  *				https://github.com/starmessage/cpcc
  *	email:		sales -at- starmessage.info
  *	*****************************************
@@ -34,7 +33,7 @@ class cpccLogSink
 {
 private:
 	const cpcc_char *	m_tag;
-	cpcc_string			m_filename;
+	
 	bool  				m_isEmpty,
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
@@ -43,12 +42,14 @@ private:
 	static cpcc_char *	m_IdentText;
 
 public:
+	cpcc_string			m_filename;
+
+public:
 	static void		 increaseIdent(void) { ++m_IdentLevel; }
 	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541: reducing log ident to <0"); }
 
 public: // constructor / destructor
-	cpccLogSink(const cpcc_char *aTag, const cpcc_char *aFilename, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
-		m_filename(aFilename),
+	cpccLogSink(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
 		m_tag(aTag),
 		m_disableIfFileDoesNotExist(disableIfFileDoesNotExist),
 		m_echoToConsole(echoToConsole),
