@@ -19,6 +19,7 @@
 #include "algo.cpccWorkFlow_advancing.h"
 
 
+// the following typedefs are taken from NalpeironNSA.h
 
 #if defined(__APPLE__)
 // Mac OS X Specific header stuff here
@@ -30,29 +31,88 @@
 extern "C" {
 #endif
 
-	typedef int(*NalpGetErrorMsg_t)(int nalpErrno, char **errMsg);
-	typedef	int(*NSAValidateLibrary_t)(uint32_t custNum, uint32_t prodNum);
 
-	//Routine to inform Nalpeiron server that application has started
-	typedef int(*NSAAppStart_t)(const char *nsaClientData, uint32_t *transID);
-
-	//Routine to inform Nalpeiron server that application has ended
-	typedef int(*NSAApStop_t)(const char *nsaClientData, uint32_t *transID);
-	
 	typedef int(*NalpLibOpen_t)(const char *xmlParams);
 	typedef int(*NalpLibClose_t)(void);
-	typedef int(*NSASetPrivacy_t)(unsigned short nsaPriv);
-	typedef int(*NSAFree_t)(void *memptr);
+	typedef int(*NalpGetErrorMsg_t)(int nalpErrno, char **errMsg);
 	
-	typedef int(*NSATestConnection_t) (const char *nsaClientData, uint32_t *transID); //Checks server connectivity
-	typedef int	(*NSLTestConnection_t)();
+	//Returns true if DLL matches customer number and last 5
+	// digits of product ID
+	typedef	int(*NSAValidateLibrary_t)(uint32_t custNum, uint32_t prodNum);
+
+
+	//Routine to inform Nalpeiron server that application has started
+	typedef int(*NSAApStart_t)
+		(const char *nsaClientData, uint32_t *transID);
+
+	//Routine to inform Nalpeiron server that application has ended
+	typedef int(*NSAApStop_t)
+		(const char *nsaClientData, uint32_t *transID);
+	
+	
+	
+
+	//Checks state of end user privacy setting
+	typedef int(*NSAGetPrivacy_t)();
+
+	//Set end user privacy (on - 1, off - 0, unset - 2)
+	typedef int(*NSASetPrivacy_t)(unsigned short nsaPriv);
+
+	//Free memory allocated via NSA
+	typedef int(*NSAFree_t)(void *memptr);
+
+	// Checks server connectivity
+	typedef int(*NSATestConnection_t)
+		(const char *nsaClientData, uint32_t *transID);
+
 
     //Send system information from end user's computer to Nalpeiron
-    typedef int (*NSASysInfo_t)
-            (   const char *username, const char *applang, const char *version,
-                const char *edition, const char *build, const char *licenseStat,
-                const char *nsaClientData, uint32_t *transID);
-    
+	typedef int(*NSASysInfo_t)
+		(const char *username, const char *applang, const char *version,
+			const char *edition, const char *build, const char *licenseStat,
+			const char *nsaClientData, uint32_t *transID);
+
+
+	//Log in user to Nalpeiron server analytics collection
+	typedef int(*NSALogin_t)
+		(char *username, const char *nsaClientData, uint32_t *transID);
+
+	//Log out user from Nalpeiron server analytics collection
+	typedef int(*NSALogout_t)
+		(char *username, const char *nsaClientData, uint32_t *transID);
+
+
+
+	//Inform Nalpeiron server that use of a specific feature has begun
+	typedef int(*NSAFeatureStart_t)
+		(char *username, char *featureCode,
+			const char *nsaClientData, uint32_t *transID);
+
+	//Inform Nalpeiron server that use of a specific feature has ended 
+	typedef int(*NSAFeatureStop_t)
+		(char *username, char *featureCode,
+			const char *nsaClientData, uint32_t *transID);
+
+
+	//Infor Nalpeiron server that a local error has occurred
+	typedef int(*NSAException_t)
+		(char *username, char *exceptionCode, char *description,
+			const char *nsaClientData, uint32_t *transID);
+
+	//If any analytics transactions are in queue send them to Nalpeiron
+	typedef int(*NSASendCache_t)(char *username, uint32_t *transID);
+
+	// returns the version number as a 3 digit number i.e. 2.7.0 returns 270
+	typedef	int(*NSAGetVersion_t)(char **version);
+
+	// returns computer identification string
+	typedef int(*NSAGetComputerID_t)(char **computerID);
+
+	//Return the domain name of the activation server
+	typedef int(*NSAGetHostName_t)(char **hostName);
+
+
+
 #ifdef __cplusplus
 }
 #endif
@@ -67,7 +127,7 @@ private:
 	NSAValidateLibrary_t	NSAValidateLibrary_ptr = NULL;
 	NalpLibOpen_t			NalpLibOpen_ptr = NULL;
 	NalpLibClose_t			NalpLibClose_ptr = NULL;
-	NSAAppStart_t			NSAAppStart_ptr = NULL;
+	NSAApStart_t			NSAAppStart_ptr = NULL;
 	NSAApStop_t				NSAAppStop_ptr = NULL;
 	NSASetPrivacy_t			NSASetPrivacy_ptr = NULL;
 	NSAFree_t				NSAFree_ptr = NULL;
@@ -146,6 +206,9 @@ protected:
 		Get a descriptive string for Nalpeiron error codes.
 		nalpErrorno is a negative return value from one of the Nalpeiron functions and errorMsg is a descriptive string explaining that error.
 		errorMsg should be freed with NSAFree by the caller.
+
+		error codes:
+		http://docs.nalpeiron.com/display/DOCS/NSA+Error+Code+List
 		*/
 			
 		char *msg;
@@ -157,6 +220,11 @@ protected:
 
 	bool NalpLibOpen(const char * xmlConfiguration)
 	{
+		//You must always call NalpLibOpen before using the NSA library.  
+		// NalpLibOpen initializes necessary structures and kicks off the
+		// threads.  To guard against future changes, NalpLibOpen takes
+		// a xml string as its parameter.
+
 		if (m_infoDumpPtr)
 			*m_infoDumpPtr << "\nInfo: NalpLibOpen()\n";
 
@@ -169,6 +237,7 @@ protected:
 			}
 		
 		int ret = NalpLibOpen_ptr(xmlConfiguration); // Returns 0 for success and a negative number for an error.
+
 		if (ret == 0)
 			return true;
 		reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
@@ -214,7 +283,7 @@ protected:
 			*m_infoDumpPtr << "\nInfo: NSAAppStart()\n";
 
 		if (!NSAAppStart_ptr)
-			if (!(NSAAppStart_ptr = (NSAAppStart_t)getFunction("NSAAppStart")))
+			if (!(NSAAppStart_ptr = (NSAApStart_t)getFunction("NSAAppStart")))
 			{
 				errorStream << "error linking to NSAAppStart()\n";
 				return false;
@@ -390,7 +459,11 @@ private:
 						};
     char *          m_clientData;
 	
-			
+	cpcc_string		m_productVersion,
+					m_productEdition,
+					m_productBuildNumber,
+					m_productLicense;
+
 public:
 	cpccAppTelemetryNalpeiron(
 		const char* nalDynLibraryFilename,
@@ -418,15 +491,32 @@ public:
 			"<MyData>1</MyData>";
 
 		m_isLibOpen = NalpLibOpen(xmlConfiguration);
-		NSAdisablePrivacy();
+		//NalpLibOpen get location information for the end user to ensure
+		// compliance with local privacy laws. If the next transaction
+		// occurs before retrieval of this information is complete, the
+		// transaction will be cached instead of sent.  No information is
+		// lost, as the cached transaction is sent after location info is
+		// retrieved.  We pause here for simplicity of the example.
 
+		m_productVersion = productVersion;
+		m_productEdition = productEdition;
+		m_productBuildNumber = productBuildNumber;
+		m_productLicense = productLicense;
+		/*
+#ifdef WIN32
+		Sleep(1000);
+#else
+		sleep(1);
+#endif
+*/
+
+		/*
 		if (config_DoLibValidation)
 			if (!NSA_validateLibrary(customerID, productID))
 				return;
+		*/
 
-		m_isAppStarted = NSAAppStart(NULL, &m_transID);
-
-		NSASysInfo("anonymous", "EN", productVersion, productEdition, productBuildNumber, productLicense, NULL, &m_transID);
+		
 	}
 
 
@@ -435,25 +525,34 @@ public:
 		cpccWorkFlow_advancing::doStep(stepNo);
 		switch (stepNo)
 		{
-		
-		case 1: 
+		case 1:
+			NSAdisablePrivacy();
+			m_isAppStarted = NSAAppStart(NULL, &m_transID);
+			NSASysInfo("anonymous", "EN", m_productVersion.c_str(), m_productEdition.c_str(), m_productBuildNumber.c_str(), m_productLicense.c_str(), NULL, &m_transID);
+			break;
+		case 2: 
 			if (m_isAppStarted)
 			{
+				/*
+				#ifdef WIN32
+					Sleep(1000);
+				#else
+					sleep(1);
+				#endif
+				*/
 				NSAAppStop(NULL, &m_transID);	
 				m_isAppStarted = false;
 			}
 			break;
 
-		case 2: // stop to push the data  / ex-stopTelemetry
+		case 3: 
 			if (m_isLibOpen)
 			{
 				NalpLibClose();
 				m_isLibOpen = false;
 			}
 			break;
-		case 3: // close / ex-destructor
 
-			break;
 		default:
 			break;
 		}

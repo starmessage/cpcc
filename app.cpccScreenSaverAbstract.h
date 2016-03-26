@@ -67,10 +67,6 @@ private:	// functions
     }
     
     
-protected:  // abstract functions for the ancenstor to implement
-    
-	
-
     
 protected: // screensaver standard functions
     
