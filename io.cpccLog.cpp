@@ -13,7 +13,8 @@
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
- 
+
+#include <fstream>
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
@@ -164,13 +165,18 @@ public:
 	{
 		cpcc_string fn = getAutoFilename();
 		const char *aFilename = fn.c_str();
+        info.m_filename = aFilename;
+        warning.m_filename = aFilename;
+        error.m_filename = aFilename;
+        
+        // check previous run
+        if (logfileIsIncomplete())
+            copyToDesktop();
+        
 		// empty the file
 		if (cpccFileSystemMini::fileExists(aFilename))
 			cpccFileSystemMini::createEmptyFile(aFilename);
         
-		info.m_filename = aFilename;
-		warning.m_filename = aFilename;
-		error.m_filename = aFilename;
 
         info.add(cpccLogOpeningStamp);
         consolePut( "Log filename:" << aFilename );
@@ -188,6 +194,9 @@ public:
 	{	
 		//cpccFileSystemMiniEx::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
 		info.add(cpccLogClosingStamp);
+        std::cout << cpccLogClosingStamp << std::endl;
+        if (containsText("ERROR>\t"))
+            copyToDesktop();
 	}
 	
 
@@ -196,14 +205,54 @@ public: // functions
 	bool hasErrors(void) { return !error.isEmpty(); }
 
 
-	cpcc_string getAutoFilename(void)
+	cpccPathString getAutoFilename(void) const
 	{
-		cpccPathString result(cpccPathString::sfUsersTemp);
-		result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
-		result.append(_T(".cpccLog.txt"));
-		return result;
+        cpccPathString result(cpccPathString::sfUsersTemp);
+        result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
+        result.append(_T(".cpccLog.txt"));
+        return result;
 	}
 	
+    
+    bool    containsText(const char *txt) const
+    {
+        const char *fn = info.m_filename.c_str();
+        if (!cpccFileSystemMini::fileExists(fn))
+            return false;
+        
+        std::ifstream thefile( fn);
+        if (!thefile.good())
+            return false;
+        
+        cpcc_string line;
+        while (std::getline(thefile, line ))  // same as: while (getline( myfile, line ).good())
+        {
+            if (line.find(txt) != std::string::npos)
+            {
+                thefile.close();
+                return true;
+            }
+        }
+        thefile.close();
+        return false;
+    }
+    
+    
+    bool    logfileIsIncomplete(void)
+    {
+        return (containsText(cpccLogOpeningStamp) && !containsText(cpccLogClosingStamp));
+    }
+    
+    
+    void    copyToDesktop(void)
+    {
+        const char *fn = info.m_filename.c_str();
+        if (!cpccFileSystemMini::fileExists(fn))
+            return;
+
+        cpccFileSystemMini::copyFile(fn, cpccFileSystemMini::getFolder_Desktop().c_str());
+    }
+    
 };
 
 
@@ -228,5 +277,5 @@ cpccLogSink			&errorLog(void) { return ns_globals::globalAppLog.error; }
 
 namespace ns_globals
 {
-	logObjectLife  logFileMarker("logFileMarker");
+	// logObjectLife  logFileMarker("logFileMarker");
 }
