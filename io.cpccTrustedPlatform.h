@@ -54,15 +54,14 @@ protected:
 
 		if (_folder.length() == 0)
 		{
-			cpccFileSystemMiniEx fs;
-			_folder.assign(fs.getFolder_CommonAppData());
+			_folder.assign(cpccFileSystemMini::getFolder_CommonAppData());
             cpcc_string codedSubfolder;
             computeHash(m_AppID, codedSubfolder);
             codedSubfolder.insert(0, ".");
 			_folder.appendPathSegment(codedSubfolder.c_str());
 
-			if (!fs.folderExists(_folder))
-				fs.createFolder(_folder);
+			if (!cpccFileSystemMini::folderExists(_folder))
+				cpccFileSystemMini::createFolder(_folder);
 		}
 
 		return _folder;

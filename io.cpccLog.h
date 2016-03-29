@@ -17,12 +17,11 @@
 #pragma once
 
 #include "cpccTimeCounter.h" // must be included before any windows.h. Otherwise it can produce: warning C4005: 'AF_IPX' : macro redefinition
+
 #include <ctime>
 #include <iostream> 
-// #include <typeinfo>     // to find automatically the class name, eg.    cout << typeid(*this).name() << endl;
 #include <assert.h>
 #include <string> 
-
 
 #include "cpccUnicodeSupport.h"
 
@@ -33,14 +32,12 @@ class cpccLogSink
 {
 private:
 	const cpcc_char *	m_tag;
-	
+	static cpcc_char *	m_IdentText;
 	bool  				m_isEmpty,
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
-
 	static int			m_IdentLevel;
-	static cpcc_char *	m_IdentText;
-
+	
 public:
 	cpcc_string			m_filename;
 
@@ -55,15 +52,10 @@ public: // constructor / destructor
 		m_echoToConsole(echoToConsole),
 		m_isEmpty(true)
  	{ }
-	
-    
-	/*
-	~cpccLogSink()
-	{
-		cpccFileSystemMiniEx::appendTextFile("c:\\tmp\\b.txt", cpcc_string("this is the end"));
-	}
-	*/
+		
+	// virtual ~cpccLogSink();
 
+	
 
 public: // functions
 	bool 				isEmpty(void) { return m_isEmpty; }
@@ -74,7 +66,7 @@ public: // functions
     
 	///  Get the current datetime as a human readable string
 	/**
-		This function is used to create the timestamp field of the logRecord
+		This function is used to create the timestamp field 
 	 
 		 @param  fmt the format specifier according to C++ strftime()
 		 @return the current datetime formatted with the standard function strftime
@@ -116,7 +108,7 @@ public:
         cpccLogSink::increaseIdent();
     }
     
-    ~logBlockOfCode(void)
+    virtual ~logBlockOfCode(void)
     {
         cpccLogSink::decreaseIdent();
         infoLog().addf("%s: %s", endTag.c_str(), tag.c_str());
@@ -144,6 +136,7 @@ class logTimeCountrer : public logFunctionLife
 {
 private:
 	cpccTimeCounter timer;
+
 public:
 
 	logTimeCountrer(const cpcc_char *aTag) : logFunctionLife(aTag)
@@ -151,7 +144,7 @@ public:
 		// timer.resetTimer();
 	}
 
-	~logTimeCountrer(void)
+	virtual ~logTimeCountrer(void)
 	{
         tag.append(cpccLogSink::toString(". Duration:%.3f sec",timer.getSecondsElapsed()));
 	}

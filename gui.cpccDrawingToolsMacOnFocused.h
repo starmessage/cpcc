@@ -115,8 +115,9 @@ public:		// functions
         // https://developer.apple.com/library/mac/documentation/cocoa/conceptual/CocoaDrawingGuide/Color/Color.html
         
 		
-        // NSString *macString = [[[NSString alloc] initWithUTF8String:text] autorelease];
-        NSString *macString = [[[NSString alloc] initWithCString:text encoding:NSASCIIStringEncoding] autorelease];
+        NSString *macString = [[[NSString alloc] initWithUTF8String:text] autorelease];
+        // the following works with ascii text (not greek text)
+        //NSString *macString = [[[NSString alloc] initWithCString:text encoding:NSASCIIStringEncoding] autorelease];
         
         NSMutableDictionary *textAttrib = [[[NSMutableDictionary alloc] init] autorelease];
 		

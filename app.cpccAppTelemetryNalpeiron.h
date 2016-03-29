@@ -474,8 +474,8 @@ public:
 		const char* productEdition,
 		const char* productLicense,
 		cpccErrorCollector &aErrorCollector,
-		cpccErrorCollector &anInfoCollector ) :
-		LinkedLibrary_nalpeiron(nalDynLibraryFilename, aErrorCollector.errorDump, &anInfoCollector.errorDump),
+		cpccErrorCollector *anInfoCollectorPtr ) :
+		LinkedLibrary_nalpeiron(nalDynLibraryFilename, aErrorCollector.errorDump, NULL),
 		cpccWorkFlow_advancing(3)
 	{
 		const char * xmlConfiguration =

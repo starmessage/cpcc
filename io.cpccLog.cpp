@@ -38,7 +38,7 @@ void cpccLogSink::add(const cpcc_char* txt)
 	if (m_filename.length() == 0)
 		return;
 
-	if (!cpccFileSystemMiniEx::fileExists(m_filename) && (m_disableIfFileDoesNotExist))
+	if (!cpccFileSystemMini::fileExists(m_filename) && (m_disableIfFileDoesNotExist))
 		return;
 
 	static cpcc_string m_outputBuffer;
@@ -60,7 +60,7 @@ void cpccLogSink::add(const cpcc_char* txt)
 	m_outputBuffer.append(txt);
 	m_outputBuffer.append("\n");
 
-	cpccFileSystemMiniEx::appendTextFile(m_filename, m_outputBuffer);
+	cpccFileSystemMini::appendTextFile(m_filename, m_outputBuffer);
 	if (m_echoToConsole)
 	{
 		std::cout << m_outputBuffer;
@@ -132,6 +132,15 @@ cpcc_string cpccLogSink::getCurrentTime(const cpcc_char * fmt)
 	return cpcc_string(buffer);  // e.g. 13:44:04
 }
 
+/*
+cpccLogSink::~cpccLogSink()
+{
+	cpccFileSystemMini::appendTextFile("c:\\tmp\\b.txt", "this is the end");
+	#if defined(_WIN32)
+		OutputDebugString("~cpccLogSink() called");
+	#endif
+}
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -190,11 +199,14 @@ public:
 	}
 	
     
-	~cpccLog()
+	virtual ~cpccLog()
 	{	
-		//cpccFileSystemMiniEx::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
+		//cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
 		info.add(cpccLogClosingStamp);
         std::cout << cpccLogClosingStamp << std::endl;
+		#if defined(_WIN32)
+			OutputDebugString("~cpccLog() called");
+		#endif
         if (containsText("ERROR>\t"))
             copyToDesktop();
 	}
@@ -260,7 +272,7 @@ public: // functions
 cpcc_char *	cpccLogSink::m_IdentText =  (cpcc_char *)"| ";
 int	cpccLogSink::m_IdentLevel = 0;
 
-namespace ns_globals
+namespace ns_cpccGlobals
 {
 	cpccLog globalAppLog;
 }
@@ -270,12 +282,12 @@ namespace ns_globals
 /////////////////////////////////////////////////////////////////////////
 // inside the program use the following functions to write to the 3 logs.
 // all the 3 logs point to the same file.
-cpccLogSink			&infoLog(void) { return ns_globals::globalAppLog.info; }
-cpccLogSink			&warningLog(void) { return ns_globals::globalAppLog.warning; }
-cpccLogSink			&errorLog(void) { return ns_globals::globalAppLog.error; }
+cpccLogSink			&infoLog(void) { return ns_cpccGlobals::globalAppLog.info; }
+cpccLogSink			&warningLog(void) { return ns_cpccGlobals::globalAppLog.warning; }
+cpccLogSink			&errorLog(void) { return ns_cpccGlobals::globalAppLog.error; }
 
 
-namespace ns_globals
+namespace ns_cpccGlobals
 {
-	// logObjectLife  logFileMarker("logFileMarker");
+	logObjectLife  logFileMarker("logFileMarker");
 }

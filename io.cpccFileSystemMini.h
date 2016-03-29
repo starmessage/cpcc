@@ -53,8 +53,11 @@ public:
 	// folder functions --------------------------------
 
 	static bool createFolder(const cpcc_char *  aFoldername);
+	static bool	createFolder(const cpcc_string& aFoldername) { return createFolder(aFoldername.c_str()); }
+	
 	static bool folderExists(const cpcc_char *  aFoldername);
 	static bool	folderExists(const cpcc_string& aFoldername) { return folderExists(aFoldername.c_str()); };
+	
 
 	static cpcc_string getFolder_Desktop(void);
 	static cpcc_string getFolder_SystemsTemp(void);
@@ -88,11 +91,15 @@ public:
 	static bool createEmptyFile(const cpcc_char * aFilename);
 	static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
+	static bool	appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return appendTextFile(aFilename, text.c_str()); };
+	static bool	appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return appendTextFile(aFilename.c_str(), text.c_str()); };
+
 	static bool deleteFile(const cpcc_char * filename);
 	static bool	deleteFile(const cpcc_string& aFilename) { return deleteFile(aFilename.c_str()); };
 
 	static bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);
-	
+	static bool	copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
+
 		
 	// date functions --------------------------------
 	static time_t		 getFileModificationDate(const cpcc_char * aFilename);
@@ -108,18 +115,6 @@ public:
 
 };
 
-
-/// convenience class with additional calling parameters
-class cpccFileSystemMiniEx : public cpccFileSystemMini
-{
-public:
-	
-	bool			copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return cpccFileSystemMini::copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
-	static bool		appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename, text.c_str()); };
-	static bool		appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return cpccFileSystemMini::appendTextFile(aFilename.c_str(), text.c_str()); };
-	bool			createFolder(const cpcc_string& aFoldername) { return cpccFileSystemMini::createFolder(aFoldername.c_str()); }
-
-};
 
 
 class cpccPathString: public cpcc_string

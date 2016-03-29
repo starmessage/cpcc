@@ -148,13 +148,7 @@ public:
     
 }
 
-/*
- Implementing preservesContentDuringLiveResize to return YES gives you some 
- extra responsibilities, but can improve performance during window resizing.
- 
- 10.6 added another two new APIs of this sort, layerContentsRedrawPolicy and layerContentsPlacement.
- 
- */
+
 
 
 @end
@@ -172,6 +166,13 @@ public:
 
 }
 
+/*
+- (void)applicationWillTerminate:(NSNotification *)notification
+{
+    NSLog(@"the screensaver received applicationWillTerminate");
+    infoLog().add("the screensaver received applicationWillTerminate");
+}
+*/
 
 
 // flip the coordinates of the NSView, so they are the same as in the case of windows screensavers
@@ -273,6 +274,7 @@ public:
 	
 }
 
+
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
     // see displayRectIgnoringOpacity
@@ -285,12 +287,16 @@ public:
     //[[self window] setBackgroundColor:[NSColor clearColor]];
     //[[self window] setBackgroundColor:[NSColor orangeColor]];
 
+    [[NSProcessInfo processInfo] disableAutomaticTermination:@"The screen saver prefers to be closed gracefully."];
+    
+    // http://stackoverflow.com/questions/14798056/how-to-know-when-a-cocoa-app-is-about-to-quit
+    // How to know when a Cocoa app is about to quit?
+    //  https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSProcessInfo_Class/#//apple_ref/doc/uid/20000316-SW3
+    [[NSProcessInfo processInfo] disableSuddenTermination];
     
     self = [super initWithFrame:frame isPreview:isPreview];
     assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
     
-    
-	
 		
     /*
     NSRect windowframe = frame;
