@@ -66,7 +66,7 @@ public: // functions
     
 	///  Get the current datetime as a human readable string
 	/**
-		This function is used to create the timestamp field 
+		This function is used to create the timestamp label for the log entries 
 	 
 		 @param  fmt the format specifier according to C++ strftime()
 		 @return the current datetime formatted with the standard function strftime
@@ -75,10 +75,7 @@ public: // functions
 };
 
 
-
-
-// lazy but early enough constructor for the logging object
-
+// aliases for the 3 log levels
 cpccLogSink			&infoLog(void);
 cpccLogSink			&warningLog(void);
 cpccLogSink			&errorLog(void);

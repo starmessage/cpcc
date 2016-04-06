@@ -49,9 +49,6 @@ extern "C" {
 	typedef int(*NSAApStop_t)
 		(const char *nsaClientData, uint32_t *transID);
 	
-	
-	
-
 	//Checks state of end user privacy setting
 	typedef int(*NSAGetPrivacy_t)();
 
@@ -94,7 +91,7 @@ extern "C" {
 			const char *nsaClientData, uint32_t *transID);
 
 
-	//Infor Nalpeiron server that a local error has occurred
+	//Inform Nalpeiron server that a local error has occurred
 	typedef int(*NSAException_t)
 		(char *username, char *exceptionCode, char *description,
 			const char *nsaClientData, uint32_t *transID);
@@ -133,7 +130,8 @@ private:
 	NSAFree_t				NSAFree_ptr = NULL;
 	NSATestConnection_t		NSATestConnection_ptr = NULL;
 	NSASysInfo_t            NSASysInfo_ptr = NULL;
-	    
+	NSAFeatureStart_t		NSAFeatureStart_ptr = NULL;
+	NSAFeatureStop_t		NSAFeatureStop_ptr = NULL;
 	std::stringstream		*m_infoDumpPtr = NULL;
 
 public:
@@ -163,6 +161,45 @@ public:
     	
 
 protected: 
+
+	bool NSAFeatureStart(char *username, char *featureCode, const char *nsaClientData, uint32_t *transID)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSAFeatureStart()\n";
+
+		if (!NSAFeatureStart_ptr)
+			if (!(NSAFeatureStart_ptr = (NSAFeatureStart_t)getFunction("NSAFeatureStart")))
+			{
+				errorStream << "error linking to NSAFeatureStart()\n";
+				return false;
+			}
+		
+		int ret = NSAFeatureStart_ptr(username,featureCode,nsaClientData, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822m: error calling NSAFeatureStart()", ret);
+		return false;
+	}
+	
+	
+	bool NSAFeatureStop(char *username, char *featureCode, const char *nsaClientData, uint32_t *transID)
+	{
+		if (m_infoDumpPtr)
+			*m_infoDumpPtr << "\nInfo: NSAFeatureStop()\n";
+
+		if (!NSAFeatureStop_ptr)
+			if (!(NSAFeatureStop_ptr = (NSAFeatureStop_t)getFunction("NSAFeatureStop")))
+			{
+				errorStream << "error linking to NSAFeatureStop()\n";
+				return false;
+			}
+		
+		int ret = NSAFeatureStop_ptr(username, featureCode, nsaClientData, transID);
+		if (ret == 0)
+			return true;
+		reportErrorMsg("#6822n: error calling NSAFeatureStop()", ret);
+		return false;
+	}
 	
 	bool	NSA_free(void *memptr)
 	{
@@ -320,6 +357,8 @@ protected:
 	}
 
 
+	
+	
 	bool NSA_validateLibrary(const char* customerID, const char* productID)
 	{
 		if (m_infoDumpPtr)
@@ -519,7 +558,7 @@ public:
 		
 	}
 
-
+	// these steps are created because NSA needs some time between the calls 
 	virtual void doStep(const int stepNo) override
 	{
 		cpccWorkFlow_advancing::doStep(stepNo);
@@ -529,8 +568,11 @@ public:
 			NSAdisablePrivacy();
 			m_isAppStarted = NSAAppStart(NULL, &m_transID);
 			NSASysInfo("anonymous", "EN", m_productVersion.c_str(), m_productEdition.c_str(), m_productBuildNumber.c_str(), m_productLicense.c_str(), NULL, &m_transID);
+			NSAFeatureStart("anonymous", "run", NULL, &m_transID);
 			break;
 		case 2: 
+			NSAFeatureStop("anonymous", "run", NULL, &m_transID);
+			
 			if (m_isAppStarted)
 			{
 				/*
