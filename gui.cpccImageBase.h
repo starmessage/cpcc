@@ -46,6 +46,9 @@ public:		// concrete functions
 public:  // abstract functions
 	virtual void			initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor)=0;
     virtual bool			initWithFile(const cpcc_char* afullpathfilename, const bool hasTransparentCorner=false)=0;
+#ifdef _WIN32
+	virtual bool			initWithResource(const int resourceID, const bool transparentCorner) = 0;
+#endif
 	virtual cpccColor		getPixel(const int x, const int y) const =0;
     virtual void 			setPixel(const int x, const int y, const cpccColor &aColor)=0;
     virtual void            amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB )=0;

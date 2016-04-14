@@ -27,9 +27,8 @@
 class cpccImageWin: public cpccImageBase
 {
 private:
-	cpccWinGDIBitmap *m_GDIHBitmap;
-	//HBITMAP	hBitmap, hOldBitmap;
-	HDC		m_hDC; 
+	cpccWinGDIBitmap		*m_GDIHBitmap;
+	HDC						m_hDC; 
 	cpccDrawingToolsWinDC	m_dtool;
 
 	
@@ -101,7 +100,7 @@ public:		// functions
 
 	
 
-	virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) {  	m_dtool.drawText(x, y, text, params); }
+	virtual void	  drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) {  	m_dtool.drawText(x, y, text, params); }
 
 	const virtual int getWidth(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0; }
 	const virtual int getHeight(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0; 	}
@@ -143,6 +142,38 @@ protected:
 	}
 
 
+public:
+
+	virtual bool initWithResource(const int resourceID, const bool transparentCorner) override
+	{
+
+		if (m_GDIHBitmap)
+		{ 
+			errorLog().addf("cpccImageWin.initWithResource_impl(%i) called but hBitmap not null", resourceID);
+			return false;
+		}
+		HINSTANCE hInst = GetModuleHandle(NULL);
+		HBITMAP hBitmapTemp = ::LoadBitmap(hInst, MAKEINTRESOURCE(resourceID));
+		// if LoadImage fails, it returns a NULL handle
+		if (!hBitmapTemp)
+		{
+			// LoadImage faled so get extended error information.
+			errorLog().addf(_T("#4653b: image.initWithResource_impl failed:%i with windows error code:%u"), ::GetLastError());
+			return false;
+		}
+
+		if (!m_hDC)
+		{ 
+			errorLog().addf("cpccImageWin.initWithResource_impl(%i) called but m_hDC is null", resourceID);
+			return false;
+		}
+
+		// hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
+		m_GDIHBitmap = new cpccWinGDIBitmap(m_hDC, hBitmapTemp);
+		return m_GDIHBitmap != NULL;
+	}
+
+
 protected: // functions
 
 	// ToDo: transparentCorner is ignored here but is treated by the encapsulating class
@@ -150,25 +181,31 @@ protected: // functions
 	{
 		// if (hBitmap)
 		if (m_GDIHBitmap)
+		{ 
 			errorLog().addf("cpccImageWin.initWithFile(%s) called but hBitmap not null", aFullPathFilename);
-		
+			return false;
+		}
+
 		HBITMAP hBitmapFromFile = (HBITMAP) ::LoadImage(NULL, aFullPathFilename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /* |LR_CREATEDIBSECTION */);
 		// if LoadImage fails, it returns a NULL handle
 		if(!hBitmapFromFile)
 		{
 			// LoadImage faled so get extended error information.
 			errorLog().addf( _T("#4653: image.loadFromFile failed:%s") , aFullPathFilename);
-			errorLog().addf(_T("       with windows error code:%u") , ::GetLastError());
+			errorLog().addf(_T("        with windows error code:%u") , ::GetLastError());
 			return false;
 		}
 	
 		if (!m_hDC)
+		{
 			errorLog().addf("cpccImageWin.initWithFile(%s) called but m_hDC is null", aFullPathFilename);
+			return false;
+		}
 
 		// hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
 		m_GDIHBitmap = new cpccWinGDIBitmap(m_hDC, hBitmapFromFile);
 
-		return true;
+		return m_GDIHBitmap != NULL;
 	}
 
 
