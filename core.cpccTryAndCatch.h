@@ -19,5 +19,10 @@
 
 #define CPCC_TRY_AND_CATCH(expr, catchMsg)          \
 try { expr;  }                                      \
-catch(const std::exception& e)  { errorLog().add(catchMsg);  errorLog().add(e.what()); }    \
-catch( ... ) { errorLog().add(catchMsg); }
+catch(const std::runtime_error& re) { errorLog().addf("Runtime error caught:\n%s\n%s", re.what(), catchMsg);  }    \
+catch(const std::exception& ex)		{ errorLog().addf("Exception caught:\n%s\n%s", ex.what(), catchMsg);  }    \
+catch(const std::exception *ex)		{ if (ex) errorLog().addf("Exception caught:\n%s\n%s", ex->what(), catchMsg);  }    \
+catch( ... )						{ errorLog().addf("Exception caught:%s", catchMsg); }
+
+
+ // catch(std::exception *ex)			{ if (ex) errorLog().addf("Exception caught:\n%s\n%s", ex->what(), catchMsg);  }  

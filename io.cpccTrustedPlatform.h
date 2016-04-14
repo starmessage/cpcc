@@ -23,6 +23,15 @@
 #include "io.cpccFileSystemMini.h"
 
 #include <sstream>
+/*
+ 
+ to use hash in XCODE:
+ What you need to do is open the project settings -> Build Settings and set
+ C++ Language Dialect to C++11 and
+ the C++ Standard Library to libc++ (LLVM C++ standard library with C++11 support)
+ */
+typedef std::hash<cpcc_string>      portableHashString;
+/*
 #ifdef __APPLE__
 	#include <ext/hash_map>
 	#include <tr1/functional>
@@ -30,7 +39,7 @@
 #elif defined(_WIN32)
 	typedef std::hash<cpcc_string>      portableHashString;
 #endif
-
+*/
 
 class cpccTrustedPlatform
 {

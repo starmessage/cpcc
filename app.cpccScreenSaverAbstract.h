@@ -28,7 +28,7 @@ private:
 	
 protected:	// data
 	cpccMonitorList		m_monitorList;
-	time_t				m_ticksPassed = 0;
+	//time_t				m_ticksPassed = 0;
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				m_PreserveDeskopContents;

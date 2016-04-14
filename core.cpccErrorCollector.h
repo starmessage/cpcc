@@ -20,11 +20,20 @@
 
 class cpccErrorCollector
 {
+private:
+
 
 public:	
-	//std::ostringstream	errorDump;
-	std::stringstream	errorDump;
-	bool				hasErrors(void) const { return errorDump.str().length() > 0; }	
-	const std::string	getErrorText(void) const { return errorDump.str(); }
-	void				clearErrors(void) { errorDump.str(""); }
+	std::stringstream	m_errorDump;
+	
+	void				clearErrors(void) { m_errorDump.str(""); }
+	
+	bool				hasErrors(void) const { return m_errorDump.str().length()>0; }
+
+	const std::string	getErrorTextAndClearErrors(void)  
+	{	std::string txt = m_errorDump.str(); 
+		clearErrors(); 
+		return txt; 
+	}
+	
 };

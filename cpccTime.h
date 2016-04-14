@@ -163,3 +163,36 @@ public:
 
 };
 
+
+///////////////////////////////////////////////////////////////////
+//		class cpccInterruptableSleep
+///////////////////////////////////////////////////////////////////
+
+
+class cpccInterruptableSleep
+{
+private:
+	const time_t dt_msec = 200;
+	bool		 &m_interruptRequested;
+
+public:
+	cpccInterruptableSleep(bool &interruptRequested) : m_interruptRequested(interruptRequested)
+	{	}
+
+
+	void sleep(const time_t msec)
+	{
+		time_t t = 0;
+		while (t < msec)
+		{
+			if (m_interruptRequested)
+				break;
+#ifdef _WIN32
+			Sleep((DWORD)dt_msec);
+#elif __APPLE__
+			usleep(1000 * dt_msec);
+#endif
+			t += dt_msec;
+		}
+	}
+};

@@ -96,8 +96,8 @@ public:		// functions
         NSBezierPath * path = [NSBezierPath bezierPath];
         [path setLineWidth: width];
         
-        NSPoint startPoint = {  x1, y1 };
-        NSPoint endPoint   = { x2, y2 };
+        NSPoint startPoint = {  static_cast<CGFloat>(x1), static_cast<CGFloat>(y1) };
+        NSPoint endPoint   = { static_cast<CGFloat>(x2), static_cast<CGFloat>(y2) };
         [path  moveToPoint: startPoint];
         [path lineToPoint:endPoint];
         [c.asNSColor() set];

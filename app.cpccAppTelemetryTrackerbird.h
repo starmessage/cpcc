@@ -15,7 +15,9 @@
 
 #pragma once
 
+
 #include "core.cpccErrorCollector.h"
+
 
 // ToDo: these paths must be neutralised to work on any developement environment
 //		 This is solved if the TB files are stored in the IDE's search path
@@ -30,8 +32,8 @@
 	
 #elif defined(__APPLE__)
 
-	#include "../libs/trackerBird/osx/libstdc++/TrackerbirdSDK.h"
-    // #include "../libs/trackerBird/osx/libc++/TrackerbirdSDK.h"
+	//#include "../libs/trackerBird/osx/libstdc++/TrackerbirdSDK.h"
+    #include "../libs/trackerBird/osx/libc++/TrackerbirdSDK.h"
 #endif
 
 
@@ -68,7 +70,7 @@ OSX:
 -------------------------------
  TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(<Callhome URL>,
                                                               <Product ID>,
-                                                              <Your product's version> productBuildNumber:<Your product's build number>,
+                                                              <Your product's version>,
                                                               <Your product's build number>,
                                                               <Multiple Sessions Enabled>,
                                                               <Your product's edition>,
@@ -116,47 +118,51 @@ public:
 // cpccAppTelemetryTrackerBird telemetry( "http://xxxxx.tbnet1.com",  "xxxxxx", SM_VERSION,  __DATE__, false, TM_PRODUCT_EDITION);
 
 // todo: support multiple sessions
-class cpccAppTelemetryTrackerBird: public cpccErrorCollector
+class cpccAppTelemetryTrackerBird 
 {
 private:
-    bool m_multipleSessionsEnabled;
-	
+    bool	m_multipleSessionsEnabled= false;
+	bool	m_started = false,
+			m_stopped  = false;
+	cpccErrorCollector	&m_errorDump;
+
 public:	// ctors
     cpccAppTelemetryTrackerBird(const char* callhomeURL,
                                 const char* productID,
                                 const char* productVersion,
                                 const char* productBuildNumber,
-                                bool        multiSessionEnabled,
-                                const char* productEdition) :
-    m_multipleSessionsEnabled(multiSessionEnabled)
+                                const char* productEdition,
+								cpccErrorCollector	&anErrorDump
+								) :
+			m_errorDump(anErrorDump)
     {
-#ifdef _WIN32
-        wchar_from_char	callhomeURL_w(callhomeURL),
-        productID_w(productID),
-        productVersion_w(productVersion),
-        productBuildNumber_w(productBuildNumber);
+		#ifdef _WIN32
+			wchar_from_char	callhomeURL_w(callhomeURL),
+			productID_w(productID),
+			productVersion_w(productVersion),
+			productBuildNumber_w(productBuildNumber);
         
-        tbCreateConfig(callhomeURL_w, productID_w, productVersion_w, productBuildNumber_w, m_multipleSessionsEnabled);
-        tbStart();
-#elif defined(__APPLE__)
-        TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, multiSessionEnabled, productEdition, "en", "");
-        TrackerbirdSDK::TBApp::start(config, NULL);
-        
-#endif
+			tbCreateConfig(callhomeURL_w, productID_w, productVersion_w, productBuildNumber_w, m_multipleSessionsEnabled);
+			tbStart();
+		#elif defined(__APPLE__)
+			TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, false, productEdition, "en", "");
+            TrackerbirdSDK::TBApp::start(config, NULL);
+            
+		#endif
     }
     
     
     ~cpccAppTelemetryTrackerBird()
     {
-        //if  (m_multipleSessionsEnabled)
-        //    TrackerbirdSDK::TBApp::sessionStop();
-
+		//if  (m_multipleSessionsEnabled)
+		//    TrackerbirdSDK::TBApp::sessionStop();
 		#ifdef _WIN32
 			tbStop();
 		#elif defined(__APPLE__)
-            TrackerbirdSDK::TBApp::stop(NULL);
+			TrackerbirdSDK::TBApp::stop(NULL);
 		#endif
     }
+
 
 
 public: // functions

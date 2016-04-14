@@ -16,7 +16,7 @@
 #pragma once
 
 #include "core.cpccLinkLibrary.h"
-#include "algo.cpccWorkFlow_advancing.h"
+
 
 
 // the following typedefs are taken from NalpeironNSA.h
@@ -116,7 +116,7 @@ extern "C" {
 
 
 // loads/unloads the .dylib or the dll and create linked functions to the library functions
-class LinkedLibrary_nalpeiron: public cpccLinkedLibrary
+class cpccAppTelemetryNalpeiron: public cpccLinkedLibrary
 {
 private:
 
@@ -149,18 +149,18 @@ public:
     
 public:
     
-	LinkedLibrary_nalpeiron(const char *aLibraryfilename, std::stringstream &anErrorStream, std::stringstream *anInfoErrorStream) : 
+	cpccAppTelemetryNalpeiron(const char *aLibraryfilename, std::stringstream &anErrorStream, std::stringstream *anInfoErrorStream) : 
 			cpccLinkedLibrary(aLibraryfilename, anErrorStream ),
-			m_infoDumpPtr(anInfoErrorStream)
+			m_infoDumpPtr(anInfoErrorStream) // for debug
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: LinkedLibrary_nalpeiron constructor\n";
+			(*m_infoDumpPtr) << "\nInfo: cpccAppTelemetryNalpeiron constructor\n";
         if (!isLoaded())
             errorStream << "nalpeiron library not loaded\n";
 	}
     	
 
-protected: 
+public: 
 
 	bool NSAFeatureStart(char *username, char *featureCode, const char *nsaClientData, uint32_t *transID)
 	{
@@ -482,131 +482,4 @@ protected:
 	http://docs.nalpeiron.com/display/NND/NSL+V10+Developers+API
 */
 
-class cpccAppTelemetryNalpeiron: public LinkedLibrary_nalpeiron, cpccWorkFlow_advancing
-{
-private:
-    uint32_t		m_transID = 0;	// To retrieve a transaction ID from any function, set transID = 0 and call the function. 
-									// Upon return, transID will be set with a random number that will be passed to the Nalpeiron server to identify the transaction.  
-									// Send this value into any functions that are to be grouped together.
-	
-    bool            m_isAppStarted = false;
-    bool            m_isLibOpen = false;
-	enum			eNalConfig 
-						{ 
-						config_DoLibValidation=true,
-						config_DoConnectionTest=false
-						};
-    char *          m_clientData;
-	
-	cpcc_string		m_productVersion,
-					m_productEdition,
-					m_productBuildNumber,
-					m_productLicense;
 
-public:
-	cpccAppTelemetryNalpeiron(
-		const char* nalDynLibraryFilename,
-		const char* customerID,
-		const char* productID,
-		const char* productVersion,
-		const char* productBuildNumber,
-		const char* productEdition,
-		const char* productLicense,
-		cpccErrorCollector &aErrorCollector,
-		cpccErrorCollector *anInfoCollectorPtr ) :
-		LinkedLibrary_nalpeiron(nalDynLibraryFilename, aErrorCollector.errorDump, NULL),
-		cpccWorkFlow_advancing(3)
-	{
-		const char * xmlConfiguration =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-			"<SHAFERXMLParams>"
-			"<NSAEnabled>1</NSAEnabled>"
-			"<NSLEnabled>0</NSLEnabled>"
-			//"<LogLevel>4</LogLevel>"
-			"<SecurityValue>0</SecurityValue>"
-			"</SHAFERXMLParams>";
-
-		m_clientData = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-			"<MyData>1</MyData>";
-
-		m_isLibOpen = NalpLibOpen(xmlConfiguration);
-		//NalpLibOpen get location information for the end user to ensure
-		// compliance with local privacy laws. If the next transaction
-		// occurs before retrieval of this information is complete, the
-		// transaction will be cached instead of sent.  No information is
-		// lost, as the cached transaction is sent after location info is
-		// retrieved.  We pause here for simplicity of the example.
-
-		m_productVersion = productVersion;
-		m_productEdition = productEdition;
-		m_productBuildNumber = productBuildNumber;
-		m_productLicense = productLicense;
-		/*
-#ifdef WIN32
-		Sleep(1000);
-#else
-		sleep(1);
-#endif
-*/
-
-		/*
-		if (config_DoLibValidation)
-			if (!NSA_validateLibrary(customerID, productID))
-				return;
-		*/
-
-		
-	}
-
-	// these steps are created because NSA needs some time between the calls 
-	virtual void doStep(const int stepNo) override
-	{
-		cpccWorkFlow_advancing::doStep(stepNo);
-		switch (stepNo)
-		{
-		case 1:
-			NSAdisablePrivacy();
-			m_isAppStarted = NSAAppStart(NULL, &m_transID);
-			NSASysInfo("anonymous", "EN", m_productVersion.c_str(), m_productEdition.c_str(), m_productBuildNumber.c_str(), m_productLicense.c_str(), NULL, &m_transID);
-			NSAFeatureStart("anonymous", "run", NULL, &m_transID);
-			break;
-		case 2: 
-			NSAFeatureStop("anonymous", "run", NULL, &m_transID);
-			
-			if (m_isAppStarted)
-			{
-				/*
-				#ifdef WIN32
-					Sleep(1000);
-				#else
-					sleep(1);
-				#endif
-				*/
-				NSAAppStop(NULL, &m_transID);	
-				m_isAppStarted = false;
-			}
-			break;
-
-		case 3: 
-			if (m_isLibOpen)
-			{
-				NalpLibClose();
-				m_isLibOpen = false;
-			}
-			break;
-
-		default:
-			break;
-		}
-	}
-
-
-
-	
-	~cpccAppTelemetryNalpeiron(void) override
-	{
-		doStep(m_WFsteps);
-	}
-
-
-};
