@@ -127,7 +127,7 @@ public:		// data
 	
 public:  // constructor
 	
-	cpccWindowBase(const cpccNativeWindowHandle aWnd): 
+	explicit cpccWindowBase(const cpccNativeWindowHandle aWnd): 
 		m_windowHandle(aWnd),
 		m_useDblBuffer(true),
 		bgColor(cpccPapayaWhip),

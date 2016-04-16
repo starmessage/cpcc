@@ -41,18 +41,14 @@ void cpccLogSink::add(const cpcc_char* txt)
 	if (!cpccFileSystemMini::fileExists(m_filename) && (m_disableIfFileDoesNotExist))
 		return;
 
-	static cpcc_string m_outputBuffer;
-	m_outputBuffer = m_tag;
+	cpcc_string m_outputBuffer(m_tag);
 
-	static cpcc_string previousTime, currentTime;
-	currentTime = getCurrentTime(_T("     \t%F  %X"));
-
-	if (currentTime != previousTime)	// log the time only when it changes, in a separate line
-	{
-		previousTime = currentTime;
-		currentTime.append("\n");
-		m_outputBuffer.insert(0, currentTime);
-	}
+    if (moreThanOneSecondPassed())
+    {
+        cpcc_string currentTime = getCurrentTime(_T("     \t%F  %X"));
+        currentTime.append("\n");
+        m_outputBuffer.insert(0, currentTime);
+    }
 	
 	for (int i = 0; i<m_IdentLevel; ++i)
 		m_outputBuffer.append(m_IdentText);
@@ -107,6 +103,20 @@ void cpccLogSink::addf(const cpcc_char* format, ...)
 	va_end(args);
 
 	add(buff);
+}
+
+
+bool    cpccLogSink::moreThanOneSecondPassed(void) // this is used to avoid writing the time for every log line
+{
+    static time_t previousLocalEpoch=0;
+    // The value returned generally represents the number of seconds since 00:00 hours, Jan 1, 1970 UTC
+    time_t localEpoch = time(NULL);
+    
+    if (localEpoch==previousLocalEpoch)
+        return false;
+    
+    previousLocalEpoch=localEpoch;
+    return true;
 }
 
 
@@ -203,10 +213,12 @@ public:
 	{	
 		//cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
 		info.add(cpccLogClosingStamp);
+		/*
         std::cout << cpccLogClosingStamp << std::endl;
 		#if defined(_WIN32)
 			OutputDebugString("~cpccLog() called");
 		#endif
+		*/
         if (containsText("ERROR>\t"))
             copyToDesktop();
 	}

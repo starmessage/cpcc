@@ -95,6 +95,7 @@ public:
 			time_t localEpoch, gmEpoch;
 
 			/*First get local epoch time*/
+            // The value returned generally represents the number of seconds since 00:00 hours, Jan 1, 1970 UTC 
 			localEpoch = time(NULL);
 
 			#pragma warning(suppress : 4996)
@@ -148,16 +149,13 @@ public:
 	}
 	*/
 
-	static const char* intToMonth(int index)
+	static const char* intToMonth(const int index_0to11)
 	{
-		const char* allMonths[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-		if ((index >= 0) && (index < 12))
-			return allMonths[index];
-		else
-		{
-			// errorLog().addf("#5858: intToMonth called with i=%i", index);
+		if ((index_0to11 < 0) || (index_0to11 >= 12))
 			return "intToMonth() called with index out of 0..11";
-		}
+		
+		const char* allMonths[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+		return allMonths[index_0to11];
 	}
 
 
@@ -176,7 +174,7 @@ private:
 	bool		 &m_interruptRequested;
 
 public:
-	cpccInterruptableSleep(bool &interruptRequested) : m_interruptRequested(interruptRequested)
+	explicit cpccInterruptableSleep(bool &interruptRequested) : m_interruptRequested(interruptRequested)
 	{	}
 
 

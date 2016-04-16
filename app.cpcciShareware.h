@@ -40,8 +40,8 @@ public:
 
 	licenseElementType	m_licenseType;
 	bool				m_hasExpiryDate;
-	time_t				m_ExpiryDate, // time_t  holds the number of seconds since the Epoch
-						m_dateIssued; 
+	time_t				m_ExpiryDate =0, // time_t  holds the number of seconds since the Epoch
+						m_dateIssued =0; 
 	bool				m_hasUsageLimit;
 	int					m_usageLimit,
 						m_usageCount;

@@ -30,7 +30,7 @@ class cpccStackWithDefault
 		std::stack<T>	m_stack;
 
 	public: // constructors
-		cpccStackWithDefault(const T& a):
+		explicit cpccStackWithDefault(const T& a):
 			m_defaultValue(a)
 		{ }
 

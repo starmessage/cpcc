@@ -47,7 +47,7 @@ public:		// constructors
 	{}
 
 #ifdef _WIN32
-	cpccRect(const RECT &r):	// construct from a Windows RECT
+	explicit cpccRect(const RECT &r):	// construct from a Windows RECT
 		x(left), y(top),
 		left(r.left), top(r.top), width(r.right - r.left), height(r.bottom - r.top)
 	{ }

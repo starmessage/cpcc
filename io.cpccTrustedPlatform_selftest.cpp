@@ -20,6 +20,8 @@
 #include "io.cpccTrustedPlatform.h"
 #include "cpcc_selfTest.h"
 
+//#define DOSELFTEST_cpccTrustedPlatform
+
 #ifdef _WIN32
 	#define dumpFile "c:\\tmp\\getComputerID-test.txt"
 #elif  __APPLE__
@@ -29,7 +31,7 @@
 
 void			cpccTrustedPlatform::selfTest(void)
 {
-#ifndef NDEBUG
+#if defined(NDEBUG) && defined(DOSELFTEST_cpccTrustedPlatform)
 	
 	/*
 	cpccGetComputerID<33> mid;

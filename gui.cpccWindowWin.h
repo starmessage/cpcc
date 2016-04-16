@@ -41,7 +41,7 @@ private:
 protected:		// ctors. 
 
 	/// constructor is protected because this class should not be created alone, but only via its derived class, cpccWindow
-	cpccWindowWin(const HWND aWnd): cpccWindowBase(aWnd), m_renderBuffer(NULL), m_dtool(m_DrawDC)
+	explicit cpccWindowWin(const HWND aWnd): cpccWindowBase(aWnd), m_renderBuffer(NULL), m_dtool(m_DrawDC)
 	{
 		m_rect.top = m_rect.bottom = m_rect.left = m_rect.right = 0;
 		m_DrawDC = m_WindowDC = GetDC(m_windowHandle);

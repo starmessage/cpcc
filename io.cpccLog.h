@@ -26,8 +26,6 @@
 #include "cpccUnicodeSupport.h"
 
 
-
-
 class cpccLogSink
 {
 private:
@@ -72,6 +70,7 @@ public: // functions
 		 @return the current datetime formatted with the standard function strftime
 	*/
 	static cpcc_string 	getCurrentTime(const cpcc_char * fmt);
+    static bool         moreThanOneSecondPassed(void);
 };
 
 
@@ -116,7 +115,7 @@ public:
 class logObjectLife: protected logBlockOfCode
 {
 public:
-	logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "creating", "destroying")
+	explicit logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "creating", "destroying")
 	{ }
 };
 
@@ -124,7 +123,7 @@ public:
 class logFunctionLife: protected logBlockOfCode
 {
 public:
-    logFunctionLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "Entering", "Exiting")
+    explicit logFunctionLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "Entering", "Exiting")
     { }
 };
 
@@ -136,7 +135,7 @@ private:
 
 public:
 
-	logTimeCountrer(const cpcc_char *aTag) : logFunctionLife(aTag)
+	explicit logTimeCountrer(const cpcc_char *aTag) : logFunctionLife(aTag)
 	{
 		// timer.resetTimer();
 	}

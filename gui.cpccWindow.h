@@ -46,7 +46,7 @@ protected:
 	
 public:  // constructor
 	
-	cpccWindow(const cpccNativeWindowHandle wHandle): windowImpl(wHandle) 
+	explicit cpccWindow(const cpccNativeWindowHandle wHandle): windowImpl(wHandle) 
 	{
 		if (!wHandle)
 			infoLog().add(_T("Error: cpccWindow(wHandle) with NIL wHandle"));

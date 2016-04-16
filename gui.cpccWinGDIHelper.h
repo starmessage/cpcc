@@ -29,7 +29,7 @@ class cpccWinGDIObject
 protected:
 	HDC		m_dc;
 	HGDIOBJ m_OldObject, m_object;
-	int		m_width, m_height;
+	int		m_width=0, m_height=0;
 	bool	m_sizeNotValid;
 
 public:

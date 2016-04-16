@@ -158,6 +158,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		
 			
 		case WM_ERASEBKGND:	
+			{
+				logFunctionLife _tmpLog("WM_ERASEBKGND");
 			/*
 			// http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx#Using_the_Screen_Sav
 			// The WM_ERASEBKGND message is issued before the WM_TIMER message, allowing the screen saver to paint the background as appropriate. 
@@ -168,13 +170,13 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
             ReleaseDC(hwnd,hdc); 
             break; 
 
-			In the preview window, the WM_ERASEBKGND does not come when the screensaver is starting. Only WM_CREATE is received.
+			In the preview window, the WM_ERASEBKGND does not come when the screensaver is starting. 
+			Only WM_CREATE is received.
 			In normal operation (desktop window) the WM_ERASEBKGND comes after the WM_CREATE
 			*/
 				// About WM_ERASEBKGND: wParam holds the HDC;
 				// erases the background in the case of password protected running
 				// when the user cancels the password entry dialog.
-			infoLog().add("ScreenSaverProc() received WM_ERASEBKGND");
 			
 			if (screensaverPtr)
 				screensaverPtr->backgroundWasInvalidatedByOS();
@@ -190,7 +192,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 
 			//break;
 			return 1L; //An application should return nonzero (1L) if it erases the background
-		
+			}
+
 		case WM_CLOSE:	// An application can prompt the user for confirmation, 
 						// prior to destroying a window, by processing the 
 						// WM_CLOSE message and calling the DestroyWindow function 

@@ -123,9 +123,9 @@ public:
 	enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
 
 public: // constructors
-	cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string(aPath) 	{	}
-	cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
-	cpccPathString(const standardFolderIds aFolderID);
+	explicit cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string(aPath) 	{	}
+	explicit cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
+	explicit cpccPathString(const standardFolderIds aFolderID);
 
 public: // functions
 	bool	pathExists(void)	const { return (cpccFileSystemMini::fileExists(c_str()) || cpccFileSystemMini::folderExists(c_str())); }

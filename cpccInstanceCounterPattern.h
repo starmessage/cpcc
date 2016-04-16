@@ -32,7 +32,7 @@ private:
 
 public:	// ctor/dtor
 
-	cpccInstanceCounterPattern(int &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }
+	explicit cpccInstanceCounterPattern(int &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }
 
 	~cpccInstanceCounterPattern(void)   {   --_nCount;  }
 		

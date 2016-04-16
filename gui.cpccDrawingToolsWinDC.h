@@ -37,7 +37,7 @@ protected:
 
 public:		// constructor
 
-	cpccDrawingToolsWinDC(HDC &aDC): m_hDC(aDC) { }
+	explicit cpccDrawingToolsWinDC(HDC &aDC): m_hDC(aDC) { }
 
 public:		// data
 	

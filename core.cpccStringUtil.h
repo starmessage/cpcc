@@ -235,7 +235,7 @@ class stringUtils
 {
 
 public:
-	static void stringSplit(const std::string inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
+	static void stringSplit(const std::string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
 		size_t start = 0;
 		size_t end = inputStr.find_first_of(delimiter);

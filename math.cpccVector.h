@@ -47,7 +47,6 @@ public: // Constructors and destructors
 		zero(2); // zero the rest
 	}
 	
-
 	cpccVector(const T &a, const T &b, const T &c)  
 	{ 
 		assert(DIM>=3 &&  "#4391: cpccVector: DIM < 3" );
@@ -297,7 +296,7 @@ public: // Public functions
 		cpccVector<int,3> b3d( 20,30,0 );
 		if (a3d == b3d)
 			assert(false && "#4231c: cpccVector::selfTest equal");
-		
+
 		a3d *=2;	
 		if (a3d != b3d)
 			assert(false && "#4231d: cpccVector::selfTest not equal");
