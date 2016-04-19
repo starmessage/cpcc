@@ -103,6 +103,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static UINT_PTR	uTimer=NULL; /* timer identifier */
 	static bool		isDrawing=false;
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
+	static logObjectLife  logFileMarker("logFileMarker-D");
 	
 	/*
 	// idea from

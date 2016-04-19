@@ -30,7 +30,7 @@ class cpccLogSink
 {
 private:
 	const cpcc_char *	m_tag;
-	static cpcc_char *	m_IdentText;
+	const cpcc_char *	m_IdentText = (cpcc_char *) "| ";
 	bool  				m_isEmpty,
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
@@ -146,8 +146,5 @@ public:
 	}
 
 };
-
-
-
 
 

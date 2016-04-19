@@ -118,12 +118,12 @@ public: // ctor, dtor
 		m_libHandle = loadLibrary(aLibraryfilename);
 		if (!m_libHandle)
 		{ 
-			std::cerr << "#7524: failed to load DLL: " << aLibraryfilename << std::endl;
-			errorStream << "#7524: failed to load DLL: " << aLibraryfilename << std::endl;
+			std::cerr << "#7524: failed to load DLL: " << aLibraryfilename;
+			errorStream << "#7524: failed to load DLL: " << aLibraryfilename;
 			if (cpccFileSystemMini::fileExists(aLibraryfilename))
-				errorStream << "File does not exist\n";
+				errorStream << ". The file exists\n";
 			else
-				errorStream << "The library file exists\n";
+				errorStream << ". The file does not exist\n";
 		}
     };
 
@@ -137,10 +137,13 @@ public: // ctor, dtor
 	
 
 	void *	getFunction(const char * aFunctionName)
-	{ 	
+	{
+        if (!isLoaded())
+            errorStream << "#9771e: Cannot load function " << aFunctionName << " because the dynamically was not loaded\n";
+
 		void *ptr = PORTABLE_LINKLIBRARYFUNCTIONS::getFunctionAddress(m_libHandle, aFunctionName);
 		if (!ptr)
-			errorStream << "#9771: did not find function " << aFunctionName << " in the dynamically loaded library\n";
+			errorStream << "#9771a: did not find function " << aFunctionName << " in the dynamically loaded library\n";
 		return  ptr;
 	}
 

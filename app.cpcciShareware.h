@@ -15,8 +15,42 @@
 #pragma once
 
 #include <vector>
-#include "core.cpccKeyValue.h"
-#include "io.cpccTrustedPlatform.h"
+// #include "core.cpccKeyValue.h"
+
+
+//////////////////////////////////////////////
+//
+//  class cpccSharewareAbstract_v2
+//
+//////////////////////////////////////////////
+
+class cpccSharewareAbstract_v2
+{
+public:		// ctors
+			// factory
+	static cpccSharewareAbstract_v2     *getInstancePtr(void);
+
+
+public:
+	virtual inline bool                 importActivationCode(const cpcc_char * aLicenseCode) = 0;
+	virtual inline long int             getDaysSinceFirstRun(void) const = 0;
+	virtual inline void                 saveEncryptedLicense(void) const = 0;
+	virtual inline void                 loadEncryptedLicense(void) = 0;
+	virtual inline bool                 isRegistered(void) = 0;
+	virtual inline char *               getBuyUrl(void) const = 0;
+	virtual inline const cpcc_string	getComputerID(void) const = 0;
+	virtual inline const cpcc_string	getCustomerID(void) const = 0;
+	virtual inline const cpcc_string	getLicenseStatusDescription(void) const = 0;
+	virtual inline const bool			quickCheckActivationCode(const cpcc_char * aLicenseCode) = 0;
+	virtual inline void					removeInstalledLicense(void) = 0;
+	virtual inline const time_t			getTrustedCurrentDate(void) const = 0;
+
+protected:
+
+
+};
+
+
 
 /*
 	examples of supported cases:
@@ -77,10 +111,10 @@ public:
 
 
 /// shareware interface class
-class cpcciShareware
+class cpcciShareware_v1
 {
 public:		// ctors
-	cpcciShareware() : m_userDetails("") { }
+	cpcciShareware_v1() : m_userDetails("") { }
 
 
 public:	

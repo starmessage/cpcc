@@ -189,9 +189,9 @@ public:
         error.m_filename = aFilename;
         
         // check previous run
-        if (logfileIsIncomplete())
+        if (logfileIsIncomplete() || containsText("ERROR>\t"))
             copyToDesktop();
-        
+		
 		// empty the file
 		if (cpccFileSystemMini::fileExists(aFilename))
 			cpccFileSystemMini::createEmptyFile(aFilename);
@@ -212,6 +212,7 @@ public:
 	virtual ~cpccLog()
 	{	
 		//cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
+
 		info.add(cpccLogClosingStamp);
 		/*
         std::cout << cpccLogClosingStamp << std::endl;
@@ -280,8 +281,6 @@ public: // functions
 };
 
 
-
-cpcc_char *	cpccLogSink::m_IdentText =  (cpcc_char *)"| ";
 int	cpccLogSink::m_IdentLevel = 0;
 
 namespace ns_cpccGlobals
@@ -301,5 +300,6 @@ cpccLogSink			&errorLog(void) { return ns_cpccGlobals::globalAppLog.error; }
 
 namespace ns_cpccGlobals
 {
-	logObjectLife  logFileMarker("logFileMarker");
+	logObjectLife  logFileMarker("logFileMarker-A");
 }
+
