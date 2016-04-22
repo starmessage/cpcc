@@ -14,22 +14,45 @@
  
 #pragma once
 
-#include <vector>
-// #include "core.cpccKeyValue.h"
+#include <map>
+#include <string>
 
 
-//////////////////////////////////////////////
-//
-//  class cpccSharewareAbstract_v2
-//
-//////////////////////////////////////////////
+/*
+	1) to activation code periexei to onoma kai email tou pelati kai to version number tou programmatos.
+	2) kalo tha itan na mporousa na to parago kai me excel
+	3) mporo na stelno mia sympiesmeni morfi tou H na stelno [onoma] [email] [code] kai na ta bazei monos tou
+	4) to license code prepei na periexei to machine ID anti gia to [program-version]
+	see TmioanShareware_2000.cpp
+		
+*/
 
-class cpccSharewareAbstract_v2
+
+
+template <typename T>
+class cParameterDict
 {
-public:		// ctors
-			// factory
-	static cpccSharewareAbstract_v2     *getInstancePtr(void);
+private:
+    std::map<int, T> m_ParameterList;
+    
+public:
+    void setParameter(const int aKey, const T aValue) { m_ParameterList[aKey] = aValue;  }
+    T getParameter(const int aKey, const T aDefaultValue) { return (m_ParameterList.find(aKey) != m_ParameterList.end())? m_ParameterList[aKey]: aDefaultValue; }
 
+};
+
+
+//////////////////////////////////////////////
+//
+//  class cpccSharewareAbstract
+//
+//////////////////////////////////////////////
+
+class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>
+{
+
+public:		// ctors,  factory
+	static cpccSharewareAbstract     *getInstancePtr(void);
 
 public:
 	virtual inline bool                 importActivationCode(const cpcc_char * aLicenseCode) = 0;
@@ -45,7 +68,19 @@ public:
 	virtual inline void					removeInstalledLicense(void) = 0;
 	virtual inline const time_t			getTrustedCurrentDate(void) const = 0;
 
-protected:
+    /*
+    using cParameterDict<bool>::getParameter;
+    using cParameterDict<bool>::setParameter;
+    using cParameterDict<int>::getParameter;
+    using cParameterDict<int>::setParameter;
+    */
+
+    template <typename T>
+    void setParameter(const int aKey, const T aValue) { cParameterDict<T>::setParameter(aKey, aValue);  }
+    
+	template <typename T>
+    T  getParameter(const int aKey, const T aDefaultValue) { return cParameterDict<T>::getParameter(aKey, aDefaultValue); }
+
 
 
 };
@@ -61,7 +96,7 @@ protected:
 
 */
 
-
+/*
 class cpccLicenseElement
 {
 protected:
@@ -153,3 +188,4 @@ protected:
 	
 };
 
+*/

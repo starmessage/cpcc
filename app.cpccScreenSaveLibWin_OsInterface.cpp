@@ -103,7 +103,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static UINT_PTR	uTimer=NULL; /* timer identifier */
 	static bool		isDrawing=false;
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
-	static logObjectLife  logFileMarker("logFileMarker-D");
+	static logObjectLife  logFileMarker("logFileMarker-D"); // does not log anything
 	
 	/*
 	// idea from
@@ -125,7 +125,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				run:
 				myscreensaver.scr /p HWND_number_from_log
 			*/
-
+			
 			if (!screensaverPtr)
 			{
 				screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
@@ -267,7 +267,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				delete(screensaverPtr);
 				screensaverPtr=NULL;
 			}
-
+			infoLog().markLogClosure();
 			// PostQuitMessage(0);
 			// isos edo thelei break gia na kalestei i DefScreenSaverProc() na kanei to sosto cleanup
 			break;	//return 0l;  
@@ -356,6 +356,10 @@ Prepei na yparxei ena dialog template me to parakato ID
 			PostMessage(hDlg,WM_COMMAND, IDOK, NULL);
 			return TRUE; 
 
+		case WM_DESTROY:
+			// Clean up window-specific data objects. 
+			infoLog().markLogClosure();
+			return 0;
 
         case WM_COMMAND: 
             switch(LOWORD(wParam)) 

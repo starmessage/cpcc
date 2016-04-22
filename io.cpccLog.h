@@ -51,15 +51,15 @@ public: // constructor / destructor
 		m_isEmpty(true)
  	{ }
 		
-	// virtual ~cpccLogSink();
 
 	
 
 public: // functions
-	bool 				isEmpty(void) { return m_isEmpty; }
+	bool 				isEmpty(void) const { return m_isEmpty; }
 	const cpcc_string &	getFilename(void) const { return m_filename; };
 	void 				add(const cpcc_char* txt);
 	void 				addf(const cpcc_char* format, ...);
+	void				markLogClosure(void);
 	static cpcc_string 	toString(const cpcc_char* format, ...);
     
 	///  Get the current datetime as a human readable string

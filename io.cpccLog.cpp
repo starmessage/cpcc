@@ -105,6 +105,11 @@ void cpccLogSink::addf(const cpcc_char* format, ...)
 	add(buff);
 }
 
+void cpccLogSink::markLogClosure(void)
+{
+	add(cpccLogClosingStamp);
+}
+
 
 bool    cpccLogSink::moreThanOneSecondPassed(void) // this is used to avoid writing the time for every log line
 {
@@ -209,10 +214,9 @@ public:
 	}
 	
     
-	virtual ~cpccLog()
+	virtual ~cpccLog()	// in MSVC, this destructor is not called
 	{	
 		//cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
-
 		info.add(cpccLogClosingStamp);
 		/*
         std::cout << cpccLogClosingStamp << std::endl;
@@ -220,14 +224,14 @@ public:
 			OutputDebugString("~cpccLog() called");
 		#endif
 		*/
-        if (containsText("ERROR>\t"))
+        if (hasErrors())
             copyToDesktop();
 	}
 	
 
     
 public: // functions
-	bool hasErrors(void) { return !error.isEmpty(); }
+	inline bool hasErrors(void) const { return !error.isEmpty(); }
 
 
 	cpccPathString getAutoFilename(void) const

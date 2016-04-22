@@ -28,7 +28,7 @@
 
 
 #include "core.cpccOS.h"
-#include "io.cpccFileSystemMini.h"
+// #include "io.cpccFileSystemMini.h"
 
 #ifdef _WIN32
 	#include <windows.h>
