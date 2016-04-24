@@ -119,3 +119,26 @@
  
 
 typedef std::vector<cpcc_string> cpcc_stringList;
+
+#ifdef _WIN32
+
+	// helper class for Windows, to convert from char * to wchar_t 
+	class wchar_from_char
+	{
+	private:
+		std::wstring wstr;
+
+	public:
+
+		wchar_from_char(const char *str)
+		{
+			int len = strlen(str);
+			wstr.insert(0, len + 1, L'-');
+	#pragma warning(suppress : 4996)
+			mbstowcs(&wstr[0], str, len);
+		}
+
+		inline  operator const wchar_t *(void) const { return wstr.c_str(); }
+	};
+
+#endif

@@ -16,7 +16,7 @@
 
 #include <map>
 #include <string>
-
+#include "cpccUnicodeSupport.h"
 
 /*
 	1) to activation code periexei to onoma kai email tou pelati kai to version number tou programmatos.

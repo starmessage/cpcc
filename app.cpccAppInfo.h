@@ -33,8 +33,19 @@
 
 class cpccAppInfo
 {
+private:
+	static cpcc_string createLink(const cpcc_char *label, const cpcc_char *url)
+	{
+		cpcc_string result("<a href=\"");
+		result.append(url);
+		result.append("\">");
+		result.append(label);
+		result.append("</a>");
+		return result;
+	}
+
 public:
-	enum xtraInfo { includeSalesEmail=1, includeSupportEmail=2, includeWebsite=4 };
+	enum xtraInfo { includeSalesEmail=1, includeSupportEmail=2, includeWebsite=4, useHtmlLinks=8 };
     enum licenseType { eltFree, eltFreeTrialPeriod, eltFull, eltSpecialEdition };
 
 	const static cpcc_char
@@ -59,35 +70,70 @@ public:
 
     
     
-	static cpcc_string getText_AboutThisSoftware(const int xi =0)
+	static cpcc_string getText_AboutThisSoftware(const int xi, const char *aLineBreak, const char *aLicenseInfo, const char *aCallToAction)
 	{
-		static std::string infoText(cpccAppInfo::ProgramName);
+		std::string infoText(cpccAppInfo::ProgramName);
         infoText += " ";
         infoText += cpccAppInfo::Version;
         
-		infoText.append("\n(c) ");
+		if (!aLineBreak)
+		{ 
+			infoText += "#8572: const char *aLineBreak was null\n";
+			return infoText;
+		}
+
+		const bool htmlLinks = ((xi & useHtmlLinks)!=0);
+
+		if (aLicenseInfo)
+			if (strlen(aLicenseInfo) > 0)
+			{
+				infoText.append(aLineBreak);
+				infoText.append("License: ");
+				infoText.append(aLicenseInfo);
+			}
+
+		infoText.append(aLineBreak);
+		infoText.append(aLineBreak);
+		
+		infoText.append("Build: ");
+		infoText.append(Build);
+		infoText.append(aLineBreak); 
+		infoText.append("(c) ");
 		infoText.append(cpccAppInfo::CompanyName);
 
 		if ((strlen(WebSiteNoHttp)>0) && (xi & includeWebsite))
 		{
-			infoText.append("\n\nWebsite: ");
-			infoText.append(WebSiteNoHttp);
+			infoText.append(aLineBreak);
+			infoText.append("Website: ");
+			if (htmlLinks)
+				infoText.append(createLink(WebSiteNoHttp, WebSite));
+			else
+				infoText.append(WebSiteNoHttp);
+									
 		}
 		
 		if ((strlen(EmailSales) > 0) && (xi & includeSalesEmail))
 		{
-			infoText.append("\nEmail (sales): ");
+			infoText.append(aLineBreak);
+			infoText.append("Email (sales): ");
 			infoText.append(EmailSales);
 		}
 
 		if ((strlen(EmailSales) > 0) && (xi & includeSupportEmail))
 		{
-			infoText.append("\nEmail (support): ");
+			infoText.append(aLineBreak);
+			infoText.append("Email (support): ");
 			infoText.append(EmailSupport);
 		}
 
-		infoText.append("\nBuild: ");
-		infoText.append( Build );
+		
+		if (aCallToAction)
+			if (strlen(aCallToAction) > 0)
+			{
+				infoText.append(aLineBreak);
+				infoText.append(aLineBreak);
+				infoText.append(aCallToAction);
+			}
 
 		return infoText;
 	}

@@ -21,7 +21,7 @@
 #include "cpccUnicodeSupport.h"
 #include "core.cpccOS.h"
 #include "io.cpccFileSystemMini.h"
-
+#include "io.cpccLog.h"
 #include <sstream>
 /*
  
