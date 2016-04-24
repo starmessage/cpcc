@@ -302,8 +302,5 @@ cpccLogSink			&warningLog(void) { return ns_cpccGlobals::globalAppLog.warning; }
 cpccLogSink			&errorLog(void) { return ns_cpccGlobals::globalAppLog.error; }
 
 
-namespace ns_cpccGlobals
-{
-	logObjectLife  logFileMarker("logFileMarker-A");
-}
+
 

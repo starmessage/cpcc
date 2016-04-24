@@ -35,6 +35,7 @@ class cpccAppInfo
 {
 public:
 	enum xtraInfo { includeSalesEmail=1, includeSupportEmail=2, includeWebsite=4 };
+    enum licenseType { eltFree, eltFreeTrialPeriod, eltFull, eltSpecialEdition };
 
 	const static cpcc_char
 		*CompanyName,
@@ -43,11 +44,18 @@ public:
 		*Build,
 		*WebSiteNoHttp,
 		*WebSite;
+#ifdef _WIN32
+	const static WCHAR
+		*DonateURL_W;
+#endif
 	const static char
+		*BuyURL,
         *DonateURL,
 		*CheckForUpdatesURL,
 		*EmailSales,
 		*EmailSupport;
+    const static int
+        licenseType;
 
     
     

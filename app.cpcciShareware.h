@@ -37,7 +37,8 @@ private:
     
 public:
     void setParameter(const int aKey, const T aValue) { m_ParameterList[aKey] = aValue;  }
-    T getParameter(const int aKey, const T aDefaultValue) { return (m_ParameterList.find(aKey) != m_ParameterList.end())? m_ParameterList[aKey]: aDefaultValue; }
+    T getParameter(const int aKey, const T aDefaultValue) 
+		{ return (m_ParameterList.find(aKey) != m_ParameterList.end())? m_ParameterList[aKey]: aDefaultValue; }
 
 };
 
@@ -48,7 +49,7 @@ public:
 //
 //////////////////////////////////////////////
 
-class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>
+class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>, cParameterDict<std::string>
 {
 
 public:		// ctors,  factory
@@ -60,10 +61,8 @@ public:
 	virtual inline void                 saveEncryptedLicense(void) const = 0;
 	virtual inline void                 loadEncryptedLicense(void) = 0;
 	virtual inline bool                 isRegistered(void) = 0;
-	virtual inline char *               getBuyUrl(void) const = 0;
+
 	virtual inline const cpcc_string	getComputerID(void) const = 0;
-	virtual inline const cpcc_string	getCustomerID(void) const = 0;
-	virtual inline const cpcc_string	getLicenseStatusDescription(void) const = 0;
 	virtual inline const bool			quickCheckActivationCode(const cpcc_char * aLicenseCode) = 0;
 	virtual inline void					removeInstalledLicense(void) = 0;
 	virtual inline const time_t			getTrustedCurrentDate(void) const = 0;
@@ -75,11 +74,15 @@ public:
     using cParameterDict<int>::setParameter;
     */
 
+    // convenience conversion from char* to std::string
+    void setParameter(const int aKey, const char * aValue) { cParameterDict<std::string>::setParameter(aKey, aValue);  }
+    std::string  getParameter(const int aKey, const char *aDefaultValue) { return cParameterDict<std::string>::getParameter(aKey, aDefaultValue); }
+
     template <typename T>
-    void setParameter(const int aKey, const T aValue) { cParameterDict<T>::setParameter(aKey, aValue);  }
+    void setParameter(const int aKey, const T &aValue) { cParameterDict<T>::setParameter(aKey, aValue);  }
     
 	template <typename T>
-    T  getParameter(const int aKey, const T aDefaultValue) { return cParameterDict<T>::getParameter(aKey, aDefaultValue); }
+    T  getParameter(const int aKey, const T &aDefaultValue) { return cParameterDict<T>::getParameter(aKey, aDefaultValue); }
 
 
 

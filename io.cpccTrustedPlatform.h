@@ -68,11 +68,10 @@ protected:
             computeHash(m_AppID, codedSubfolder);
             codedSubfolder.insert(0, ".");
 			_folder.appendPathSegment(codedSubfolder.c_str());
-
-			if (!cpccFileSystemMini::folderExists(_folder))
-				cpccFileSystemMini::createFolder(_folder);
 		}
-
+        if (!cpccFileSystemMini::folderExists(_folder))
+            cpccFileSystemMini::createFolder(_folder);
+        
 		return _folder;
 	}
 
@@ -96,6 +95,7 @@ public:
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
         firstrun_time= cpccFileSystemMini::getFileModificationDate(getStorageFolder().c_str());
+        debugLog().addf("First run time (days) %lu, by checking folder: %s",firstrun_time / (60*60*24), getStorageFolder().c_str());
         days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
         
         return days;
