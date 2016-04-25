@@ -30,7 +30,7 @@ class cpccLogSink
 {
 private:
 	const cpcc_char *	m_tag;
-	const cpcc_char *	m_IdentText = (cpcc_char *) "| ";
+	const cpcc_char *	m_IdentText = (cpcc_char *) _T("| ");
 	bool  				m_isEmpty,
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
@@ -100,14 +100,14 @@ public:
     logBlockOfCode(const cpcc_char *aTag, const cpcc_char *aStartTag, const cpcc_char *aEndTag) :
         tag(aTag), startTag(aStartTag), endTag(aEndTag)
     {
-        infoLog().addf("%s: %s", startTag.c_str(), tag.c_str());
+        infoLog().addf(_T("%s: %s"), startTag.c_str(), tag.c_str());
         cpccLogSink::increaseIdent();
     }
     
     virtual ~logBlockOfCode(void)
     {
         cpccLogSink::decreaseIdent();
-        infoLog().addf("%s: %s", endTag.c_str(), tag.c_str());
+        infoLog().addf(_T("%s: %s"), endTag.c_str(), tag.c_str());
     }
 };
 
@@ -115,7 +115,7 @@ public:
 class logObjectLife: protected logBlockOfCode
 {
 public:
-	explicit logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "creating", "destroying")
+	explicit logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag, _T("creating"), _T("destroying"))
 	{ }
 };
 
@@ -123,7 +123,7 @@ public:
 class logFunctionLife: protected logBlockOfCode
 {
 public:
-    explicit logFunctionLife(const cpcc_char *aTag) : logBlockOfCode(aTag, "Entering", "Exiting")
+    explicit logFunctionLife(const cpcc_char *aTag) : logBlockOfCode(aTag, _T("Entering"), _T("Exiting"))
     { }
 };
 
@@ -142,7 +142,7 @@ public:
 
 	virtual ~logTimeCountrer(void)
 	{
-        tag.append(cpccLogSink::toString(". Duration:%.3f sec",timer.getSecondsElapsed()));
+        tag.append(cpccLogSink::toString(_T(". Duration:%.3f sec"),timer.getSecondsElapsed()));
 	}
 
 };

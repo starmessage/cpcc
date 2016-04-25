@@ -105,7 +105,7 @@ public: // functions
 		if (m_hasTrasparentColor)
 			m_transparentColor = getPixel(0,0);
 	
-		infoLog().addf("cpccImage.initWithFile(%s) OK. W:%i H:%i", afullpathfilename, getWidth(), getHeight());
+		infoLog().addf(_T("cpccImage.initWithFile(%s) OK. W:%i H:%i"), afullpathfilename, getWidth(), getHeight());
 		return true;
 	}
 };

@@ -56,7 +56,7 @@ protected:
 
 	const cpcc_string& 	getStorageFolder(const cpcc_char *userOverrideFolder = NULL)
 	{
-		static cpccPathString _folder((cpcc_char *)"");
+		static cpccPathString _folder((cpcc_char *)_T(""));
         
 		if (userOverrideFolder)
 			_folder.assign(userOverrideFolder);
@@ -66,7 +66,7 @@ protected:
 			_folder.assign(cpccFileSystemMini::getFolder_CommonAppData());
             cpcc_string codedSubfolder;
             computeHash(m_AppID, codedSubfolder);
-            codedSubfolder.insert(0, ".");
+            codedSubfolder.insert(0, _T("."));
 			_folder.appendPathSegment(codedSubfolder.c_str());
 		}
         if (!cpccFileSystemMini::folderExists(_folder))
@@ -95,7 +95,7 @@ public:
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
         firstrun_time= cpccFileSystemMini::getFileModificationDate(getStorageFolder().c_str());
-        debugLog().addf("First run time (days) %lu, by checking folder: %s",firstrun_time / (60*60*24), getStorageFolder().c_str());
+        debugLog().addf(_T("First run time (days) %lu, by checking folder: %s"),firstrun_time / (60*60*24), getStorageFolder().c_str());
         days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
         
         return days;
@@ -112,8 +112,8 @@ public:
 
 	inline const bool	hackDetected(void) { return m_hackDetected; }
 	
-	const std::string	serialize(void) const
-                        {	return cpcc_string("");
+	const cpcc_string	serialize(void) const
+                        {	return cpcc_string(_T("") );
                         }
     
 	void				deserialize(std::string &s) { };
@@ -124,7 +124,7 @@ public:
 		portableHashString str_hash;
 		size_t result = str_hash(txtOriginal);
 
-		std::stringstream ss;
+		cpcc_stringstream ss;
 		ss << result;
 
 		txtHashed = ss.str();

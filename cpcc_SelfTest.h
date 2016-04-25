@@ -72,9 +72,9 @@
 */
 
 
-	#define consolePut(x)	{	std::ostringstream s;  s << x;     \
+	#define consolePut(x)	{	cpcc_ostringstream s;  s << x;     \
 								OutputDebugString(s.str().c_str()); \
-								OutputDebugString("\n"); \
+								OutputDebugString(_T("\n")); \
 							}
 #else
 	#define consolePut(x)	std::cout << x << "\n";

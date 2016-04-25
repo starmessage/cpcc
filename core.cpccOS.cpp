@@ -280,8 +280,8 @@ cpcc_string cpccOS::readProgramVersionByPrincipalClass(const cpcc_char *aClassNa
 
 cpcc_string& cpccOS::readProgramVersion(void)
 {
-    static cpcc_string ver("Version N/A");
-    if (ver!="Version N/A")
+    static cpcc_string ver(_T("Version N/A"));
+    if (ver!= _T("Version N/A"))
         return ver;
     
 #ifdef __APPLE__

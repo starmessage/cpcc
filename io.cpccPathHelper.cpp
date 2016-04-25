@@ -245,11 +245,11 @@ void cpccPathHelper::selfTest(void)
 		assert(cpccPathHelper::pathCat(_T("/folderroot"), _T("/subfolder")).compare(expectedResult) ==0);
 		assert(cpccPathHelper::pathCat(_T("/folderroot"), _T("subfolder")).compare(expectedResult) ==0);
         
-        cpcc_string aLongPath ("/folder/Subfolder/file.txt");
+        cpcc_string aLongPath ( _T("/folder/Subfolder/file.txt"));
         cpcc_string aParentPath = cpccPathHelper::getParentFolderOf(aLongPath);
-        assert((aParentPath=="/folder/Subfolder/") && "#4972a: getParentFolderOf()");
+        assert((aParentPath== _T("/folder/Subfolder/")) && _T("#4972a: getParentFolderOf()"));
         cpcc_string aParentPath2 = cpccPathHelper::getParentFolderOf(aParentPath);
-        assert((aParentPath2=="/folder/") && "#4972b: getParentFolderOf()");
+        assert((aParentPath2== _T("/folder/")) && _T("#4972b: getParentFolderOf()"));
 
 	}
 #endif

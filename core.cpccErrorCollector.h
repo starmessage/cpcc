@@ -17,6 +17,7 @@
 #pragma once
 
 #include <iostream>
+#include "cpccUnicodeSupport.h"
 
 class cpccErrorCollector
 {
@@ -24,14 +25,14 @@ private:
 
 
 public:	
-	std::stringstream	m_errorDump;
+	cpcc_stringstream	m_errorDump;
 	
-	void				clearErrors(void) { m_errorDump.str(""); }
+	void				clearErrors(void) { m_errorDump.str( _T("")); }
 	
 	bool				hasErrors(void) const { return m_errorDump.str().length()>0; }
 
-	const std::string	getErrorTextAndClearErrors(void)  
-	{	std::string txt = m_errorDump.str(); 
+	const cpcc_string	getErrorTextAndClearErrors(void)  
+	{	cpcc_string txt = m_errorDump.str(); 
 		clearErrors(); 
 		return txt; 
 	}

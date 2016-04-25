@@ -181,7 +181,7 @@ public:
 			}
 		
 		int size=  aFontSize ? *aFontSize : 10;
-		char *fontname = aFontName ? aFontName : "Arial";
+		cpcc_char *fontname = aFontName ? aFontName : _T("Arial");
 
 		HFONT hFont = CreateFont(
 							-MulDiv(size, GetDeviceCaps(ahDC, LOGPIXELSY), 72),

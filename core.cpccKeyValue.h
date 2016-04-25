@@ -74,25 +74,25 @@ public:	// class metadata and selftest
 	{
     #ifndef NDEBUG
 		cpccKeyValue testSubject;
-		testSubject.set("value123", 123);
-		testSubject.set("keyMike", "Mike Value");
-		testSubject.set("value1.23456789", 1.23456789f);
+		testSubject.set(_T("value123"), 123);
+		testSubject.set(_T("keyMike"), _T("Mike Value"));
+		testSubject.set(_T("value1.23456789"), 1.23456789f);
 
-		assert((testSubject.keyExists("eeerrrooor") == false) && "SelfTest #8622: non-existing key found");
+		assert((testSubject.keyExists(_T("eeerrrooor")) == false) && _T("SelfTest #8622: non-existing key found"));
 
 
 		int tmp_i;
-		assert((testSubject.get("value123", tmp_i) == true) && "SelfTest #8622a: key not found");
-		assert((tmp_i == 123) && "SelfTest #8622b: integer write/read failed");
+		assert((testSubject.get(_T("value123"), tmp_i) == true) && _T("SelfTest #8622a: key not found"));
+		assert((tmp_i == 123) && _T("SelfTest #8622b: integer write/read failed"));
 
 		float tmp_f;
-		assert((testSubject.get("value1.23456789", tmp_f) == true) && "SelfTest #8622c: key not found");
-		assert((tmp_f == 1.23456789f) && "SelfTest #8622d: float write/read failed");
+		assert((testSubject.get(_T("value1.23456789"), tmp_f) == true) && _T("SelfTest #8622c: key not found"));
+		assert((tmp_f == 1.23456789f) && _T("SelfTest #8622d: float write/read failed"));
 
 		cpcc_string tmp_s;
-		assert((testSubject.get("keyMike", tmp_s) == true) && "SelfTest #8622e: key not found");
+		assert((testSubject.get(_T("keyMike"), tmp_s) == true) && _T("SelfTest #8622e: key not found"));
 		// assert((tmp_s.compare("Mike Value") == 0) && "SelfTest #8622f: string write/read failed");
-		assert((tmp_s == "Mike Value") && "SelfTest #8622f: string write/read failed");
+		assert((tmp_s == _T("Mike Value")) && _T("SelfTest #8622f: string write/read failed"));
     #endif
 	}
 };

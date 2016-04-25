@@ -77,7 +77,7 @@ cpcc_string cpccFileSystemMini::getFolder_Windows(void)
 {
 	cpcc_char buffer[300];
 	GetWindowsDirectory(buffer, 300);
-	return cpcc_string(buffer) + "\\";
+	return cpcc_string(buffer) + _T("\\");
 }
 #endif
 
@@ -250,7 +250,7 @@ cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 		cpccPathHelper::addTrailingPathDelimiter(result);
 		return result;
 		}
-	std::cerr << "Error #4824 in cpccFileSystemMini::getFolder_Fonts\n";
+	cpcc_cerr << _T("Error #4824 in cpccFileSystemMini::getFolder_Fonts\n");
 	
 #elif defined(__APPLE__)
 	return  std::string("/library/fonts/");
@@ -627,8 +627,8 @@ time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename)
 	if (!fileExists(aFilename) && !folderExists(aFilename))
 		return 0;
 
-	struct stat attrib;         // create a file attribute structure
-	stat(aFilename, &attrib);     // get the attributes of afile.txt
+	cpcc_struct_stat attrib;         // create a file attribute structure
+	cpcc_stat(aFilename, &attrib);     // get the attributes of afile.txt
 	return attrib.st_mtime; 
 }
 
@@ -661,7 +661,7 @@ cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 		assign(cpccFileSystemMini::getFolder_UserData());
 		break;	
 
-	default:	assign("");
+	default:	assign(_T(""));
 	}
 
 }
@@ -693,15 +693,15 @@ void cpccFileSystemMini::selfTest(void)
 				
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");
-	std::cout << "\nTmpFile:" << tmpFile << "\n";
+	cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");
     
 	createEmptyFile(tmpFile);
-	assert(fileExists(tmpFile) && "#5356d: cpccFileSystemMini::selfTest");
+	assert(fileExists(tmpFile) && _T("#5356d: cpccFileSystemMini::selfTest"));
 
 	//std::cout << "cpccFileSystemMini::SelfTest point3\n";
 	
 	createEmptyFile(tmpFile);
-	assert(getFileSize(tmpFile)==0 && "#5356e: cpccFileSystemMini::selfTest");
+	assert(getFileSize(tmpFile)==0 && _T("#5356e: cpccFileSystemMini::selfTest"));
 			
 			
 	const cpcc_char * fileContent= _T("kalimera sas");
@@ -710,17 +710,17 @@ void cpccFileSystemMini::selfTest(void)
 	//std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
-	assert(getFileSize(tmpFile)==cpcc_strlen(fileContent) && "#5356h: cpccFileSystemMini::selfTest");
+	assert(getFileSize(tmpFile)==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
 			
 	// fileExists or deleteFile
 	deleteFile(tmpFile);
-	assert(!fileExists(tmpFile) && "#5356g: cpccFileSystemMini::selfTest");
+	assert(!fileExists(tmpFile) && _T("#5356g: cpccFileSystemMini::selfTest"));
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	
 #ifdef _WIN32
-	assert(folderExists("c:\\") && "#5356h: cpccFileSystemMini::selfTest");
-	assert(!folderExists("c:\\non-existing-folder") && "#5356k: cpccFileSystemMini::selfTest");
+	assert(folderExists(_T("c:\\")) && _T("#5356h: cpccFileSystemMini::selfTest"));
+	assert(!folderExists(_T("c:\\non-existing-folder")) && _T("#5356k: cpccFileSystemMini::selfTest"));
 #endif
 #ifdef __APPLE__
 	assert(folderExists("/Library") && "#5356h: cpccFileSystemMini::selfTest");
@@ -728,7 +728,7 @@ void cpccFileSystemMini::selfTest(void)
 
 #endif
 	
-	std::cout << "cpccFileSystemMini::SelfTest ended\n";
+	cpcc_cout << _T("cpccFileSystemMini::SelfTest ended\n");
 #endif
 }
 

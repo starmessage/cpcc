@@ -66,7 +66,7 @@ public:		// functions
 	cpcc_string getFilename(void) { return mFilename; }
 	
 	template <typename T>
-	const T read(const cpcc_char *aKey, const T aDefault) 						{ return stringConversions::fromStr(read(aKey, "").c_str(), aDefault); }
+	const T read(const cpcc_char *aKey, const T aDefault) 						{ return stringConversions::fromStr(read(aKey, _T("")).c_str(), aDefault); }
 	const cpcc_string read(const cpcc_char *aKey, const cpcc_char *aDefault)	{ return mSettings.count(aKey) ? mSettings[aKey] : cpcc_string(aDefault); }
 	const cpcc_string read(const cpcc_char *aKey, const cpcc_string &aDefault)	{ return read(aKey, aDefault.c_str()); }
     
@@ -113,7 +113,7 @@ private:
 
 	const cpcc_string createIndexedKey(const int index) const
 	{
-		std::ostringstream s;
+		cpcc_ostringstream s;
 		s << mKey << index;
 		return cpcc_string(s.str());
 	}

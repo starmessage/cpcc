@@ -46,7 +46,7 @@ void cpccLogSink::add(const cpcc_char* txt)
     if (moreThanOneSecondPassed())
     {
         cpcc_string currentTime = getCurrentTime(_T("     \t%F  %X"));
-        currentTime.append("\n");
+        currentTime.append(_T("\n"));
         m_outputBuffer.insert(0, currentTime);
     }
 	
@@ -54,12 +54,12 @@ void cpccLogSink::add(const cpcc_char* txt)
 		m_outputBuffer.append(m_IdentText);
 
 	m_outputBuffer.append(txt);
-	m_outputBuffer.append("\n");
+	m_outputBuffer.append(_T("\n"));
 
 	cpccFileSystemMini::appendTextFile(m_filename, m_outputBuffer);
 	if (m_echoToConsole)
 	{
-		std::cout << m_outputBuffer;
+		cpcc_cout << m_outputBuffer;
 #if defined(_WIN32)
 		OutputDebugString(m_outputBuffer.c_str());
 #endif
@@ -183,18 +183,18 @@ public: 	// data
     
 public:
 	cpccLog(/* const char *aFilename*/  void ):
-		error("ERROR>\t",  !CreateFileOnError, echoToCOUT),
-		warning("Warning>\t", !CreateFileOnWarning, echoToCOUT),
-		info("Info>\t",  !CreateFileOnInfo, echoToCOUT)
+		error(_T("ERROR>\t"),  !CreateFileOnError, echoToCOUT),
+		warning(_T("Warning>\t"), !CreateFileOnWarning, echoToCOUT),
+		info(_T("Info>\t"),  !CreateFileOnInfo, echoToCOUT)
 	{
 		cpcc_string fn = getAutoFilename();
-		const char *aFilename = fn.c_str();
+		const cpcc_char *aFilename = fn.c_str();
         info.m_filename = aFilename;
         warning.m_filename = aFilename;
         error.m_filename = aFilename;
         
         // check previous run
-        if (logfileIsIncomplete() || containsText("ERROR>\t"))
+        if (logfileIsIncomplete() || containsText(_T("ERROR>\t")))
             copyToDesktop();
 		
 		// empty the file
@@ -203,13 +203,13 @@ public:
         
 
         info.add(cpccLogOpeningStamp);
-        consolePut( "Log filename:" << aFilename );
-        info.addf("Log filename:%s", aFilename);
+        consolePut(_T("Log filename:") << aFilename );
+        info.addf(_T("Log filename:%s"), aFilename);
         if (!cpccFileSystemMini::fileExists(aFilename))
-            consolePut( "Disabling log becase file does not exist at:" << aFilename );
+            consolePut(_T("Disabling log becase file does not exist at:") << aFilename );
         
         info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.add("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary");
+		info.add(_T("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary"));
         info.add(cpccFileSystemMini::getFileSystemReport().c_str());
 	}
 	
@@ -243,13 +243,13 @@ public: // functions
 	}
 	
     
-    bool    containsText(const char *txt) const
+    bool    containsText(const cpcc_char *txt) const
     {
-        const char *fn = info.m_filename.c_str();
+        const cpcc_char *fn = info.m_filename.c_str();
         if (!cpccFileSystemMini::fileExists(fn))
             return false;
         
-        std::ifstream thefile( fn);
+        cpcc_ifstream thefile( fn);
         if (!thefile.good())
             return false;
         
@@ -275,7 +275,7 @@ public: // functions
     
     void    copyToDesktop(void)
     {
-        const char *fn = info.m_filename.c_str();
+        const cpcc_char *fn = info.m_filename.c_str();
         if (!cpccFileSystemMini::fileExists(fn))
             return;
 

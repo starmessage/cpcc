@@ -36,75 +36,73 @@ class cpccAppInfo
 private:
 	static cpcc_string createLink(const cpcc_char *label, const cpcc_char *url)
 	{
-		cpcc_string result("<a href=\"");
+		cpcc_string result(_T("<a href=\""));
 		result.append(url);
-		result.append("\">");
+		result.append(_T("\">"));
 		result.append(label);
-		result.append("</a>");
+		result.append(_T("</a>"));
 		return result;
 	}
 
 public:
-	enum xtraInfo { includeSalesEmail=1, includeSupportEmail=2, includeWebsite=4, useHtmlLinks=8 };
+	enum xtraInfo { includeEmail=1, includeWebsite=4, useHtmlLinks=8 };
     enum licenseType { eltFree, eltFreeTrialPeriod, eltFull, eltSpecialEdition };
 
 	const static cpcc_char
-		*CompanyName,
-		*ProgramName,
-        *Version,
-		*Build,
-		*WebSiteNoHttp,
-		*WebSite;
-#ifdef _WIN32
-	const static WCHAR
-		*DonateURL_W;
-#endif
-	const static char
-		*BuyURL,
-        *DonateURL,
-		*CheckForUpdatesURL,
-		*EmailSales,
-		*EmailSupport;
+				*CompanyName,
+				*ProgramName,
+				*Version,
+				*Build;
+	const static char 
+				*VersionA,
+				*BuildA;
+	const static cpcc_char
+				*WebSiteNoHttp,
+				*WebSite,
+				*BuyURL,
+				*DonateURL,
+				*CheckForUpdatesURL,
+				*Email;
     const static int
         licenseType;
 
     
     
-	static cpcc_string getText_AboutThisSoftware(const int xi, const char *aLineBreak, const char *aLicenseInfo, const char *aCallToAction)
+	static cpcc_string getText_AboutThisSoftware(const int xi, const cpcc_char *aLineBreak, const cpcc_char *aLicenseInfo, const cpcc_char *aCallToAction)
 	{
-		std::string infoText(cpccAppInfo::ProgramName);
-        infoText += " ";
+		cpcc_string infoText(cpccAppInfo::ProgramName);
+        infoText += _T(" ");
         infoText += cpccAppInfo::Version;
         
 		if (!aLineBreak)
 		{ 
-			infoText += "#8572: const char *aLineBreak was null\n";
+			infoText += _T("#8572: const char *aLineBreak was null\n");
 			return infoText;
 		}
 
 		const bool htmlLinks = ((xi & useHtmlLinks)!=0);
 
 		if (aLicenseInfo)
-			if (strlen(aLicenseInfo) > 0)
+			if (cpcc_strlen(aLicenseInfo) > 0)
 			{
 				infoText.append(aLineBreak);
-				infoText.append("License: ");
+				infoText.append(_T("License: "));
 				infoText.append(aLicenseInfo);
 			}
 
 		infoText.append(aLineBreak);
 		infoText.append(aLineBreak);
 		
-		infoText.append("Build: ");
+		infoText.append(_T("Build: "));
 		infoText.append(Build);
 		infoText.append(aLineBreak); 
-		infoText.append("(c) ");
+		infoText.append(_T("(c) "));
 		infoText.append(cpccAppInfo::CompanyName);
 
-		if ((strlen(WebSiteNoHttp)>0) && (xi & includeWebsite))
+		if ((cpcc_strlen(WebSiteNoHttp)>0) && (xi & includeWebsite))
 		{
 			infoText.append(aLineBreak);
-			infoText.append("Website: ");
+			infoText.append(_T("Website: "));
 			if (htmlLinks)
 				infoText.append(createLink(WebSiteNoHttp, WebSite));
 			else
@@ -112,23 +110,20 @@ public:
 									
 		}
 		
-		if ((strlen(EmailSales) > 0) && (xi & includeSalesEmail))
+		if ((cpcc_strlen(Email) > 0) && (xi & includeEmail))
 		{
 			infoText.append(aLineBreak);
-			infoText.append("Email (sales): ");
-			infoText.append(EmailSales);
+			infoText.append(_T("Email: "));
+			if (htmlLinks)
+				infoText.append(createLink(Email, (cpcc_string(_T("mailto:")) + Email).c_str()));
+			else
+				infoText.append(Email);
+			
 		}
 
-		if ((strlen(EmailSales) > 0) && (xi & includeSupportEmail))
-		{
-			infoText.append(aLineBreak);
-			infoText.append("Email (support): ");
-			infoText.append(EmailSupport);
-		}
-
-		
+				
 		if (aCallToAction)
-			if (strlen(aCallToAction) > 0)
+			if (cpcc_strlen(aCallToAction) > 0)
 			{
 				infoText.append(aLineBreak);
 				infoText.append(aLineBreak);

@@ -22,11 +22,11 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
-
+#include "cpccUnicodeSupport.h"
 
 #ifdef _WIN32
 	#include <windows.h>
-	#pragma comment(lib,"Kernel32.lib")
+	#pragma comment(lib, "Kernel32.lib")
 	typedef HMODULE 	tLibHandle;
 #elif defined(__APPLE__)
     #include <dlfcn.h>
@@ -37,7 +37,7 @@
 	class cpccLinkedLibraryPortable_Win
 	{
 	public:
-		static 	tLibHandle	loadLibrary(const char *aFilename)
+		static 	tLibHandle	loadLibrary(const cpcc_char *aFilename)
 		{
 			/*
 			 http://msdn.microsoft.com/en-us/library/ms684175.aspx
@@ -64,7 +64,7 @@
 		{
 			void *ptr = (void *)GetProcAddress(aHandle, aFunctionName);
 			if (ptr==NULL)
-				std::cerr << "#7541: failed to load function:[" << aFunctionName << "]\n";
+				cpcc_cerr << _T("#7541: failed to load function:[") << aFunctionName << _T("]\n");
 			return ptr;
 		}
 	};
@@ -105,25 +105,25 @@ private:
 	
 protected:
 	tLibHandle			getLibHandle(void) const { return m_libHandle;  }
-	std::stringstream	&errorStream;
+	cpcc_stringstream	&errorStream;
 
 public:	// members
 	
 
 
 public: // ctor, dtor
-	cpccLinkedLibrary(const char *aLibraryfilename, std::stringstream &anErrorStream):
+	cpccLinkedLibrary(const cpcc_char *aLibraryfilename, cpcc_stringstream &anErrorStream):
 				errorStream(anErrorStream)
 	{
 		m_libHandle = loadLibrary(aLibraryfilename);
 		if (!m_libHandle)
 		{ 
-			std::cerr << "#7524: failed to load DLL: " << aLibraryfilename;
-			errorStream << "#7524: failed to load DLL: " << aLibraryfilename;
+			cpcc_cerr << _T("#7524: failed to load DLL: ") << aLibraryfilename;
+			errorStream << _T("#7524: failed to load DLL: ") << aLibraryfilename;
 			if (cpccFileSystemMini::fileExists(aLibraryfilename))
-				errorStream << ". The file exists\n";
+				errorStream << _T(". The file exists\n");
 			else
-				errorStream << ". The file does not exist\n";
+				errorStream << _T(". The file does not exist\n");
 		}
     };
 
@@ -139,11 +139,11 @@ public: // ctor, dtor
 	void *	getFunction(const char * aFunctionName)
 	{
         if (!isLoaded())
-            errorStream << "#9771e: Cannot load function " << aFunctionName << " because the dynamically was not loaded\n";
+            errorStream << _T("#9771e: Cannot load function ") << aFunctionName << _T(" because the dynamically was not loaded\n");
 
 		void *ptr = PORTABLE_LINKLIBRARYFUNCTIONS::getFunctionAddress(m_libHandle, aFunctionName);
 		if (!ptr)
-			errorStream << "#9771a: did not find function " << aFunctionName << " in the dynamically loaded library\n";
+			errorStream << _T("#9771a: did not find function ") << aFunctionName << _T(" in the dynamically loaded library\n");
 		return  ptr;
 	}
 

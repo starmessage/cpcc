@@ -62,6 +62,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <stdio.h>
 
 #ifdef	_WIN32
 	#include <tchar.h>
@@ -85,23 +86,36 @@
 #ifdef UNICODE
 
 	#define		cpcc_cout			std::wcout 		
-	#define		cpcc_cerr			std::wcerr 		
-	#define		cpcc_sprintf		wsprintf		
+	#define		cpcc_cerr			std::wcerr 	
+	#define		cpcc_thread			std::wthread
+	
+	// The wsprintf function has a surprising deficiency: it does not handle floating-point parameters.
+	// #define		cpcc_sprintf		wsprintf		
+	// #define		cpcc_sprintf		swprintf		
+	#define		cpcc_sprintf		_stprintf
 	#define		cpcc_fopen			_wfopen
 	#define		cpcc_strlen			_tcslen
 	#define		cpcc_strftime		_tcsftime	
 	#define		cpcc_fprintf		_ftprintf
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
+	#define		cpcc_strtol			wcstol
+	#define		cpcc_strtod			wcstold
+	// #define		cpcc_getline		getline
+	#define		cpcc_stat			_wstat
+	typedef		struct _stat		cpcc_struct_stat;
 
 	typedef		wchar_t				cpcc_char;
 	typedef		std::wifstream		cpcc_ifstream;
 	typedef		std::wostringstream cpcc_ostringstream;
 	typedef		std::wstringstream	cpcc_stringstream;
 	typedef		std::wstring		cpcc_string;
+	
+
  #else 
 	#define		cpcc_cout			std::cout 	
 	#define		cpcc_cerr			std::cerr
+	#define		cpcc_thread			std::thread
 	#define		cpcc_sprintf		sprintf	
 	#define		cpcc_fopen			fopen
 	#define		cpcc_strlen			strlen
@@ -109,6 +123,11 @@
 	#define		cpcc_fprintf		fprintf
 	#define		cpcc_strtok			strtok
 	#define		cpcc_strcpy			strcpy
+	#define		cpcc_strtol			strtol
+	#define		cpcc_strtod			strtod
+	// #define		cpcc_getline		getline
+	#define		cpcc_stat			stat
+	typedef		struct stat			cpcc_struct_stat;
 
 	typedef		char				cpcc_char;
 	typedef		std::ifstream		cpcc_ifstream;

@@ -32,7 +32,7 @@ protected:	// data
 	cpccWindowBase*		DesktopWindowPtr;
 	bool				m_windowIsOwned;
     bool				m_PreserveDeskopContents;
-    std::string			m_containerFolder;
+    cpcc_string			m_containerFolder;
 	
 protected: // constructor/destructor
 
@@ -40,9 +40,9 @@ protected: // constructor/destructor
 			DesktopWindowPtr(NULL),
 			m_windowIsOwned(true),
             m_PreserveDeskopContents(false),  // opaque by default
-            objLog((char *) "cpccScreenSaverAbstract")
+            objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
-        infoLog().addf("Program: %s %s", cpccAppInfo::ProgramName, cpccAppInfo::Version);
+        infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
 
 	}
 
@@ -70,7 +70,7 @@ private:	// functions
     
 protected: // screensaver standard functions
     
-    virtual void setContainerFolder(const char *aFolder) override
+    virtual void setContainerFolder(const cpcc_char *aFolder) override
     {   m_containerFolder = aFolder;   }
     
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
@@ -84,11 +84,11 @@ protected: // screensaver standard functions
 		int n = cpccOS::getListOfMonitors(m_monitorList);
 
 		// report on monitors found
-		infoLog().addf("Number of monitors:%i", n);
+		infoLog().addf(_T("Number of monitors:%i"), n);
 		for (int i = 0; i < n; ++i)
-			infoLog().addf("Monitor %i: Left %i, top %i, right %i, bottom %i", i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
+			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 
-		infoLog().addf("Screensaver container folder:%s", m_containerFolder.c_str());
+		infoLog().addf(_T("Screensaver container folder:%s"), m_containerFolder.c_str());
 		// mSecondsTimer.resetTimer();
 		m_windowIsOwned = true;
 	}

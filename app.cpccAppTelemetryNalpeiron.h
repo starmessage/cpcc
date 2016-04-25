@@ -132,14 +132,14 @@ private:
 	NSASysInfo_t            NSASysInfo_ptr = NULL;
 	NSAFeatureStart_t		NSAFeatureStart_ptr = NULL;
 	NSAFeatureStop_t		NSAFeatureStop_ptr = NULL;
-	std::stringstream		*m_infoDumpPtr = NULL;
+	cpcc_stringstream		*m_infoDumpPtr = NULL;
 
 public:
     
-    static const char *getDefaultLibFilename(void)
+    static const cpcc_char *getDefaultLibFilename(void)
     {
     #ifdef _WIN32
-        return  "StarMessage-ShaferFilechck.DLL";
+        return  _T("StarMessage-ShaferFilechck.DLL");
     #elif defined(__APPLE__)
         return  "ShaferFilechck.dylib";
     #endif
@@ -149,14 +149,14 @@ public:
     
 public:
     
-	cpccAppTelemetryNalpeiron(const char *aLibraryfilename, std::stringstream &anErrorStream, std::stringstream *anInfoErrorStream) : 
+	cpccAppTelemetryNalpeiron(const cpcc_char *aLibraryfilename, cpcc_stringstream &anErrorStream, cpcc_stringstream *anInfoErrorStream) : 
 			cpccLinkedLibrary(aLibraryfilename, anErrorStream ),
 			m_infoDumpPtr(anInfoErrorStream) // for debug
 	{
 		if (m_infoDumpPtr)
-			(*m_infoDumpPtr) << "\nInfo: cpccAppTelemetryNalpeiron constructor\n";
+			(*m_infoDumpPtr) << _T("\nInfo: cpccAppTelemetryNalpeiron constructor\n");
         if (!isLoaded())
-            errorStream << "nalpeiron library not loaded\n";
+            errorStream << _T("nalpeiron library not loaded\n");
 	}
     	
 
@@ -165,19 +165,19 @@ public:
 	bool NSAFeatureStart(char *username, char *featureCode, const char *nsaClientData, uint32_t *transID)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSAFeatureStart()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSAFeatureStart()\n");
 
 		if (!NSAFeatureStart_ptr)
 			if (!(NSAFeatureStart_ptr = (NSAFeatureStart_t)getFunction("NSAFeatureStart")))
 			{
-				errorStream << "error linking to NSAFeatureStart()\n";
+				errorStream << _T("error linking to NSAFeatureStart()\n");
 				return false;
 			}
 		
 		int ret = NSAFeatureStart_ptr(username,featureCode,nsaClientData, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822m: error calling NSAFeatureStart()", ret);
+		reportErrorMsg(_T("#6822m: error calling NSAFeatureStart()"), ret);
 		return false;
 	}
 	
@@ -197,7 +197,7 @@ public:
 		int ret = NSAFeatureStop_ptr(username, featureCode, nsaClientData, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822n: error calling NSAFeatureStop()", ret);
+		reportErrorMsg(_T("#6822n: error calling NSAFeatureStop()"), ret);
 		return false;
 	}
 	
@@ -213,12 +213,12 @@ public:
 
 		*/
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSA_free()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSA_free()\n");
 
 		if (!NSAFree_ptr)
 			if (!(NSAFree_ptr = (NSAFree_t)getFunction("NSA_free")))
 			{
-				errorStream << "error linking to NSA_free()\n";
+				errorStream << _T("error linking to NSA_free()\n");
 				return false;
 			}
 
@@ -227,14 +227,14 @@ public:
 	}
 
 
-	void	reportErrorMsg(const char * myText, const int errorCode)
+	void	reportErrorMsg(const cpcc_char * myText, const int errorCode)
 	{
-		errorStream << myText << "\nNalp ErrorCode:" << errorCode ;
+		errorStream << myText << _T("\nNalp ErrorCode:") << errorCode ;
 
 		if (!NalpGetErrorMsg_ptr)
 			if (!(NalpGetErrorMsg_ptr = (NalpGetErrorMsg_t)getFunction("NalpGetErrorMsg")))
 			{
-			errorStream << "error linking to NalpGetErrorMsg()\n";
+			errorStream << _T("error linking to NalpGetErrorMsg()\n");
 			return;
 			}
 
@@ -250,7 +250,7 @@ public:
 			
 		char *msg;
 		NalpGetErrorMsg_ptr(errorCode, &msg);
-		errorStream << ":" << msg << std::endl;
+		errorStream << _T(":") << msg << std::endl;
 		NSA_free(msg);
 	}
 
@@ -263,13 +263,13 @@ public:
 		// a xml string as its parameter.
 
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NalpLibOpen()\n";
+			*m_infoDumpPtr << _T("\nInfo: NalpLibOpen()\n");
 
 		// logTimeCountrer _tmpLog("NalpLibOpen()");
 		if (!NalpLibOpen_ptr)
 			if (!(NalpLibOpen_ptr = (NalpLibOpen_t)getFunction("NalpLibOpen")))
 			{
-				errorStream << "error linking to NalpLibOpen()\n";
+				errorStream << _T("error linking to NalpLibOpen()\n");
 				return false;
 			}
 		
@@ -277,7 +277,7 @@ public:
 
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822a: error NalpLibOpen_ptr()", ret);
+		reportErrorMsg(_T("#6822a: error NalpLibOpen_ptr()"), ret);
 		return false;
 	}
 
@@ -285,7 +285,7 @@ public:
 	bool NalpLibClose(void)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NalpLibClose()\n";
+			*m_infoDumpPtr << _T("\nInfo: NalpLibClose()\n");
 		/*
 		During NSAClose, all data remaining in the transaction pool is moved into the cache thread and
 		written to disk as soon as possible.
@@ -302,14 +302,14 @@ public:
 		if (!NalpLibClose_ptr)
 			if (!(NalpLibClose_ptr = (NalpLibClose_t)getFunction("NalpLibClose")))
 			{
-				errorStream << "error linking to NalpLibClose()\n";
+				errorStream << _T("error linking to NalpLibClose()\n");
 				return false;
 			}
 
 		int ret = NalpLibClose_ptr();	// Returns 0 for success and a negative number for an error
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822e: error calling NalpLibClose_ptr()", ret);
+		reportErrorMsg(_T("#6822e: error calling NalpLibClose_ptr()"), ret);
 		return false;
 	}
 	
@@ -317,12 +317,12 @@ public:
 	bool NSAAppStart(const char *nsaClientData, uint32_t *transID)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSAAppStart()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSAAppStart()\n");
 
 		if (!NSAAppStart_ptr)
 			if (!(NSAAppStart_ptr = (NSAApStart_t)getFunction("NSAAppStart")))
 			{
-				errorStream << "error linking to NSAAppStart()\n";
+				errorStream << _T("error linking to NSAAppStart()\n");
 				return false;
 			}
 		
@@ -331,7 +331,7 @@ public:
 		int ret = NSAAppStart_ptr(nsaClientData, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822c: error calling NSAAppStart_ptr()", ret);
+		reportErrorMsg(_T("#6822c: error calling NSAAppStart_ptr()"), ret);
 		return false;
 	}
 
@@ -339,12 +339,12 @@ public:
 	bool NSAAppStop(const char *nsaClientData, uint32_t *transID)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSAAppStop()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSAAppStop()\n");
 
 		if (!NSAAppStop_ptr)
 			if (!(NSAAppStop_ptr = (NSAApStop_t)getFunction("NSAAppStop")))
 			{
-				errorStream << "error linking to NSAAppStop()\n";
+				errorStream << _T("error linking to NSAAppStop()\n");
 				return false;
 			}
 		
@@ -352,7 +352,7 @@ public:
 		int ret = NSAAppStop_ptr(nsaClientData, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822d: error calling NalpLibClose_ptr()", ret);
+		reportErrorMsg(_T("#6822d: error calling NalpLibClose_ptr()"), ret);
 		return false;
 	}
 
@@ -362,13 +362,13 @@ public:
 	bool NSA_validateLibrary(const char* customerID, const char* productID)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSA_validateLibrary()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSA_validateLibrary()\n");
 
 		// logTimeCountrer _tmpLog("NSAValidateLibrary()");
 		if (!NSAValidateLibrary_ptr)
 			if (! (NSAValidateLibrary_ptr = (NSAValidateLibrary_t)getFunction("NSAValidateLibrary")))
 			{
-				errorStream << "error linking to NSAValidateLibrary()\n";
+				errorStream << _T("error linking to NSAValidateLibrary()\n");
 				return false;
 			}
 
@@ -385,7 +385,7 @@ public:
         int ret = NSAValidateLibrary_ptr(cid, pid);
         if (ret == 0)
             return true;
-        reportErrorMsg("#6822b: error validating nap library", ret);
+        reportErrorMsg(_T("#6822b: error validating nap library"), ret);
 		return false;
 	}
 
@@ -393,19 +393,19 @@ public:
 	bool NSAdisablePrivacy(void)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSAdisablePrivacy()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSAdisablePrivacy()\n");
 
 		if (!NSASetPrivacy_ptr)
 			if (! (NSASetPrivacy_ptr = (NSASetPrivacy_t)getFunction("NSASetPrivacy")))
 			{
-				errorStream << "error linking to NSASetPrivacy()\n";
+				errorStream << _T("error linking to NSASetPrivacy()\n");
 				return false;
 			}
 
 		int ret = NSASetPrivacy_ptr(0); // return values are 0 "no privacy", 1 "privacy enabled" or a negative number for an error.
 		if (ret<0)
 		{
-			reportErrorMsg("#6822c: error calling NSAAppStart_ptr()", ret);
+			reportErrorMsg(_T("#6822c: error calling NSAAppStart_ptr()"), ret);
 			return false;
 		}
 		return true;
@@ -418,7 +418,7 @@ public:
 		if (!NSATestConnection_ptr)
 			if (!(NSATestConnection_ptr = (NSATestConnection_t)getFunction("NSATestConnection")))
 			{
-				errorStream << "error linking to NSATestConnection()\n";
+				errorStream << _T("error linking to NSATestConnection()\n");
 				return false;
 			}
 		
@@ -428,7 +428,7 @@ public:
 		int ret = NSATestConnection_ptr(NULL, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822r: NSATestConnection() failed", ret);
+		reportErrorMsg(_T("#6822r: NSATestConnection() failed"), ret);
 		return false;
 	}
 
@@ -438,19 +438,19 @@ public:
 					const char *nsaClientData, uint32_t *transID)
 	{
 		if (m_infoDumpPtr)
-			*m_infoDumpPtr << "\nInfo: NSASysInfo()\n";
+			*m_infoDumpPtr << _T("\nInfo: NSASysInfo()\n");
 
 		if (!NSASysInfo_ptr)
 			if (!(NSASysInfo_ptr = (NSASysInfo_t)getFunction("NSASysInfo")))
 			{
-				errorStream << "error linking to NSASysInfo()\n";
+				errorStream << _T("error linking to NSASysInfo()\n");
 				return false;
 			}
 
 		int ret = NSASysInfo_ptr(username, applang, version, edition, build, licenseStat, nsaClientData, transID);
 		if (ret == 0)
 			return true;
-		reportErrorMsg("#6822k: error calling NSASysInfo()", ret);
+		reportErrorMsg(_T("#6822k: error calling NSASysInfo()"), ret);
 		return false;
 	}
 

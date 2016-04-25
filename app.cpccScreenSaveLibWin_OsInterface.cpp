@@ -103,7 +103,6 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 	static UINT_PTR	uTimer=NULL; /* timer identifier */
 	static bool		isDrawing=false;
 	static cpccScreenSaverInterface* screensaverPtr=NULL;
-	static logObjectLife  logFileMarker("logFileMarker-D"); // does not log anything
 	
 	/*
 	// idea from
@@ -118,8 +117,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 
 		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
-			infoLog().add("ScreenSaverProc() received WM_CREATE");
-			infoLog().addf("notepad window handle: %i", cpccOS::getWindowHandleOfProgram("Notepad"));
+			infoLog().add(_T("ScreenSaverProc() received WM_CREATE"));
+			infoLog().addf(_T("notepad window handle: %i"), cpccOS::getWindowHandleOfProgram(_T("Notepad")));
 			/*	to run the screensaver under the notepad's window:
 				open notepad, run the screensaver normally, open the log file and get the notepad's HWND
 				run:
@@ -145,7 +144,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 					cpcc_stringList args;
 					app.getArgcArgv(args);
 					if (args.size() > 1)
-						monitorID = args[1] == "/p" ? -1 : 0;
+						monitorID = (args[1] == _T("/p")) ? -1 : 0;
 					screensaverPtr->initWithWindowHandle(hwnd, monitorID);
 					screensaverWindowInitialised = true;
 				}
@@ -160,7 +159,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			
 		case WM_ERASEBKGND:	
 			{
-				logFunctionLife _tmpLog("WM_ERASEBKGND");
+				logFunctionLife _tmpLog(_T("WM_ERASEBKGND"));
 			/*
 			// http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx#Using_the_Screen_Sav
 			// The WM_ERASEBKGND message is issued before the WM_TIMER message, allowing the screen saver to paint the background as appropriate. 
@@ -199,7 +198,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 						// prior to destroying a window, by processing the 
 						// WM_CLOSE message and calling the DestroyWindow function 
 						// only if the user confirms the choice. 
-			infoLog().add("ScreenSaverProc() received WM_CLOSE");
+			infoLog().add(_T("ScreenSaverProc() received WM_CLOSE"));
 			break;
 		
 		case WM_PAINT:
@@ -255,7 +254,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_DESTROY:	
 			// Destroy the timer(s) created when the application processed the WM_CREATE message. 
 			// Perform any additional required cleanup.
-			infoLog().add("ScreenSaverProc() received  WM_DESTROY");
+			infoLog().add(_T("ScreenSaverProc() received  WM_DESTROY"));
 
 			if (uTimer)  
 				KillTimer(hwnd, uTimer); 
@@ -327,7 +326,7 @@ Prepei na yparxei ena dialog template me to parakato ID
     switch(message) 
     { 
 		case WM_INITDIALOG: 
-			infoLog().add("ScreenSaverConfigureDialog received WM_INITDIALOG");
+			infoLog().add(_T("ScreenSaverConfigureDialog received WM_INITDIALOG"));
 			/* In response to a WM_INITDIALOG message, 
 			ScreenSaverConfigureDialog should return FALSE if it calls 
 			the SetFocus function to set the keyboard focus to one of 

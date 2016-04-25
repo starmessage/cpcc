@@ -65,9 +65,9 @@ public:		// functions
 		// http://www.cplusplus.com/forum/windows/102452/
 		//if (hBitmap)
 		if (m_GDIHBitmap)
-			errorLog().add("cpccImageWin.initWithSizeAndColor() called but m_GDIHBitmap not null");
+			errorLog().add(_T("cpccImageWin.initWithSizeAndColor() called but m_GDIHBitmap not null"));
 		if (!m_hDC)
-			errorLog().add("cpccImageWin.initWithSizeAndColor() called but m_hDC is null");
+			errorLog().add(_T("cpccImageWin.initWithSizeAndColor() called but m_hDC is null"));
 
 		HDC hdcScreen = GetDC(NULL);
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/dd183488%28v=vs.85%29.aspx
@@ -138,7 +138,7 @@ protected:
 		BitBlt(m_hDC, 0, 0,  newWidth, newHeight, resizedBitmapBuffer.dc(), 0,0, SRCCOPY);
 		
 		
-		infoLog().addf("cpccImageWin.resizeTo_impl() exiting with new w=%i, new h=%i", getWidth(), getHeight());
+		infoLog().addf(_T("cpccImageWin.resizeTo_impl() exiting with new w=%i, new h=%i"), getWidth(), getHeight());
 	}
 
 
@@ -149,7 +149,7 @@ public:
 
 		if (m_GDIHBitmap)
 		{ 
-			errorLog().addf("cpccImageWin.initWithResource_impl(%i) called but hBitmap not null", resourceID);
+			errorLog().addf(_T("cpccImageWin.initWithResource_impl(%i) called but hBitmap not null"), resourceID);
 			return false;
 		}
 		HINSTANCE hInst = GetModuleHandle(NULL);
@@ -164,7 +164,7 @@ public:
 
 		if (!m_hDC)
 		{ 
-			errorLog().addf("cpccImageWin.initWithResource_impl(%i) called but m_hDC is null", resourceID);
+			errorLog().addf(_T("cpccImageWin.initWithResource_impl(%i) called but m_hDC is null"), resourceID);
 			return false;
 		}
 
@@ -182,7 +182,7 @@ protected: // functions
 		// if (hBitmap)
 		if (m_GDIHBitmap)
 		{ 
-			errorLog().addf("cpccImageWin.initWithFile(%s) called but hBitmap not null", aFullPathFilename);
+			errorLog().addf(_T("cpccImageWin.initWithFile(%s) called but hBitmap not null"), aFullPathFilename);
 			return false;
 		}
 
@@ -198,7 +198,7 @@ protected: // functions
 	
 		if (!m_hDC)
 		{
-			errorLog().addf("cpccImageWin.initWithFile(%s) called but m_hDC is null", aFullPathFilename);
+			errorLog().addf(_T("cpccImageWin.initWithFile(%s) called but m_hDC is null"), aFullPathFilename);
 			return false;
 		}
 

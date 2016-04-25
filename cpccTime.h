@@ -149,12 +149,16 @@ public:
 	}
 	*/
 
-	static const char* intToMonth(const int index_0to11)
+	static const cpcc_char* intToMonth(const int index_0to11)
 	{
 		if ((index_0to11 < 0) || (index_0to11 >= 12))
-			return "intToMonth() called with index out of 0..11";
+			return _T("intToMonth() called with index out of 0..11");
 		
-		const char* allMonths[] = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+		const cpcc_char* allMonths[] = 
+			{	_T("January"), _T("February"), _T("March"), 
+				_T("April"), _T("May"), _T("June"), 
+				_T("July"), _T("August"), _T("September"), 
+				_T("October"), _T("November"), _T("December") };
 		return allMonths[index_0to11];
 	}
 

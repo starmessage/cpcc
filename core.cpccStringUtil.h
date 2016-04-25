@@ -66,8 +66,8 @@ public:
 		if (!find || !replace)
 			return;
 
-		size_t findLen = strlen(find);
-		size_t replaceLen = strlen(replace);
+		size_t findLen = cpcc_strlen(find);
+		size_t replaceLen = cpcc_strlen(replace);
 		size_t pos = 0;
 
 		while ((pos = source.find(find, pos)) != std::string::npos)
@@ -101,10 +101,10 @@ public:
 
 	static const bool fromStrNew(const cpcc_string&  strValue, bool& aValue)
 	{
-		if (strValue.compare("yes") == 0 || strValue.compare("true") == 0 || strValue.compare("1") == 0 || strValue.compare("on") == 0)
+		if (strValue.compare(_T("yes")) == 0 || strValue.compare(_T("true")) == 0 || strValue.compare(_T("1")) == 0 || strValue.compare(_T("on")) == 0)
 			{ aValue = true;  return true; }
 
-		if (strValue.compare("no") == 0 || strValue.compare("false") == 0 || strValue.compare("0") == 0 || strValue.compare("off") == 0)
+		if (strValue.compare(_T("no")) == 0 || strValue.compare(_T("false")) == 0 || strValue.compare(_T("0")) == 0 || strValue.compare(_T("off")) == 0)
 			{ aValue = true;  return true; }
 
 		return false;
@@ -112,9 +112,9 @@ public:
 
 	static const bool fromStrNew(const cpcc_char*  strValue, int& aValue)
 	{
-		char* end;
+		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = strtol(strValue, &end, 0);
+		int n = cpcc_strtol(strValue, &end, 0);
 		if (end <= strValue)	return false;
 		aValue = n;
 		return true;
@@ -123,8 +123,8 @@ public:
 
 	static const bool fromStrNew(const cpcc_char* strValue, double& aValue)
 	{
-		char* end;
-		double n = strtod(strValue, &end);
+		cpcc_char* end;
+		double n = cpcc_strtod(strValue, &end);
 		if (end <= strValue)	return false;
 		aValue = n;
 		return true;
@@ -132,8 +132,8 @@ public:
 
 	static const bool fromStrNew(const cpcc_char* strValue, float& aValue)
 	{
-		char* end;
-		float n = (float)strtod(strValue, &end);
+		cpcc_char* end;
+		float n = (float)cpcc_strtod(strValue, &end);
 		if (end <= strValue)	return false;
 		aValue = n;
 		return true;
@@ -143,8 +143,8 @@ public:
 
 	static const double fromStr(const cpcc_char* strValue, const double aDefaultValue)
 	{
-		char* end;
-		double n = strtod(strValue, &end);
+		cpcc_char* end;
+		double n = cpcc_strtod(strValue, &end);
 		return end > strValue ? n : aDefaultValue;
 	}
 
@@ -153,17 +153,17 @@ public:
 
 	static const float fromStr(const cpcc_char* strValue, const float aDefaultValue)
 	{
-		char* end;
-		float n = (float)strtod(strValue, &end);
+		cpcc_char* end;
+		float n = (float)cpcc_strtod(strValue, &end);
 		return end > strValue ? n : aDefaultValue;
 	}
 
 
 	static const long fromStr(const cpcc_char*  strValue, const long aDefaultValue)
 	{
-		char* end;
+		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		long n = strtol(strValue, &end, 0);
+		long n = cpcc_strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
 
@@ -171,18 +171,18 @@ public:
     // in OSX, time_t is defined as long, so there is a ready function for it
 	static const time_t fromStr(const cpcc_char*  strValue, const time_t aDefaultValue)
 	{
-		char* end;
+		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		time_t n = strtoll(strValue, &end, 0);
+		time_t n = cpcc_strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
 #endif
 
 	static const int fromStr(const cpcc_char*  strValue, const int aDefaultValue)
 	{
-		char* end;
+		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = strtol(strValue, &end, 0);
+		int n = cpcc_strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
 
@@ -190,41 +190,41 @@ public:
     
 	static const bool fromStr(const cpcc_string&  strValue, const bool aDefaultValue)
 	{
-		if (strValue.compare("yes") == 0 || strValue.compare("true") == 0 || strValue.compare("1") == 0 || strValue.compare("on") == 0)
+		if (strValue.compare(_T("yes")) == 0 || strValue.compare(_T("true")) == 0 || strValue.compare(_T("1")) == 0 || strValue.compare(_T("on")) == 0)
 			return true;
 
-		if (strValue.compare("no") == 0 || strValue.compare("false") == 0 || strValue.compare("0") == 0 || strValue.compare("off") == 0)
+		if (strValue.compare(_T("no")) == 0 || strValue.compare(_T("false")) == 0 || strValue.compare(_T("0")) == 0 || strValue.compare(_T("off")) == 0)
 			return false;
 
 		return aDefaultValue;
 	}
 
-	static cpcc_string toStr(const bool value) { return cpcc_string(value ? "yes" : "no"); }
+	static cpcc_string toStr(const bool value) { return cpcc_string(value ? _T("yes") : _T("no")); }
     //static cpcc_string toStr(bool value) { return cpcc_string(value ? "yes" : "no"); }
 
 #ifndef __APPLE__
     // in OSX, time_t is defined as long, so there is a ready function for it
 	// in Windows time_t is _int64
-	static cpcc_string toStr(const time_t value) { 	std::ostringstream ss; ss << value; return ss.str(); }
+	static cpcc_string toStr(const time_t value) { cpcc_ostringstream ss; ss << value; return ss.str(); }
 
 #endif
 
-	static cpcc_string toStr(const long int value)	{	std::ostringstream ss; ss << value; return ss.str();	}
-	static cpcc_string toStr(const int value) { std::ostringstream  ss; ss << value; return ss.str(); }
+	static cpcc_string toStr(const long int value)	{ cpcc_ostringstream ss; ss << value; return ss.str();	}
+	static cpcc_string toStr(const int value) { cpcc_ostringstream  ss; ss << value; return ss.str(); }
 
 	static cpcc_string toStr(const float value)
 	{
-		char buf[100];
+		cpcc_char buf[100];
         #pragma warning(disable : 4996)
-		sprintf(buf, "%.12f", value);
+		cpcc_sprintf(buf, _T("%.12f"), value);
 		return cpcc_string(buf);
 	}
 
 	static cpcc_string toStr(const double value)
 	{
-		char buf[200];
+		cpcc_char buf[200];
         #pragma warning(disable : 4996)
-		sprintf(buf, "%.12f", value);
+		cpcc_sprintf(buf, _T("%.12f"), value);
 		return cpcc_string(buf);
 	}
 };
@@ -235,17 +235,17 @@ class stringUtils
 {
 
 public:
-	static void stringSplit(const std::string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
+	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
 		size_t start = 0;
 		size_t end = inputStr.find_first_of(delimiter);
 		outputList.clear();
 	
-		while (end <= std::string::npos)
+		while (end <= cpcc_string::npos)
 		{
 			outputList.push_back(inputStr.substr(start, end - start));
 
-			if (end == std::string::npos)
+			if (end == cpcc_string::npos)
 				break;
 
 			start = end + 1;

@@ -42,12 +42,12 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 {
 	// std::cout << "cpccSettings constructor\n";
 	
-	assert(cpcc_strlen(aCompanyName)>0 && "#5351: cpccSettings: blank company name");
-	assert(cpcc_strlen(aSoftwareName)>0 && "#5351: cpccSettings: blank Software name");
+	assert(cpcc_strlen(aCompanyName)>0 && _T("#5351: cpccSettings: blank company name"));
+	assert(cpcc_strlen(aSoftwareName)>0 && _T("#5351: cpccSettings: blank Software name"));
 
 	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccPathString::sfCommonAppData : cpccPathString::sfUserData);
 
-	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && "#5381: settings folder does not exist");
+	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && _T("#5381: settings folder does not exist"));
 	
 	// problem with writing:
 	// http://stackoverflow.com/questions/6993527/c-mac-os-x-cannot-write-to-library-application-support-appname
@@ -57,15 +57,15 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	//cpcc_string companySubFolder(aCompanyName);
 	if (! _settingsFilename.pathExists())
 		if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
-			std::cerr << "During cpccSettings constructor could not create folder:" << _settingsFilename << "\n";
+			cpcc_cerr << _T("During cpccSettings constructor could not create folder:") << _settingsFilename << _T("\n");
 	
 	_settingsFilename.appendPathSegment(aSoftwareName);
-	_settingsFilename.append(".ini");
+	_settingsFilename.append(_T(".ini"));
 	mFilename = _settingsFilename;
-	std::cout << "cpccSettings constructor: filename:" << mFilename << "\n";
+	cpcc_cout << _T("cpccSettings constructor: filename:") << mFilename << _T("\n");
 	
 	if (!load())
-		std::cerr << "Error #1351: loading cpccSettings from file:" << mFilename << std::endl;
+		cpcc_cerr << _T("Error #1351: loading cpccSettings from file:") << mFilename << std::endl;
 	
 	//std::cout << "cpccSettings construction point 2\n";
 }
@@ -75,7 +75,7 @@ cpccSettings::~cpccSettings()
 {
 	if (!instantSaving)
 		if (!save())
-			std::cerr << "Error #1352: saving cpccSettings to file:" << mFilename << std::endl;
+			cpcc_cerr << _T("Error #1352: saving cpccSettings to file:") << mFilename << std::endl;
 }
 
 
@@ -85,19 +85,20 @@ bool cpccSettings::load(void)
 		return true;
 	
 	
-	std::ifstream iniFile(mFilename.c_str());
+	cpcc_ifstream iniFile(mFilename.c_str());
 	if (!iniFile.is_open())
 	{
-		std::cerr << "#8551: Could not open file:" << mFilename << "\n";
+		cpcc_cerr << _T("#8551: Could not open file:") << mFilename << _T("\n");
 		return false;
 	}
 		
 	mSettings.clear();
 	cpcc_string key, value;
     
-	while(std::getline(iniFile, key, '='))
+	// http://forums.codeguru.com/showthread.php?511066-RESOLVED-Is-it-possible-to-use-getline-with-unicode
+	while(getline(iniFile, key, _T('=')))
     {
-		std::getline(iniFile, value);
+		getline(iniFile, value);
 		stringConversions::decodeStrFromINI(value);
 		mSettings[key] = value;
     }
@@ -111,14 +112,14 @@ bool cpccSettings::save(void)
     //	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
     
     #pragma warning(suppress : 4996)
-    FILE *fp = fopen(mFilename.c_str(), "w");
+    FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w"));
     if (!fp)
     {
         // If it fails returns NULL", yes. The global variable errno (found in <errno.h>)
         // contains information about what went wrong;
         // you can use perror() to print that information as a readable string.
 		#pragma warning(suppress : 4996)
-		std::cerr << "Error saving file " << mFilename << " Error message:"<< strerror(errno) << "\n";
+		cpcc_cerr << _T("Error saving file ") << mFilename << _T(" Error message:") << strerror(errno) << _T("\n");
         return false;
     }
     
@@ -127,7 +128,7 @@ bool cpccSettings::save(void)
     {
 		key = it->first;   
 		value = it->second; stringConversions::encodeStrForINI(value);
-        fprintf(fp, "%s=%s\n", key.c_str(), value.c_str());
+        cpcc_fprintf(fp, _T("%s=%s\n"), key.c_str(), value.c_str());
     }
     fclose(fp);
     
@@ -141,7 +142,7 @@ void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
     
     if (instantSaving)
         if (!save())
-            std::cerr << "Error #1352c: saving cpccSettings to file:" << mFilename << std::endl;
+            cpcc_cerr << _T("Error #1352c: saving cpccSettings to file:") << mFilename << std::endl;
 }
 
 #ifdef  BYPASS_RELEASE_ERROR
@@ -168,7 +169,7 @@ void cpccSettings::clear(void)
 	mSettings.clear();
 	if (instantSaving)
 		if (!save())
-			std::cerr << "Error #1352d: saving cpccSettings to file:" << mFilename << std::endl;
+			cpcc_cerr << _T("Error #1352d: saving cpccSettings to file:") << mFilename << std::endl;
 }
 
 
@@ -176,7 +177,7 @@ void cpccSettings::resumeInstantSaving(void)
 {
 	instantSaving = true;
 	if (!save())
-		std::cerr << "Error #1353: saving cpccSettings to file:" << mFilename << std::endl;
+		cpcc_cerr << _T("Error #1353: saving cpccSettings to file:") << mFilename << std::endl;
 }
 
 
@@ -184,68 +185,68 @@ void cpccSettings::resumeInstantSaving(void)
 #if defined(cpccSettings_DoSelfTest)
 void cpccSettings::selfTest(void) 
 {
-	std::cout << "cpccSettings::SelfTest starting\n";
+	cpcc_cout << _T("cpccSettings::SelfTest starting\n");
 	
 	double pi = 3.14159265359;
     float  bigFloat = 1.3456798e16f;
-	const char * tmpTestString = "abc-καλημέρα=good\x0A\x0Dmorning to all.";
+	const cpcc_char * tmpTestString = _T("abc-καλημέρα=good\x0A\x0Dmorning to all.");
 	{
 		// writing 
-		cpccSettings settingsUser("testCompanyName","testSoftwareName", scopeCurrentUser);
-		cpccSettings settingsApp("testCompanyName","testSoftwareName", scopeAllUsers);
+		cpccSettings settingsUser(_T("testCompanyName"), _T("testSoftwareName"), scopeCurrentUser);
+		cpccSettings settingsApp(_T("testCompanyName"), _T("testSoftwareName"), scopeAllUsers);
 
-		settingsUser.write("testStringKeyA", "testStringValueA");
-		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename()) && "SelfTest #7711a: file does not exist");
+		settingsUser.write(_T("testStringKeyA"), _T("testStringValueA"));
+		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename()) && _T("SelfTest #7711a: file does not exist"));
 
-		settingsUser.write("testStringKeyB", "tmpValue");
-		settingsUser.write("testStringKeyB", "B");
+		settingsUser.write(_T("testStringKeyB"), _T("tmpValue"));
+		settingsUser.write(_T("testStringKeyB"), _T("B"));
 
-		settingsUser.write("testTrueKey", true);
-		settingsUser.write("testFalseKey", false);
-		settingsUser.write("pi", pi);
-		settingsUser.write("twentythree", 23);
-        settingsUser.write("bigFloat", bigFloat);
-		settingsApp.write("AppSettingsOfSoftware", "testSoftwareName");
-		settingsApp.write("extremeString", tmpTestString);
-		cpccPersistentVar<int> tmpPersistentInt(settingsApp, "tmpPersInt", 98);
+		settingsUser.write(_T("testTrueKey"), true);
+		settingsUser.write(_T("testFalseKey"), false);
+		settingsUser.write(_T("pi"), pi);
+		settingsUser.write(_T("twentythree"), 23);
+        settingsUser.write(_T("bigFloat"), bigFloat);
+		settingsApp.write(_T("AppSettingsOfSoftware"), _T("testSoftwareName"));
+		settingsApp.write(_T("extremeString"), tmpTestString);
+		cpccPersistentVar<int> tmpPersistentInt(settingsApp, _T("tmpPersInt"), 98);
 		tmpPersistentInt = 456;
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
 	{
 		// separate reading
-		cpccSettings settingsUser("testCompanyName","testSoftwareName", scopeCurrentUser);
-		cpccSettings settingsSystem("testCompanyName","testSoftwareName", scopeAllUsers);
+		cpccSettings settingsUser(_T("testCompanyName"), _T("testSoftwareName"), scopeCurrentUser);
+		cpccSettings settingsSystem(_T("testCompanyName"), _T("testSoftwareName"), scopeAllUsers);
 
-		cpcc_string tmp = settingsUser.read("testStringKeyA","default");
-		assert(tmp.compare("testStringValueA")==0 && "SelfTest #7711b: readString error");
+		cpcc_string tmp = settingsUser.read(_T("testStringKeyA"), _T("default"));
+		assert(tmp.compare(_T("testStringValueA"))==0 && _T("SelfTest #7711b: readString error"));
 
-		tmp = settingsUser.read("NonExistingKey","default");
-		assert(tmp.compare("default")==0 && "SelfTest #7711c: readString error on default value");
+		tmp = settingsUser.read(_T("NonExistingKey"), _T("default"));
+		assert(tmp.compare(_T("default"))==0 && _T("SelfTest #7711c: readString error on default value"));
 
-		tmp = settingsUser.read("testStringKeyB","default");
-		assert(tmp.compare("B")==0 && "SelfTest #7711d: writeString error: does not update values");
+		tmp = settingsUser.read(_T("testStringKeyB"), _T("default"));
+		assert(tmp.compare(_T("B"))==0 && _T("SelfTest #7711d: writeString error: does not update values"));
 
-		assert(settingsUser.read("testTrueKey",false)		&& "SelfTest #7711e: readBool error 1");
-		assert(!settingsUser.read("testFalseKey",true)		&& "SelfTest #7711e: readBool error 2");
-		assert(settingsUser.read("testMissingKey1",true)	&& "SelfTest #7711e: readBool error 3");
-		assert(!settingsUser.read("testMissingKey2",false)	&& "SelfTest #7711e: readBool error 4");
+		assert(settingsUser.read(_T("testTrueKey"),false)		&& _T("SelfTest #7711e: readBool error 1"));
+		assert(!settingsUser.read(_T("testFalseKey"),true)		&& _T("SelfTest #7711e: readBool error 2"));
+		assert(settingsUser.read(_T("testMissingKey1"),true)	&& _T("SelfTest #7711e: readBool error 3"));
+		assert(!settingsUser.read(_T("testMissingKey2"),false)	&& _T("SelfTest #7711e: readBool error 4"));
 
-		assert(settingsUser.read("pi",1.0)==pi	&& "SelfTest #7711f: readReal");
-        assert(settingsUser.read("bigFloat",2.0)==bigFloat	&& "SelfTest #7711k: readReal bigFloat");
+		assert(settingsUser.read(_T("pi"),1.0)==pi	&& _T("SelfTest #7711f: readReal"));
+        assert(settingsUser.read(_T("bigFloat"),2.0)==bigFloat	&& _T("SelfTest #7711k: readReal bigFloat"));
         
-		assert(settingsUser.read("twentythree",2)==23	&& "SelfTest #7711g: readLongint");
+		assert(settingsUser.read(_T("twentythree"),2)==23	&& _T("SelfTest #7711g: readLongint"));
 
-		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, "tmpPersInt", 92);
-		assert((tmpPersistentInt == 456) && "SelfTest #7711r: tmpPersistentInt error 1");
+		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, _T("tmpPersInt"), 92);
+		assert((tmpPersistentInt == 456) && _T("SelfTest #7711r: tmpPersistentInt error 1"));
 		// assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
-		assert((tmpPersistentInt[3] == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+		assert((tmpPersistentInt[3] == 678) && _T("SelfTest #7711j: tmpPersistentInt error 2"));
 
-		tmp = settingsSystem.read("extremeString", "----");
-		assert(tmp.compare(tmpTestString) == 0 && "SelfTest #7711k: readString error");
+		tmp = settingsSystem.read(_T("extremeString"), _T("----"));
+		assert((tmp.compare(tmpTestString) == 0) && _T("SelfTest #7711w: readString error"));
 		}
 		
-	std::cout << "cpccSettings::SelfTest ended\n";
+	cpcc_cout << _T("cpccSettings::SelfTest ended\n");
 
 }
 #endif

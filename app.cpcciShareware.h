@@ -49,7 +49,7 @@ public:
 //
 //////////////////////////////////////////////
 
-class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>, cParameterDict<std::string>
+class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>, cParameterDict<cpcc_string>
 {
 
 public:		// ctors,  factory
@@ -75,8 +75,8 @@ public:
     */
 
     // convenience conversion from char* to std::string
-    void setParameter(const int aKey, const char * aValue) { cParameterDict<std::string>::setParameter(aKey, aValue);  }
-    std::string  getParameter(const int aKey, const char *aDefaultValue) { return cParameterDict<std::string>::getParameter(aKey, aDefaultValue); }
+    void setParameter(const int aKey, const cpcc_char * aValue) { cParameterDict<cpcc_string>::setParameter(aKey, aValue);  }
+	cpcc_string  getParameter(const int aKey, const cpcc_char *aDefaultValue) { return cParameterDict<cpcc_string>::getParameter(aKey, aDefaultValue); }
 
     template <typename T>
     void setParameter(const int aKey, const T &aValue) { cParameterDict<T>::setParameter(aKey, aValue);  }
