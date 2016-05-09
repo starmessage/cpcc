@@ -31,6 +31,7 @@
 // #include "io.cpccFileSystemMini.h"
 
 #ifdef _WIN32
+	# pragma warning (disable: 4005)
 	#include <windows.h>
 
 #elif __APPLE__

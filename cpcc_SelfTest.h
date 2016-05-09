@@ -14,17 +14,16 @@
  *	*****************************************
  */
 
-
+#include "cpccDefines.h"
 #ifndef cpcc_SelfTest_h
 #define cpcc_SelfTest_h
 
 /// Central switch to close all selfTests in your application
-#ifdef NDEBUG
-	#define ENABLE_SELF_TESTS	0
-#else
+#ifdef cpccDEBUG
 	#define ENABLE_SELF_TESTS	1
+#else
+	#define ENABLE_SELF_TESTS	0
 #endif
-
 
 
 #include "cpccUnicodeSupport.h"
@@ -34,9 +33,6 @@
 #elif defined(__APPLE__)
 	#include <iostream>
 #endif
-
-
-
 
 
 /**

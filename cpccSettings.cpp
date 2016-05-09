@@ -109,26 +109,57 @@ bool cpccSettings::load(void)
 
 bool cpccSettings::save(void)
 {
+	/*
+	//	write with streams
+	cpcc_ofstream _file(mFilename.c_str());
+	if (! _file.good())
+	{ 
+		#pragma warning(suppress : 4996)
+		cpcc_cerr << _T("Error saving file ") << mFilename << _T(" Error message:") << strerror(errno) << _T("\n");
+		return false;
+	}
+	
+	// write the BOM if UTF-8
+	#ifdef UNICODE
+		_file << "\xEF\xBB\xBF";
+	#endif
+	
+	for (tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
+	{
+		const cpcc_char *key = it->first.c_str();
+		cpcc_string    value = it->second; 
+		stringConversions::encodeStrForINI(value);
+		_file << key << _T("=") << value << std::endl;
+	}
+	
+	_file.close();
+	return true;
+	*/
+
     //	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
-    
+    //	examples with greek text
+	//	http://blog.cppcms.com/post/105
+	//  http://www.cplusplus.com/forum/general/7142/
     #pragma warning(suppress : 4996)
-    FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w"));
+    // FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w, ccs=UTF-8")); // me ayto grafei sosta to elliniko keimeno alla stamataei pio kato
+	FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w"));
     if (!fp)
     {
-        // If it fails returns NULL", yes. The global variable errno (found in <errno.h>)
-        // contains information about what went wrong;
-        // you can use perror() to print that information as a readable string.
-		#pragma warning(suppress : 4996)
+        #pragma warning(suppress : 4996)
 		cpcc_cerr << _T("Error saving file ") << mFilename << _T(" Error message:") << strerror(errno) << _T("\n");
         return false;
     }
-    
-    cpcc_string key, value;
+	
+	#ifdef UNICODE	// write the BOM if UTF-8
+		fprintf(fp, "\xEF\xBB\xBF");
+	#endif
+
     for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
     {
-		key = it->first;   
-		value = it->second; stringConversions::encodeStrForINI(value);
-        cpcc_fprintf(fp, _T("%s=%s\n"), key.c_str(), value.c_str());
+		const cpcc_char *key = it->first.c_str();	// key = it->first;   
+		cpcc_string    value = it->second;
+		stringConversions::encodeStrForINI(value);
+        cpcc_fprintf(fp, _T("%s=%s\n"), key, value.c_str());
     }
     fclose(fp);
     
@@ -159,8 +190,6 @@ void		cpccSettings::write(const cpcc_char *aKey, const long int aValue)   {   wr
 
 template <typename T>
 void		cpccSettings::write(const cpcc_char *aKey, const T aValue)  { write(aKey, stringConversions::toStr(aValue)); }
-
-
 
 
 

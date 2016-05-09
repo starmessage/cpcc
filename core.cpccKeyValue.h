@@ -18,6 +18,7 @@
 #include <map>
 #include <assert.h>
 #include <sstream>
+#include "cpccDefines.h"
 #include "core.cpccStringUtil.h"
 #include "cpccUnicodeSupport.h"
 
@@ -72,7 +73,7 @@ public:	// class metadata and selftest
 
 	static void selfTest(void)
 	{
-    #ifndef NDEBUG
+    #ifdef cpccDEBUG
 		cpccKeyValue testSubject;
 		testSubject.set(_T("value123"), 123);
 		testSubject.set(_T("keyMike"), _T("Mike Value"));

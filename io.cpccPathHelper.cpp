@@ -183,8 +183,8 @@ cpcc_string		cpccPathHelper::getExtension(const cpcc_char *aFilename)
 
 void cpccPathHelper::selfTest(void)
 {
+#ifdef cpccDEBUG
 
-#ifndef NDEBUG
 	if (!cpccPathHelper::config_RunSelfTest)
 		return;
 

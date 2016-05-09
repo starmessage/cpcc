@@ -48,12 +48,12 @@ private:
 		static const tEncodingsTable encodedINIcharacterTable =
 		{
 			//        normal     ->       encoded
-			{ (cpcc_char *)  "=", (cpcc_char *) "\\=" },
-			{ (cpcc_char *)  "\n", (cpcc_char *) "\\n" },
-			{ (cpcc_char *)  "\r", (cpcc_char *) "\\r" },
-			{ (cpcc_char *)  "\t", (cpcc_char *) "\\t" },
+			{ (cpcc_char *)  _T("="),  (cpcc_char *) _T("\\=") },
+			{ (cpcc_char *)  _T("\n"), (cpcc_char *) _T("\\n") },
+			{ (cpcc_char *)  _T("\r"), (cpcc_char *) _T("\\r") },
+			{ (cpcc_char *)  _T("\t"), (cpcc_char *) _T("\\t") },
 			// this must be the last rule  for the decoding and first rule for the encoding
-			{ (cpcc_char *)  "\\", (cpcc_char *) "\\\\" }	
+			{ (cpcc_char *)  _T("\\"), (cpcc_char *) _T("\\\\") }
 		};
 		return encodedINIcharacterTable;
 	}

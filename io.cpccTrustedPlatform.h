@@ -23,8 +23,8 @@
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccLog.h"
 #include <sstream>
-/*
- 
+
+/* 
  to use hash in XCODE:
  What you need to do is open the project settings -> Build Settings and set
  C++ Language Dialect to C++11 and
@@ -95,7 +95,10 @@ public:
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
         firstrun_time= cpccFileSystemMini::getFileModificationDate(getStorageFolder().c_str());
-        debugLog().addf(_T("First run time (days) %lu, by checking folder: %s"),firstrun_time / (60*60*24), getStorageFolder().c_str());
+        debugLog().addf(_T("Now (days) %lu, First run time (days) %lu, by checking folder: %s"),
+                        current_time/ (60*60*24),
+                        firstrun_time / (60*60*24),
+                        getStorageFolder().c_str());
         days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
         
         return days;

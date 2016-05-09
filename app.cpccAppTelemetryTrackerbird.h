@@ -135,6 +135,8 @@ public:	// ctors
     
     ~cpccAppTelemetryTrackerBird()
     {
+        logFunctionLife			_tmpLog("~cpccAppTelemetryTrackerBird()");
+
 		//if  (m_multipleSessionsEnabled)
 		//    TrackerbirdSDK::TBApp::sessionStop();
 		#ifdef _WIN32

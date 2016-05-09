@@ -199,6 +199,11 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 						// WM_CLOSE message and calling the DestroyWindow function 
 						// only if the user confirms the choice. 
 			infoLog().add(_T("ScreenSaverProc() received WM_CLOSE"));
+			if (uTimer)
+				KillTimer(hwnd, uTimer);
+			uTimer = NULL;
+			// wait for one extra tick so that any pending timer event is fired before the clean up of the screensaver classes
+			Sleep(1000 / FramesPerSec);
 			break;
 		
 		case WM_PAINT:
@@ -256,10 +261,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			// Perform any additional required cleanup.
 			infoLog().add(_T("ScreenSaverProc() received  WM_DESTROY"));
 
-			if (uTimer)  
-				KillTimer(hwnd, uTimer); 
-			uTimer=NULL;			 
-            
+			
+
 			if (screensaverPtr)
 			{
 				screensaverPtr->shutDown();

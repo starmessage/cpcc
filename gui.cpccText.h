@@ -36,10 +36,11 @@ struct cpccTextParams
 	float			*kerning;
 	eFontQuality	fontQuality;
 	eFontWeight		fontWeight;
-
+    bool            ignoreRetina;
+    
 	cpccTextParams():
 		color(NULL), fontName(NULL), fontSize(NULL), 
-		textAlign(NULL), fontQuality(fqUndefined), fontWeight(fwUndefined), kerning(NULL) 
+		textAlign(NULL), fontQuality(fqUndefined), fontWeight(fwUndefined), kerning(NULL), ignoreRetina(false)
 	{ }
 };
 

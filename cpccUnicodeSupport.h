@@ -96,7 +96,7 @@
 	#define		cpcc_fopen			_wfopen
 	#define		cpcc_strlen			_tcslen
 	#define		cpcc_strftime		_tcsftime	
-	#define		cpcc_fprintf		_ftprintf
+	#define		cpcc_fprintf		fwprintf	// _ftprintf
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
 	#define		cpcc_strtol			wcstol
@@ -106,7 +106,8 @@
 	typedef		struct _stat		cpcc_struct_stat;
 
 	typedef		wchar_t				cpcc_char;
-	typedef		std::wifstream		cpcc_ifstream;
+	typedef		std::wifstream		cpcc_ifstream;	
+	typedef		std::wofstream		cpcc_ofstream;	// wchar_t is the type that backs wstream and wstring
 	typedef		std::wostringstream cpcc_ostringstream;
 	typedef		std::wstringstream	cpcc_stringstream;
 	typedef		std::wstring		cpcc_string;
@@ -131,6 +132,7 @@
 
 	typedef		char				cpcc_char;
 	typedef		std::ifstream		cpcc_ifstream;
+	typedef		std::ofstream		cpcc_ofstream;
 	typedef		std::ostringstream	cpcc_ostringstream;
 	typedef		std::stringstream	cpcc_stringstream;
 	typedef		std::string			cpcc_string;

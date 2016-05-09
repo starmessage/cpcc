@@ -43,7 +43,6 @@ protected: // constructor/destructor
             objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
         infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
-
 	}
 
 

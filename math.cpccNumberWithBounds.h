@@ -23,6 +23,7 @@
 #include <iostream>
 #include <assert.h>
 
+#include "cpccDefines.h"
 
 /*
 	The current C++ standard does not allow float (i.e. real number) or 
@@ -78,7 +79,7 @@ class cpccNumberWithBounds
 	#if defined(cpccNumberWithBounds_DoSelfTest)
 		static void  selfTest(void)
 		{
-        #ifndef NDEBUG
+        #ifdef cpccDEBUG
 			std::cout << "cpccNumberWithBounds::SelfTest starting\n";
 
 			cpccNumberWithBounds<float, 0, 1, 1>		f;

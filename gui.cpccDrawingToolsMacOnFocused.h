@@ -104,7 +104,7 @@ public:		// functions
         [path stroke];
     }
     
-
+    
     void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
 	{
         // https://developer.apple.com/library/mac/#documentation/graphicsimaging/conceptual/drawingwithquartz2d/dq_text/dq_text.html#//apple_ref/doc/uid/TP30001066-CH213-TPXREF101
@@ -150,9 +150,17 @@ public:		// functions
         if ((params.fontQuality==fqNonAntiAliased) && (prevState==YES))
             [[NSGraphicsContext currentContext] setShouldAntialias: NO];
         
-        [macString drawInRect:rect /* respectFlipped:YES */ withAttributes:textAttrib];
+        if (!params.ignoreRetina)
+            [macString drawInRect:rect /* respectFlipped:YES */ withAttributes:textAttrib];
+        else
+        {
+            NSAffineTransform *trans = [[[NSAffineTransform alloc] init] autorelease];
+            [trans set];
+            [macString drawInRect:rect /* respectFlipped:YES */ withAttributes:textAttrib];
+        }
         
-        if ((params.fontQuality==fqNonAntiAliased) && (prevState==YES))    [[NSGraphicsContext currentContext] setShouldAntialias: YES];
+        if ((params.fontQuality==fqNonAntiAliased) && (prevState==YES))
+            [[NSGraphicsContext currentContext] setShouldAntialias: YES];
         
     }
 	

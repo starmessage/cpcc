@@ -15,7 +15,7 @@
  *	*****************************************
  */
 
-
+#include "cpccDefines.h"
 #include "io.cpccLog.h"		// this uses cpccTimeCounter.h and must be included before <windows.h> 
 #include "io.cpccTrustedPlatform.h"
 #include "cpcc_selfTest.h"
@@ -31,7 +31,7 @@
 
 void			cpccTrustedPlatform::selfTest(void)
 {
-#if defined(NDEBUG) && defined(DOSELFTEST_cpccTrustedPlatform)
+#if (!defined(cpccDEBUG)) && defined(DOSELFTEST_cpccTrustedPlatform)
 	
 	/*
 	cpccGetComputerID<33> mid;

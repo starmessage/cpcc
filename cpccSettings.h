@@ -20,6 +20,7 @@
 #include <map>
 #include <assert.h>
 #include <sstream>
+#include "cpccDefines.h"
 #include "cpccUnicodeSupport.h"
 #include "core.cpccKeyValue.h"
 
@@ -31,7 +32,7 @@
 	Dependencies: cpcc_SelfTest.h
 */
 
-#ifndef NDEBUG
+#ifdef cpccDEBUG
     #define cpccSettings_DoSelfTest		true
 #endif
 
@@ -108,8 +109,8 @@ class cpccPersistentVar
 {
 private:
 	 cpccSettings &	mIniPtr;
-	 cpcc_string		mKey;
-     T                 mDefaultValue;
+	 cpcc_string	mKey;
+     T				mDefaultValue;
 
 	const cpcc_string createIndexedKey(const int index) const
 	{

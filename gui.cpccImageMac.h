@@ -340,8 +340,13 @@ protected: // functions
 			[bmpPtr release];
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
         
-        // infoLog().addf("resized. width:%i height:%i", getWidth(), getHeight());
-        assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+        infoLog().addf("resized. width:%i height:%i", getWidth(), getHeight());
+        if (getWidth()!=newWidth)
+            warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
+        
+        if (getHeight()!=newHeight)
+            warningLog().addf("resizeTo_impl failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
+        // assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
     }
     
     

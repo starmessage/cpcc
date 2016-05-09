@@ -46,7 +46,7 @@ private:
 
 public:
 	enum xtraInfo { includeEmail=1, includeWebsite=4, useHtmlLinks=8 };
-    enum licenseType { eltFree, eltFreeTrialPeriod, eltFull, eltSpecialEdition };
+    enum licenseType { eltFree, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
 
 	const static cpcc_char
 				*CompanyName,

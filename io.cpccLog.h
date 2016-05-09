@@ -23,6 +23,7 @@
 #include <assert.h>
 #include <string> 
 
+#include "cpccDefines.h"
 #include "cpccUnicodeSupport.h"
 
 
@@ -79,7 +80,7 @@ cpccLogSink			&infoLog(void);
 cpccLogSink			&warningLog(void);
 cpccLogSink			&errorLog(void);
 
-#ifdef NDEBUG
+#ifndef cpccDEBUG
     //#define COMMENT SLASH(/)
     //#define SLASH(s) /##s
 	//#define debugLog()	COMMENT

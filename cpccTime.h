@@ -15,6 +15,10 @@
 #pragma once
 
 #include <time.h>
+#include <atomic>
+#ifdef __APPLE__
+    #include <unistd.h> // for usleep()
+#endif
 
 /*	------------------	NOTES  ------------------------
 time.h in windows CE
@@ -174,25 +178,23 @@ public:
 class cpccInterruptableSleep
 {
 private:
-	const time_t dt_msec = 200;
-	bool		 &m_interruptRequested;
+	const time_t dt_msec = 50;
+	std::atomic<bool> 		 &m_interruptRequested;
 
 public:
-	explicit cpccInterruptableSleep(bool &interruptRequested) : m_interruptRequested(interruptRequested)
+	explicit cpccInterruptableSleep(std::atomic<bool>  &interruptRequested) : m_interruptRequested(interruptRequested)
 	{	}
 
 
-	void sleep(const time_t msec)
+	void sleep(const time_t sleepFor_msec)
 	{
 		time_t t = 0;
-		while (t < msec)
+		while ((!m_interruptRequested) && (t < sleepFor_msec))
 		{
-			if (m_interruptRequested)
-				break;
 #ifdef _WIN32
 			Sleep((DWORD)dt_msec);
 #elif __APPLE__
-			usleep(1000 * dt_msec);
+			usleep(1000 * dt_msec); // usleep(microseconds)
 #endif
 			t += dt_msec;
 		}

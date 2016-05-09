@@ -37,6 +37,7 @@
 
 #endif
 
+#include "cpccDefines.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #if defined(cpccFileSystemMini_DoSelfTest)
@@ -294,7 +295,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 	#ifdef _WIN32
 		#pragma warning(disable : 4996)
 	#endif
-	fp= cpcc_fopen(finalFilename.c_str(), _T("at")); // write append
+	fp= cpcc_fopen(finalFilename.c_str(), _T("at")); // write append // todo: UNICODE
 	if (!fp) return false;
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
@@ -425,7 +426,7 @@ cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const
 #endif
     
     #pragma warning(disable : 4996)
-	FILE * pFile = cpcc_fopen (finalFilename.c_str(), (appendToFile)? _T("ab") : _T("wb") );
+	FILE * pFile = cpcc_fopen (finalFilename.c_str(), (appendToFile)? _T("ab") : _T("wb") );  // todo: unicode
 	if (pFile==NULL) 
 		return -1;
 	
@@ -447,7 +448,7 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 		return -3;
 
 	FILE * pFile;
-	pFile = cpcc_fopen(aFilename, _T("rb"));
+	pFile = cpcc_fopen(aFilename, _T("rb"));	// todo: unicode
 	if (pFile==NULL) 
 		return -1;
 	
@@ -510,11 +511,11 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 	#ifdef _WIN32
 		#pragma warning( disable : 4996 )
 	#endif
-	FILE* source = cpcc_fopen(sourceFile, _T("rb"));
+	FILE* source = cpcc_fopen(sourceFile, _T("rb")); // todo: unicode
 	if (!source) 
 		return false;
 	
-	FILE* dest = cpcc_fopen(destFile, _T("wb"));
+	FILE* dest = cpcc_fopen(destFile, _T("wb")); // todo: unicode
 	if (!dest) 
 	{
 		fclose(source);
@@ -674,7 +675,7 @@ cpccPathString::cpccPathString(const standardFolderIds aFolderID)
 
 void cpccFileSystemMini::selfTest(void)
 {
-#ifndef NDEBUG
+#ifdef cpccDEBUG
     std::cout << "cpccFileSystemMini::SelfTest starting\n";
 
 	// "#5349a: path delimiter"

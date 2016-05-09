@@ -19,7 +19,7 @@
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
-
+#include "cpccDefines.h"
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
 #define cpccLogClosingStamp		_T("cpccLog closing")
@@ -171,7 +171,7 @@ private: // configuation
             CreateFileOnInfo=true,  // you might want to set this to false when compiling for release
             CreateFileOnWarning=true,
             CreateFileOnError=true,
-	#ifdef NDEBUG
+	#ifndef cpccDEBUG
             echoToCOUT=false
 	#else
 	        echoToCOUT=true
@@ -182,31 +182,34 @@ public: 	// data
 	cpccLogSink	error, warning, info;
     
 public:
-	cpccLog(/* const char *aFilename*/  void ):
+	cpccLog( const cpcc_char *aFilename, const bool configCheckPreviousRunIsIncomplete, const bool configCheckPreviousRunHasErrors ):
 		error(_T("ERROR>\t"),  !CreateFileOnError, echoToCOUT),
 		warning(_T("Warning>\t"), !CreateFileOnWarning, echoToCOUT),
 		info(_T("Info>\t"),  !CreateFileOnInfo, echoToCOUT)
 	{
-		cpcc_string fn = getAutoFilename();
-		const cpcc_char *aFilename = fn.c_str();
-        info.m_filename = aFilename;
-        warning.m_filename = aFilename;
-        error.m_filename = aFilename;
+		cpcc_string fn = getAutoFullpathFilename(aFilename);
+		const cpcc_char *_FullpathFilename = fn.c_str();
+        info.m_filename = _FullpathFilename;
+        warning.m_filename = _FullpathFilename;
+        error.m_filename = _FullpathFilename;
         
         // check previous run
-        if (logfileIsIncomplete() || containsText(_T("ERROR>\t")))
+        if ( (configCheckPreviousRunIsIncomplete && logfileIsIncomplete())
+			|| 
+			(configCheckPreviousRunHasErrors && containsText(_T("ERROR>\t")))
+			)
             copyToDesktop();
 		
 		// empty the file
-		if (cpccFileSystemMini::fileExists(aFilename))
-			cpccFileSystemMini::createEmptyFile(aFilename);
+		if (cpccFileSystemMini::fileExists(_FullpathFilename))
+			cpccFileSystemMini::createEmptyFile(_FullpathFilename);
         
 
         info.add(cpccLogOpeningStamp);
-        consolePut(_T("Log filename:") << aFilename );
-        info.addf(_T("Log filename:%s"), aFilename);
-        if (!cpccFileSystemMini::fileExists(aFilename))
-            consolePut(_T("Disabling log becase file does not exist at:") << aFilename );
+        consolePut(_T("Log filename:") << _FullpathFilename);
+        info.addf(_T("Log filename:%s"), _FullpathFilename);
+        if (!cpccFileSystemMini::fileExists(_FullpathFilename))
+            consolePut(_T("Disabling log becase file does not exist at:") << _FullpathFilename);
         
         info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
 		info.add(_T("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary"));
@@ -234,10 +237,13 @@ public: // functions
 	inline bool hasErrors(void) const { return !error.isEmpty(); }
 
 
-	cpccPathString getAutoFilename(void) const
+	cpccPathString getAutoFullpathFilename(const cpcc_char *aFilename) const
 	{
         cpccPathString result(cpccPathString::sfUsersTemp);
-        result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
+		if (!aFilename)
+			result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
+		else
+			result.appendPathSegment(aFilename);
         result.append(_T(".cpccLog.txt"));
         return result;
 	}
@@ -287,9 +293,14 @@ public: // functions
 
 int	cpccLogSink::m_IdentLevel = 0;
 
+
 namespace ns_cpccGlobals
 {
-	cpccLog globalAppLog;
+	// this must be implemented somewhere in the main program's files, so the program name is used as a log filename
+	extern	cpcc_char *defineLogParameter_Filename(void);
+	extern	bool		defineLogParameter_CheckIncompleteLog(void);
+	extern	bool		defineLogParameter_CheckHasErrors(void);
+	cpccLog globalAppLog(defineLogParameter_Filename(), defineLogParameter_CheckIncompleteLog(), defineLogParameter_CheckHasErrors());
 }
 
 
