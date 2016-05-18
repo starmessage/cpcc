@@ -72,6 +72,7 @@ void	cpccSound::stop(void)
 
 void cpccSound::playResourceSound(const int aSoundResource, const bool loop)
 {
+	stop();
     int loopParam = (loop) ? SND_LOOP : 0;;
     // HINSTANCE hInst = (HINSTANCE) GetWindowLong(NULL, GWL_HINSTANCE );
     HINSTANCE hInst = GetModuleHandle(NULL);
