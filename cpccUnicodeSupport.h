@@ -147,16 +147,17 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 	class wchar_from_char
 	{
 	private:
-		std::wstring wstr;
+		std::wstring wstr= L"";
 
 	public:
 
 		wchar_from_char(const char *str)
 		{
 			int len = strlen(str);
-			wstr.insert(0, len + 1, L'-');
+			// allocate memory
+			wstr.insert(0, len + 2, L'-');
 	#pragma warning(suppress : 4996)
-			mbstowcs(&wstr[0], str, len);
+			mbstowcs(&wstr[0], str, len +2);
 		}
 
 		inline  operator const wchar_t *(void) const { return wstr.c_str(); }

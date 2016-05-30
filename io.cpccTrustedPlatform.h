@@ -94,13 +94,16 @@ public:
         time_t current_time, firstrun_time;
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
-        firstrun_time= cpccFileSystemMini::getFileModificationDate(getStorageFolder().c_str());
-        debugLog().addf(_T("Now (days) %lu, First run time (days) %lu, by checking folder: %s"),
+		cpcc_string _folder = getStorageFolder();
+
+        firstrun_time= cpccFileSystemMini::getFileModificationDate(_folder.c_str());
+		
+        debugLog().addf(_T("Now (days) %lu, First run time (days) %lu, by checking folder"),
                         current_time/ (60*60*24),
-                        firstrun_time / (60*60*24),
-                        getStorageFolder().c_str());
+                        firstrun_time / (60*60*24));
+		debugLog().add(_folder.c_str());
         days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
-        
+       
         return days;
     }
     

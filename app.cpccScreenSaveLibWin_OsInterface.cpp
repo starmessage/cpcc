@@ -35,7 +35,7 @@
 #include "app.cpccScreenSaverInterface.h"
 #include "app.cpccApp.h"
 #include "core.cpccOS.h"
-
+#include "core.cpccTryAndCatch.h"
 
 /*  Handling Screen Savers
 	http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx
@@ -145,7 +145,8 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 					app.getArgcArgv(args);
 					if (args.size() > 1)
 						monitorID = (args[1] == _T("/p")) ? -1 : 0;
-					screensaverPtr->initWithWindowHandle(hwnd, monitorID);
+					CPCC_TRY_AND_CATCH(screensaverPtr->initWithWindowHandle(hwnd, monitorID), "exception caught: screensaverPtr->initWithWindowHandle()");
+					
 					screensaverWindowInitialised = true;
 				}
 				

@@ -18,6 +18,7 @@
 #include "cpccUnicodeSupport.h"
 #include "core.cpccErrorCollector.h"
 
+#include "io.cpccLog.h"
 
 // ToDo: these paths must be neutralised to work on any developement environment
 //		 This is solved if the TB files are stored in the IDE's search path
@@ -113,11 +114,21 @@ public:	// ctors
                                 const char* productVersion,
                                 const char* productBuildNumber,
                                 const char* productEdition,
+								const cpcc_char* cacheFolder,
 								cpccErrorCollector	&anErrorDump
 								) :
 			m_errorDump(anErrorDump)
     {
 		#ifdef _WIN32
+			debugLog().addf("trackerbird cache folder:%s", cacheFolder);
+			wchar_from_char	_pathForCache_w(cacheFolder);
+
+            TBRESULT res = tbSetFilePath(_pathForCache_w);
+            if (res == TB_INVALID_PATH)
+                warningLog().addf(_T("TB invalid path:%s"), cacheFolder);
+            if (res == TB_ACCESS_DENIED)
+                warningLog().addf(_T("TB access denied to path:%s"), cacheFolder);
+        
 			wchar_from_char	callhomeURL_w(callhomeURL),
 			productID_w(productID),
 			productVersion_w(productVersion),
@@ -126,7 +137,18 @@ public:	// ctors
 			tbCreateConfig(callhomeURL_w, productID_w, productVersion_w, productBuildNumber_w, m_multipleSessionsEnabled);
 			tbStart();
 		#elif defined(__APPLE__)
-			TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, false, productEdition, "en", "");
+            /*
+             @note The file path where the Trackerbird SDK will create and save its working files. It is important to remember that the calling process should have read/write accessibility to the location.
+             
+             @note The default location is as following:
+             
+             @note * For non-sandboxed apps: `~/Library/Application Support/`
+             @note * For sandboxed apps: `~/Library/Containers/<Bundle Identifier>/Data/Library/Application Support/`
+             
+             @note The SDK will create and keep its working files within the following direcotry structure: `<filePath>/TrackerbirdSDK/<PorductID Hash>/`
+
+             */
+            TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(callhomeURL, productID, productVersion, productBuildNumber, false, productEdition, "en", "");
             TrackerbirdSDK::TBApp::start(config, NULL);
             
 		#endif

@@ -89,8 +89,8 @@ cpcc_string cpccLogSink::toString(const cpcc_char* format, ...)
 
 void cpccLogSink::addf(const cpcc_char* format, ...)
 {
-	const int MAX_LOG_STRING = 8000;
-	cpcc_char buff[MAX_LOG_STRING + 1];
+	const int MAX_LOG_STRING = 8000 ;
+	cpcc_char buff[MAX_LOG_STRING + 1]; // = { 0 };
 
 	va_list args;
 	va_start(args, format);
