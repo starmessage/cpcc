@@ -62,7 +62,7 @@ public:
             warningLog().add("logRepresentations() called with null image");
         }
         
-        int nRepresentations = [[aImagePtr representations] count];
+        int nRepresentations = (int) [[aImagePtr representations] count];
         NSString *classname;
         for (int i=0; i<nRepresentations; i++)
         {

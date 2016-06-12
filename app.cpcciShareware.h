@@ -55,6 +55,8 @@ class cpccSharewareAbstract: public cParameterDict<bool>, cParameterDict<int>, c
 public:		// ctors,  factory
 	static cpccSharewareAbstract     *getInstancePtr(void);
 
+    virtual ~cpccSharewareAbstract() {}
+    
 public:
 	virtual inline bool                 importActivationCode(const cpcc_char * aLicenseCode) = 0;
 	virtual inline long int             getDaysSinceFirstRun(void) const = 0;

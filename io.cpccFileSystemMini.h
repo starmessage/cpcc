@@ -24,7 +24,7 @@
 // If the above is set to FALSE the selftest code is bypassed (not compiled at all)
 // See also the config_RunSelfTest. If TRUE, the selftest code is compiled but not called.
 
-typedef long cpccFileSize_t;
+typedef unsigned long cpccFileSize_t;
 
 
 

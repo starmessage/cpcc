@@ -52,6 +52,8 @@ public:		// constructors
 		left(r.left), top(r.top), width(r.right - r.left), height(r.bottom - r.top)
 	{ }
 #endif
+    
+    virtual ~cpccRect() {}
 
 public:		// operators
 	inline const bool operator==(const cpccRect<T>& aRect)const { return (top==aRect.top) && (left==aRect.left) && (width==aRect.width) && (height==aRect.height);   }

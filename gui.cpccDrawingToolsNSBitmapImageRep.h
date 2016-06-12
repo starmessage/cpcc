@@ -36,6 +36,8 @@ protected:
 public:  // constructor
     
 	cpccDrawingToolsNSBitmapImageRep(TimgRepHandle &aRep): m_imgRep(aRep) { }
+    
+    virtual ~cpccDrawingToolsNSBitmapImageRep() {}
 
 public:		// data
 	

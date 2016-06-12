@@ -194,7 +194,7 @@ public:
 #ifdef _WIN32
 			Sleep((DWORD)dt_msec);
 #elif __APPLE__
-			usleep(1000 * dt_msec); // usleep(microseconds)
+			usleep((useconds_t) (1000 * dt_msec)); // usleep(microseconds)
 #endif
 			t += dt_msec;
 		}

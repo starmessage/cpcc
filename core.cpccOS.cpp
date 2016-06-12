@@ -95,7 +95,7 @@ static void util_RemoveSuffixFromString(cpcc_string &str, cpcc_char* suffixToRem
 		return value: number of monitors,
 		list parameter: details about the monitors
 	*/
-int cpccOS::getListOfMonitors(cpccMonitorList &list)
+unsigned long cpccOS::getListOfMonitors(cpccMonitorList &list)
 {
 	list.clear();
 
@@ -119,7 +119,7 @@ int cpccOS::getListOfMonitors(cpccMonitorList &list)
 
 	NSArray *screenArray = [NSScreen screens];
 		
-	unsigned screenCount = [screenArray count];
+	unsigned long screenCount = [screenArray count];
 	for (unsigned int index=0; index < screenCount; index++)
 	{
   		NSScreen *screen = [screenArray objectAtIndex: index];
@@ -217,7 +217,7 @@ const bool cpccOS::restoreMonitorSleep()
 
 
 
-void cpccOS::sleep(const int msec)
+void cpccOS::sleep(const unsigned int msec)
 {
 #ifdef _WIN32
 	Sleep(msec);

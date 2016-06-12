@@ -87,7 +87,7 @@ public:
 	{
 		//for (int i = 0; i< sizeof(encodedINIcharacterTable) / sizeof(encodedINIcharacterTable[0]); ++i)
 		//	findAndReplaceAll(str, encodedINIcharacterTable[i][1], encodedINIcharacterTable[i][0]);
-		for (int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
+		for (unsigned int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
 			findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
 	}
 
@@ -114,7 +114,7 @@ public:
 	{
 		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = cpcc_strtol(strValue, &end, 0);
+		int n = (int) cpcc_strtol(strValue, &end, 0);
 		if (end <= strValue)	return false;
 		aValue = n;
 		return true;
@@ -182,7 +182,7 @@ public:
 	{
 		cpcc_char* end;
 		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = cpcc_strtol(strValue, &end, 0);
+		int n = (int) cpcc_strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
 

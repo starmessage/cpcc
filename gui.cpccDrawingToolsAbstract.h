@@ -108,7 +108,9 @@
 template<typename TNativeRect>
 class cpcciDrawingTools
 {
-
+public:
+    virtual ~cpcciDrawingTools() {}
+    
 public:		// functions
     virtual void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
 	virtual void 				fillRectWithColor(const TNativeRect &r, const cpccColor& aColor) =0;

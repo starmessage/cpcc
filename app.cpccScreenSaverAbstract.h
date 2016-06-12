@@ -80,11 +80,11 @@ protected: // screensaver standard functions
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
 		
-		int n = cpccOS::getListOfMonitors(m_monitorList);
+		unsigned long n = cpccOS::getListOfMonitors(m_monitorList);
 
 		// report on monitors found
 		infoLog().addf(_T("Number of monitors:%i"), n);
-		for (int i = 0; i < n; ++i)
+		for (unsigned long i = 0; i < n; ++i)
 			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 
 		infoLog().addf(_T("Screensaver container folder:%s"), m_containerFolder.c_str());

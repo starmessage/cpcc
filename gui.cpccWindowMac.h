@@ -91,10 +91,10 @@ public:  // functions
 	
     
 	void 		flush() override { };
-	int 		getHeight(void) const override	{ return m_windowRect.size.height; }
-	int 		getWidth(void) 	const override	{ return m_windowRect.size.width; }
-    int         getTop(void)    const override	{ return m_windowRect.origin.y; }
-    int         getLeft(void)   const override	{ return m_windowRect.origin.x; }
+	int 		getHeight(void) const override	{ return (int)m_windowRect.size.height; }
+	int 		getWidth(void) 	const override	{ return (int)m_windowRect.size.width; }
+    int         getTop(void)    const override	{ return (int)m_windowRect.origin.y; }
+    int         getLeft(void)   const override	{ return (int)m_windowRect.origin.x; }
     void        lockFocus(void) override { [m_windowHandle lockFocus]; }
     void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     

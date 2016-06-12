@@ -40,7 +40,7 @@ class cpccStackWithDefault
 	public: // functions
 		void	operator=(const T& a)	{ m_defaultValue = a; }
 
-		int		getCount(void)			{ return m_stack.size(); }
+		unsigned long getCount(void)			{ return m_stack.size(); }
 
 		// the pop function here, also returns the value that was poped (unlike std::stack that returns void)
 		T		pop(void)				

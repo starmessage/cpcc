@@ -35,7 +35,7 @@ protected:
 	
 
 public:  // constructor
-    
+    virtual ~cpccDrawingToolsMacOnFocused() {}
 	
 public:		// data
 	

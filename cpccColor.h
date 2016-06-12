@@ -143,7 +143,7 @@ public:
 	void fromCGColorRef(CGColorRef c)
 	{
 		const CGFloat *components = CGColorGetComponents(c);
-		int numComponents = CGColorGetNumberOfComponents(c);
+		int numComponents = (int) CGColorGetNumberOfComponents(c);
 		if (numComponents >= 3)
 		{
 			r = 255 * components[0];

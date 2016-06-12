@@ -30,6 +30,8 @@
 	No [sectionName] headings are used.
 	
 	Dependencies: cpcc_SelfTest.h
+ 
+    ToDo: On MAC, settings should be saved in a directory with same name as bundle identifier.
 */
 
 #ifdef cpccDEBUG

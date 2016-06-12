@@ -53,9 +53,9 @@ public:
 		return value: number of monitors,
 		list parameter: details about the monitors
 	*/
-	static int getListOfMonitors(cpccMonitorList &list);
+	static unsigned long getListOfMonitors(cpccMonitorList &list);
 
-	static void sleep(const int msec);
+	static void sleep(const unsigned int msec);
     
 	// static void keepAwakeTrigger(void);
     

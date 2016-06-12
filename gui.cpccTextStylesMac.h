@@ -46,7 +46,11 @@ public:
             // [aTextAttr setObject:[NSFont fontWithName:fontName size:aFontSize ]  forKey:NSFontAttributeName];
             
             // https://developer.apple.com/library/mac/documentation/cocoa/reference/applicationkit/classes/NSFontManager_Class/Reference/Reference.html#//apple_ref/doc/uid/20000383-16096
-            [aTextAttr setObject: [[NSFontManager sharedFontManager] fontWithFamily:fontName traits:0 weight:1 size:aFontSize] forKey:NSFontAttributeName] ;
+            NSFont *font = [[NSFontManager sharedFontManager] fontWithFamily:fontName traits:0 weight:1 size:aFontSize];
+            
+            if (font)
+                [aTextAttr setObject: font forKey:NSFontAttributeName] ;
+            // [aTextAttr setObject: [[NSFontManager sharedFontManager] fontWithFamily:fontName traits:0 weight:1 size:aFontSize] forKey:NSFontAttributeName] ;
         }
     }
     
