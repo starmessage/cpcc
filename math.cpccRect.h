@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		math.cpccRect.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, multidimentional number typedefs
@@ -19,7 +19,10 @@
 
 #ifdef _WIN32
 	#include <Windows.h>
+#elif defined(__APPLE__)
+    #include <cocoa/cocoa.h>
 #endif
+
 
 
 /**

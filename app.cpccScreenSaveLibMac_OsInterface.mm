@@ -134,13 +134,14 @@
  
  
 
-
+/*
 class   logObjectLife4ScreenSaveLibMac: logObjectLife
 {
 public:
     logObjectLife4ScreenSaveLibMac(): logObjectLife((char *)"cpccScreenSaveLibMac_OsInterface object")
     { }
 };
+*/
 
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 
@@ -160,9 +161,10 @@ public:
     // instance variables
     cpccScreenSaverInterface *ssPtr,
                              *ssConfigurePtr;
+    
     // the following syntax is invalid for Obj-C so I created an intermediate class
     // logObjectLife   m_objLife( "cpccScreenSaveLibMac_OsInterface" );
-    logObjectLife4ScreenSaveLibMac m_objLife_ssView;
+    // logObjectLife4ScreenSaveLibMac m_objLife_ssView;
 
 }
 
@@ -250,7 +252,6 @@ public:
 	
     NSBundle *saverBundle = [NSBundle bundleForClass:[self class]];
     NSString* pBundlePath = [saverBundle bundlePath];
-    infoLog().addf(".saver container folder:%s", [pBundlePath UTF8String]);
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
     ssPtr->m_framesPerSec = config_FramesPerSec;
 	NSView * windowHandle = self;
@@ -550,7 +551,7 @@ public:
 	[super dealloc];
 }
 
-
+/*
 - (BOOL)hasConfigureSheet_orig
 {
 	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
@@ -559,7 +560,7 @@ public:
     
     return (ssPtr -> hasConfigureSheet());
 }
-
+*/
 
 - (BOOL)hasConfigureSheet
 {

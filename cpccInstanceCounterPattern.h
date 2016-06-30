@@ -29,7 +29,6 @@ class cpccInstanceCounterPattern
 private:
 	int &_nCount;
 
-
 public:	// ctor/dtor
 
 	explicit cpccInstanceCounterPattern(int &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }

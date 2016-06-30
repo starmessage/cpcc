@@ -179,10 +179,22 @@ cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
 		return  cpcc_string(buffer);
 	
 	#elif defined(__APPLE__)
-		std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/temp-cpcc"));
+        /*
+         Objective-C:
+         NSString * NSTemporaryDirectory ( void );
+         Returns the path of the temporary directory for the current user.
+         
+         see also:
+         http://www.cocoawithlove.com/2009/07/temporary-files-and-folders-in-cocoa.html
+         */
+		
+    // std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/temp-cpcc"));
+    std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/com.StarMessageSoftware.StarMessage"));
+    
+    
 		if (!folderExists(userTempFolder.c_str()))
 			createFolder(userTempFolder.c_str());
-			
+		
 		return userTempFolder;
 	
 	#else
@@ -532,12 +544,10 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 	return (!errorOccured);
 }
 
-	
-
 
 bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 {
-	return (writeToFile(aFilename, "", 0, false)==0);
+	return (writeToFile(aFilename, "", 0, false) >= 0);
 	// other way: std::ofstream tmpOut(aFilename); 
 }
 
@@ -691,7 +701,12 @@ void cpccFileSystemMini::selfTest(void)
 	//std::cout << "cpccFileSystemMini::SelfTest point2\n";
 	
 	cpccPathHelper::addTrailingPathDelimiter(tmpFolder);
-				
+	
+    if(!folderExists(tmpFolder))
+        createFolder(tmpFolder);
+    
+    assert(folderExists(tmpFolder) && _T("#5356p: cpccFileSystemMini::selfTest"));
+    
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");
 	cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");

@@ -71,9 +71,7 @@ public: // screensaver interface functions: calls that the operating system disp
 	virtual void drawOneFrame(void)=0;
 	virtual void flushOneFrame(void)=0;
 	virtual void backgroundWasInvalidatedByOS(void) = 0;
-	virtual bool getPreserveDeskopContents() const = 0;
-	virtual void setPreserveDeskopContents(const bool a) = 0;
-
+	
 	/// free the allocated resources
 	virtual void shutDown()=0;
 	virtual bool hasConfigureSheet(void) = 0;

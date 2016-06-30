@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccFileSystemMini.h
  *	Purpose:	Portable (cross-platform), light-weight, file system library
  *	*****************************************
@@ -24,7 +24,7 @@
 // If the above is set to FALSE the selftest code is bypassed (not compiled at all)
 // See also the config_RunSelfTest. If TRUE, the selftest code is compiled but not called.
 
-typedef unsigned long cpccFileSize_t;
+typedef long cpccFileSize_t;
 
 
 

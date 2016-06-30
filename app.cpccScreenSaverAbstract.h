@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		app.cpccScreenSaverAbstract.h
   *	Purpose:	Portable (cross-platform), light-weight, library
  *				screensaver interface with windows and OSX
@@ -21,6 +21,7 @@
 #include "core.cpccOS.h"
 #include "app.cpccAppInfo.h"
 
+
 class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
@@ -28,18 +29,15 @@ private:
 	
 protected:	// data
 	cpccMonitorList		m_monitorList;
-	//time_t				m_ticksPassed = 0;
 	cpccWindowBase*		DesktopWindowPtr;
-	bool				m_windowIsOwned;
-    bool				m_PreserveDeskopContents;
+	// bool				m_PreserveDeskopContents;
     cpcc_string			m_containerFolder;
 	
 protected: // constructor/destructor
 
 	cpccScreenSaverAbstract():
 			DesktopWindowPtr(NULL),
-			m_windowIsOwned(true),
-            m_PreserveDeskopContents(false),  // opaque by default
+			// m_PreserveDeskopContents(false),  // opaque by default
             objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
         infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
@@ -48,12 +46,13 @@ protected: // constructor/destructor
 
 	virtual ~cpccScreenSaverAbstract()
 	{
-		if (DesktopWindowPtr && (m_windowIsOwned))
+		if (DesktopWindowPtr)
 		{
 			delete(DesktopWindowPtr);		
 			DesktopWindowPtr=NULL;
 		}
 	}
+    
 	
 private:	// functions
 	    
@@ -70,7 +69,11 @@ private:	// functions
 protected: // screensaver standard functions
     
     virtual void setContainerFolder(const cpcc_char *aFolder) override
-    {   m_containerFolder = aFolder;   }
+    {
+        m_containerFolder = aFolder;
+        infoLog().addf("screensaver's container folder:%s", aFolder);
+    }
+    
     
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
@@ -88,8 +91,6 @@ protected: // screensaver standard functions
 			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
 
 		infoLog().addf(_T("Screensaver container folder:%s"), m_containerFolder.c_str());
-		// mSecondsTimer.resetTimer();
-		m_windowIsOwned = true;
 	}
 
     virtual void shutDown(void) override   {  }
@@ -100,9 +101,7 @@ public:	// other functions
 	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
-    virtual bool    getPreserveDeskopContents() const   override   { return m_PreserveDeskopContents; }
-    virtual void    setPreserveDeskopContents(const bool a)  override { m_PreserveDeskopContents = a; }
-
+    
 };
 
 
