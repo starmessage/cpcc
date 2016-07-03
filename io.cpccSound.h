@@ -28,30 +28,40 @@ class cpccSound
 {
 private:	// data
     #if defined(__APPLE__)
-        NSSound *nsSoundPtr;
+        NSSound *nsSoundPtr = NULL;
     #endif
 
 public:	// ctors
     cpccSound()
     {
     #if defined(__APPLE__)
-        nsSoundPtr = NULL;
+        if (nsSoundPtr)
+        {   // [nsSoundPtr release];
+            nsSoundPtr = NULL;
+        }
     #endif
     }
 
 	~cpccSound(void)	{ stop(); }
 	
 public:
+    
 	#ifdef _WIN32
         void 	playResourceSound(const int aSoundResource, const bool loop);
     
     #elif defined(__APPLE__)
         void 	playResourceSound(NSString *aBundleClass, NSString *aResourceFile, const bool loop);
-    
+        void    playSoundFile(NSString *aFilename, const bool loop);
+
     #endif
     
+    void    playSoundFile(const char *aFilename, const bool loop);
 	void	stop(void);
 
 };
+
+
+
+
 
 

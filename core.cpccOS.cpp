@@ -146,7 +146,9 @@ void cpccOS::keepAwakeTrigger(void)
 #ifdef _WIN32
 	
 #elif __APPLE__
-    
+ create an NSTimer that fires a function with this
+ UpdateSystemActivity(OverallAct);
+ 
     // removed document:
     // https://developer.apple.com/library/mac/qa/qa1160/_index.html
     // 'UpdateSystemActivity' is deprecated: first deprecated in OS X 10.8
@@ -173,10 +175,11 @@ const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
 	
 
 #elif __APPLE__
+    // IOPMAssertionCreateWithName is new API available in Mac OS X 10.6 Snow Leopard. IOPMAssertionCreateWithName allows an application to return a return a brief string to the user explaining why that application is preventing sleep.
     //  https://developer.apple.com/library/mac/qa/qa1340/_index.html
-    //  kIOPMAssertionTypeNoDisplaySleep prevents display sleep,
-    //  kIOPMAssertionTypeNoIdleSleep prevents idle sleep
-    
+    //  kIOPMAssertionTypePreventUserIdleDisplaySleep (only available on 10.7 or later)
+    //  kIOPMAssertionTypeNoDisplaySleep - prevents display sleep AND idle sleep,
+    //  kIOPMAssertionTypeNoIdleSleep - prevents idle sleep of the MAC (the screen can turn off)
     //  NOTE: IOPMAssertionCreateWithName limits the string to 128 characters.
     CFStringRef reasonForActivity;
     reasonForActivity = CFStringCreateWithCString(NULL, textualReason, kCFStringEncodingASCII);
@@ -184,15 +187,10 @@ const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
                                                    kIOPMAssertionLevelOn,
                                                    reasonForActivity,
                                                    &preventSleepAssertionID);
+    
     CFRelease(reasonForActivity);
     return (success == kIOReturnSuccess);
-    
-    /*  other idea:
-     
-     create an NSTimer that fires a function with this
-     UpdateSystemActivity(OverallAct);
-     
-     */
+
 #else
     #error #8724: Unknown platform for cpccOS
 	return false;
@@ -203,6 +201,7 @@ const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
 const bool cpccOS::restoreMonitorSleep()
 {
 #ifdef _WIN32
+    // ToDo:
 	return false; 
 #elif __APPLE__
     if (preventSleepAssertionID==0) return
