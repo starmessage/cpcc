@@ -119,7 +119,7 @@ public:		// functions
 	}
 
 
-	void 	drawText(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr) override
+	void 	drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr) override
 	{
 		// prepare drawing tools
 		pushCss(aCssPtr);

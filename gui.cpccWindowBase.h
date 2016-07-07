@@ -156,8 +156,13 @@ public:  // abstract functions
 	virtual void			fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
     virtual void			fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
 	virtual void			fillCircleWithColor(const int centerX, const int centerY, const int r, const cpccColor& c) { fillEllipseWithColor(centerX - r, centerY - r, centerX + r, centerY + r, c); };
-	virtual void 			drawText(int x, int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
+	virtual void 			drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
 	virtual void 			drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) = 0;
+	inline void 			drawLine(const float x1, const float y1, const float x2, const float y2, const int width, const cpccColor &c)
+	{
+		drawLine((int)(x1 + 0.5f), (int)(y1 + 0.5f), (int)(x2 + 0.5f), (int)(y2 + 0.5f), width, c);
+	}
+
     virtual void			pushCss(cpccCSS *aCssPtr)=0;
 	virtual void			popCss(cpccCSS* aCssPtr)=0;
     virtual cpccColor		getPixel(const int x, const int y)=0;

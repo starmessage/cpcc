@@ -151,7 +151,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	}
 	
 	
-	void 		textOut_impl(int x, int y, const cpcc_char *text)
+	void 		textOut_impl(const int x, const int y, const cpcc_char *text)
 	{
 #if (!DEBUGPARAM_DISABLE_TEXTDRAWING)
 
