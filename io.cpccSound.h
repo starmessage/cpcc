@@ -16,7 +16,7 @@
 
 #ifdef _WIN32
 	//typedef		int		cpccSoundIdType;
-
+    #include <windows.h>
 #elif defined(__APPLE__)
 	//typedef		char *	cpccSoundIdType;
     #import <AppKit/AppKit.h>
@@ -52,11 +52,22 @@ public:
     #elif defined(__APPLE__)
         void 	playResourceSound(NSString *aBundleClass, NSString *aResourceFile, const bool loop);
         void    playSoundFile(NSString *aFilename, const bool loop);
-
+    
     #endif
     
     void    playSoundFile(const char *aFilename, const bool loop);
 	void	stop(void);
+    
+    static void beep(void)
+    {
+    #ifdef _WIN32
+        Beep( 750, 500 );
+    #elif defined(__APPLE__)
+        // NSBeep(); seems to have been forgotten and does not produce any sound
+        [[NSSound soundNamed:@"Basso"]play];
+    #endif
+    }
+    
 
 };
 
