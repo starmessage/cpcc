@@ -17,6 +17,7 @@
  */
 
 #include	"io.cpccLog.h"
+#include    "app.cpccAppInfo.h"
 #include	"app.cpccScreenSaverInterface.h"
 #import		<ScreenSaver/ScreenSaver.h>
 
@@ -251,6 +252,15 @@ public:
 	assert(ssPtr && "Error 4567: ssPtr = nil");
 	
     NSBundle *saverBundle = [NSBundle bundleForClass:[self class]];
+    
+    // a good opportunity to log the resolved bundleID
+    NSString *nsBundleID = [saverBundle bundleIdentifier];
+    cpcc_string bundleID([nsBundleID UTF8String]);
+    infoLog().addf("Resolved BundleID:%s", bundleID.c_str());
+    if (bundleID.compare(cpccAppInfo::BundleId) != 0)
+        errorLog().addf("Resolved bundleID different from expected (%s)", cpccAppInfo::BundleId);
+    
+    // find the actual path of the screensaver
     NSString* pBundlePath = [saverBundle bundlePath];
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
     ssPtr->m_framesPerSec = config_FramesPerSec;

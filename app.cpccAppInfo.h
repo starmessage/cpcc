@@ -53,6 +53,11 @@ public:
 				*ProgramName,
 				*Version,
 				*Build;
+#ifdef __APPLE__
+	const static cpcc_char
+				*BundleId;
+
+#endif
 	const static char 
 				*VersionA,
 				*BuildA;

@@ -31,6 +31,32 @@
 #endif
 
 
+/*
+ ini file location tests:
+ 
+ 
+ 
+ MAC OS X
+    info: The User Domain values accessed by NSUserDefaults are serialized to a file ~/Library/Preferences/application.plist.
+ 
+    user settings:
+        non-sandboxed:
+            /Users/cto/Library/Preferences/com.StarMessageSoftware.StarMessage.ini (ok)
+            /Users/cto/Library/Preferences/com.StarMessageSoftware.StarMessage/com.StarMessageSoftware.StarMessage.ini (ok)
+ 
+        sandboxed:
+ 
+    system settings (app-wide, like common APPDATA):
+        non-sandboxed:
+            /users/shared/com.StarMessageSoftware.StarMessage.ini (ok)
+            /Library/Preferences/com.StarMessageSoftware.StarMessage.ini (failed)
+            /Library/Preferences/com.StarMessageSoftware.StarMessage/ (failed to create folder)
+ 
+            If you need to create a directory in /Library/Application Support for your application to use then you need to do privilege elevation. Applications in the App Store cannot use privilege elevation
+ 
+        sandboxed:
+ 
+ */
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,23 +71,30 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	assert(cpcc_strlen(aCompanyName)>0 && _T("#5351: cpccSettings: blank company name"));
 	assert(cpcc_strlen(aSoftwareName)>0 && _T("#5351: cpccSettings: blank Software name"));
 
-	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccPathString::sfCommonAppData : cpccPathString::sfUserData);
-
-	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && _T("#5381: settings folder does not exist"));
-	
-	// problem with writing:
-	// http://stackoverflow.com/questions/6993527/c-mac-os-x-cannot-write-to-library-application-support-appname
-	
-	_settingsFilename.appendPathSegment(aCompanyName);
-
-	//cpcc_string companySubFolder(aCompanyName);
-	if (! _settingsFilename.pathExists())
-		if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
-			cpcc_cerr << _T("During cpccSettings constructor could not create folder:") << _settingsFilename << _T("\n");
-	
-	_settingsFilename.appendPathSegment(aSoftwareName);
+	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccFileSystemMini::getFolder_CommonAppData() : cpccFileSystemMini::getFolder_UserData());
+	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
+#ifdef __APPLE__
+	// _settingsFilename.appendPathSegment("Preferences");
+    _settingsFilename.appendPathSegment(cpccAppInfo::BundleId);
+#else
+    _settingsFilename.appendPathSegment(aCompanyName);
+#endif
+    
+    if (! _settingsFilename.pathExists())
+        if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
+            cpcc_cerr << _T("During cpccSettings constructor could not create folder:") << _settingsFilename << _T("\n");
+    
+    assert((_settingsFilename.pathExists()) && _T("#7712i: folder for INI was not created"));
+    
+#ifdef __APPLE__
+    _settingsFilename.appendPathSegment(cpccAppInfo::BundleId);
+#else
+    _settingsFilename.appendPathSegment(aSoftwareName);
+#endif
 	_settingsFilename.append(_T(".ini"));
+    
 	mFilename = _settingsFilename;
+	// todo: remove cout
 	cpcc_cout << _T("cpccSettings constructor: filename:") << mFilename << _T("\n");
 	
 	if (!load())
@@ -174,6 +207,7 @@ void	cpccSettings::write(const cpcc_char *aKey, const cpcc_char * aValue)
     if (instantSaving)
         if (!save())
             cpcc_cerr << _T("Error #1352c: saving cpccSettings to file:") << mFilename << std::endl;
+    assert((cpccFileSystemMini::fileExists(mFilename.c_str())) && _T("SelfTest #7712r: ini file does not exist after save()"));
 }
 
 #ifdef  BYPASS_RELEASE_ERROR

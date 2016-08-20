@@ -62,6 +62,7 @@ public:
 	static cpcc_string getFolder_Desktop(void);
 	static cpcc_string getFolder_SystemsTemp(void);
 	static cpcc_string getFolder_UsersTemp(void);
+	static cpcc_string getFolder_UsersCache(void);
 	static cpcc_string getFolder_Fonts(void);
 	static cpcc_string getFolder_CommonAppData(void);
 	static cpcc_string getFolder_UserData(void);
@@ -120,12 +121,12 @@ public:
 class cpccPathString: public cpcc_string
 {
 public:
-	enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
+	// enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
 
 public: // constructors
     explicit cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string( (aPath)? aPath: "") 	{	}
 	explicit cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
-	explicit cpccPathString(const standardFolderIds aFolderID);
+	// explicit cpccPathString(const standardFolderIds aFolderID);
 
 public: // functions
 	bool	pathExists(void)	const { return (cpccFileSystemMini::fileExists(c_str()) || cpccFileSystemMini::folderExists(c_str())); }

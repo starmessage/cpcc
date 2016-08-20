@@ -15,6 +15,7 @@
  */
 
 #include <fstream>
+#include "app.cpccAppInfo.h"
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
@@ -237,13 +238,28 @@ public: // functions
 	inline bool hasErrors(void) const { return !error.isEmpty(); }
 
 
+	// find the appropriate folder and create it if it does not exist
+	cpccPathString getFolderForTheLogFile() const
+	{
+		cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
+		#ifdef __APPLE__
+			result.appendPathSegment(cpccAppInfo::BundleId);
+		#endif
+		if (!result.pathExists())
+			if (!cpccFileSystemMini::createFolder(result.c_str()))
+				cpcc_cerr << _T("#8672: getFolderForTheLogFile() could not create folder:") << result << _T("\n");
+		return result;
+	}
+
+
 	cpccPathString getAutoFullpathFilename(const cpcc_char *aFilename) const
 	{
-        cpccPathString result(cpccPathString::sfUsersTemp);
-		if (!aFilename)
+        cpccPathString result(getFolderForTheLogFile());
+		if (aFilename)
+			result.appendPathSegment(aFilename);	
+		else // chose an automatic filename
 			result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
-		else
-			result.appendPathSegment(aFilename);
+
         result.append(_T(".cpccLog.txt"));
         return result;
 	}
@@ -300,6 +316,9 @@ namespace ns_cpccGlobals
 	extern	cpcc_char *defineLogParameter_Filename(void);
 	extern	bool		defineLogParameter_CheckIncompleteLog(void);
 	extern	bool		defineLogParameter_CheckHasErrors(void);
+
+	// todo: make a struct for the configuration
+	// this creates the object. Todo: Make it a singleton
 	cpccLog globalAppLog(defineLogParameter_Filename(), defineLogParameter_CheckIncompleteLog(), defineLogParameter_CheckHasErrors());
 }
 

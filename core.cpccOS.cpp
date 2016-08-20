@@ -276,7 +276,31 @@ cpcc_string cpccOS::readProgramVersionByPrincipalClass(const cpcc_char *aClassNa
     // [tmpVersion release];
     return ver;
 }
+
+
+cpcc_string cpccOS::getBundleIDfromAppName(const cpcc_char  *aAppName)
+{
+    // [[NSBundle mainBundle] bundleIdentifier]
+    
+
+    // return an application's Bundle Identifier for a named application:
+    NSString *appName = [NSString stringWithCString: aAppName encoding:NSASCIIStringEncoding ];
+    
+    NSWorkspace * workspace = [NSWorkspace sharedWorkspace];
+    NSString * appPath = [workspace fullPathForApplication:appName];
+    cpcc_string result;
+    
+    if (appPath) {
+            NSBundle * appBundle = [NSBundle bundleWithPath:appPath];
+            NSString *bundleID = [appBundle bundleIdentifier];
+            result = [bundleID UTF8String];
+        }
+    return result;
+}
+
+
 #endif
+
 
 
 cpcc_string& cpccOS::readProgramVersion(void)
