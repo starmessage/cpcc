@@ -23,7 +23,7 @@
 #include "cpccDefines.h"
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
-#define cpccLogClosingStamp		_T("cpccLog closing")
+#define cpccLogClosingStamp		_T("cpccLog closing. Bye bye...")
 
 
 
@@ -310,27 +310,19 @@ public: // functions
 int	cpccLogSink::m_IdentLevel = 0;
 
 
-namespace ns_cpccGlobals
+
+
+cpccLog &getInstance_cpccLog(void)
 {
-	// this must be implemented somewhere in the main program's files, so the program name is used as a log filename
-	extern	cpcc_char *defineLogParameter_Filename(void);
-	extern	bool		defineLogParameter_CheckIncompleteLog(void);
-	extern	bool		defineLogParameter_CheckHasErrors(void);
-
-	// todo: make a struct for the configuration
-	// this creates the object. Todo: Make it a singleton
-	cpccLog globalAppLog(defineLogParameter_Filename(), defineLogParameter_CheckIncompleteLog(), defineLogParameter_CheckHasErrors());
+	static cpccLog _singletonAppLog(getLogConfig().logFilename, getLogConfig().checkForIncompleteLog, getLogConfig().checkHasErrors);
+	return _singletonAppLog;
 }
-
-
 
 /////////////////////////////////////////////////////////////////////////
 // inside the program use the following functions to write to the 3 logs.
 // all the 3 logs point to the same file.
-cpccLogSink			&infoLog(void) { return ns_cpccGlobals::globalAppLog.info; }
-cpccLogSink			&warningLog(void) { return ns_cpccGlobals::globalAppLog.warning; }
-cpccLogSink			&errorLog(void) { return ns_cpccGlobals::globalAppLog.error; }
-
-
+cpccLogSink			&infoLog(void)		{ return getInstance_cpccLog().info; }
+cpccLogSink			&warningLog(void)	{ return getInstance_cpccLog().warning;  }
+cpccLogSink			&errorLog(void)		{ return getInstance_cpccLog().error;  }
 
 

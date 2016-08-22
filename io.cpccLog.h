@@ -27,6 +27,18 @@
 #include "cpccUnicodeSupport.h"
 
 
+struct cpccLogConfig
+{
+	bool		checkForIncompleteLog,
+				checkHasErrors;
+	cpcc_char *	logFilename;
+};
+
+
+// this function must be implemented somewhere in the main program's files to provide configuration parameters to the log class
+extern const cpccLogConfig &getLogConfig(void);
+
+
 class cpccLogSink
 {
 private:
