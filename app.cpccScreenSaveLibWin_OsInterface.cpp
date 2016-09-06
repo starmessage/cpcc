@@ -199,6 +199,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 						// prior to destroying a window, by processing the 
 						// WM_CLOSE message and calling the DestroyWindow function 
 						// only if the user confirms the choice. 
+			// todo: na paei sto WM_DESTROY
 			infoLog().add(_T("ScreenSaverProc() received WM_CLOSE"));
 			if (uTimer)
 				KillTimer(hwnd, uTimer);

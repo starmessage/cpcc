@@ -256,8 +256,12 @@ void cpccSettings::selfTest(void)
 	{
 		// writing 
 		cpccSettings settingsUser(_T("testCompanyName"), _T("testSoftwareName"), scopeCurrentUser);
+#ifndef OSX_SANDBOXED   // define this is your app is Sandboxed for the OSX apple store
 		cpccSettings settingsApp(_T("testCompanyName"), _T("testSoftwareName"), scopeAllUsers);
-
+#else
+        cpccSettings &settingsApp = settingsUser;
+#endif
+        
 		settingsUser.write(_T("testStringKeyA"), _T("testStringValueA"));
 		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename()) && _T("SelfTest #7711a: file does not exist"));
 
@@ -269,6 +273,7 @@ void cpccSettings::selfTest(void)
 		settingsUser.write(_T("pi"), pi);
 		settingsUser.write(_T("twentythree"), 23);
         settingsUser.write(_T("bigFloat"), bigFloat);
+    
 		settingsApp.write(_T("AppSettingsOfSoftware"), _T("testSoftwareName"));
 		settingsApp.write(_T("extremeString"), tmpTestString);
 		cpccPersistentVar<int> tmpPersistentInt(settingsApp, _T("tmpPersInt"), 98);
@@ -279,7 +284,12 @@ void cpccSettings::selfTest(void)
 	{
 		// separate reading
 		cpccSettings settingsUser(_T("testCompanyName"), _T("testSoftwareName"), scopeCurrentUser);
+        
+#ifndef OSX_SANDBOXED
 		cpccSettings settingsSystem(_T("testCompanyName"), _T("testSoftwareName"), scopeAllUsers);
+#else
+        cpccSettings &settingsSystem = settingsUser;
+#endif
 
 		cpcc_string tmp = settingsUser.read(_T("testStringKeyA"), _T("default"));
 		assert(tmp.compare(_T("testStringValueA"))==0 && _T("SelfTest #7711b: readString error"));

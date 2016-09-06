@@ -22,7 +22,8 @@ try { expr;  }                                      \
 catch(const std::runtime_error& re) { errorLog().addf(_T("Runtime error caught:\n%s\n%s"), re.what(), catchMsg);  }    \
 catch(const std::exception& ex)		{ errorLog().addf(_T("Exception caught:\n%s\n%s"), ex.what(), catchMsg);  }    \
 catch(const std::exception *ex)		{ if (ex) errorLog().addf(_T("Exception caught:\n%s\n%s"), ex->what(), catchMsg);  }    \
+catch (const char* msg)             { errorLog().addf(_T("Exception caught:\n%s\n%s"), msg, catchMsg);  }    \
+catch(int i)                        { errorLog().addf(_T("integer exception caught:%i\n%s"), i, catchMsg);  }    \
 catch( ... )						{ errorLog().addf(_T("Exception caught:%s"), catchMsg); }
 
 
- // catch(std::exception *ex)			{ if (ex) errorLog().addf("Exception caught:\n%s\n%s", ex->what(), catchMsg);  }  

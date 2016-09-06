@@ -18,6 +18,7 @@
 
 #include	"io.cpccLog.h"
 #include    "app.cpccAppInfo.h"
+#include    "core.cpccTryAndCatch.h"
 #include	"app.cpccScreenSaverInterface.h"
 #import		<ScreenSaver/ScreenSaver.h>
 
@@ -278,7 +279,7 @@ public:
     infoLog().add( __PRETTY_FUNCTION__ );
     if (ssPtr)
     {
-        ssPtr->shutDown();
+        CPCC_TRY_AND_CATCH(ssPtr->shutDown(), "#7525: ssPtr->shutDown()");
         delete(ssPtr);
         ssPtr = NULL;
     }
@@ -422,6 +423,7 @@ public:
     
     [super stopAnimation];
 	usleep(1000* 50);
+    
     if (ssPtr)
         [self util_destroyScreensaver];
 }
