@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccSettings.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -128,6 +128,7 @@ public:
             mDefaultValue(aDefaultValue)
 	{ }
 
+    inline const T getValue(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	inline  operator const T(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	// T read(void) const { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }

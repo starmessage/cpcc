@@ -74,7 +74,7 @@ protected: // screensaver standard functions
         infoLog().addf("screensaver's container folder:%s", aFolder);
     }
     
-    
+    // todo: rename: initWithWindowHandleAndRect
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
@@ -99,6 +99,7 @@ protected: // screensaver standard functions
 public:	// other functions
 
 	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
+	// todo: kapoios ta xrisimopoiei auta ? Isos de tha eprepe giati mporei na yparxei parathyro poy ksekinaei apo to 10,10
 	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
 	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
     
