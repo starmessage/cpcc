@@ -299,6 +299,12 @@ cpcc_string cpccOS::getBundleIDfromAppName(const cpcc_char  *aAppName)
 }
 
 
+cpcc_string cpccOS::getBundleID(void)
+{
+    cpcc_string result = [[[NSBundle mainBundle] bundleIdentifier] UTF8String];
+    return result;
+}
+
 #endif
 
 

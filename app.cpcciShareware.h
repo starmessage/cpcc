@@ -65,7 +65,7 @@ public:
 	virtual inline bool                 isRegistered(void) = 0;
 
 	virtual inline const cpcc_string	getComputerID(void) const = 0;
-	virtual inline const bool			quickCheckActivationCode(const cpcc_char * aLicenseCode) = 0;
+	// virtual inline const bool			quickCheckActivationCode(const cpcc_char * aLicenseCode) = 0;
 	virtual inline void					removeInstalledLicense(void) = 0;
 	virtual inline const time_t			getTrustedCurrentDate(void) const = 0;
 

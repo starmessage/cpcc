@@ -240,7 +240,13 @@ cpcc_string cpccFileSystemMini::getFolder_UsersCache(void)
 #elif defined(__APPLE__)
 	std::string ph;
     
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSLocalDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    /*
+     The directory returned by this method may not exist. 
+     This method simply gives you the appropriate location for the requested directory. 
+     Depending on the application’s needs, it may be up to the developer to create the 
+     appropriate directory and any in between.
+     */
     if ([paths count]>0)
         ph = [[paths objectAtIndex:0] UTF8String];
     

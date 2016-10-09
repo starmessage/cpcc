@@ -70,6 +70,7 @@ public:
 #ifdef __APPLE__
     static cpcc_string readProgramVersionByPrincipalClass(const cpcc_char *aClassName);
     static cpcc_string getBundleIDfromAppName(const cpcc_char *aAppName);
+    static cpcc_string getBundleID(void);
 #endif
 
 

@@ -75,22 +75,20 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
 #ifdef __APPLE__
 	// _settingsFilename.appendPathSegment("Preferences");
-    _settingsFilename.appendPathSegment(cpccAppInfo::BundleId);
+    if (aScope==scopeAllUsers)
+        _settingsFilename.appendPathSegment(cpccAppInfo::BundleId);
+    
 #else
     _settingsFilename.appendPathSegment(aCompanyName);
 #endif
-    
+    // make sure the folder for the INI file exists
     if (! _settingsFilename.pathExists())
         if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
             cpcc_cerr << _T("During cpccSettings constructor could not create folder:") << _settingsFilename << _T("\n");
     
     assert((_settingsFilename.pathExists()) && _T("#7712i: folder for INI was not created"));
     
-#ifdef __APPLE__
-    _settingsFilename.appendPathSegment(cpccAppInfo::BundleId);
-#else
     _settingsFilename.appendPathSegment(aSoftwareName);
-#endif
 	_settingsFilename.append(_T(".ini"));
     
 	mFilename = _settingsFilename;
@@ -331,10 +329,15 @@ cpccSettings &appUserSettings(void)
 	return m_appUserSettings;
 }
 
+
 cpccSettings &appSystemSettings(void)
 {
-	static cpccSettings m_appSystemSettings(cpccAppInfo::CompanyName, cpccAppInfo::ProgramName, cpccSettings::scopeAllUsers);
-	return m_appSystemSettings;
+#ifndef OSX_SANDBOXED
+    static cpccSettings m_appSystemSettings(cpccAppInfo::CompanyName, cpccAppInfo::ProgramName, cpccSettings::scopeAllUsers);
+    return m_appSystemSettings;
+#else
+    return appUserSettings();
+#endif
 }
 
 
