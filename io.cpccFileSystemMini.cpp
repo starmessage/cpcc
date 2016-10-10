@@ -750,28 +750,7 @@ void		cpccPathString::appendPathSegment(const cpcc_char* aPathSegment)
 	assign(cpccPathHelper::pathCat(c_str(), aPathSegment));
 }
 
-/*
-cpccPathString::cpccPathString(const standardFolderIds aFolderID)
-{
-	switch (aFolderID)
-	{ 
-	case sfCommonAppData:
-		assign(cpccFileSystemMini::getFolder_CommonAppData());
-		break;
 
-	case sfUsersTemp:
-		assign(cpccFileSystemMini::getFolder_UsersTemp());
-		break;
-		
-	case sfUserData:
-		assign(cpccFileSystemMini::getFolder_UserData());
-		break;	
-
-	default:	assign(_T(""));
-	}
-
-}
-*/
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

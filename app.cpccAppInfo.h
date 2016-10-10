@@ -72,6 +72,16 @@ public:
         licenseType;
 
     
+	static cpcc_string getText_pleaseBuyTheFullVersion_html(const cpcc_char *aProgramName)
+	{
+		cpcc_string tmp_callToAction = _T("If you like ");
+		tmp_callToAction.append(aProgramName);
+		tmp_callToAction.append(", please <A HREF=\"");
+		tmp_callToAction.append(cpccAppInfo::BuyURL);
+		tmp_callToAction.append(_T("\">buy now</a> the full version."));
+		return tmp_callToAction;
+	}
+
     
 	static cpcc_string getText_AboutThisSoftware(const int xi, const cpcc_char *aLineBreak, const cpcc_char *aLicenseInfo, const cpcc_char *aCallToAction)
 	{

@@ -63,7 +63,12 @@ protected:
 
 		if (_folder.length() == 0)
 		{
+		#ifdef OSX_SANDBOXED
+			_folder.assign(cpccFileSystemMini::getFolder_UserData());
+		#else
 			_folder.assign(cpccFileSystemMini::getFolder_CommonAppData());
+		#endif
+
             cpcc_string codedSubfolder;
             computeHash(m_AppID, codedSubfolder);
             codedSubfolder.insert(0, _T("."));
@@ -90,7 +95,7 @@ public:
 
 	const long int		getDaysSinceFirstRun(void)
     {
-        int    days;
+        
         time_t current_time, firstrun_time;
         /* Obtain current time as seconds elapsed since the Epoch. */
         current_time = time(NULL);
@@ -98,12 +103,13 @@ public:
 
         firstrun_time= cpccFileSystemMini::getFileModificationDate(_folder.c_str());
 		
-        debugLog().addf(_T("Now (days) %lu, First run time (days) %lu, by checking folder"),
-                        current_time/ (60*60*24),
-                        firstrun_time / (60*60*24));
-		debugLog().add(_folder.c_str());
-        days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
-       
+        debugLog().addf(_T("Now (days) %lu, First run time (days) %lu"),
+						(unsigned long) current_time/ (60*60*24),
+						(unsigned long) firstrun_time / (60*60*24));
+		debugLog().addf("By checking folder:%s", _folder.c_str());
+		int    days = (int) ((current_time - firstrun_time)/ (60*60*24)); // convert from seconds to days
+		// Or you could use difftime() which returns a double as difference between two time_t values so 
+		// that you don't have to worry about the underlying type of time_t.
         return days;
     }
     
