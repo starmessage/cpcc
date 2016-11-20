@@ -1,8 +1,10 @@
 ﻿**cpcc - Cross Platform C++ Classes**
 
-A set of classes and functions that are missing from the standard C++
+A set of cross platform classes and functions.
+These classes are used in the cross platform (Windows and MacOS) StarMessage screensaver.
+[http://www.StarMessageSoftware.com/moonscreensaver]
 
-Version: 0.54.90
+Version: 0.55.90
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
@@ -24,27 +26,24 @@ A small set of cross platform classes and functions that will allow the quick de
 Already tested under:
 - Windows 32, 64 bit
 - OSX 10.6+
-- Future compatibility: IOS
+Future compatibility: 
+- IOS
 
 **Project status:**
 
-Gathering and cleaning up of classes.
-The classes are currently integral parts of my other cross platform software.
-The classes will be cleaned of unneeded binding code and added in this space.
-Doxygen documentation will be added in the files.
-
 Classes in the current queue:
-[ok] portable fileSystem
-[ok] portable log file
-[ok] portable INI-like persistence class
-[ok] portable screensaver API class
-[ok] Listener pattern
-[ok] Gui drawing tools (HDC: Ok, NSView [Ok], NSImage [ ], NSBmpRepresentation [ ] 
-[ok] portable window class with drawing tools
-[ok] portable image class with drawing tools
-[ok] Windows GDI helper class with common GDI drawing objects (Brush, HBITMAT, HFONT, etc).
-[ok] Cross platform (Windows, OSX) getComputerName() function
-[  ] Cross platform getComputerID function
+- [ok] portable fileSystem
+- [ok] portable log file
+- [ok] portable INI-like persistence class
+- [ok] portable screensaver API class
+- [ok] Listener pattern
+- [ok] Gui drawing tools (HDC: Ok, NSView [Ok], NSImage [ ], NSBmpRepresentation [ ] 
+- [ok] portable window class with drawing tools
+- [ok] portable image class with drawing tools
+- [ok] Windows GDI helper class with common GDI drawing objects (Brush, HBITMAT, HFONT, etc).
+- [ok] Cross platform (Windows, OSX) getComputerName() function
+- [  ] Cross platform getComputerID function
+- [  ] IOS compatibility
 
 Please come back to check every few weeks.
 

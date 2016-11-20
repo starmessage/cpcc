@@ -22,7 +22,7 @@
 #include "cpccColor.h"
 #include "cpccUnicodeSupport.h"
 #include "gui.cpccText.h"
-// #include "math.cpccRect.h"
+
 
 
 

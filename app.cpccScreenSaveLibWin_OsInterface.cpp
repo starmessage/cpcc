@@ -118,6 +118,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
 			infoLog().add(_T("ScreenSaverProc() received WM_CREATE"));
+			// StarMessage.scr /p 394268
 			infoLog().addf(_T("notepad window handle: %i"), cpccOS::getWindowHandleOfProgram(_T("Notepad")));
 			/*	to run the screensaver under the notepad's window:
 				open notepad, run the screensaver normally, open the log file and get the notepad's HWND

@@ -120,6 +120,7 @@ public:	// ctors
 			m_errorDump(anErrorDump)
     {
 		#ifdef _WIN32
+		{
 			debugLog().addf("trackerbird cache folder:%s", cacheFolder);
 			wchar_from_char	_pathForCache_w(cacheFolder);
 
@@ -130,12 +131,25 @@ public:	// ctors
                 warningLog().addf(_T("TB access denied to path:%s"), cacheFolder);
         
 			wchar_from_char	callhomeURL_w(callhomeURL),
-			productID_w(productID),
-			productVersion_w(productVersion),
-			productBuildNumber_w(productBuildNumber);
+							productID_w(productID),
+							productVersion_w(productVersion),
+							productBuildNumber_w(productBuildNumber),
+							productEdition_w(productEdition);
         
 			tbCreateConfig(callhomeURL_w, productID_w, productVersion_w, productBuildNumber_w, m_multipleSessionsEnabled);
+			
+			// TBRESULT tbSetProductEdition(const wchar_t* productEdition)
+			// This function allows you to set the edition of your product. 
+			// An example of this would be when a single product can be licensed/run 
+			// in different modes such as as “Home” and “Business”.
+			res = tbSetProductEdition(productEdition_w);
+			if (res == TB_CONFIG_NOT_CREATED)
+			    warningLog().add(_T("tbSetProductEdition() returned TB_CONFIG_NOT_CREATED"));
+            if (res == TB_INVALID_PARAMETER)
+			    warningLog().add(_T("tbSetProductEdition() returned TB_INVALID_PARAMETER"));
+				
 			tbStart();
+		}
 		#elif defined(__APPLE__)
             /*
              @note The file path where the Trackerbird SDK will create and save its working files. It is important to remember that the calling process should have read/write accessibility to the location.
