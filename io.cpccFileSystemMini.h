@@ -105,6 +105,9 @@ public:
 	// date functions --------------------------------
 	static time_t		 getFileModificationDate(const cpcc_char * aFilename);
 	
+	// Path functions
+	
+	
 	// Other functions --------------------------------
 	static cpcc_string getAppFullPath(void);
 #ifdef __APPLE__

@@ -46,7 +46,8 @@
 -------------------------------
 Windows:
 -------------------------------
-	http://docs.trackerbird.com/CPP/quick-start-guide.html
+	version 4 docs:
+	http://devzone.revulytics.com/docs/v4/CPP/windows/quick-start-guide.html
 
 	//Initialize the Trackerbird Configuration
 	wchar_t* purl=L"http://INSERT-YOUR-URL";
@@ -69,6 +70,9 @@ Windows:
 -------------------------------
 OSX:
 -------------------------------
+	version 4 Mac docs
+	http://devzone.revulytics.com/docs/v4/CPP/mac/quick-start-guide.html
+	
  TrackerbirdSDK::TBConfig config = TrackerbirdSDK::TBConfig(<Callhome URL>,
                                                               <Product ID>,
                                                               <Your product's version>,

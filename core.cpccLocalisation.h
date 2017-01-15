@@ -27,45 +27,70 @@
 
 //////////////////////////////////////////////
 //
-//  class cpccLocalisationTable
+//  Enumerate controls
+//
+//  cocoa:
+//      is there any method to get the list of controls (buttons, labels, splitters, etc) of a NSView?
+//      [NSView subViews]
+//      You can get the subviews of the main view and keep going down finding all views that way recursively
+//      calling subviews on each, but it won't really help you as some of the controls make a collection of
+//      views up when you instantiate them so you are going to find more than just the top-level views of the
+//      controls you instantiated in IB.
+//
+//      I can explore all controls in a view with this code:
+//      NSArray *listOfControls = [[window contentview] subViews];
+//      for (NSInteger i=0;i<[listOfControls count];i++) 
+//			NSControl * tmp = [listOfControls objectAtIndex: i];
+//          
+//      I can identify a control by its title
+//
+//	Win32:
+//		https://vcpptips.wordpress.com/2009/10/16/how-to-get-all-the-child-controls-of-a-window/
+//		The EnumChildWindows function enumerates all the child windows/controls belongs to a specified window. 
+//		This function invokes a application defined CALLBACK function until the last child control is enumerated 
+//		or the function returns false.
+//		
+//		EnumChildWindows(this->m_hWnd,EnumWindowsProc, 0);
+//
+//		BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+//		{
+//			TCHAR buff[256];
+//			::GetWindowText(hwnd,(LPSTR)buff, 255);
+//			int nCtrlID = ::GetDlgCtrlID(hwnd);
+//		   return TRUE;
+//		}
+//	
+//////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////
+//
+//  class cpccTranslationDictionary
 //
 //////////////////////////////////////////////
-class cpccLocalisationTable
+class cpccTranslationDictionary
 {
 private:
 	std::map<cpcc_string, cpcc_string> m_lookupTable;		// codedText, translatedText
-	void setTranslation(const cpcc_string & aKey, const cpcc_string &aValue) { m_lookupTable[aKey] = aValue;  }
-	
+
+	void setTranslation(const cpcc_char *aKey, const cpcc_char *aValue) { m_lookupTable[aKey] = aValue; }
+
 public:
 	void clear(void) { m_lookupTable.clear(); }
 	
-	const cpcc_string &getTranslation(const cpcc_string & aKey) 
-	{ 
-		if (m_lookupTable.size() == 0)
-			setTranslation(aKey, aKey); // add a  phanto translation so it can return a static reference to the table
-
-		if(m_lookupTable.find(aKey) == m_lookupTable.end()) // not found
-			setTranslation(aKey, aKey); // add a  phanto translation so it can return a static reference to the table
-
-		return m_lookupTable[aKey]; 
-	} 
-	
-	/*
-	const cpcc_string &getTranslation(const cpcc_char *aKey)
-	{
-		if (m_lookupTable.size() == 0)
-			return aKey;
-		return (m_lookupTable.find(aKey) != m_lookupTable.end()) ? m_lookupTable[aKey] : aKey;
-	}
-	*/
-
-	const cpcc_char *getTranslationCharPtr(const cpcc_char *aKey) 
+	const cpcc_char *getTranslation(const cpcc_char *aKey) 
 	{ 
 		if (!aKey)
 			return "null key to translate";
 
-		const cpcc_string strKey(aKey);
-		return getTranslation(strKey).c_str();
+		if (m_lookupTable.size() == 0)
+			setTranslation(aKey, aKey); // add a  phantom translation so it can return a static reference to the table
+
+		if (m_lookupTable.find(aKey) == m_lookupTable.end()) // not found
+			setTranslation(aKey, aKey); // add a  phantom translation so it can return a static reference to the table
+
+		return m_lookupTable[aKey].c_str();
 	}
 		
 	/// aFileStem should be like: <appname>
@@ -108,7 +133,7 @@ class cpccLocalisation
 {
 private:
 	bool					m_loadedFromFile = false;
-	cpccLocalisationTable	m_selectedDictionary;
+	cpccTranslationDictionary	m_dictionary;
 	cpcc_string				m_selectedLanguageCode,
 							m_folderWithTranslations,
 							m_translationFileStem;
@@ -174,19 +199,21 @@ public:
 		{
 			m_loadedFromFile = true;
 			cpcc_string filename(composeFilename(m_selectedLanguageCode, m_folderWithTranslations, m_translationFileStem));
-			m_selectedDictionary.loadFromFile(filename);
+			m_dictionary.loadFromFile(filename);
 		}
 
-		return m_selectedDictionary.getTranslationCharPtr(aCodedTxt);
+		return m_dictionary.getTranslation(aCodedTxt);
 	}
 	
 
 	void setLanguageAndFilespec(const char *aLangCode, const char *aContainingFolder, const char *aFileStem)
 	{
+		
 		m_loadedFromFile = false;	// force a reload
 		m_selectedLanguageCode = aLangCode;
 		m_folderWithTranslations = aContainingFolder;
 		m_translationFileStem = aFileStem;
+		infoLog().addf("setLanguageAndFilespec(%s, %s/%s)", aLangCode, aContainingFolder, aFileStem);
 	}
 
 	// Scans the folder where the language files should be and returns a list of found translation languages

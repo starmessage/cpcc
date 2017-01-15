@@ -19,6 +19,7 @@
 #include "cpccUnicodeSupport.h"
 
 /*
+	internal notes:
 	1) to activation code periexei to onoma kai email tou pelati kai to version number tou programmatos.
 	2) kalo tha itan na mporousa na to parago kai me excel
 	3) mporo na stelno mia sympiesmeni morfi tou H na stelno [onoma] [email] [code] kai na ta bazei monos tou

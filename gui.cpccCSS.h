@@ -54,6 +54,8 @@ class cpccCSS
 public: // enums
 	enum	TcssTextAlignValue { taNone, taLeft, taRight, taCenter } ;
 
+    enum	TcssTextStyle { tsNone=0, tsItalic=1, tsBold=2 } ;
+    
 public: // constructors
 		cpccCSS(void) : fontSize(10)
 		{ 
@@ -66,7 +68,8 @@ public: // data
 		cpccProperty<cpcc_string>		fontName;
 		cpccProperty<int>				fontSize; 
 		cpccProperty<TcssTextAlignValue> textAlign;
-		
+		cpccProperty<int>				fontStyle;
+    
 public: // functions
     
     

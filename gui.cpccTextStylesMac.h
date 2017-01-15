@@ -61,6 +61,7 @@ public:
             [aTextAttr setObject:aColor->asNSColor() forKey:NSForegroundColorAttributeName];
     }
     
+    
     void setKerning(NSMutableDictionary *aTextAttr, const float aKerning)
     {
         if (!aTextAttr)

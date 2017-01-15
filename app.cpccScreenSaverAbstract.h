@@ -28,7 +28,7 @@ private:
     logObjectLife       objLog;
 	
 protected:	// data
-	cpccMonitorList		m_monitorList;
+	
 	cpccWindowBase*		DesktopWindowPtr;
 	// bool				m_PreserveDeskopContents;
     cpcc_string			m_containerFolder;
@@ -41,6 +41,7 @@ protected: // constructor/destructor
             objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
         infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
+		reportComputerMonitors();
 	}
 
 
@@ -74,6 +75,19 @@ protected: // screensaver standard functions
         infoLog().addf("screensaver's container folder:%s", aFolder);
     }
     
+
+	void reportComputerMonitors(void)
+	{
+		cpccMonitorList		_monitorList;
+		unsigned long n = cpccOS::getListOfMonitors(_monitorList);
+
+		// report on monitors found
+		infoLog().addf(_T("Number of monitors:%i"), n);
+		for (unsigned long i = 0; i < n; ++i)
+			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, _monitorList[i].left, _monitorList[i].top, _monitorList[i].right, _monitorList[i].bottom);
+	}
+
+
     // todo: rename: initWithWindowHandleAndRect
 	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
 	{
@@ -82,14 +96,6 @@ protected: // screensaver standard functions
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
-		
-		unsigned long n = cpccOS::getListOfMonitors(m_monitorList);
-
-		// report on monitors found
-		infoLog().addf(_T("Number of monitors:%i"), n);
-		for (unsigned long i = 0; i < n; ++i)
-			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, m_monitorList[i].left, m_monitorList[i].top, m_monitorList[i].right, m_monitorList[i].bottom);
-
 		infoLog().addf(_T("Screensaver container folder:%s"), m_containerFolder.c_str());
 	}
 

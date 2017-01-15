@@ -22,7 +22,7 @@
 #include <fstream>
 #include <errno.h>
 
-#include "cpccSettings.h"
+#include "io.cpccSettings.h"
 #include "app.cpccAppInfo.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"

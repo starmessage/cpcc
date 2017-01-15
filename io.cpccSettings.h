@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		cpccSettings.h
+ *  File:		io.cpccSettings.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
  *				to save/load application settings from an INI-like file
