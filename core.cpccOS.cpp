@@ -173,7 +173,9 @@ const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373208%28v=vs.85%29.aspx
 	return SetThreadExecutionState( 
 				// ES_AWAYMODE_REQUIRED |  // This value must be specified with ES_CONTINUOUS.
-				ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED) != NULL;
+				ES_CONTINUOUS |
+				// ES_DISPLAY_REQUIRED |
+				ES_SYSTEM_REQUIRED ) != NULL;
 	
 
 #elif __APPLE__
