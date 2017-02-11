@@ -66,7 +66,7 @@ public: // data
 		// cpccCss *						parentCSS;
 		cpccProperty<cpccColor>			color, bgColor;
 		cpccProperty<cpcc_string>		fontName;
-		cpccProperty<int>				fontSize; 
+		cpccProperty<float>				fontSize; 
 		cpccProperty<TcssTextAlignValue> textAlign;
 		cpccProperty<int>				fontStyle;
     

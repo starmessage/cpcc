@@ -165,7 +165,7 @@ private:
 	cpccWinGDIObject	*m_GDIObjectPtr;
 
 public:
-	cpccWinGDIFont(HDC ahDC, const cpcc_char *aFontName, const int *aFontSize, const eFontWeight aWeight, const eFontQuality aQuality): m_GDIObjectPtr(NULL)
+	cpccWinGDIFont(HDC ahDC, const cpcc_char *aFontName, const float *aFontSize, const eFontWeight aWeight, const eFontQuality aQuality): m_GDIObjectPtr(NULL)
 	{ 
 		int fWeight = FW_NORMAL;
 		switch (aWeight)
@@ -180,11 +180,11 @@ public:
 				case fqNonAntiAliased: fQuality=NONANTIALIASED_QUALITY; break;
 			}
 		
-		int size=  aFontSize ? *aFontSize : 10;
+		int size=  (int) (aFontSize ? *aFontSize : 10.0f);
 		cpcc_char *fontname = aFontName ? aFontName : _T("Arial");
 
 		HFONT hFont = CreateFont(
-							-MulDiv(size, GetDeviceCaps(ahDC, LOGPIXELSY), 72),
+							-MulDiv(size, GetDeviceCaps(ahDC, LOGPIXELSY), 72 ),
 							0,0,0,
 							fWeight,
 							0,0,0, DEFAULT_CHARSET, 0,0,
