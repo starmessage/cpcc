@@ -78,8 +78,8 @@ public:
     */
 
     // convenience conversion from char* to std::string
-    void setParameter(const int aKey, const cpcc_char * aValue) { cParameterDict<cpcc_string>::setParameter(aKey, aValue);  }
-	cpcc_string  getParameter(const int aKey, const cpcc_char *aDefaultValue) { return cParameterDict<cpcc_string>::getParameter(aKey, aDefaultValue); }
+    void setParameter(const int aKey, const cpcc_char * aValue) { setParameter(aKey, cpcc_string(aValue));  }
+	cpcc_string  getParameter(const int aKey, const cpcc_char *aDefaultValue) { return getParameter(aKey, cpcc_string(aDefaultValue)); }
 
     template <typename T>
     void setParameter(const int aKey, const T &aValue) { cParameterDict<T>::setParameter(aKey, aValue);  }
