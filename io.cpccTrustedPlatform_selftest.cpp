@@ -15,7 +15,7 @@
  *	*****************************************
  */
 
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 #include "io.cpccLog.h"		// this uses cpccTimeCounter.h and must be included before <windows.h> 
 #include "io.cpccTrustedPlatform.h"
 #include "cpcc_selfTest.h"

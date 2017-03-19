@@ -20,7 +20,7 @@
 #include <map>
 #include <assert.h>
 #include <sstream>
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"
 #include "core.cpccKeyValue.h"
 

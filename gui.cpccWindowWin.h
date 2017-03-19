@@ -34,7 +34,7 @@ private:
 							m_DrawDC;
 	cpccWinGDIMemoryDC*		m_renderBuffer;
 	cpccDrawingToolsWinDC	m_dtool;
-	enum	{ config_HasDoubleBuffer=true };
+	enum cpccWindowWin_config	{ config_HasDoubleBuffer=true };
 
 
 

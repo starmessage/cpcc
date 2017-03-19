@@ -22,7 +22,7 @@
 
 #ifdef __APPLE__
 	#if !defined __OBJC__
-		#error File core.cpccOS.cpp must be compiled as obc++ under MAC. Did you include the cpccColor.cpp instead of cpccColor.mm ?
+		#error File core.cpccOS.cpp must be compiled as obc++ under MAC. Did you include the core.cpccOS.cpp instead of core.cpccOS.mm ?
 	#endif
 #endif
 
@@ -32,7 +32,7 @@
 
 #ifdef _WIN32
 	# pragma warning (disable: 4005)
-	#include <windows.h>
+	// #include <windows.h>
 
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
@@ -75,7 +75,7 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
 
 	
 
-static void util_RemoveSuffixFromString(cpcc_string &str, cpcc_char* suffixToRemove)
+static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
 {
     // std::cout << "to remove " << suffixToRemove << " from " << str << std::endl;
     const size_t pos = str.rfind(suffixToRemove);
@@ -83,7 +83,7 @@ static void util_RemoveSuffixFromString(cpcc_string &str, cpcc_char* suffixToRem
         return; // not found
     // std::cout << "Found " << suffixToRemove << " in " << str << std::endl;
         
-    if (pos != str.length() - cpcc_strlen(suffixToRemove) )
+    if (pos != str.length() - strlen(suffixToRemove) )
         return; // text found but not at the end of the string
         
     str.erase(pos , std::string::npos );
@@ -140,84 +140,7 @@ unsigned long cpccOS::getListOfMonitors(cpccMonitorList &list)
 }
 
 
-/*
-void cpccOS::keepAwakeTrigger(void)
-{
-#ifdef _WIN32
-	
-#elif __APPLE__
- create an NSTimer that fires a function with this
- UpdateSystemActivity(OverallAct);
- 
-    // removed document:
-    // https://developer.apple.com/library/mac/qa/qa1160/_index.html
-    // 'UpdateSystemActivity' is deprecated: first deprecated in OS X 10.8
-    // all these parameters stop the screensaver from running
-	// UpdateSystemActivity(OverallAct);
-    // UpdateSystemActivity(IdleActivity);
-    // UpdateSystemActivity(HDActivity);
-    // UpdateSystemActivity(UsrActivity);
-    UpdateSystemActivity(NetActivity);
-    
-#else
-    #error #8724f: Unknown platform for cpccOS
-	
-#endif
-}
-*/
 
-
-const bool cpccOS::preventMonitorSleep(const cpcc_char *textualReason)
-{
-#ifdef _WIN32
-	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373208%28v=vs.85%29.aspx
-	return SetThreadExecutionState( 
-				// ES_AWAYMODE_REQUIRED |  // This value must be specified with ES_CONTINUOUS.
-				ES_CONTINUOUS |
-				// ES_DISPLAY_REQUIRED |
-				ES_SYSTEM_REQUIRED ) != NULL;
-	
-
-#elif __APPLE__
-    // IOPMAssertionCreateWithName is new API available in Mac OS X 10.6 Snow Leopard. IOPMAssertionCreateWithName allows an application to return a return a brief string to the user explaining why that application is preventing sleep.
-    //  https://developer.apple.com/library/mac/qa/qa1340/_index.html
-    //  kIOPMAssertionTypePreventUserIdleDisplaySleep (only available on 10.7 or later)
-    //  kIOPMAssertionTypeNoDisplaySleep - prevents display sleep AND idle sleep,
-    //  kIOPMAssertionTypeNoIdleSleep - prevents idle sleep of the MAC (the screen can turn off)
-    //  NOTE: IOPMAssertionCreateWithName limits the string to 128 characters.
-    CFStringRef reasonForActivity;
-    reasonForActivity = CFStringCreateWithCString(NULL, textualReason, kCFStringEncodingASCII);
-    IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoDisplaySleep,
-                                                   kIOPMAssertionLevelOn,
-                                                   reasonForActivity,
-                                                   &preventSleepAssertionID);
-    
-    CFRelease(reasonForActivity);
-    return (success == kIOReturnSuccess);
-
-#else
-    #error #8724: Unknown platform for cpccOS
-	return false;
-#endif
-}
-
-
-const bool cpccOS::restoreMonitorSleep()
-{
-#ifdef _WIN32
-    // ToDo:
-	return false; 
-#elif __APPLE__
-    if (preventSleepAssertionID==0) return
-        false;
-    IOReturn success = IOPMAssertionRelease(preventSleepAssertionID);
-    preventSleepAssertionID =0 ;
-    return (success == kIOReturnSuccess);
-#else
-    #error #8724: Unknown platform for cpccOS
-	return false;
-#endif
-}
 
 
 
@@ -233,26 +156,26 @@ void cpccOS::sleep(const unsigned int msec)
 }
     
     
-    // portable / cross platform C function for Windows, OSX
-    // returns the computer name of the computer
-const cpcc_string cpccOS::getComputerName(void)
+// portable / cross platform C function for Windows, OSX
+// returns the computer name 
+const std::string cpccOS::getComputerName(void)
 {
 #ifdef _WIN32
-    cpcc_char name[255]; DWORD size;
+    char name[255]; DWORD size;
     size = sizeof(name) - 1;
     GetComputerName(name, &size);
-    return cpcc_string(name);
+    return std::string(name);
 #endif
 #ifdef __APPLE__
-    cpcc_char name[_POSIX_HOST_NAME_MAX + 1];
+    char name[_POSIX_HOST_NAME_MAX + 1];
     if (gethostname(name, sizeof name) == -1 )
-        return cpcc_string("getComputerName failed.");
+        return std::string("getComputerName failed.");
         
     // remove the .local or .lan from the computer name as reported by OSX
-    cpcc_string ComputerNameTrimmed(name);
+    std::string ComputerNameTrimmed(name);
         
-    util_RemoveSuffixFromString(ComputerNameTrimmed, (cpcc_char *)".lan");
-    util_RemoveSuffixFromString(ComputerNameTrimmed, (cpcc_char *)".local");
+    util_RemoveSuffixFromString(ComputerNameTrimmed, (char *)".lan");
+    util_RemoveSuffixFromString(ComputerNameTrimmed, (char *)".local");
     return ComputerNameTrimmed;
         
     /*
@@ -270,19 +193,19 @@ const cpcc_string cpccOS::getComputerName(void)
 
 
 #ifdef __APPLE__
-cpcc_string cpccOS::readProgramVersionByPrincipalClass(const cpcc_char *aClassName)
+std::string cpccOS::readProgramVersionByPrincipalClass(const char *aClassName)
 {
     NSString *aNSClassName = [NSString stringWithCString: aClassName encoding:NSASCIIStringEncoding ];
     // NSString *tmpVersion = [[NSBundle bundleForClass: aNSClassName] objectForInfoDictionaryKey:@"CFBundleVersion"];
     NSString *tmpVersion = [[NSBundle bundleForClass: aNSClassName] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     
-    cpcc_string ver = [tmpVersion UTF8String];
+    std::string ver = [tmpVersion UTF8String];
     // [tmpVersion release];
     return ver;
 }
 
 
-cpcc_string cpccOS::getBundleIDfromAppName(const cpcc_char  *aAppName)
+std::string cpccOS::getBundleIDfromAppName(const char  *aAppName)
 {
     // [[NSBundle mainBundle] bundleIdentifier]
     
@@ -292,7 +215,7 @@ cpcc_string cpccOS::getBundleIDfromAppName(const cpcc_char  *aAppName)
     
     NSWorkspace * workspace = [NSWorkspace sharedWorkspace];
     NSString * appPath = [workspace fullPathForApplication:appName];
-    cpcc_string result;
+    std::string result;
     
     if (appPath) {
             NSBundle * appBundle = [NSBundle bundleWithPath:appPath];
@@ -303,9 +226,9 @@ cpcc_string cpccOS::getBundleIDfromAppName(const cpcc_char  *aAppName)
 }
 
 
-cpcc_string cpccOS::getBundleID(void)
+std::string cpccOS::getBundleID(void)
 {
-    cpcc_string result = [[[NSBundle mainBundle] bundleIdentifier] UTF8String];
+    std::string result = [[[NSBundle mainBundle] bundleIdentifier] UTF8String];
     return result;
 }
 
@@ -313,10 +236,10 @@ cpcc_string cpccOS::getBundleID(void)
 
 
 
-cpcc_string& cpccOS::readProgramVersion(void)
+std::string& cpccOS::readProgramVersion(void)
 {
-    static cpcc_string ver(_T("Version N/A"));
-    if (ver!= _T("Version N/A"))
+    static std::string ver("Version N/A");
+    if (ver!= "Version N/A")
         return ver;
     
 #ifdef __APPLE__

@@ -16,7 +16,7 @@
 #pragma once
 
 #include "cpccUnicodeSupport.h"
-#include "core.cpccErrorCollector.h"
+#include "cpccErrorCollector.h"
 
 #include "io.cpccLog.h"
 

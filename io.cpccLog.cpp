@@ -20,7 +20,7 @@
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
 #define cpccLogClosingStamp		_T("cpccLog closing. Bye bye...")
@@ -207,6 +207,11 @@ public:
         
 
         info.add(cpccLogOpeningStamp);
+#ifdef cpccDEBUG
+		info.add("Compiled in DEBUG mode");
+#else
+		info.add("Compiled in Release mode");
+#endif
         consolePut(_T("Log filename:") << _FullpathFilename);
         info.addf(_T("Log filename:%s"), _FullpathFilename);
         if (!cpccFileSystemMini::fileExists(_FullpathFilename))

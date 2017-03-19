@@ -40,7 +40,10 @@ static const cpcc_string getUserFolder_OSX(void)
 
 static const bool createFolder_Linux(const cpcc_char *aFilename, const mode_t permissions)
 {
-    
+    /* from POCO
+		if (mkdir(_path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0) 
+			handleLastErrorImpl(_path);
+	*/
     
     /* tutorial:
      int mkdir(const char *pathname, mode_t mode);

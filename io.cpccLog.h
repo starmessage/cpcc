@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <string> 
 
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"
 
 

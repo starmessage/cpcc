@@ -32,7 +32,32 @@
 */
 
 
+/*
+	https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html
+UNIX-specific directories. 
+The directories in this category are inherited from traditional UNIX installations. 
+They are an important part of the system’s BSD layer but are more useful to software developers than end users. 
+Some of the more important directories that are hidden include:
+	/bin—Contains essential command-line binaries. Typically, you execute these binaries from command-line scripts.
+	/dev—Contains essential device files, such as mount points for attached hardware.
+	/etc—Contains host-specific configuration files.
+	/sbin—Contains essential system binaries.
+	/tmp—Contains temporary files created by apps and the system.
+	/usr—Contains non-essential command-line binaries, libraries, header files, and other data.
+	/var—Contains log files and other files whose content is variable. (Log files are typically viewed using the Console app.)
 
+*/
+
+/*
+MAC directories
+On the Mac, the correct location to store persistent user-related files for your application is in a directory 
+with the same name as your application in the Application Support directory for the current user.
+/Users/person/Library/Application Support/ExampleApp/
+If you want to store user-related preferences, it is generally better to store them in the NSUserDefaults.
+The correct way to get the path to the Application Support directory is to use the 
+NSSearchPathForDirectoriesInDomains function passing NSApplicationSupportDirectory for the search path 
+and NSUserDomainMask for the domain.
+*/
 
 
 /// path manipulation helper functions

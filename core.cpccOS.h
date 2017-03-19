@@ -1,5 +1,4 @@
-﻿
-/*  *****************************************
+﻿/*  *****************************************
  *  File:		core.cpccOS.h
  *	Purpose:	Portable (cross-platform), light-weight, OS functions
   *	*****************************************
@@ -16,10 +15,14 @@
 #pragma once
 
 #include <vector>
-#include "cpccUnicodeSupport.h"
-#ifdef __APPLE__
-    #import <IOKit/pwr_mgt/IOPMLib.h>
+#include <string>
+#ifdef _WIN32
+	#include <windows.h>
 #endif
+#ifdef __APPLE__
+    // #import <IOKit/pwr_mgt/IOPMLib.h>
+#endif
+
 
 template<typename T1, typename T2>
 struct cpccMonitorInfoT
@@ -33,22 +36,11 @@ struct cpccMonitorInfoT
 typedef std::vector<cpccMonitorInfoT<void *, void *> > cpccMonitorList;
 
 
-
 class cpccOS
 {
-private:
-#ifdef __APPLE__
-    IOPMAssertionID preventSleepAssertionID;
-#endif
 
 public:
-    cpccOS()
-#ifdef __APPLE__
-		: preventSleepAssertionID(0)
-#endif
-    { }
     
-
 	/*	cross platform (windows and MAC OSX) function that finds and enumerates the monitors and their coordinates
 		return value: number of monitors,
 		list parameter: details about the monitors
@@ -57,25 +49,19 @@ public:
 
 	static void sleep(const unsigned int msec);
     
-	// static void keepAwakeTrigger(void);
-    
     // portable / cross platform C function for Windows, OSX returns the computer name
-	static const cpcc_string getComputerName(void);
+	static const std::string getComputerName(void);
     
-    const bool preventMonitorSleep(const cpcc_char *textualReason);
-    const bool restoreMonitorSleep(void);
-    
-    
-    static cpcc_string& readProgramVersion(void);
+    static std::string& readProgramVersion(void);
 #ifdef __APPLE__
-    static cpcc_string readProgramVersionByPrincipalClass(const cpcc_char *aClassName);
-    static cpcc_string getBundleIDfromAppName(const cpcc_char *aAppName);
-    static cpcc_string getBundleID(void);
+    static std::string readProgramVersionByPrincipalClass(const char *aClassName);
+    static std::string getBundleIDfromAppName(const char *aAppName);
+    static std::string getBundleID(void);
 #endif
 
 
 #ifdef _WIN32
-	static const HWND getWindowHandleOfProgram(const cpcc_char *aClassName)
+	static const HWND getWindowHandleOfProgram(const char *aClassName)
 	{
 		// FindWindow("Notepad", "Untitled - Notepad");
 		return FindWindow(aClassName, NULL);

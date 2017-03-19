@@ -123,13 +123,13 @@ public:
 	inline void			removeSavedText(const int aTextID) { }
 
 	inline const bool	hackDetected(void) { return m_hackDetected; }
-	
+	/*
 	const cpcc_string	serialize(void) const
                         {	return cpcc_string(_T("") );
                         }
     
 	void				deserialize(std::string &s) { };
-	
+	*/
 
 	static 	void computeHash(const cpcc_string &txtOriginal, cpcc_string &txtHashed) 
 	{	// 	http://www.cplusplus.com/reference/functional/hash/

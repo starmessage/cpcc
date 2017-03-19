@@ -23,7 +23,7 @@
 #include <iostream>
 #include <assert.h>
 
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 
 /*
 	The current C++ standard does not allow float (i.e. real number) or 

@@ -39,7 +39,7 @@
 
 #endif
 
-#include "cpccDefines.h"
+#include "core.cpccIdeMacros.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
 #if defined(cpccFileSystemMini_DoSelfTest)

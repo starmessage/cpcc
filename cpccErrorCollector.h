@@ -1,6 +1,6 @@
 ﻿
 /*  *****************************************
- *  File:		core.cpccErrorCollector.h
+ *  File:		cpccErrorCollector.h
  *	Purpose:	Portable (cross-platform), light-weight, class
  *				to help with the error reporting from inside your classes
  *	*****************************************

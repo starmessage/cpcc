@@ -14,9 +14,9 @@
  *	*****************************************
  */
 
-#include "cpccDefines.h"
-#ifndef cpcc_SelfTest_h
-#define cpcc_SelfTest_h
+#pragma once
+#include "core.cpccIdeMacros.h"
+
 
 /// Central switch to close all selfTests in your application
 #ifdef cpccDEBUG
@@ -68,12 +68,11 @@
 */
 
 
-	#define consolePut(x)	{	cpcc_ostringstream s;  s << x;     \
+	#define consolePut(x)	{	std::ostringstream s;  s << x << std::endl;  \
 								OutputDebugString(s.str().c_str()); \
-								OutputDebugString(_T("\n")); \
 							}
 #else
-	#define consolePut(x)	std::cout << x << "\n";
+	#define consolePut(x)	std::cout << x << std::endl;
 	
 #endif
 
@@ -88,10 +87,10 @@
 
 #define SELFTEST_BEGIN(SelfTestUniqueName)	\
 	namespace SelfTestUniqueName {			\
-	class TmioanSelfTest					\
+	class cpccSelfTest					\
 	{										\
 	public:									\
-		TmioanSelfTest()					\
+		cpccSelfTest()					\
 		{ 
 
 
@@ -105,5 +104,3 @@
 
 
 
-
-#endif // cpcc_SelfTest_h
