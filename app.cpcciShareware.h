@@ -14,6 +14,8 @@
  
 #pragma once
 
+#error DO NOT INCLUDE THIS FILE
+
 #include <map>
 #include <string>
 #include "cpccUnicodeSupport.h"
@@ -61,8 +63,8 @@ public:		// ctors,  factory
 public:
 	virtual inline bool                 importActivationCode(const cpcc_char * aLicenseCode) = 0;
 	virtual inline long int             getDaysSinceFirstRun(void) const = 0;
-	virtual inline void                 saveEncryptedLicense(void) const = 0;
-	virtual inline void                 loadEncryptedLicense(void) = 0;
+	//virtual inline void                 saveEncryptedLicense(void) const = 0;
+	//virtual inline void                 loadEncryptedLicense(void) = 0;
 	virtual inline bool                 isRegistered(void) = 0;
 
 	virtual inline const cpcc_string	getComputerID(void) const = 0;
