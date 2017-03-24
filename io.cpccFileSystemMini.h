@@ -64,8 +64,7 @@ public:
 	static cpcc_string getFolder_UsersTemp(void);
 	static cpcc_string getFolder_UsersCache(void);
 	static cpcc_string getFolder_Fonts(void);
-	static cpcc_string getFolder_CommonAppData(void);
-	static cpcc_string getFolder_UserData(void);
+	
 	static cpcc_string getFolder_UserHome(void);
 #ifdef _WIN32
 	static cpcc_string getFolder_Windows(void);

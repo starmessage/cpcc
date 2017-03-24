@@ -151,7 +151,7 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 
 	public:
 
-		wchar_from_char(const char *str)
+		explicit wchar_from_char(const char *str)
 		{
 			int len = strlen(str);
 			// allocate memory

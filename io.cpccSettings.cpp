@@ -26,6 +26,7 @@
 #include "app.cpccAppInfo.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
+#include "io.cpccSystemFolders.h"
 #if defined(cpccSettings_DoSelfTest)
 	#include "cpcc_SelfTest.h"
 #endif
@@ -71,7 +72,7 @@ cpccSettings::cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoft
 	assert(cpcc_strlen(aCompanyName)>0 && _T("#5351: cpccSettings: blank company name"));
 	assert(cpcc_strlen(aSoftwareName)>0 && _T("#5351: cpccSettings: blank Software name"));
 
-	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccFileSystemMini::getFolder_CommonAppData() : cpccFileSystemMini::getFolder_UserData());
+	cpccPathString _settingsFilename(aScope==scopeAllUsers ? cpccSystemFolders::getFolder_CommonAppData() : cpccSystemFolders::getFolder_UserData());
 	assert(cpccFileSystemMini::folderExists(_settingsFilename.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
 #ifdef __APPLE__
 	// _settingsFilename.appendPathSegment("Preferences");

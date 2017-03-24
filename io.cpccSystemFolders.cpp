@@ -17,7 +17,7 @@
 // the .mm must be included as well
 #if defined(_WIN32) || defined (IMPORTED_BY_io_cpccSystemFolders_mm)
 
-
+#include <iostream>	 // for std::cerr
 #include "io.cpccSystemFolders.h"
 
 
@@ -47,7 +47,7 @@ std::string  cpccSystemFolders::getFolder_CommonAppData(void)
 	// e.g. C:\ProgramData
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) 
 		{
-		cpcc_string result(szPath);
+		std::string result(szPath);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_CommonAppData\n";
@@ -131,8 +131,7 @@ std::string cpccSystemFolders::getFolder_UserData(void)
 	// e.g C:\Users\JohnSmith\AppData\Roaming
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) 
 		{
-		cpcc_string result(szPath);
-		cpccPathHelper::addTrailingPathDelimiter(result);
+		std::string result(szPath);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_AppData::getFolder_UserData\n";

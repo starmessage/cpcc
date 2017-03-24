@@ -19,9 +19,7 @@
 #ifdef _WIN32
 	#include <windows.h>
 #endif
-#ifdef __APPLE__
-    // #import <IOKit/pwr_mgt/IOPMLib.h>
-#endif
+
 
 
 template<typename T1, typename T2>
