@@ -14,11 +14,12 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
 #ifdef _WIN32
 	#include <windows.h>
 #endif
+#include <vector>
+#include <string>
+
 
 
 
