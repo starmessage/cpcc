@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		app.cpccAppInfo.h
   *	Purpose:	Portable (cross-platform), light-weight, library
  *	*****************************************
@@ -46,7 +46,7 @@ private:
 
 public:
 	enum xtraInfo { includeEmail=1, includeWebsite=4, useHtmlLinks=8 };
-    enum licenseType { eltFree, eltFreeInAppStore, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
+    enum licenseType { eltFree, eltFreeInAppleStore, eltPaidInAppleStore, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
 
 	const static cpcc_char
 				*CompanyName,
@@ -64,6 +64,7 @@ public:
 	const static cpcc_char
 				*WebSiteNoHttp,
 				*WebSite,
+                *WebPrivacyPolicy,
 				*BuyURL,
 				*DonateURL,
 				*CheckForUpdatesURL,

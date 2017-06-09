@@ -247,8 +247,9 @@ public:
 		NSImage * tmpImg = loadImageToNSImage(aFullPathFilename);
         if (tmpImg==NULL)
             return NULL;
+        
         // you have to retain tmpImg to retain the result
-        return [NSBitmapImageRep imageRepWithData: [tmpImg TIFFRepresentation]];
+        return [NSBitmapImageRep imageRepWithData:[tmpImg TIFFRepresentation] ];
     }
     
     

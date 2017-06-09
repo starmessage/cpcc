@@ -14,7 +14,7 @@
  *	*****************************************
  */
 
-#include "cpcc_selfTest.h"
+#include "cpcc_SelfTest.h"
 
 #define real2integer(Xreal)     (Xreal * (1<<fBits) +0.5f )
 

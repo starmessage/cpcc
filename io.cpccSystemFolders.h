@@ -15,7 +15,7 @@
 #pragma once
 
 #include <string>
-
+#include "cpccUnicodeSupport.h"
 
 /** A small and portable (cross platform) C++ class with basic system folder functions.
 	Simply add the .h and the .cpp in your application.
@@ -28,8 +28,8 @@ class cpccSystemFolders
 {
 
 public:
-	static std::string getFolder_CommonAppData(void);
-	static std::string getFolder_UserData(void);
+	static cpcc_string getFolder_CommonAppData(void);
+	static cpcc_string getFolder_UserData(void);
 
 
 };

@@ -77,7 +77,7 @@ public:
 	static cpccFileSize_t	getFileSize(const cpcc_string &aFilename) { return getFileSize(aFilename.c_str()); };
 
 	/// returns the number of bytes written, or a negative number in case of error
-	static cpccFileSize_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
+	static size_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
 	
 	/// returns the number of bytes read, or a negative number in case of error
 	static cpccFileSize_t	readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize);
@@ -126,7 +126,7 @@ public:
 	// enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
 
 public: // constructors
-    explicit cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string( (aPath)? aPath: "") 	{	}
+    explicit cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string( (aPath)? aPath: (cpcc_char *)"") 	{	}
 	explicit cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
 	// explicit cpccPathString(const standardFolderIds aFolderID);
 

@@ -38,7 +38,7 @@
 
 
 
-std::string  cpccSystemFolders::getFolder_CommonAppData(void) 
+cpcc_string  cpccSystemFolders::getFolder_CommonAppData(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -47,7 +47,8 @@ std::string  cpccSystemFolders::getFolder_CommonAppData(void)
 	// e.g. C:\ProgramData
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, NULL, 0, szPath))) 
 		{
-		std::string result(szPath);
+		// std::string result(szPath);
+		cpcc_string result(szPath);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_CommonAppData\n";
@@ -118,11 +119,12 @@ std::string  cpccSystemFolders::getFolder_CommonAppData(void)
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
 #endif	
-	return std::string( "" );
+	cpcc_string emptyResult;
+	return emptyResult;
 }
 
 
-std::string cpccSystemFolders::getFolder_UserData(void) 
+cpcc_string cpccSystemFolders::getFolder_UserData(void) 
 {
 #ifdef _WIN32
 	TCHAR szPath[MAX_PATH];
@@ -131,7 +133,7 @@ std::string cpccSystemFolders::getFolder_UserData(void)
 	// e.g C:\Users\JohnSmith\AppData\Roaming
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath))) 
 		{
-		std::string result(szPath);
+		cpcc_string result(szPath);
 		return result;
 		}
 	std::cerr << "Error #6531 in getFolder_AppData::getFolder_UserData\n";
@@ -154,7 +156,8 @@ std::string cpccSystemFolders::getFolder_UserData(void)
 #else
 	assert(false && "Error #5735: unsupported platform for getFolder_AppData()");	
 #endif	
-    return std::string( "" );
+	cpcc_string emptyResult;
+	return emptyResult;
 }
 
 

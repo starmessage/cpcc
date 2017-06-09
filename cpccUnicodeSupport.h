@@ -93,6 +93,7 @@
 	// #define		cpcc_sprintf		wsprintf		
 	// #define		cpcc_sprintf		swprintf		
 	#define		cpcc_sprintf		_stprintf
+	#define		cpcc_fscanf			fwscanf
 	#define		cpcc_fopen			_wfopen
 	#define		cpcc_strlen			_tcslen
 	#define		cpcc_strftime		_tcsftime	
@@ -118,6 +119,7 @@
 	#define		cpcc_cerr			std::cerr
 	#define		cpcc_thread			std::thread
 	#define		cpcc_sprintf		sprintf	
+	#define		cpcc_fscanf			fscanf
 	#define		cpcc_fopen			fopen
 	#define		cpcc_strlen			strlen
 	#define		cpcc_strftime		strftime	
@@ -153,10 +155,10 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 
 		explicit wchar_from_char(const char *str)
 		{
-			int len = strlen(str);
+			size_t len = strlen(str);
 			// allocate memory
-			wstr.insert(0, len + 2, L'-');
-	#pragma warning(suppress : 4996)
+			wstr.insert(0, len + 4, L'-');
+			#pragma warning(suppress : 4996)
 			mbstowcs(&wstr[0], str, len +2);
 		}
 

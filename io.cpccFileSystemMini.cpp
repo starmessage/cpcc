@@ -402,7 +402,7 @@ bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_cha
 	to create an empty file (replacing any existing one) call this as
 	writeToFile(aFilename, "", 0, false)
 */
-cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile)
+size_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile)
 {
     if (!buffer)
         return -3;
@@ -418,7 +418,8 @@ cpccFileSize_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const
 	if (pFile==NULL) 
 		return -1;
 	
-	cpccFileSize_t res=fwrite (buffer, 1, bufSize, pFile);
+	// cpccFileSize_t res=fwrite (buffer, 1, bufSize, pFile);
+	size_t res = fwrite(buffer, 1, bufSize, pFile);
 	if( ferror( pFile ) )      
 		res=-2;
 		
@@ -523,7 +524,7 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 
 bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 {
-	return (writeToFile(aFilename, "", 0, false) >= 0);
+	return (writeToFile(aFilename, "", 0, false) == 0);
 	// other way: std::ofstream tmpOut(aFilename); 
 }
 
