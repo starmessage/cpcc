@@ -110,6 +110,7 @@
 	typedef		std::wifstream		cpcc_ifstream;	
 	typedef		std::wofstream		cpcc_ofstream;	// wchar_t is the type that backs wstream and wstring
 	typedef		std::wostringstream cpcc_ostringstream;
+	typedef		std::wistringstream cpcc_istringstream;
 	typedef		std::wstringstream	cpcc_stringstream;
 	typedef		std::wstring		cpcc_string;
 	
@@ -136,6 +137,7 @@
 	typedef		std::ifstream		cpcc_ifstream;
 	typedef		std::ofstream		cpcc_ofstream;
 	typedef		std::ostringstream	cpcc_ostringstream;
+	typedef		std::istringstream	cpcc_istringstream;
 	typedef		std::stringstream	cpcc_stringstream;
 	typedef		std::string			cpcc_string;
  #endif

@@ -28,15 +28,16 @@
 
 
 
-template<typename cpccType_PChar>
+// template<typename cpccType_PChar>
 class cpccFileSystemMiniL1
 {
 public:	 // types
 	typedef long		cpccType_FileSize;
-	typedef std::basic_string<cpccType_PChar>	cpccType_String;
+	// typedef std::basic_string<cpccType_PChar>	cpccType_String;
 
 public:  // functions   
-	static cpccType_FileSize getFileSize(const cpccType_PChar *aFilename)
+	template<typename aPCharType>
+	static cpccType_FileSize getFileSize(const aPCharType *aFilename)
 	{
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
 	return static_cast<cpccType_FileSize>(f.tellg());
