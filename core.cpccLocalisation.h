@@ -234,7 +234,7 @@ public:
 		{
 			filename = composeFilename(rIter->first, m_folderWithTranslations, m_translationFileStem);
 
-			if (!cpccFileSystemMini::fileExists(filename))
+			if (!cpccFileSystemMini::fileExists(filename.c_str()))
 			{
 				++rIter;
 				rIter = cLanguageList::reverse_iterator(m_languagesTable.erase(rIter.base())); 

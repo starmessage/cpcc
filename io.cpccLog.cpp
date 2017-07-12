@@ -39,7 +39,7 @@ void cpccLogSink::add(const cpcc_char* txt)
 	if (m_filename.length() == 0)
 		return;
 
-	if (!cpccFileSystemMini::fileExists(m_filename) && (m_disableIfFileDoesNotExist))
+	if (!cpccFileSystemMini::fileExists(m_filename.c_str()) && (m_disableIfFileDoesNotExist))
 		return;
 
 	cpcc_string m_outputBuffer(m_tag);

@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		cpccFileSystemL1.h
+ *  File:		io.cpccFileSystemL1.h
  *	Purpose:	Portable (cross-platform), light-weight, file system library.
  *				It was created because the boost::filesystem is too complicated and 
  *				needs considerable effort to be included in your application.
@@ -9,10 +9,10 @@
  *				you can use it in your project with minimum effort.
  *	Help:		The character type is passed as template parameter, so you can define 
  *				that from your code according to UNICODE or other considerations
- *				e.g. typedef cpccFileSystemMiniL1<wchar_t>		cpccFS;
+ *				e.g. typedef cpccFileSystemL1<wchar_t>		cpccFS;
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2015 StarMessage software.
+ *  Copyright: 	2017 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
@@ -25,11 +25,13 @@
 
 #include <fstream>
 #include <string>
-
+#ifdef __APPLE__
+    #include <sys/stat.h>
+#endif
 
 
 // template<typename cpccType_PChar>
-class cpccFileSystemMiniL1
+class cpccFileSystemL1
 {
 public:	 // types
 	typedef long		cpccType_FileSize;
@@ -40,6 +42,8 @@ public:  // functions
 	static cpccType_FileSize getFileSize(const aPCharType *aFilename)
 	{
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
+	if (!f.good())
+		return -1L;
 	return static_cast<cpccType_FileSize>(f.tellg());
 	/*
 	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(),
@@ -58,7 +62,32 @@ public:  // functions
 	
 	}
 
+	template<typename aPCharType>
+	static bool fileExists(const aPCharType *aFilename)
+	{
+	#ifdef _WIN32
+		struct _stat fileinfo;
 
+		// On success, zero is returned. 
+		// On error, -1 is returned, and errno is set appropriately. 
+		if (_tstat(aFilename, &fileinfo) == -1)
+			return false;
+		return ((fileinfo.st_mode & _S_IFREG) != 0);
+
+	#elif defined(__APPLE__)
+		struct stat fileinfo;
+
+		// On success, zero is returned. 
+		// On error, -1 is returned, and errno is set appropriately. 
+		if (stat(aFilename, &fileinfo) == -1)
+			return false;
+		return (S_ISREG(fileinfo.st_mode));
+	#else
+		#error 	Error #5458: unsupported platform for fileExists()
+	#endif
+
+		return false;
+	}
 
 };
 

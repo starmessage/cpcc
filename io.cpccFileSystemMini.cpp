@@ -353,8 +353,8 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
 	return false;
 }
 
-
-bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
+#ifdef DELETED_FUN
+bool cpccFileSystemMini::fileExists_moved(const cpcc_char * aFilename) // moved to cpccFileSystemL1
 {
 #ifdef _WIN32
 	struct _stat fileinfo;
@@ -385,6 +385,7 @@ bool cpccFileSystemMini::fileExists(const cpcc_char * aFilename)
 #endif
 	return false;
 }
+#endif
 
 
 bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
@@ -402,7 +403,7 @@ bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_cha
 	to create an empty file (replacing any existing one) call this as
 	writeToFile(aFilename, "", 0, false)
 */
-size_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile)
+long	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile)
 {
     if (!buffer)
         return -3;
@@ -428,7 +429,7 @@ size_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *b
 }
 	
 	
-cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize)
+long	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize)
 {
 	#ifdef _WIN32
 		#pragma warning(disable : 4996)
@@ -441,7 +442,7 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 	if (pFile==NULL) 
 		return -1;
 	
-	cpccFileSize_t res=fread(buffer, 1, bufSize, pFile);
+	size_t res=fread(buffer, 1, bufSize, pFile);
 	if( ferror( pFile ) )      
 		res=-2;
 		
@@ -450,7 +451,8 @@ cpccFileSize_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char
 }
 
 
-cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
+#ifdef DELETED_FUN
+cpccFileSize_t cpccFileSystemMini::getFileSize_deleted(const cpcc_char *aFilename)
 {	
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
 	return static_cast<cpccFileSize_t>(f.tellg());
@@ -469,7 +471,7 @@ cpccFileSize_t cpccFileSystemMini::getFileSize(const cpcc_char *aFilename)
 	return (rc == 0) ? stat_buf.st_size : -1;
 */	
 }
-
+#endif
 
 bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
 {
@@ -668,12 +670,12 @@ void cpccFileSystemMini::selfTest(void)
 	cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");
     
 	createEmptyFile(tmpFile);
-	assert(fileExists(tmpFile) && _T("#5356d: cpccFileSystemMini::selfTest"));
+	assert(fileExists(tmpFile.c_str()) && _T("#5356d: cpccFileSystemMini::selfTest"));
 
 	//std::cout << "cpccFileSystemMini::SelfTest point3\n";
 	
 	createEmptyFile(tmpFile);
-	assert(getFileSize(tmpFile)==0 && _T("#5356e: cpccFileSystemMini::selfTest"));
+	assert(getFileSize(tmpFile.c_str())==0 && _T("#5356e: cpccFileSystemMini::selfTest"));
 			
 			
 	const cpcc_char * fileContent= _T("kalimera sas");
@@ -682,11 +684,11 @@ void cpccFileSystemMini::selfTest(void)
 	//std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
-	assert(getFileSize(tmpFile)==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
+	assert(getFileSize(tmpFile.c_str())==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
 			
 	// fileExists or deleteFile
 	deleteFile(tmpFile);
-	assert(!fileExists(tmpFile) && _T("#5356g: cpccFileSystemMini::selfTest"));
+	assert(!fileExists(tmpFile.c_str()) && _T("#5356g: cpccFileSystemMini::selfTest"));
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	

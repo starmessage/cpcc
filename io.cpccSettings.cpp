@@ -113,7 +113,7 @@ cpccSettings::~cpccSettings()
 
 bool cpccSettings::load(void)
 {
-	if (!cpccFileSystemMini::fileExists(mFilename))
+	if (!cpccFileSystemMini::fileExists(mFilename.c_str()))
 		return true;
 	
 	
@@ -262,7 +262,7 @@ void cpccSettings::selfTest(void)
 #endif
         
 		settingsUser.write(_T("testStringKeyA"), _T("testStringValueA"));
-		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename()) && _T("SelfTest #7711a: file does not exist"));
+		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename().c_str()) && _T("SelfTest #7711a: file does not exist"));
 
 		settingsUser.write(_T("testStringKeyB"), _T("tmpValue"));
 		settingsUser.write(_T("testStringKeyB"), _T("B"));

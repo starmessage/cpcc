@@ -16,7 +16,7 @@
 
 #include <string>
 #include "cpccUnicodeSupport.h"
-
+#include "io.cpccFileSystemL1.h"
 
 
 
@@ -24,8 +24,9 @@
 // If the above is set to FALSE the selftest code is bypassed (not compiled at all)
 // See also the config_RunSelfTest. If TRUE, the selftest code is compiled but not called.
 
+#ifdef DELETED_FUN
 typedef long cpccFileSize_t;
-
+#endif
 
 
 /** A small and portable (cross platform) C++ class with basic file system functions.
@@ -35,7 +36,7 @@ typedef long cpccFileSize_t;
 	It was created because the boost::filesystem is too complicated and needs considerable effort 
 	to be included in your application.
 */
-class cpccFileSystemMini
+class cpccFileSystemMini: public cpccFileSystemL1
 {
 public:	// class metadata and selftest
 
@@ -72,18 +73,19 @@ public:
 
     // file functions --------------------------------
 
-	
-	static cpccFileSize_t 	getFileSize(const cpcc_char *aFilename); 
-	static cpccFileSize_t	getFileSize(const cpcc_string &aFilename) { return getFileSize(aFilename.c_str()); };
+#ifdef DELETED_FUN
+	static cpccFileSize_t 	getFileSize_deleted(const cpcc_char *aFilename); 
+#endif
 
 	/// returns the number of bytes written, or a negative number in case of error
-	static size_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const cpccFileSize_t bufSize, const bool appendToFile=true);
+	static long	writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile=true);
 	
 	/// returns the number of bytes read, or a negative number in case of error
-	static cpccFileSize_t	readFromFile(const cpcc_char *aFilename, char *buffer, const cpccFileSize_t bufSize);
+	static long	readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize);
 	
-	static bool	fileExists(const cpcc_char * aFilename);
-	static bool	fileExists(const cpcc_string &aFilename) { return fileExists(aFilename.c_str()); };
+#ifdef DELETED_FUN
+	static bool	fileExists_moved(const cpcc_char * aFilename);
+#endif
 
 	/// the destFile must be a file specification, not a folder specification
 	static bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
