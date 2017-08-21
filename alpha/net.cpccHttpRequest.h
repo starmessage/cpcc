@@ -1,0 +1,77 @@
+/*  *****************************************
+ *  File:		net.cpccHttpRequest.h
+ *	Purpose:	Portable (cross-platform), light-weight, httpDownloader class
+ *	*****************************************
+ *  Library:	Cross Platform C++ Classes (cpcc)
+ *  Copyright: 	2017 StarMessage software.
+ *  License: 	Free for opensource projects.
+ *  			Commercial license for closed source projects.
+ *	Web:		http://www.StarMessageSoftware.com
+ *	email:		sales -at- starmessage.info
+ *	*****************************************
+ */
+
+#pragma once
+
+#include <cstdio>
+
+
+
+#ifdef __APPLE__
+        #include "net.cpccHttpRequestMac.h"
+        typedef cpccHttpPostMac cpccHttpPostImpl;
+#elif _WIN32
+        #include "net.cpccHttpRequestWin.h"
+        typedef cpccHttpPostWin cpccHttpPostImpl;
+#endif
+
+
+
+/*
+ // split a full URL to postURL and postData
+ std::string aURLwithParametersStr(aURLwithParameters);
+ auto index = aURLwithParametersStr.find('?');
+ if (index == std::string::npos)
+ return 901; // no parameters found
+ 
+ std::string strURL = aURLwithParametersStr.substr(0,index);
+ std::string strParams = aURLwithParametersStr.substr(index+1);
+ std::cout << "strURL=" << strURL << std::endl;
+ std::cout << "strParams=" << strParams << std::endl;
+ */
+
+class cpccHttpRequest
+{
+private:
+    cpccHttpPostImpl m_impl;
+    
+public:
+    explicit cpccHttpRequest(const char *aURLHost,
+							const char *aURLpath,
+							const bool isHTTPS,
+							const char *aUserAgent = 0,
+							const bool runAsync=false)
+		: m_impl(aURLHost, aURLpath, isHTTPS, aUserAgent, runAsync)
+    {   
+		
+
+	}
+    
+    virtual ~cpccHttpRequest() {  }
+    
+    static bool internetIsOn(void) { return cpccHttpPostImpl::internetIsOn(); }
+
+    int httpPost(const char *postData, const int timeoutInSec = 60) {  return m_impl.httpPost(postData, timeoutInSec); 	}
+
+	int httpPostAsync( std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec = 60)
+	{
+		 int i = nPending;
+		 printf("httpPostAsync() found %i pending tasks\n", i);
+		 return m_impl.httpPostAsync(errorOccured, nPending, postData, timeoutInSec);
+	}
+     
+ };
+
+
+ 
+

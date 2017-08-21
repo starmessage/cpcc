@@ -1,8 +1,8 @@
-﻿
+
 /*  *****************************************
  *  File:		core.cpccOS.cpp
  *	Purpose:	Portable (cross-platform), light-weight, OS functions
-  *	*****************************************
+ *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2015 StarMessage software.
  *  License: 	Free for opensource projects.
@@ -28,17 +28,235 @@
 
 
 #include "core.cpccOS.h"
-
+#include <iostream>
+#include <sstream>
 
 #ifdef _WIN32
 	# pragma warning (disable: 4005)
-	// #include <windows.h>
-
+	#include <windows.h>
+    // #include <Lmcons.h> / /for GetUserName()
+    #include <VersionHelpers.h> // for version check
+    #pragma comment(lib, "user32.lib") // for GetSystemInfo
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>
     
 #endif
+
+
+
+
+std::string cpccOS::getOSnameAndVersion(void)
+{
+#ifdef _WIN32
+	return getOSnameVersionAndBuildNumber();
+
+#elif __APPLE__
+    std::string result = getOSnameVersionAndBuildNumber();
+    std::size_t found = result.rfind('.'); // remove subversion number and build number
+    if (found!=std::string::npos)
+        result.erase(found);
+    return result;
+    
+#endif
+
+    
+}
+
+bool cpccOS::is64bit(void)
+{
+    #ifdef _WIN32
+        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724423%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+        //  PROCESSOR_ARCHITECTURE_AMD64 -> x64 (AMD or Intel)
+        
+        SYSTEM_INFO siSysInfo;
+        // To retrieve accurate information for an application running on WOW64, call the GetNativeSystemInfo function.
+        //GetSystemInfo(&siSysInfo);
+    
+        // Copy the hardware information to the SYSTEM_INFO structure.
+        GetNativeSystemInfo(&siSysInfo);
+        // PROCESSOR_ARCHITECTURE_AMD64 means x64 (AMD or Intel)
+        return ( siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64);
+        
+    
+    #elif __APPLE__
+    
+        return true;
+    
+    #endif
+    
+}
+
+
+std::string cpccOS::getOSnameVersionAndBuildNumber(void)
+{
+#ifdef _WIN32
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724439%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+    // GetVersion may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
+    // GetVersionEx may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
+    
+    // all the helpers:
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
+    
+    // table of version numbers
+    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
+    
+    // Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
+    // It can obtain additional processor information by calling the GetNativeSystemInfo function.
+    
+    char *ver;
+    
+    // must be in reverse order
+	/*
+    if (IsWindows10OrGreater())
+        ver = "Win 10 or newer";
+    else */
+    if (IsWindows8Point1OrGreater())
+        ver = "Win 8.1 or newer";
+    else
+    if (IsWindows8OrGreater())
+        ver = "Win 8";
+    else
+    if (IsWindows7SP1OrGreater())
+        ver = "Win 7 SP1";
+    else
+    if (IsWindows7OrGreater())
+        ver = "Win 7";
+    else
+    if (IsWindowsVistaSP2OrGreater())
+        ver = "Win Vista SP2";
+    else
+    if (IsWindowsVistaSP1OrGreater())
+        ver = "Win Vista SP1";
+    else
+    if (IsWindowsVistaOrGreater())
+        ver = "Win Vista";
+    else
+    if (IsWindowsXPSP3OrGreater())
+        ver = "Win XP SP3";
+    else
+    if (IsWindowsXPSP2OrGreater())
+        ver = "Win XP SP2";
+    else
+    if (IsWindowsXPSP1OrGreater())
+        ver = "Win XP SP1";
+    else
+    if (IsWindowsXPOrGreater())
+        ver = "Win XP";
+    else
+        ver = "Win 2000 or older";
+    
+    std::string result(ver);
+    
+    if (is64bit())
+        result+=", 64bit";
+    else
+        result+=", 32bit";
+    
+    return result;
+    
+    
+#elif __APPLE__
+    NSString * operatingSystemVersionString = [[NSProcessInfo processInfo] operatingSystemVersionString];
+    // returns: Version 10.12.6 (Build 16G29)
+    std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
+    result.erase(0, 8);
+    result.insert(0,"Mac OS X ");
+    return result;
+    
+#endif
+
+    
+}
+
+
+
+std::string cpccOS::getPreferredLanguage(void)
+{
+    
+#ifdef _WIN32
+    /*
+     If you're asking about "Which language the OS menus and dialogs are dispalyed in" (i.e. which MUI - Multilingual User Interface kit - is installed), use the following:
+     
+     GetSystemDefaultUILanguage to get the original language of the system,
+     GetUserDefaultUILanguage to get the current user's selection,
+     This function returns only a language identifier. An application can retrieve the language name using the GetUserPreferredUILanguages function.
+     EnumUILanguages to see which languages are available.
+
+     GetUserPreferredUILanguages
+     https://msdn.microsoft.com/en-us/library/windows/desktop/dd318139(v=vs.85).aspx
+     
+     GetUserPreferredUILanguages(MUI_LANGUAGE_NAME
+     */
+    
+    // from https://msdn.microsoft.com/en-us/library/windows/apps/jj244362(v=vs.105).aspx
+	/*
+    ULONG numLanguages = 0;
+    WCHAR pwszLanguagesBuffer[50];
+    DWORD cchLanguagesBuffer = sizeof(pwszLanguagesBuffer) -1;
+    BOOL hr = GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, &pwszLanguagesBuffer, &cchLanguagesBuffer);
+    if (hr)
+        return std::string(pwszLanguagesBuffer);
+		*/
+
+    return std::string("en-US");
+    
+#elif __APPLE__
+    NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
+    return [language cStringUsingEncoding:NSASCIIStringEncoding];
+#endif
+    
+}
+
+
+static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
+{
+    // std::cout << "to remove " << suffixToRemove << " from " << str << std::endl;
+    const size_t pos = str.rfind(suffixToRemove);
+    if (pos == std::string::npos)
+        return; // not found
+    // std::cout << "Found " << suffixToRemove << " in " << str << std::endl;
+    
+    if (pos != str.length() - strlen(suffixToRemove) )
+        return; // text found but not at the end of the string
+    
+    str.erase(pos , std::string::npos );
+}
+
+std::string cpccOS::getMainMonitorResolutionAsText(void)
+{
+    std::stringstream result;
+    int mw,mh;
+    getMainMonitorResolution(mw, mh);
+    result << mw;
+    result << "x";
+    result << mh;
+    return result.str();
+}
+
+
+void cpccOS::getMainMonitorResolution(int &width, int &height)
+{
+#ifdef _WIN32
+    /*
+     Size of the primary monitor: GetSystemMetrics SM_CXSCREEN / SM_CYSCREEN (GetDeviceCaps can also be used)
+     Size of all monitors (combined): GetSystemMetrics SM_CX/YVIRTUALSCREEN
+     Size of work area (screen excluding taskbar and other docked bars) on primary monitor: SystemParametersInfo SPI_GETWORKAREA
+     Size of a specific monitor (work area and "screen"): GetMonitorInfo
+     
+     Remember that a monitor does not always "begin" at 0x0. 
+     MonitorFromWindow to find the monitor your window is on and then call GetMonitorInfo.
+     */
+	width = GetSystemMetrics(SM_CXSCREEN);
+	height = GetSystemMetrics(SM_CYSCREEN);
+    
+#elif __APPLE__
+    NSScreen *mainScreen = [NSScreen mainScreen];
+    NSRect rect = [mainScreen frame];
+    width = rect.size.width;
+    height = rect.size.height;
+#endif
+}
 
 
 
@@ -50,7 +268,7 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
 		return false;
 
 	cpccMonitorList *listPtr = (cpccMonitorList *)dwData;
-	cpccMonitorInfoT<void *, void *> info;
+	cpccMonitorInfoT info;
 
 	info.bottom = lprcMonitor->bottom;
 	info.top = lprcMonitor->top;
@@ -71,32 +289,85 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
 
 	return TRUE;
 }
+
+const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
+{
+    // e.g. FindWindow("Notepad", "Untitled - Notepad");
+    return FindWindow(aClassName, NULL);
+}
+
+
+std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
+{
+	// some ready codes, because the win functions do not always find the error text
+	switch(anErrorCode) 
+	{
+		case 0: return  std::string("No error text for error code 0");
+		//  WinINet errors
+		// https://msdn.microsoft.com/en-us/library/aa385465(v=vs.85).aspx
+		case 12002: return  std::string("The request has timed out.");
+		case 12004: return  std::string("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
+		case 12019: return  std::string("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
+	}
+	
+	// example at
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa387678(v=vs.85).aspx
+    const int bufferSize = 500;
+    TCHAR   lpBuffer[bufferSize] = _T("No text for this error code.");
+    
+    DWORD nChars = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,                 
+                                       NULL,                                      // No string to be formatted needed
+                                       anErrorCode,                               
+                                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),  
+                                       lpBuffer,              // Put the message here
+                                       bufferSize - 1,        // Number of bytes to store the message
+                                       NULL);
+        
+    if (nChars == 0)
+	{
+		// The error code did not exist in the system errors.
+		// Try Ntdsbmsg.dll for the error code.
+		HINSTANCE hInst;
+
+		// Load the library.
+		hInst = LoadLibrary(_T("Ntdsbmsg.dll"));
+		if (hInst == NULL)
+			return  std::string("getWindowsErrorText() did not find the error description because it could not load Ntdsbmsg.dll\n");
+			
+		
+		// Try getting message text from ntdsbmsg.
+		nChars = FormatMessage(FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS,
+					hInst, anErrorCode, 0, lpBuffer, bufferSize - 1, NULL);
+
+		// Free the library.
+		FreeLibrary(hInst);
+	}
+		
+	if (nChars == 0)
+		return std::string("FormatMessage() failed inside getWindowsErrorText()\n");
+    
+    return std::string(lpBuffer);
+}
+
+
+std::string cpccOS::getWindowsErrorCodeAndText(const char *failedFunctionName, const DWORD anErrorCode)
+{
+	std::ostringstream s;
+	s << failedFunctionName << "() failed with Windows error No " << anErrorCode << ": ";
+	s << getWindowsErrorText(anErrorCode) << std::endl;
+	return s.str();
+}
+
+
 #endif
 
-	
-
-static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
-{
-    // std::cout << "to remove " << suffixToRemove << " from " << str << std::endl;
-    const size_t pos = str.rfind(suffixToRemove);
-    if (pos == std::string::npos)
-        return; // not found
-    // std::cout << "Found " << suffixToRemove << " in " << str << std::endl;
-        
-    if (pos != str.length() - strlen(suffixToRemove) )
-        return; // text found but not at the end of the string
-        
-    str.erase(pos , std::string::npos );
-}
-    
-    
 
 
 	/*	cross platform (windows and MAC OSX) function that finds and enumerates the monitors and their coordinates
 		return value: number of monitors,
 		list parameter: details about the monitors
 	*/
-unsigned long cpccOS::getListOfMonitors(cpccMonitorList &list)
+size_t cpccOS::getListOfMonitors(cpccMonitorList &list)
 {
 	list.clear();
 
@@ -125,7 +396,7 @@ unsigned long cpccOS::getListOfMonitors(cpccMonitorList &list)
 	{
   		NSScreen *screen = [screenArray objectAtIndex: index];
   		NSRect screenRect = [screen frame];
-  		cpccMonitorInfoT<void *, void *> info;
+  		cpccMonitorInfoT info;
 		
         info.top	= (int) screenRect.origin.y;
         info.bottom = (int) (screenRect.origin.y + screenRect.size.height);
@@ -141,9 +412,6 @@ unsigned long cpccOS::getListOfMonitors(cpccMonitorList &list)
 
 
 
-
-
-
 void cpccOS::sleep(const unsigned int msec)
 {
 #ifdef _WIN32
@@ -155,7 +423,21 @@ void cpccOS::sleep(const unsigned int msec)
 #endif
 }
     
-    
+
+const std::string cpccOS::getUserName(void)
+{
+#ifdef _WIN32
+    char username[200];
+    DWORD username_len = sizeof(username)-1;
+    GetUserName(username, &username_len);
+    return std::string(username);
+#elif __APPLE__
+    NSString *un = NSUserName();
+    return std::string([un UTF8String]);
+#endif
+}
+
+
 // portable / cross platform C function for Windows, OSX
 // returns the computer name 
 const std::string cpccOS::getComputerName(void)

@@ -15,7 +15,7 @@
  */
 
 #include <fstream>
-#include "app.cpccAppInfo.h"
+
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
@@ -36,6 +36,9 @@
 
 void cpccLogSink::add(const cpcc_char* txt)
 {
+	if (!isEnabled())
+		return;
+
 	if (m_filename.length() == 0)
 		return;
 
@@ -248,7 +251,7 @@ public: // functions
 	{
 		cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
 		#ifdef __APPLE__
-			result.appendPathSegment(cpccAppInfo::BundleId);
+			result.appendPathSegment(globalLogConfig.bundleID);
 		#endif
 		if (!result.pathExists())
 			if (!cpccFileSystemMini::createFolder(result.c_str()))
@@ -312,14 +315,14 @@ public: // functions
 };
 
 
-int	cpccLogSink::m_IdentLevel = 0;
-
+int					cpccLogSink::m_IdentLevel = 0;
+// std::atomic<bool>	cpccLogSink::m_enabled=true;
 
 
 
 cpccLog &getInstance_cpccLog(void)
 {
-	static cpccLog _singletonAppLog(getLogConfig().logFilename, getLogConfig().checkForIncompleteLog, getLogConfig().checkHasErrors);
+	static cpccLog _singletonAppLog(globalLogConfig.logFilename, globalLogConfig.checkForIncompleteLog, globalLogConfig.checkHasErrors);
 	return _singletonAppLog;
 }
 

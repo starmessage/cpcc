@@ -22,6 +22,7 @@
 #include <iostream> 
 #include <assert.h>
 #include <string> 
+#include <atomic>
 
 #include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"
@@ -32,12 +33,15 @@ struct cpccLogConfig
 	bool		checkForIncompleteLog,
 				checkHasErrors;
 	cpcc_char *	logFilename;
+#ifdef __APPLE__
+    char *      bundleID;
+#endif
 };
 
 
 // this function must be implemented somewhere in the main program's files to provide configuration parameters to the log class
-extern const cpccLogConfig &getLogConfig(void);
-
+// extern const cpccLogConfig &getLogConfig(void);
+extern const cpccLogConfig globalLogConfig;
 
 class cpccLogSink
 {
@@ -48,13 +52,15 @@ private:
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
 	static int			m_IdentLevel;
-	
+	static std::atomic<bool>	&isEnabled(void) { static std::atomic<bool> _enabled = true; return _enabled; };
+
 public:
 	cpcc_string			m_filename;
-
+	
 public:
 	static void		 increaseIdent(void) { ++m_IdentLevel; }
 	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541: reducing log ident to <0"); }
+	static void		 setEnabled(const bool enabled) { isEnabled() = enabled;  }
 
 public: // constructor / destructor
 	cpccLogSink(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :

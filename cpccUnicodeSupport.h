@@ -157,6 +157,9 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 
 		explicit wchar_from_char(const char *str)
 		{
+			if (!str)
+				return;
+				
 			size_t len = strlen(str);
 			// allocate memory
 			wstr.insert(0, len + 4, L'-');
@@ -165,6 +168,8 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 		}
 
 		inline  operator const wchar_t *(void) const { return wstr.c_str(); }
+
+		const wchar_t *get(void) const { return wstr.c_str(); }
 	};
 
 #endif
