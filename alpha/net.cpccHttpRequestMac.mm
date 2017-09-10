@@ -16,54 +16,10 @@
 #include <string>
 #include <iostream>
 #include <cocoa/cocoa.h>
-#include <SystemConfiguration/SystemConfiguration.h> // for internet connectivity check SCNetworkReachabilityRef
+// #include <SystemConfiguration/SystemConfiguration.h> // for internet connectivity check SCNetworkReachabilityRef
 
 
-bool cpccHttpPostMac::internetIsOn(void)
-{
-    // https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
-    // https://developer.apple.com/library/content/documentation/Networking/Conceptual/SystemConfigFrameworks/SC_ReachConnect/SC_ReachConnect.html
-    // needs SystemConfiguration.network
-    
-#ifdef TARGET_OS_MAC
-        
-        struct sockaddr zeroAddress;
-        bzero(&zeroAddress, sizeof(zeroAddress));
-        zeroAddress.sa_len = sizeof(zeroAddress);
-        zeroAddress.sa_family = AF_INET;
-        
-        SCNetworkReachabilityRef reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (const struct sockaddr*)&zeroAddress);
-        
-        
-#elif TARGET_OS_IPHONE
-        
-        struct sockaddr_in address;
-        size_t address_len = sizeof(address);
-        memset(&address, 0, address_len);
-        address.sin_len = address_len;
-        address.sin_family = AF_INET;
-        
-        SCNetworkReachabilityRef reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (const struct sockaddr*)&address);
-        
-#endif
-        bool result = false;
-        if (reachabilityRef != NULL)
-        {
-            SCNetworkReachabilityFlags flags = 0;
-            
-            if(SCNetworkReachabilityGetFlags(reachabilityRef, &flags))
-            {
-                bool isReachable = ((flags & kSCNetworkFlagsReachable) != 0);
-                bool connectionRequired = ((flags & kSCNetworkFlagsConnectionRequired) != 0);
-                result = (isReachable && !connectionRequired);
-            }
-            
-            CFRelease(reachabilityRef);
-        }
-        
-        return result;
 
-}
 
 
 /* async examples
@@ -82,14 +38,15 @@ int cpccHttpPostMac::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<
     if (!postData)
         return 1901;
     
-    if (!internetIsOn())
-        return 1902;
+    //if (!internetIsOn())
+    //    return 1902;
     
     std::string strPostFullURL(m_postHost);
     strPostFullURL += m_postPath;
     std::string strPostData(postData);
-    // std::cout << "postURL=" << strPostFullURL << std::endl;
-    // std::cout << "postData=" << strPostData << std::endl;
+    
+    std::cout << "postURL=" << strPostFullURL << std::endl;
+    std::cout << "postData=" << strPostData << std::endl;
     
     
     NSString *URLmacstring = [NSString stringWithCString:strPostFullURL.c_str() encoding:NSASCIIStringEncoding];
@@ -176,8 +133,8 @@ int cpccHttpPostMac::httpPost(const char *postData, const int timeoutInSec)
     if (!postData)
         return 1901;
     
-    if (!internetIsOn())
-        return 1902;
+    //if (!internetIsOn())
+    //    return 1902;
     
     std::string strPostFullURL(m_postHost);
     strPostFullURL += m_postPath;

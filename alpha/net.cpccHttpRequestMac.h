@@ -41,5 +41,5 @@ public:
                         const char *postData ,
                         const int timeoutInSec);
     
-    static bool internetIsOn(void);
+    // static bool internetIsOn(void);
 };

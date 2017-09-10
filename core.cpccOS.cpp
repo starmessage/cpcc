@@ -30,6 +30,7 @@
 #include "core.cpccOS.h"
 #include <iostream>
 #include <sstream>
+#include <mutex>
 
 #ifdef _WIN32
 	# pragma warning (disable: 4005)
@@ -37,6 +38,7 @@
     // #include <Lmcons.h> / /for GetUserName()
     #include <VersionHelpers.h> // for version check
     #pragma comment(lib, "user32.lib") // for GetSystemInfo
+    #pragma comment(lib, "Version.lib") // for GetFileVersionInfo
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>
@@ -44,6 +46,73 @@
 #endif
 
 
+/*
+ https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
+To obtain the full version number for the operating system, call the GetFileVersionInfo function 
+ on one of the system DLLs, such as Kernel32.dll, then call VerQueryValue to obtain the 
+ \\StringFileInfo\\<lang><codepage>\\ProductVersion 
+ subblock of the file version information.
+*/
+std::string cpccOS::GetFileVersion( const char* aFilePath)
+{
+#ifdef _WIN32
+    // https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
+    DWORD  verHandle = 0;
+	UINT   size      = 0;
+	LPBYTE lpBuffer  = NULL;
+	DWORD  verSize   = GetFileVersionInfoSize(aFilePath, &verHandle);
+
+	if (verSize != NULL)
+	{
+    	LPSTR verData = new char[verSize];
+
+    	if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
+    	{
+        	if (VerQueryValue(verData,"\\",(VOID FAR* FAR*)&lpBuffer,&size))
+        	{
+            	if (size)
+            	{
+                	VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
+                	if (verInfo->dwSignature == 0xfeef04bd)
+                	{
+
+                    	// Doesn't matter if you are on 32 bit or 64 bit,
+                    	// DWORD is always 32 bits, so first two revision numbers
+                    	// come from dwFileVersionMS, last two come from dwFileVersionLS
+                    	std::stringstream result;
+					    result << (( verInfo->dwFileVersionMS >> 16 ) & 0xffff );
+					    result << ".";
+    					result << (( verInfo->dwFileVersionMS) & 0xffff);
+		    			result << ".";
+		    			result << (( verInfo->dwFileVersionLS >>  16 ) & 0xffff);
+					    result << ".";
+    					result << (( verInfo->dwFileVersionLS) & 0xffff);
+    					return result.str();
+                	}
+	            }
+    	    }
+    	}
+	    delete[] verData;
+	}
+
+#else
+    
+#endif
+	return std::string("");
+}
+
+#ifdef _WIN32
+std::string cpccOS::getWindowsVersionNumber(void)
+{
+    static std::mutex _mutex;
+    static std::string cached_result;
+    
+    std::lock_guard<std::mutex> autoMutex(_mutex);
+    if (cached_result.length()==0)
+        cached_result =GetFileVersion("kernel32.dll");
+    return cached_result;
+}
+#endif
 
 
 std::string cpccOS::getOSnameAndVersion(void)
@@ -53,13 +122,14 @@ std::string cpccOS::getOSnameAndVersion(void)
 
 #elif __APPLE__
     std::string result = getOSnameVersionAndBuildNumber();
-    std::size_t found = result.rfind('.'); // remove subversion number and build number
+    // e.g.: Mac OS X 10.12.6 (Build 16G29)
+    
+    std::size_t found = result.rfind(" ("); // remove build number
     if (found!=std::string::npos)
         result.erase(found);
     return result;
     
 #endif
-
     
 }
 
@@ -162,13 +232,12 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
     std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
     result.erase(0, 8);
     result.insert(0,"Mac OS X ");
-    return result;
+    return result; // returns: Mac OS X 10.12.6 (Build 16G29)
     
 #endif
 
     
 }
-
 
 
 std::string cpccOS::getPreferredLanguage(void)
@@ -222,6 +291,7 @@ static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
     
     str.erase(pos , std::string::npos );
 }
+
 
 std::string cpccOS::getMainMonitorResolutionAsText(void)
 {

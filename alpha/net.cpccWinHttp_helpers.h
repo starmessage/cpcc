@@ -15,6 +15,8 @@
 
 #include <windows.h>
 #include <WinHttp.h>
+#include <assert.h>
+
 #include "../cpccUnicodeSupport.h"
 #include "../core.cpccOS.h"
 
@@ -51,6 +53,73 @@ static bool stringStartsWith(const char *aStr, const char *aPrefix)
 
  */
 
+ 
+ ///////////////////////////////////////////////////////////
+ //
+ //
+ //		class cWinHttp_handle
+ //
+ //
+ ///////////////////////////////////////////////////////////
+ class cWinHttp_handle
+{
+private:
+	HINTERNET m_handle;
+	
+public:
+    cWinHttp_handle() : m_handle(0) { }
+
+    virtual ~cWinHttp_handle() { close(); }
+
+	HINTERNET getHandle(void) const { return m_handle; }
+	
+    bool attach(HINTERNET handle)
+    {
+		assert((0 == m_handle) && "#5723: cWinHttp_handle.attach() called with NULL handle");
+        m_handle = handle;
+        return 0 != m_handle;
+    }
+
+    HINTERNET detach()
+    {
+        HANDLE handle = m_handle;
+        m_handle = 0;
+        return handle;
+    }
+
+    void close()
+    {
+        if (0 != m_handle)
+        {   
+            ::WinHttpCloseHandle(m_handle);
+            m_handle = 0;
+        }
+    }
+
+    HRESULT setOption(DWORD option, const void* value, DWORD length)
+    {
+        if (!::WinHttpSetOption(m_handle, option, const_cast<void*>(value), length))
+        {
+            return HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
+    HRESULT queryOption(DWORD option, void* value, DWORD& length) const
+    {
+        if (!::WinHttpQueryOption(m_handle, option, value, &length))
+        {
+            return HRESULT_FROM_WIN32(::GetLastError());
+        }
+
+        return S_OK;
+    }
+
+};
+
+ 
+ 
  ///////////////////////////////////////////////////////////
  //
  //

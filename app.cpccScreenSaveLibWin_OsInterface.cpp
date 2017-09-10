@@ -272,7 +272,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				delete(screensaverPtr);
 				screensaverPtr=NULL;
 			}
-			infoLog().markLogClosure();
+			// infoLog().add(cpccLogClosingStamp);
 			// PostQuitMessage(0);
 			// isos edo thelei break gia na kalestei i DefScreenSaverProc() na kanei to sosto cleanup
 			break;	//return 0l;  
@@ -363,7 +363,7 @@ Prepei na yparxei ena dialog template me to parakato ID
 
 		case WM_DESTROY:
 			// Clean up window-specific data objects. 
-			infoLog().markLogClosure();
+			// infoLog().add(cpccLogClosingStamp);
 			return 0;
 
         case WM_COMMAND: 

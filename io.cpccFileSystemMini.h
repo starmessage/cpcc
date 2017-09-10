@@ -46,9 +46,6 @@ public:	// class metadata and selftest
 #endif
 
 
-protected:
-	
-
 public:
 	
 	// folder functions --------------------------------

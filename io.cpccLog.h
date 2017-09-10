@@ -28,23 +28,26 @@
 #include "cpccUnicodeSupport.h"
 
 
+/*
 struct cpccLogConfig
 {
-	bool		checkForIncompleteLog,
-				checkHasErrors;
-	cpcc_char *	logFilename;
+	// bool		checkForIncompleteLog;
+	//cpcc_char *	AppNameStem;
+    cpcc_string	AppNameStem;
 #ifdef __APPLE__
     char *      bundleID;
 #endif
 };
+*/
 
 
-// this function must be implemented somewhere in the main program's files to provide configuration parameters to the log class
+// this variable must be allocated somewhere in the main program's files to provide configuration parameters to the log class
 // extern const cpccLogConfig &getLogConfig(void);
-extern const cpccLogConfig globalLogConfig;
+// extern const cpccLogConfig globalLogConfig;
 
-class cpccLogSink
+class cpccLogFormatter
 {
+    
 private:
 	const cpcc_char *	m_tag;
 	const cpcc_char *	m_IdentText = (cpcc_char *) _T("| ");
@@ -52,10 +55,7 @@ private:
 						m_disableIfFileDoesNotExist,
 						m_echoToConsole;
 	static int			m_IdentLevel;
-	static std::atomic<bool>	&isEnabled(void) { static std::atomic<bool> _enabled = true; return _enabled; };
-
-public:
-	cpcc_string			m_filename;
+	static std::atomic<bool> & isEnabled(void) { static std::atomic<bool> _enabled(true); return _enabled; };
 	
 public:
 	static void		 increaseIdent(void) { ++m_IdentLevel; }
@@ -63,22 +63,21 @@ public:
 	static void		 setEnabled(const bool enabled) { isEnabled() = enabled;  }
 
 public: // constructor / destructor
-	cpccLogSink(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
+	cpccLogFormatter(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
 		m_tag(aTag),
 		m_disableIfFileDoesNotExist(disableIfFileDoesNotExist),
 		m_echoToConsole(echoToConsole),
 		m_isEmpty(true)
  	{ }
 		
-
-	
+	virtual ~cpccLogFormatter();
 
 public: // functions
 	bool 				isEmpty(void) const { return m_isEmpty; }
-	const cpcc_string &	getFilename(void) const { return m_filename; };
+	static const cpcc_string &	getFilename(void);
 	void 				add(const cpcc_char* txt);
 	void 				addf(const cpcc_char* format, ...);
-	void				markLogClosure(void);
+	// void				markLogClosure(void);
 	static cpcc_string 	toString(const cpcc_char* format, ...);
     
 	///  Get the current datetime as a human readable string
@@ -94,10 +93,9 @@ public: // functions
 
 
 // aliases for the 3 log levels
-cpccLogSink			&infoLog(void);
-cpccLogSink			&warningLog(void);
-cpccLogSink			&errorLog(void);
-
+cpccLogFormatter			&infoLog(void);
+cpccLogFormatter			&warningLog(void);
+cpccLogFormatter			&errorLog(void);
 #ifndef cpccDEBUG
     //#define COMMENT SLASH(/)
     //#define SLASH(s) /##s
@@ -106,6 +104,74 @@ cpccLogSink			&errorLog(void);
 #else
 	#define debugLog()	infoLog()
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// class cpccLogManager
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+class cpccLogManager
+{
+private: // configuation
+
+	enum {
+		config_CheckIfLogHasErrors = true,
+		config_CreateFileOnInfo = true,  // you might want to set this to false when compiling for release
+		config_CreateFileOnWarning = true,
+		config_CreateFileOnError = true,
+		#ifndef cpccDEBUG
+			echoToCOUT = false
+		#else
+			echoToCOUT = true
+		#endif
+		};
+
+	bool config_checkForIncompleteLog;
+
+
+public: 	// data
+	cpccLogFormatter	error, warning, info;
+
+public:
+	explicit cpccLogManager(const bool checkForIncompleteLog);
+
+	virtual ~cpccLogManager();	// in MSVC, this destructor is not called when run from a screensaver
+
+
+public: // functions
+	void initialize( /* const cpccLogConfig &aConfig) */  const char *appNameStem, const char *macBundleId);
+
+	
+private:
+	// find the appropriate folder and create it if it does not exist
+	static cpcc_string getFolderForTheLogFile(const char *aBundleID);
+
+	cpcc_string getAutoFullpathFilename(const cpcc_char *aFilename, const char *aBundleID) const;
+
+	static bool    fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
+
+	static bool    logfileIsIncomplete(const cpcc_char *fn);
+
+	void    copyToDesktop(void);
+
+	inline bool hasErrors(void) const { return !error.isEmpty(); }
+};
+
+
+
+
+// void initializeLog(const cpccLogConfig &aConfig);
+
+
+/////////////////////////////////////////////////////////////////////////
+//
+//		helper classes
+//
+//
+/////////////////////////////////////////////////////////////////////////
+
 
 /////////////////////////////////////////////////////////////////////////
 // this class is used to automatically log creation/desctuction messages
@@ -120,12 +186,12 @@ public:
         tag(aTag), startTag(aStartTag), endTag(aEndTag)
     {
         infoLog().addf(_T("%s: %s"), startTag.c_str(), tag.c_str());
-        cpccLogSink::increaseIdent();
+        cpccLogFormatter::increaseIdent();
     }
     
     virtual ~logBlockOfCode(void)
     {
-        cpccLogSink::decreaseIdent();
+        cpccLogFormatter::decreaseIdent();
         infoLog().addf(_T("%s: %s"), endTag.c_str(), tag.c_str());
     }
 };
@@ -161,7 +227,7 @@ public:
 
 	virtual ~logTimeCountrer(void)
 	{
-        tag.append(cpccLogSink::toString(_T(". Duration:%.3f sec"),timer.getSecondsElapsed()));
+        tag.append(cpccLogFormatter::toString(_T(". Duration:%.3f sec"),timer.getSecondsElapsed()));
 	}
 
 };

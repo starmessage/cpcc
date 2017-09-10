@@ -18,9 +18,9 @@
 #include <string>
 #include <iostream>
 #include <windows.h>
+// #include <Netlistmgr.h> // for get_IsConnectedToInternet()
+
 #include <WinHttp.h>
-// #include <wininet.h> // for InternetCheckConnection
-// #pragma comment(lib, "Wininet.lib") // for InternetCheckConnection
 #pragma comment(lib, "Winhttp.lib")
 
 /*
@@ -59,23 +59,20 @@ or to ensure desrtruction:
 
 class helper_WinHttpInstallCallback
 {
-
+private:
+    bool m_isGood;
     
 public:
     helper_WinHttpInstallCallback(const HINTERNET aHandle, WINHTTP_STATUS_CALLBACK aCallback)
     {
         // Install the status callback function.
         WINHTTP_STATUS_CALLBACK isCallback =
-            WinHttpSetStatusCallback( aHandle,
-                                      aCallback,
-                                      WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS,
-                                    NULL);
+            WinHttpSetStatusCallback( aHandle, aCallback, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
         m_isGood = (isCallback!=WINHTTP_INVALID_STATUS_CALLBACK);
     }
     
     bool isGood(void) { return m_isGood; }
-private:
-    bool m_isGood;
+
 };
 
 ///////////////////////////////////////////////////////////
@@ -86,29 +83,6 @@ private:
 //
 ///////////////////////////////////////////////////////////
 
-bool cpccHttpPostWin::internetIsOn(void)
-{
-/*
-	InternetCheckConnection function
-	//	https://msdn.microsoft.com/en-us/library/windows/desktop/aa384346.aspx
-	//	https://msdn.microsoft.com/en-us/library/windows/desktop/aa370773%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-
-BOOL InternetCheckConnection(
-  _In_ LPCTSTR lpszUrl,
-  _In_ DWORD   dwFlags,
-  _In_ DWORD   dwReserved);
-
-lpszUrl
-	Pointer to a null-terminated string that specifies the URL to use to check the connection. This value can be NULL.
-    If lpszUrl is non-NULL, the host value is extracted from it and used to ping that specific host.
-    If lpszUrl is NULL and there is an entry in the internal server database for the nearest server, the host value is 
-	extracted from the entry and used to ping that server.
-
-Returns TRUE if a connection is made successfully, or FALSE otherwise.
-*/
-	// return (InternetCheckConnection(NULL,FLAG_ICC_FORCE_CONNECTION,0)==TRUE);
-	return false;
-}
 
 
 

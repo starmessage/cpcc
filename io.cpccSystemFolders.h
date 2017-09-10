@@ -30,7 +30,7 @@ class cpccSystemFolders
 public:
 	static cpcc_string getFolder_CommonAppData(void);
 	static cpcc_string getFolder_UserData(void);
-
+    static std::string getFolder_CurrentDir(void);
 
 };
 

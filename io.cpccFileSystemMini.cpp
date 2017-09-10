@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <errno.h>
+#include <mutex>
 
 #ifdef _WIN32
 	#include	<io.h> // for _access on windows
@@ -48,6 +49,8 @@
 #endif
 
 
+// std::mutex _fileAppendMutex, _writeToFileMutex;
+
 
 // main class
 
@@ -64,7 +67,7 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
     
 	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
 	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
-
+    report.append(_T("Current dir:")	+ cpccSystemFolders::getFolder_CurrentDir() + _T("\n"));
 	report.append(_T("User's home folder:")	+ getFolder_UserHome() + _T("\n"));
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
@@ -273,6 +276,7 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
+    static std::mutex _fileAppendMutex;
     cpcc_string finalFilename = aFilename;
 #ifdef __APPLE__
     if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
@@ -280,9 +284,9 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 #endif
     
 	FILE *fp; 
-	#ifdef _WIN32
-		#pragma warning(disable : 4996)
-	#endif
+	
+    std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
+    #pragma warning(suppress : 4996)
 	fp= cpcc_fopen(finalFilename.c_str(), _T("at")); // write append // todo: UNICODE
 	if (!fp) return false;
 	cpcc_fprintf(fp,_T("%s"),txt);
@@ -353,39 +357,7 @@ bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername)
 	return false;
 }
 
-#ifdef DELETED_FUN
-bool cpccFileSystemMini::fileExists_moved(const cpcc_char * aFilename) // moved to cpccFileSystemL1
-{
-#ifdef _WIN32
-	struct _stat fileinfo;
-	
-	// On success, zero is returned. 
-	// On error, -1 is returned, and errno is set appropriately. 
-	if (_tstat(aFilename, &fileinfo)==-1)
-		return false;
-	return ((fileinfo.st_mode & _S_IFREG) != 0);
-	
-#elif defined(__APPLE__)
-    cpcc_string finalFilename = aFilename;
-    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
-        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 
-    
-	struct stat fileinfo;
-	
-	// On success, zero is returned. 
-	// On error, -1 is returned, and errno is set appropriately. 
-	if (stat(finalFilename.c_str(), &fileinfo) == -1)
-		return false;
-	return (S_ISREG(fileinfo.st_mode));
-	
-#else
-	#error 	Error #5413: unsupported platform for fileExists()
-	
-#endif
-	return false;
-}
-#endif
 
 
 bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
@@ -413,7 +385,8 @@ long	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buf
     if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
         finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 #endif
-    
+    static std::mutex _writeToFileMutex;
+    std::lock_guard<std::mutex> autoMutex(_writeToFileMutex);
     #pragma warning(disable : 4996)
 	FILE * pFile = cpcc_fopen (finalFilename.c_str(), (appendToFile)? _T("ab") : _T("wb") );  // todo: unicode
 	if (pFile==NULL) 
@@ -451,27 +424,7 @@ long	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, 
 }
 
 
-#ifdef DELETED_FUN
-cpccFileSize_t cpccFileSystemMini::getFileSize_deleted(const cpcc_char *aFilename)
-{	
-	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
-	return static_cast<cpccFileSize_t>(f.tellg());
-/*
- 	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(),
- 	// on linux this is implemented as a lstat64(), and 
- 	// on the Macintosh it uses the Mac specific call getattrlist(). 
- 
-#ifdef _WIN32
-	struct _tstat stat_buf;
-	int rc = _tstat(aFilename, &stat_buf);
-#else
-	struct stat stat_buf;
-	int rc = stat(aFilename, &stat_buf);
-#endif
-	return (rc == 0) ? stat_buf.st_size : -1;
-*/	
-}
-#endif
+
 
 bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
 {

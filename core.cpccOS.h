@@ -56,6 +56,11 @@ public:
     
     static std::string& readProgramVersion(void);
     
+#ifdef _WIN32
+    static std::string getWindowsVersionNumber(void);
+#endif
+    
+    static std::string GetFileVersion( const char* aFilePath);
     static std::string getOSnameAndVersion(void);
     static std::string getOSnameVersionAndBuildNumber(void);
 	static bool			is64bit(void);

@@ -16,7 +16,6 @@
 #include <cstdio>
 
 
-
 #ifdef __APPLE__
         #include "net.cpccHttpRequestMac.h"
         typedef cpccHttpPostMac cpccHttpPostImpl;
@@ -59,15 +58,15 @@ public:
     
     virtual ~cpccHttpRequest() {  }
     
-    static bool internetIsOn(void) { return cpccHttpPostImpl::internetIsOn(); }
+    // static bool internetIsOn(void) { return cpccHttpPostImpl::internetIsOn(); }
 
     int httpPost(const char *postData, const int timeoutInSec = 60) {  return m_impl.httpPost(postData, timeoutInSec); 	}
 
 	int httpPostAsync( std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec = 60)
 	{
-		 int i = nPending;
-		 printf("httpPostAsync() found %i pending tasks\n", i);
-		 return m_impl.httpPostAsync(errorOccured, nPending, postData, timeoutInSec);
+		int i = nPending;
+		printf("httpPostAsync() found %i pending tasks\n", i);
+		return m_impl.httpPostAsync(errorOccured, nPending, postData, timeoutInSec);
 	}
      
  };

@@ -103,8 +103,7 @@ public:
 			localEpoch = time(NULL);
 
 			#pragma warning(suppress : 4996)
-			/* Using local time epoch get the GM Time */
-			gmTime = gmtime(&localEpoch);
+			gmTime = gmtime(&localEpoch); // Using local time epoch get the GM Time 
 
 			/* Convert gm time in to epoch format */
 			gmEpoch = mktime(gmTime);

@@ -4,7 +4,7 @@ A set of cross platform classes and functions.
 These classes are used in the cross platform (Windows and MacOS) StarMessage screensaver.
 [http://www.StarMessageSoftware.com/moonscreensaver]
 
-Version: 0.55.90
+Version: 0.56
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 

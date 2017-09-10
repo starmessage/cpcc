@@ -29,13 +29,33 @@
 	#include	<tchar.h>
 	#include	<sys/types.h>
 	#include	<sys/stat.h>
-
+	#include	<direct.h>
 #elif defined(__APPLE__)
     #include <CoreFoundation/CoreFoundation.h>
 	#include <Carbon/Carbon.h> // for the DialogRef
+	#include <unistd.h>
 
 #endif
 
+
+std::string cpccSystemFolders::getFolder_CurrentDir(void)
+{
+    
+    #ifdef _WIN32
+		#define getcwd  _getcwd 
+    #else
+        
+    
+    #endif
+    
+    char buff[FILENAME_MAX];
+    char *result = getcwd( buff, FILENAME_MAX );
+    
+    if (!result)
+        return std::string("");
+    else
+        return std::string(result);
+}
 
 
 cpcc_string  cpccSystemFolders::getFolder_CommonAppData(void) 
