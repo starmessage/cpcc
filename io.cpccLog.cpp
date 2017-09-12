@@ -225,11 +225,6 @@ cpcc_string cpccLogFormatter::getCurrentTime(const cpcc_char * fmt)
 }
 
 
-cpccLogFormatter::~cpccLogFormatter()
-{
-	add("closing this logFormatter.");
-}
-
 
 int					cpccLogFormatter::m_IdentLevel = 0;
 // std::atomic<bool>	cpccLogFormatter::m_enabled=true;
@@ -367,8 +362,7 @@ void    cpccLogManager::copyToDesktop(void)
 
 
 
-// you must allocate somewhere in the cpp code this object.
-extern cpccLogManager _singletonAppLog;
+
 
 /*
 cpccLogManager &getInstance_cpccLog(void)

@@ -303,14 +303,14 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 		An application must not delete or alter the buffer pointed to by lpOptional until the request 
 		handle is closed or the call to WinHttpReceiveResponse has completed.
 	*/
-    bool bResults = WinHttpSendRequest(winhttp_request.getRequestHandle(),
+    BOOL bResults = WinHttpSendRequest(winhttp_request.getRequestHandle(),
                                     additionalHeaders,
                                     additionalHeadersLen,
                                     (LPSTR) postData, // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
                                     strlen(postData),
                                     strlen(postData),
                                     NULL);
-	if (!bResults)
+	if (bResults==0)
 	{ 
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpSendRequest", GetLastError());
 		return 1960;
@@ -319,7 +319,7 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 	// End the WinHttpSendRequest.
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384102(v=vs.85).aspx
 	bResults = WinHttpReceiveResponse(winhttp_request.getRequestHandle(), NULL);
-	if (!bResults)
+	if (bResults==0)
 	{	
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError());
 		return 1960;
@@ -329,12 +329,12 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 	DWORD dwSize = sizeof(dwStatusCode);
 
 	// WinHttpReceiveResponse must have been called for this handle and have completed before WinHttpQueryHeaders is called.
-	bool queryHeadersResult = WinHttpQueryHeaders(winhttp_request.getRequestHandle(),
+	BOOL queryHeadersResult = WinHttpQueryHeaders(winhttp_request.getRequestHandle(),
 									WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 
     								WINHTTP_HEADER_NAME_BY_INDEX, 
     								&dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX);
 
-	if (!queryHeadersResult)
+	if (queryHeadersResult==0)
 	{
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpQueryHeaders", GetLastError());
 		return 1981;

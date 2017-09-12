@@ -69,8 +69,7 @@ public: // constructor / destructor
 		m_echoToConsole(echoToConsole),
 		m_isEmpty(true)
  	{ }
-		
-	virtual ~cpccLogFormatter();
+
 
 public: // functions
 	bool 				isEmpty(void) const { return m_isEmpty; }
@@ -141,7 +140,8 @@ public:
 
 
 public: // functions
-	void initialize( /* const cpccLogConfig &aConfig) */  const char *appNameStem, const char *macBundleId);
+
+	void initialize( const char *appNameStem, const char *macBundleId);
 
 	
 private:
@@ -159,11 +159,8 @@ private:
 	inline bool hasErrors(void) const { return !error.isEmpty(); }
 };
 
-
-
-
-// void initializeLog(const cpccLogConfig &aConfig);
-
+// you must allocate somewhere in the cpp code this object.
+extern cpccLogManager _singletonAppLog;
 
 /////////////////////////////////////////////////////////////////////////
 //
