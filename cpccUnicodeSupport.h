@@ -151,25 +151,28 @@ typedef std::vector<cpcc_string> cpcc_stringList;
 	class wchar_from_char
 	{
 	private:
-		std::wstring wstr= L"";
+		std::wstring	m_wstr= L"";
+		const wchar_t	*m_resultPtr;
 
 	public:
 
-		explicit wchar_from_char(const char *str)
+		explicit wchar_from_char(const char *str): m_resultPtr(NULL)
 		{
 			if (!str)
 				return;
 				
 			size_t len = strlen(str);
 			// allocate memory
-			wstr.insert(0, len + 4, L'-');
+			m_wstr.insert(0, len + 4, L'-');
 			#pragma warning(suppress : 4996)
-			mbstowcs(&wstr[0], str, len +2);
+			mbstowcs(&m_wstr[0], str, len +2);
+			m_resultPtr = m_wstr.c_str();
+
 		}
 
-		inline  operator const wchar_t *(void) const { return wstr.c_str(); }
+		inline  operator const wchar_t *(void) const { return m_resultPtr; }
 
-		const wchar_t *get(void) const { return wstr.c_str(); }
+		const wchar_t *get(void) const { return m_resultPtr; }
 	};
 
 #endif

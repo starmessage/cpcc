@@ -35,7 +35,8 @@ public:		// abstract functions to be implemented by Windows or OSX specific code
 
 	void logInformation(void)
 	{
-		infoLog().addf( _T("Application command line: %s"), getCommandLine().c_str());
+        cpcc_string _commandLine(getCommandLine());
+		infoLog().addf( _T("Application command line: %s"), _commandLine.c_str());
 		cpcc_stringList args;
 		getArgcArgv(args);
 		for (unsigned int i=0; i<args.size(); i++)

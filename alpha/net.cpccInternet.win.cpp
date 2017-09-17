@@ -16,7 +16,7 @@
 #include <windows.h>
 #include <wininet.h>
 #pragma comment(lib, "Wininet.lib") // for InternetCheckConnection
-
+// #include <Netlistmgr.h> // for get_IsConnectedToInternet()
 
 bool cpccInternet::isConnectedToInternet(void)
 {

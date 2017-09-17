@@ -257,37 +257,44 @@ cpcc_string cpccFileSystemMini::getFolder_Fonts(void)
 
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
 {
+	/*
 #ifdef __APPLE__
     cpcc_string destFile=fileSystemOSX_helper::expandTilde_OSX(destFileOrFolder);
 #else
     cpcc_string destFile=destFileOrFolder;
 #endif
-    
-	if (folderExists(destFileOrFolder))
+    */
+
+	if (folderExists(destFileOrFolder))	// if the destination is a folder, copy the file inside the folder
 		{
+		cpcc_string destFile = destFileOrFolder;
 		cpccPathHelper::addTrailingPathDelimiter(destFile);
 		destFile = destFile + cpccPathHelper::extractFilename(sourceFile);
+		return copyFileToaFile(sourceFile, destFile.c_str());
 		}
 
-	return copyFileToaFile(sourceFile, destFile.c_str());
+	return copyFileToaFile(sourceFile, destFileOrFolder);
 }
 
 
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
-    static std::mutex _fileAppendMutex;
-    cpcc_string finalFilename = aFilename;
-#ifdef __APPLE__
+    
+    
+/*
+cpcc_string finalFilename = aFilename;
+ #ifdef __APPLE__
     if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
         finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 #endif
-    
+ */
+	 //static std::mutex _fileAppendMutex;
+	//std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
+
 	FILE *fp; 
-	
-    std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
-    #pragma warning(suppress : 4996)
-	fp= cpcc_fopen(finalFilename.c_str(), _T("at")); // write append // todo: UNICODE
+	#pragma warning(suppress : 4996)
+	fp= cpcc_fopen(aFilename,  _T("at")); // write append // todo: UNICODE
 	if (!fp) return false;
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
@@ -380,19 +387,19 @@ long	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buf
     if (!buffer)
         return -3;
     
-    cpcc_string finalFilename = aFilename;
+    
 #ifdef __APPLE__
+	cpcc_string finalFilename = aFilename;
     if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
         finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
 #endif
-    static std::mutex _writeToFileMutex;
-    std::lock_guard<std::mutex> autoMutex(_writeToFileMutex);
+    //static std::mutex _writeToFileMutex;
+    //std::lock_guard<std::mutex> autoMutex(_writeToFileMutex);
     #pragma warning(disable : 4996)
-	FILE * pFile = cpcc_fopen (finalFilename.c_str(), (appendToFile)? _T("ab") : _T("wb") );  // todo: unicode
+	FILE * pFile = cpcc_fopen (aFilename, (appendToFile)? _T("ab") : _T("wb") );  // todo: unicode
 	if (pFile==NULL) 
 		return -1;
 	
-	// cpccFileSize_t res=fwrite (buffer, 1, bufSize, pFile);
 	size_t res = fwrite(buffer, 1, bufSize, pFile);
 	if( ferror( pFile ) )      
 		res=-2;
@@ -622,12 +629,12 @@ void cpccFileSystemMini::selfTest(void)
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");
 	cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");
     
-	createEmptyFile(tmpFile);
+	createEmptyFile(tmpFile.c_str());
 	assert(fileExists(tmpFile.c_str()) && _T("#5356d: cpccFileSystemMini::selfTest"));
 
 	//std::cout << "cpccFileSystemMini::SelfTest point3\n";
 	
-	createEmptyFile(tmpFile);
+	createEmptyFile(tmpFile.c_str());
 	assert(getFileSize(tmpFile.c_str())==0 && _T("#5356e: cpccFileSystemMini::selfTest"));
 			
 			
@@ -640,7 +647,7 @@ void cpccFileSystemMini::selfTest(void)
 	assert(getFileSize(tmpFile.c_str())==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
 			
 	// fileExists or deleteFile
-	deleteFile(tmpFile);
+	deleteFile(tmpFile.c_str());
 	assert(!fileExists(tmpFile.c_str()) && _T("#5356g: cpccFileSystemMini::selfTest"));
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point5\n";

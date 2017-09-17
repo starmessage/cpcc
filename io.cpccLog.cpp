@@ -66,8 +66,8 @@ public:
 
 		if (cpccFileSystemMini::fileExists(m_filename.c_str())) // empty the file if it exists already
 		{
-			cpccFileSystemMini::createEmptyFile(m_filename);
-			cpccFileSystemMini::appendTextFile(m_filename, m_buffer.str());
+			cpccFileSystemMini::createEmptyFile(m_filename.c_str());
+			cpccFileSystemMini::appendTextFile(m_filename.c_str(), m_buffer.str().c_str());
 		}
 	}
 
@@ -79,7 +79,7 @@ public:
 		if (m_filename.length() > 0)
 		{
 			if (cpccFileSystemMini::fileExists(m_filename.c_str()))
-				cpccFileSystemMini::appendTextFile(m_filename, txt);
+				cpccFileSystemMini::appendTextFile(m_filename.c_str(), txt);
 		}
 		else
 		{
@@ -113,7 +113,7 @@ void cpccLogFormatter::add(const cpcc_char* txt)
 	
 	
 	if ((_fn.length()>0) && !cpccFileSystemMini::fileExists(_fn.c_str()) && (!m_disableIfFileDoesNotExist))
-		cpccFileSystemMini::createEmptyFile(_fn);	// create a file so that the log can continue wrting on it.
+		cpccFileSystemMini::createEmptyFile(_fn.c_str());	// create a file so that the log can continue wrting on it.
 
 	cpcc_string m_outputBuffer(m_tag);
 

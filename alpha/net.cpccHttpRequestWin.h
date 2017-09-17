@@ -40,9 +40,6 @@ public:
 			m_isHTTPS(isHTTPS), m_postPath(aURLpath)
 	{  }
 
-
-	static bool internetIsOn(void);
-    
     int httpPost(const char *postData , const int timeoutInSec=60);
 	
 	int httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec=60);

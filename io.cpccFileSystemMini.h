@@ -24,9 +24,6 @@
 // If the above is set to FALSE the selftest code is bypassed (not compiled at all)
 // See also the config_RunSelfTest. If TRUE, the selftest code is compiled but not called.
 
-#ifdef DELETED_FUN
-typedef long cpccFileSize_t;
-#endif
 
 
 /** A small and portable (cross platform) C++ class with basic file system functions.
@@ -70,34 +67,24 @@ public:
 
     // file functions --------------------------------
 
-#ifdef DELETED_FUN
-	static cpccFileSize_t 	getFileSize_deleted(const cpcc_char *aFilename); 
-#endif
-
 	/// returns the number of bytes written, or a negative number in case of error
 	static long	writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile=true);
 	
 	/// returns the number of bytes read, or a negative number in case of error
 	static long	readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize);
 	
-#ifdef DELETED_FUN
-	static bool	fileExists_moved(const cpcc_char * aFilename);
-#endif
 
 	/// the destFile must be a file specification, not a folder specification
 	static bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
 	static bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
 	static bool createEmptyFile(const cpcc_char * aFilename);
-	static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
+	// static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
-	static bool	appendTextFile(const cpcc_char* aFilename, const cpcc_string& text) { return appendTextFile(aFilename, text.c_str()); };
-	static bool	appendTextFile(const cpcc_string& aFilename, const cpcc_string& text) { return appendTextFile(aFilename.c_str(), text.c_str()); };
-
+	
 	static bool deleteFile(const cpcc_char * filename);
-	static bool	deleteFile(const cpcc_string& aFilename) { return deleteFile(aFilename.c_str()); };
-
+	
 	static bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);
-	static bool	copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
+	// static bool	copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
 
 		
 	// date functions --------------------------------

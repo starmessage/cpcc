@@ -18,7 +18,7 @@
 #include <string>
 #include <iostream>
 #include <windows.h>
-// #include <Netlistmgr.h> // for get_IsConnectedToInternet()
+
 
 #include <WinHttp.h>
 #pragma comment(lib, "Winhttp.lib")
@@ -45,7 +45,13 @@ or to ensure desrtruction:
 */
 
 
-
+/*
+	async demo at https://msdn.microsoft.com/en-us/library/aa383138(VS.85).aspx
+	Warning  WinHTTP is not reentrant except during asynchronous completion callback. 
+	That is, while a thread has a call pending to one of the WinHTTP functions such as 
+	WinHttpSendRequest, WinHttpReceiveResponse, WinHttpQueryDataAvailable, WinHttpReadData, or WinHttpWriteData, 
+	it must never call WinHTTP a second time until the first call has completed.
+*/
 
 
 ///////////////////////////////////////////////////////////
@@ -66,9 +72,9 @@ public:
     helper_WinHttpInstallCallback(const HINTERNET aHandle, WINHTTP_STATUS_CALLBACK aCallback)
     {
         // Install the status callback function.
-        WINHTTP_STATUS_CALLBACK isCallback =
+        WINHTTP_STATUS_CALLBACK result =
             WinHttpSetStatusCallback( aHandle, aCallback, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
-        m_isGood = (isCallback!=WINHTTP_INVALID_STATUS_CALLBACK);
+        m_isGood = (result !=WINHTTP_INVALID_STATUS_CALLBACK);
     }
     
     bool isGood(void) { return m_isGood; }
@@ -101,13 +107,13 @@ public:
  Session -> Connection -> Request
  To use WinHTP functions in full asynchronous mode, you must do things in the right order:
  
- 1. Open the session with WinHttpOpen() - Use INTERNET_FLAG_ASYNC
+ [ok] 1. Open the session with WinHttpOpen() - Use INTERNET_FLAG_ASYNC
  Check for errors
  
  2. Set a callback using WinHttpSetStatusCallback()
  Check for errors
  
- 3. Open the connection using WinHttpConnect() - Specify the URL
+ [ok] 3. Open the connection using WinHttpConnect() - Specify the URL
  Check for errors
  
  4. Open a request with WinHttpOpenRequest() - Specify path and VERB
