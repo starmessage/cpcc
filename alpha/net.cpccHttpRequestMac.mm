@@ -56,8 +56,15 @@ int cpccHttpPostMac::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     [request setHTTPMethod:@"POST"];
-    [request setTimeoutInterval:timeoutInSec];
     
+	/* to check claims of other developers about the setTimeoutInterval
+			assigned limit works while using local WIFI network
+			assigned limit DO NOT work while using sim card and GSM network
+		
+	*/
+	[request setTimeoutInterval:timeoutInSec];
+	// [request cachePolicy:NSURLRequestReloadIgnoringCacheData];
+	
     if (m_userAgent.length()>0)
         [request setValue:[NSString stringWithCString:m_userAgent.c_str() encoding:NSASCIIStringEncoding] forHTTPHeaderField:@"User-Agent"]; // appears as the "browser" under GA.
     

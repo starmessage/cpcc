@@ -36,7 +36,7 @@
 	# pragma warning (disable: 4005)
 	#include <windows.h>
     // #include <Lmcons.h> / /for GetUserName()
-    #include <VersionHelpers.h> // for version check
+    // #include <VersionHelpers.h> // for version check
     #pragma comment(lib, "user32.lib") // for GetSystemInfo
     #pragma comment(lib, "Version.lib") // for GetFileVersionInfo
 #elif __APPLE__
@@ -45,6 +45,8 @@
     
 #endif
 
+
+#ifdef _WIN32
 
 /*
  https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
@@ -55,54 +57,53 @@ To obtain the full version number for the operating system, call the GetFileVers
 */
 std::string cpccOS::GetFileVersion( const char* aFilePath)
 {
-#ifdef _WIN32
+
     // https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
     DWORD  verHandle = 0;
 	UINT   size      = 0;
 	LPBYTE lpBuffer  = NULL;
 	DWORD  verSize   = GetFileVersionInfoSize(aFilePath, &verHandle);
 
-	if (verSize != NULL)
-	{
-    	LPSTR verData = new char[verSize];
+	std::string result;
+	if (verSize == 0)
+		return result;
 
-    	if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
-    	{
-        	if (VerQueryValue(verData,"\\",(VOID FAR* FAR*)&lpBuffer,&size))
-        	{
-            	if (size)
-            	{
-                	VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
-                	if (verInfo->dwSignature == 0xfeef04bd)
-                	{
+	LPSTR verData = new char[verSize];
+	
+    if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
+    {
+       	if (VerQueryValue(verData,"\\",(VOID FAR* FAR*)&lpBuffer,&size))
+       	{
+           	if (size)
+           	{
+                VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
+                if (verInfo->dwSignature == 0xfeef04bd)
+                {
 
-                    	// Doesn't matter if you are on 32 bit or 64 bit,
-                    	// DWORD is always 32 bits, so first two revision numbers
-                    	// come from dwFileVersionMS, last two come from dwFileVersionLS
-                    	std::stringstream result;
-					    result << (( verInfo->dwFileVersionMS >> 16 ) & 0xffff );
-					    result << ".";
-    					result << (( verInfo->dwFileVersionMS) & 0xffff);
-		    			result << ".";
-		    			result << (( verInfo->dwFileVersionLS >>  16 ) & 0xffff);
-					    result << ".";
-    					result << (( verInfo->dwFileVersionLS) & 0xffff);
-    					return result.str();
-                	}
-	            }
-    	    }
-    	}
-	    delete[] verData;
-	}
-
-#else
-    
-#endif
-	return std::string("");
+                    // Doesn't matter if you are on 32 bit or 64 bit,
+                    // DWORD is always 32 bits, so first two revision numbers
+                    // come from dwFileVersionMS, last two come from dwFileVersionLS
+                    std::stringstream ssresult;
+					ssresult << (( verInfo->dwFileVersionMS >> 16 ) & 0xffff );
+					ssresult << ".";
+					ssresult << (( verInfo->dwFileVersionMS) & 0xffff);
+					ssresult << ".";
+					ssresult << (( verInfo->dwFileVersionLS >>  16 ) & 0xffff);
+					ssresult << ".";
+					ssresult << (( verInfo->dwFileVersionLS) & 0xffff);
+    				result = ssresult.str();
+				}
+			}
+        }
+    }
+	delete[] verData;
+	return result;
 }
 
-#ifdef _WIN32
-std::string cpccOS::getWindowsVersionNumber(void)
+
+
+/// returns the full versoion and build number, e.g. for windows 10: "10.0.15063.296"
+const std::string &cpccOS::getWindowsFullVersionNumber(void)
 {
     static std::mutex _mutex;
     static std::string cached_result;
@@ -112,6 +113,28 @@ std::string cpccOS::getWindowsVersionNumber(void)
         cached_result =GetFileVersion("kernel32.dll");
     return cached_result;
 }
+
+
+
+const std::string &cpccOS::getWindowsShortVersionNumber(void)
+{
+	static std::string cached_result;
+	if (cached_result.length() == 0)
+	{
+		cached_result = getWindowsFullVersionNumber();	// returns something like: "6.1.7601.23864"
+
+		// remove the last two fragments
+		std::size_t found = cached_result.rfind("."); // remove everything after the last .
+		if (found != std::string::npos)
+			cached_result.erase(found);
+		found = cached_result.rfind("."); // remove everything after the last .
+		if (found != std::string::npos)
+			cached_result.erase(found);
+	}
+	return cached_result;
+}
+
+
 #endif
 
 
@@ -174,13 +197,40 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
     // Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
     // It can obtain additional processor information by calling the GetNativeSystemInfo function.
     
-    char *ver;
-    
+	std::string result(getWindowsShortVersionNumber());
+	if (result.compare("10.0") == 0)
+		result = "Windows 10"; // or Windows Server 2016
+	else
+		if (result.compare("6.3") == 0)
+			result = "Windows 8.1"; // Windows Server 2012 R2
+		else
+			if (result.compare("6.2") == 0)
+				result = "Windows 8"; // or Windows Server 2012
+			else
+				if (result.compare("6.1") == 0)
+					result = "Windows 7"; // or Windows Server 2008 R2
+				else
+					if (result.compare("6.0") == 0)
+						result = "Windows Vista"; 
+					else
+						if (result.compare("5.2") == 0)
+							result = "Windows XP 64bit"; 
+						else
+							if (result.compare("5.1") == 0)
+								result = "Windows XP";
+							else
+								if (result.compare("5.0") == 0)
+									result = "Windows 2000";
+
+	
     // must be in reverse order
 	/*
+	char *ver;
+	getWindowsFullVersionNumber
+
     if (IsWindows10OrGreater())
         ver = "Win 10 or newer";
-    else */
+    else 
     if (IsWindows8Point1OrGreater())
         ver = "Win 8.1 or newer";
     else
@@ -215,14 +265,16 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
         ver = "Win XP";
     else
         ver = "Win 2000 or older";
+    */
+
     
-    std::string result(ver);
     
     if (is64bit())
         result+=", 64bit";
     else
         result+=", 32bit";
     
+	result += " (" + getWindowsFullVersionNumber() + ")";
     return result;
     
     
@@ -423,7 +475,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 std::string cpccOS::getWindowsErrorCodeAndText(const char *failedFunctionName, const DWORD anErrorCode)
 {
 	std::ostringstream s;
-	s << failedFunctionName << "() failed with Windows error No " << anErrorCode << ": ";
+	s << failedFunctionName << "() failed. Windows error code " << anErrorCode << ": ";
 	s << getWindowsErrorText(anErrorCode) << std::endl;
 	return s.str();
 }

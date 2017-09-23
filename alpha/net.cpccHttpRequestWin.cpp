@@ -176,8 +176,7 @@ public:
 
 */
 
-void asyncinfo()
-{
+
 	// This sample demonstrate the use of Winhttp APIs to send asynchronous requests to a server 
 	// and how to cancel such requests.
 	// https://github.com/pauldotknopf/WindowsSDK7-Samples/tree/master/web/winhttp/winhttpasyncsample
@@ -215,10 +214,8 @@ void asyncinfo()
      
      
     */
-}
 
-void test1()
-{
+
 	// from https://stackoverflow.com/questions/17888317/winhttpsendrequest-in-async-mode-doesnt-send-post-data
 	/*
 	WINHTTP_STATUS_CALLBACK cb = 
@@ -237,32 +234,88 @@ void test1()
 	
  	int rc = WinHttpSendRequest(request_handles.at(handler_index), WINHTTP_NO_ADDITIONAL_HEADERS, 0, (LPVOID)postData.c_str(), dataLen, dataLen, 0);
 	*/
-}
 
 
-int cpccHttpPostWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 	const char *postData, const int timeoutInSec)
-{
-	return httpPost(postData, timeoutInSec);
-}
 
+cpccHttpPostWin::cpccHttpPostWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent, const bool runAsync )
+	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0)
 
-int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
-{
-	if (!m_reusedSessionAndConnection.isGood())
+{  
+	// create the reusable WinHttp session 
+	wchar_from_char m_userAgent_w(aUserAgent);
+	m_sessionPtr = new cWinHttp_session(m_userAgent_w, runAsync);
+	if (!m_sessionPtr)
+		return;
+
+	if (!m_sessionPtr->getHandle())
+		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpen", GetLastError());
+	
+	if (!m_sessionPtr->isGood())
+		return;
+	
+	// check if aURLpath starts with http:// or https:// and separate the server address that is needed for the WinHttp connection.
+	bool startsWithHTTPS = false;
+	const char *postHost_noProtocol = NULL;
+	if (stringStartsWith(aURLHost, "http://"))
+		postHost_noProtocol = &aURLHost[7];
+	else if (stringStartsWith(aURLHost, "https://"))
 	{
-		std::cerr << "error 1959: not m_reusedSessionAndConnection.isGood()";
+		postHost_noProtocol = &aURLHost[8];
+		startsWithHTTPS = true;
+	}
+	else
+	{
+		printf("httpPost(): postURL must start with http:// or https://\n%s\n", aURLHost);
+		//m_isGood = false;
+		return;
+	}
+
+	wchar_from_char m_serverAddress_w(postHost_noProtocol);	// bare address without https:// nor http://
+	m_connectionPtr = new cWinHttp_connection(m_sessionPtr->getHandle(), m_serverAddress_w.get());
+	if (!m_connectionPtr)
+		return;
+
+	if (!m_sessionPtr->getHandle())
+		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpConnect", GetLastError());
+
+	if (!m_connectionPtr->isGood())
+		return;
+
+}
+
+
+bool cpccHttpPostWin::isGood(void) const
+{
+	if (!m_sessionPtr || !m_connectionPtr)
+		return false;
+
+	if (!m_sessionPtr->isGood() || !m_connectionPtr->isGood())
+		return false;
+
+	return true;
+}
+
+
+int cpccHttpPostWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 	const char *postData, const int aTimeOutInSec)
+{
+	return httpPost(postData, aTimeOutInSec);
+}
+
+
+int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
+{
+	if (!isGood())
+	{
+		std::cerr << "error 1959: not cpccHttpPostWin.isGood()" << std::endl;
 		return 1959;
 	}
 
-	
-	cWinHttp_request winhttp_request(m_reusedSessionAndConnection.getConnectionHandle(), m_isHTTPS, m_postPath.c_str());
+	wchar_from_char	postPath_w(m_postPath.c_str());
+	cWinHttp_request winhttp_request(m_connectionPtr->getHandle(), m_isHTTPS, postPath_w, aTimeOutInSec);
 
-	if (!winhttp_request.getRequestHandle())
-	{
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", GetLastError());
+	if (!winhttp_request.isGood())
 		return 1940;
-	}
-
+	
 
 	/*
 	https://msdn.microsoft.com/en-us/library/windows/desktop/aa383138%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396#initialize
@@ -309,14 +362,14 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 		An application must not delete or alter the buffer pointed to by lpOptional until the request 
 		handle is closed or the call to WinHttpReceiveResponse has completed.
 	*/
-    BOOL bResults = WinHttpSendRequest(winhttp_request.getRequestHandle(),
+    BOOL winApiResult = WinHttpSendRequest(winhttp_request.getHandle(),
                                     additionalHeaders,
                                     additionalHeadersLen,
                                     (LPSTR) postData, // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
-                                    strlen(postData),
-                                    strlen(postData),
+                                    (DWORD) strlen(postData),
+									(DWORD) strlen(postData),
                                     NULL);
-	if (bResults==0)
+	if (winApiResult==FALSE)
 	{ 
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpSendRequest", GetLastError());
 		return 1960;
@@ -324,8 +377,8 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 
 	// End the WinHttpSendRequest.
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384102(v=vs.85).aspx
-	bResults = WinHttpReceiveResponse(winhttp_request.getRequestHandle(), NULL);
-	if (bResults==0)
+	winApiResult = WinHttpReceiveResponse(winhttp_request.getHandle(), NULL);
+	if (winApiResult==FALSE)
 	{	
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError());
 		return 1960;
@@ -335,12 +388,12 @@ int cpccHttpPostWin::httpPost(const char *postData, const int timeoutInSec)
 	DWORD dwSize = sizeof(dwStatusCode);
 
 	// WinHttpReceiveResponse must have been called for this handle and have completed before WinHttpQueryHeaders is called.
-	BOOL queryHeadersResult = WinHttpQueryHeaders(winhttp_request.getRequestHandle(),
+	winApiResult = WinHttpQueryHeaders(winhttp_request.getHandle(),
 									WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 
     								WINHTTP_HEADER_NAME_BY_INDEX, 
     								&dwStatusCode, &dwSize, WINHTTP_NO_HEADER_INDEX);
 
-	if (queryHeadersResult==0)
+	if (winApiResult==FALSE)
 	{
 		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpQueryHeaders", GetLastError());
 		return 1981;

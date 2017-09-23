@@ -68,10 +68,10 @@ public:
     // file functions --------------------------------
 
 	/// returns the number of bytes written, or a negative number in case of error
-	static long	writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile=true);
+	static size_t	writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile=true);
 	
 	/// returns the number of bytes read, or a negative number in case of error
-	static long	readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize);
+	static size_t	readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize);
 	
 
 	/// the destFile must be a file specification, not a folder specification
@@ -95,9 +95,6 @@ public:
 	
 	// Other functions --------------------------------
 	static cpcc_string getAppFullPath(void);
-#ifdef __APPLE__
-	static cpcc_string getAppBundlePath(void);
-#endif
 	static cpcc_string getAppFullPathFilename(void);
 	static cpcc_string getAppFilename(void);
 	static cpcc_string getFileSystemReport(void);

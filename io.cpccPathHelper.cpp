@@ -50,12 +50,30 @@ const cpcc_char	*cpccPathHelper::getAllPathDelimiters(void)
 
 cpcc_string cpccPathHelper::getParentFolderOf(const cpcc_string &aFullpathFilename)
 {
-	//size_t pos = aFullpathFilename.find_last_of("/\\");
-    cpcc_string result = aFullpathFilename;
+	cpcc_string result = aFullpathFilename;
     removeTrailingPathDelimiter(result);
-	const size_t pos = result.find_last_of(getAllPathDelimiters());
+    
+    const size_t pos = result.find_last_of(getAllPathDelimiters());
+    /*
+    std::cout << "getParentFolderOf(" << aFullpathFilename << ") pos of shlash=";
+    if (pos==cpcc_string::npos)
+        std::cout << "npos";
+        else
+            std::cout << pos;
+    std::cout << std::endl;
+    */
+    
 	if(pos != cpcc_string::npos)
-        result.erase(pos+1);
+    {
+        if (pos+1 < result.length()) // otherwise it is the last character and there is nothing more to delete
+            result.erase(pos+1);
+    }
+    
+    /* about erase(a)
+     a is the position of the first character to be erased.
+     If this is greater than the string length, it throws out_of_range.
+     Note: The first character in str is denoted by a value of 0 (not 1).
+    */
     
     addTrailingPathDelimiter(result);
     return result;
@@ -83,14 +101,26 @@ cpcc_string cpccPathHelper::extractFilename(const cpcc_string &aFullpathFilename
 
 
 bool cpccPathHelper::endsWithPathDelimiter(const cpcc_char *aPath)
-{	
+{
+    if (!aPath)
+        return false;
+    
+    if (cpcc_strlen(aPath)==0)
+        return false;
+    
 	cpcc_string p(aPath);
-	return (p.find_last_of(getAllPathDelimiters())+1 == p.length());
+    return (p.find_last_of(getAllPathDelimiters())+1 == p.length());
 }
 
 
 bool cpccPathHelper::startsWithPathDelimiter(const cpcc_char *aPath)
-{	
+{
+    if (!aPath)
+        return false;
+    
+    if (cpcc_strlen(aPath)==0)
+        return false;
+    
 	cpcc_string p(aPath);
 	return (p.find_first_of(getAllPathDelimiters()) == 0);
 }
@@ -226,7 +256,10 @@ void cpccPathHelper::selfTest(void)
 		cpccPathHelper::removeTrailingPathDelimiter(test);
 		assert(test.compare( _T("c:/tmp") )==0);
 
+        cpcc_string parentFolder(getParentFolderOf("/"));
+        assert((parentFolder.compare( _T("/") )==0) && "#7267: parentFolderOf('/')");
 
+        
 		assert(cpccPathHelper::pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);
         #ifdef _WIN32
             assert(cpccPathHelper::pathCat(_T("\\folderroot\\"), _T("subfolder")).compare(_T("\\folderroot\\subfolder")) ==0);

@@ -14,7 +14,7 @@
 #pragma once
 
 #include <cstdio>
-
+#include "../io.cpccLog.h"
 
 #ifdef __APPLE__
         #include "net.cpccHttpRequestMac.h"
@@ -65,7 +65,7 @@ public:
 	int httpPostAsync( std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec = 60)
 	{
 		int i = nPending;
-		printf("httpPostAsync() found %i pending tasks\n", i);
+		infoLog().addf("httpPostAsync() found %i pending tasks", i);
 		return m_impl.httpPostAsync(errorOccured, nPending, postData, timeoutInSec);
 	}
      

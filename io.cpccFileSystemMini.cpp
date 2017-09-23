@@ -26,7 +26,9 @@
 
 #ifdef _WIN32
 	#include	<io.h> // for _access on windows
-	#include	<Shlobj.h>
+	#include	<Shlobj.h> // for SHGetFolderPath()
+	#pragma comment(lib,"Shell32.lib") // instruct visual studio to link the library
+
 	#include	<Shlwapi.h>
 	#pragma comment(lib,"Shlwapi.lib") // instruct visual studio to link the library
 	#include	<tchar.h>
@@ -57,14 +59,12 @@
 cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
+
     report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
     
     report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
 	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));
-#ifdef __APPLE__
-    report.append(_T("App bundle path:") + getAppBundlePath() + _T("\n"));
-#endif
-    
+ 
 	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
 	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
     report.append(_T("Current dir:")	+ cpccSystemFolders::getFolder_CurrentDir() + _T("\n"));
@@ -74,6 +74,7 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	report.append(_T("AppData path:")	+ cpccSystemFolders::getFolder_CommonAppData() + _T("\n"));
 	report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
 
+    
 	report.append(_T("End of file system report\n----------------------\n"));
 	return report;
 }
@@ -382,7 +383,7 @@ bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_cha
 	to create an empty file (replacing any existing one) call this as
 	writeToFile(aFilename, "", 0, false)
 */
-long	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile)
+size_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buffer, const size_t bufSize, const bool appendToFile)
 {
     if (!buffer)
         return -3;
@@ -409,7 +410,7 @@ long	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *buf
 }
 	
 	
-long	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize)
+size_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer, const size_t bufSize)
 {
 	#ifdef _WIN32
 		#pragma warning(disable : 4996)
@@ -539,16 +540,7 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 }
 
 
-#ifdef __APPLE__
-cpcc_string cpccFileSystemMini::getAppBundlePath(void)
-{
-    cpcc_string parentPath(cpccPathHelper::getParentFolderOf(getAppFullPath()));
-    cpcc_string parentParentPath(cpccPathHelper::getParentFolderOf(parentPath));
-    
-    cpccPathHelper::removeTrailingPathDelimiter(parentParentPath);
-    return parentParentPath;
-}
-#endif
+
 
 
 cpcc_string cpccFileSystemMini::getFolder_Desktop(void) 

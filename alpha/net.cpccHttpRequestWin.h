@@ -26,22 +26,18 @@
 class cpccHttpPostWin
 {
 private:
-	cWinHttp_sharedSessionAndConnection m_reusedSessionAndConnection;
-	bool			m_isHTTPS;
-	std::string		m_postPath;
+	// cWinHttp_reusableSessionAndConnection m_reusedSessionAndConnection;
+	bool				m_isHTTPS;
+	std::string			m_postPath;
+	cWinHttp_session	*m_sessionPtr;
+	cWinHttp_connection *m_connectionPtr;
 
 public:
-	cpccHttpPostWin(const char *aURLHost,
-					const char *aURLpath,
-					const bool isHTTPS,
-					const char *aUserAgent = 0,
-					const bool runAsync = false)
-		: m_reusedSessionAndConnection(aURLHost,  isHTTPS, aUserAgent, runAsync), 
-			m_isHTTPS(isHTTPS), m_postPath(aURLpath)
-	{  }
+	cpccHttpPostWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent = 0, const bool runAsync = false);
 
     int httpPost(const char *postData , const int timeoutInSec=60);
 	
 	int httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec=60);
 
+	bool isGood(void) const;
 };

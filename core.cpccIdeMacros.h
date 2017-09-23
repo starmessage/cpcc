@@ -15,7 +15,9 @@
 
 #pragma once
 
- // Visual Studio defines _DEBUG when you specify the /MTd or /MDd option, NDEBUG disables standard-C assertions
+ // https://msdn.microsoft.com/en-us/library/b0084kay.aspx
+ // Visual Studio: _DEBUG Defined as 1 when the /LDd, /MDd, or /MTd compiler option is set. Otherwise, undefined.
+ // NDEBUG disables standard-C assertions
  // Use them when apropriate, 
  // ie _DEBUG if you want your debugging code to be consistent with the MS CRT debugging techniques and 
  // NDEBUG if you want to be consistent with assert().

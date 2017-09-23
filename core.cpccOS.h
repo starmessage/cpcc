@@ -57,12 +57,14 @@ public:
     static std::string& readProgramVersion(void);
     
 #ifdef _WIN32
-    static std::string getWindowsVersionNumber(void);
+    static const std::string &getWindowsFullVersionNumber(void);
+	static const std::string &getWindowsShortVersionNumber(void);
+	static std::string GetFileVersion( const char* aFilePath);
+    
 #endif
     
-    static std::string GetFileVersion( const char* aFilePath);
-    static std::string getOSnameAndVersion(void);
-    static std::string getOSnameVersionAndBuildNumber(void);
+    static std::string	getOSnameAndVersion(void);
+    static std::string	getOSnameVersionAndBuildNumber(void);
 	static bool			is64bit(void);
     
 #ifdef __APPLE__

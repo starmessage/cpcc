@@ -112,7 +112,15 @@ public:
         m_urlParamsList.clear();
     }
     
-    
+	/*
+    const std::string getParameter(const char *aName) const
+	{
+	    if (!aName)
+            return std::string("");
+		return m_urlParamsList[aName];
+	}
+	*/
+	
     void setParameter(const char *aName, const char *aValue)
     {
         if (!aName)

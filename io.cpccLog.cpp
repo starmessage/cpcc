@@ -52,7 +52,7 @@ private:
 	int maxBufferedLines;
 	
 public:
-	cpccFileWriterWithBuffer(): maxBufferedLines(200) 	{  add("cpccFileWriterWithBuffer starting.\n"); }
+	cpccFileWriterWithBuffer(): maxBufferedLines(200), m_filename("") 	{  add("cpccFileWriterWithBuffer starting.\n"); }
 
 	virtual ~cpccFileWriterWithBuffer()  { 	add("cpccFileWriterWithBuffer closing.\n"); }
 	
@@ -84,8 +84,10 @@ public:
 		else
 		{
 			if (maxBufferedLines>0)
+			{
 				m_buffer << txt;
-			--maxBufferedLines;
+				--maxBufferedLines;
+			}
 		}
 	}
 
@@ -281,8 +283,10 @@ cpccLogManager::cpccLogManager(const bool checkForIncompleteLog):
 		#endif
         
         info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.add(_T("More info about the cpcc cross platform library at: www.StarMessageSoftware.com/cpcclibrary"));
-        info.add(cpccFileSystemMini::getFileSystemReport().c_str());
+		info.add(_T("More info about the cpcc cross platform library at:\n     \twww.StarMessageSoftware.com/cpcclibrary"));
+		// std::string sysReport(cpccFileSystemMini::getFileSystemReport());
+		// info.add(sysReport.c_str());
+		info.add(cpccFileSystemMini::getFileSystemReport());
 	}
 	
     

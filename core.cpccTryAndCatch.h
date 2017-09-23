@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <iostream>
 #include "io.cpccLog.h"
 
 #define CPCC_TRY_AND_CATCH(expr, catchMsg)          \
@@ -26,4 +27,13 @@ catch (const char* msg)             { errorLog().addf(_T("Exception caught:\n%s\
 catch(int i)                        { errorLog().addf(_T("integer exception caught:%i\n%s"), i, catchMsg);  }    \
 catch( ... )						{ errorLog().addf(_T("Exception caught:%s"), catchMsg); }
 
+
+#define CPCC_TRY_AND_CATCH_TO_CERR(expr, developersMsg)          \
+try { expr;  }                                      \
+catch(const std::runtime_error& re) { std::cerr << "Runtime error caught:\n" << re.what() << std::endl << developersMsg<< std::endl;  }    \
+catch(const std::exception& ex)		{ std::cerr << "Exception caught:\n" << ex.what() << std::endl <<  developersMsg<< std::endl;  }    \
+catch(const std::exception *ex)		{ if (ex) std::cerr << "Exception caught:\n" << ex->what() << std::endl << developersMsg<< std::endl;  }    \
+catch (const char* msg)             { std::cerr << "Exception caught:\n%s\n%s" << msg << std::endl << developersMsg<< std::endl;  }    \
+catch(int i)                        { std::cerr << "integer exception caught:" << i << std::endl << developersMsg<< std::endl;  }    \
+catch( ... )						{ std::cerr << "Exception caught:" << std::endl << developersMsg << std::endl; }
 

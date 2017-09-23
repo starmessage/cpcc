@@ -64,12 +64,14 @@ static bool stringStartsWith(const char *aStr, const char *aPrefix)
  class cWinHttp_handle
 {
 private:
-	
 	HINTERNET m_handle;
-	
+
+protected:
+	bool m_isGood;
+
 public:
 
-    cWinHttp_handle() : m_handle(0) { }
+    cWinHttp_handle() : m_handle(0), m_isGood(true) { }
 
     virtual ~cWinHttp_handle() { close(); }
 
@@ -100,9 +102,13 @@ protected:
         }
     }
 
-public:
+	
 
-    HRESULT setOption(DWORD option, const void* value, DWORD length)
+public:
+	
+	bool isGood(void) const { return m_isGood && (m_handle !=0); }
+
+	HRESULT setOption(DWORD option, const void* value, DWORD length)
     {
         if (::WinHttpSetOption(m_handle, option, const_cast<void*>(value), length))      
 			return S_OK;
@@ -162,126 +168,25 @@ public:
  {
 
  public:
-	 explicit cWinHttp_connection(const HINTERNET aSessionHandler, const LPCWSTR aURLHost)
+	 explicit cWinHttp_connection(const HINTERNET aSessionHandler, const LPCWSTR aServerAddress)
 	 {
-
-		 // WinHttpConnect takes only the hostname part.
-		 // You should pass the rest of the path to WinHttpOpenRequest
 		 /*
+		 WinHttpConnect takes only the hostname part.  E.g. www.google.com
+		 It must not contain the protocol https:// or http://
+		 You should pass the rest of the path to WinHttpOpenRequest
+		 
 		 INTERNET_DEFAULT_HTTPS_PORT
 		 Uses the default port for HTTPS servers (port 443).
 		 Selecting this port does not automatically establish a secure connection.
 		 You must still specify the use of secure transaction semantics by using the
 		 WINHTTP_FLAG_SECURE flag with WinHttpOpenRequest.
 		 */
-		 attach(WinHttpConnect(aSessionHandler, aURLHost, INTERNET_DEFAULT_PORT, 0));
+		 attach(WinHttpConnect(aSessionHandler, aServerAddress, INTERNET_DEFAULT_PORT, 0));
 	 }
 
  };
 
 
-
- 
- ///////////////////////////////////////////////////////////
- //
- //
- //		class cWinHttp_sharedSessionAndConnection
- //
- //
- ///////////////////////////////////////////////////////////
-
-class cWinHttp_sharedSessionAndConnection
-{
-private:
-	wchar_from_char		m_userAgent_w;
-
-	cWinHttp_session	m_sessionObj;
-
-	HINTERNET   // hSession = NULL, 	// only one session per application 
-									// The session is used to create connection objects
-				hConnection = NULL; // Only one connection per each webserver with which you wish to communicate
-									// The connection is used to create request objects. 
-									// It can have multiple concurrent requests.
-	bool        m_isGood;
-
-	// INFO: WinInet Error Codes (12001 through 12156)
-	// https://support.microsoft.com/en-us/help/193625/info-wininet-error-codes-12001-through-12156
-
-public:
-	cWinHttp_sharedSessionAndConnection::cWinHttp_sharedSessionAndConnection(const char * aURLHost, const bool isHTTPS, const char * aUserAgent, const bool runAsync) :
-				m_isGood(true),
-				m_userAgent_w(aURLHost),
-				m_sessionObj(m_userAgent_w.get(), runAsync)
-	{
-		// move this to the abstract class to catch also MAC OS
-		bool startsWithHTTPS = false;
-		const char *postHost_noProtocol = NULL;
-		if (stringStartsWith(aURLHost, "http://"))
-			postHost_noProtocol = &aURLHost[7];
-		else if (stringStartsWith(aURLHost, "https://"))
-		{
-			postHost_noProtocol = &aURLHost[8];
-			startsWithHTTPS = true;
-		}
-		else
-		{
-			printf("httpPost(): postURL must start with http:// or https://\n%s\n", aURLHost);
-			m_isGood = false;
-			return;
-		}
-
-		/*
-		if (!stringStartsWith(aURLpath, "/"))
-		{
-		printf("httpPost(): postPath must start with /\n%s\n", aURLpath);
-		m_isGood = false;
-		return;
-		}
-		*/
-
-
-		if (!m_sessionObj.getHandle())
-		{
-			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpen", GetLastError());
-			m_isGood = false;
-			return;
-		}
-
-
-		// WinHttpConnect takes only the hostname part.
-		// You should pass the rest of the path to WinHttpOpenRequest
-		/*
-		INTERNET_DEFAULT_HTTPS_PORT
-		Uses the default port for HTTPS servers (port 443).
-		Selecting this port does not automatically establish a secure connection.
-		You must still specify the use of secure transaction semantics by using the
-		WINHTTP_FLAG_SECURE flag with WinHttpOpenRequest.
-		*/
-		wchar_from_char	postHost_w(postHost_noProtocol);
-		hConnection = WinHttpConnect(m_sessionObj.getHandle(), postHost_w, INTERNET_DEFAULT_PORT, 0);
-
-		if (!hConnection)
-		{
-			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpConnect", GetLastError());
-			m_isGood = false;
-			return;
-		}
-	}
-
-
-	virtual ~cWinHttp_sharedSessionAndConnection()
-	{
-		// Close any open handles.
-
-		if (hConnection) WinHttpCloseHandle(hConnection);
-		hConnection = NULL;
-		
-	}
-
-	HINTERNET getConnectionHandle(void) const { return hConnection; }
-	bool isGood(void) const { return m_isGood; }
-
-};
 
 
 ///////////////////////////////////////////////////////////
@@ -292,41 +197,53 @@ public:
 //
 ///////////////////////////////////////////////////////////
 
-class cWinHttp_request
+class cWinHttp_request : public cWinHttp_handle
 {
-private:
-	HINTERNET hRequest;
 
 public:
-	explicit cWinHttp_request(const HINTERNET aConnectionHandler, const bool isHTTPS, const char * aURLpath)
+	explicit cWinHttp_request(const HINTERNET aConnectionHandler, const bool isHTTPS, const LPCWSTR aURLpath, const int aTimeout)
 	{
 		DWORD flags = WINHTTP_FLAG_REFRESH;
 		if (isHTTPS)
 			flags |= WINHTTP_FLAG_SECURE;
 			
-		wchar_from_char	postPath_w(aURLpath);
-
 		// you need to do WinHttpOpenRequest for every resource request.
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384099(v=vs.85).aspx
-		hRequest = WinHttpOpenRequest(aConnectionHandler, 
+		attach(  WinHttpOpenRequest(aConnectionHandler, 
 										L"POST", 
-										postPath_w, 
+										aURLpath,
 										NULL, // use HTTP version 1.1
 										WINHTTP_NO_REFERER, 
 										WINHTTP_DEFAULT_ACCEPT_TYPES, 
-										flags);
-		if (!hRequest)
+										flags));
+		if (!getHandle())
 			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", GetLastError());
+		/*
+		If the application uses the WinHttpSetTimeouts function or the SetTimeouts method on the WinHttpRequest 
+		component to set a non-infinite DNS resolve timeout such as the dwResolveTimeout parameter, a thread 
+		handle leak occurs each time WinHTTP resolves a DNS name. 
+		Over a large number of HTTP requests, this causes a significant memory leak. 
+		The workaround is to leave the default infinite resolve timeout setting unchanged (a value of 0 specifies 
+		an infinite timeout). 
+		This is strongly recommended in any case as supporting timeouts on DNS name resolutions in WinHTTP is 
+		expensive in terms of performance. For Windows 2000 and later, setting a DNS resolve timeout in WinHTTP 
+		is unnecessary as the underlying DNS client service implements its own resolve timeout.
+		*/
+		// all these times in msec
+		int dwResolveTimeout	=500,  // used only for the calculations below. Finally, I will enter 0 (infinite wait)
+			dwConnectTimeout	=500,
+			dwSendTimeout		=1000 * aTimeout - dwResolveTimeout - dwConnectTimeout,
+			dwReceiveTimeout	= dwSendTimeout;
+		
+		dwResolveTimeout = 0;
+		
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384116(v=vs.85).aspx
+		BOOL result = WinHttpSetTimeouts(getHandle(), dwResolveTimeout, dwConnectTimeout, dwSendTimeout, dwReceiveTimeout );
+		if (result == FALSE)
+			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpSetTimeouts", GetLastError());
 	}
 
-	virtual ~cWinHttp_request(void)
-	{
-		if (hRequest) WinHttpCloseHandle(hRequest);
-		hRequest = NULL;
-	}
 
-	bool isGood(void) const { return (hRequest != NULL); }
 
-	HINTERNET getRequestHandle(void) const { return hRequest; }
 };
 
