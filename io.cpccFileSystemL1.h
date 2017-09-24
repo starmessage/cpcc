@@ -65,7 +65,11 @@ public:  // functions
 	template<typename aPCharType>
 	static bool fileExists(const aPCharType *aFilename)
 	{
+        if (!aFilename)
+            return false;
 	#ifdef _WIN32
+		// _stat() does not work on WinXP.
+		/*
 		struct _stat fileinfo;
 
 		// On success, zero is returned. 
@@ -73,6 +77,11 @@ public:  // functions
 		if (_tstat(aFilename, &fileinfo) == -1)
 			return false;
 		return ((fileinfo.st_mode & _S_IFREG) != 0);
+		*/
+		
+		// check that the file system object exists and that it is not a directory
+		DWORD dwAttrib = GetFileAttributes(aFilename);
+		return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 
 	#elif defined(__APPLE__)
 		struct stat fileinfo;
@@ -88,6 +97,35 @@ public:  // functions
 
 		return false;
 	}
+
+    
+    template<typename aPCharType>
+    static bool folderExists(const aPCharType * aFoldername)
+    {
+        if (!aFoldername)
+            return false;
+#ifdef _WIN32
+        DWORD attrib = GetFileAttributes(aFoldername);
+        return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
+        // Other way:
+        // return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
+        
+#elif defined(__APPLE__)
+        struct stat fileinfo;
+        if (stat(aFoldername, &fileinfo) == -1)
+        {	// On success, zero is returned.
+            // On error, -1 is returned, and errno is set appropriately.
+            return false;
+        }
+        else
+            return (S_ISDIR(fileinfo.st_mode));
+        
+#else
+    #error 	Error #5414: unsupported platform for folderExists()
+#endif
+    return false;
+    }
+    
 
 };
 

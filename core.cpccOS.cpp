@@ -430,8 +430,20 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 		case 12002: return  std::string("The request has timed out.");
 		case 12004: return  std::string("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
 		case 12019: return  std::string("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
+
+		// winHttpErrors
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa383770(v=vs.85).aspx
+
+
+		// System Error Codes (4000-5999)
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
+		case 4317: return  std::string("ERROR_INVALID_OPERATION. The operation identifier is not valid.");
+
+
 	}
 	
+
+	// find the error code text automatically
 	// example at
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa387678(v=vs.85).aspx
     const int bufferSize = 500;
@@ -475,7 +487,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 std::string cpccOS::getWindowsErrorCodeAndText(const char *failedFunctionName, const DWORD anErrorCode)
 {
 	std::ostringstream s;
-	s << failedFunctionName << "() failed. Windows error code " << anErrorCode << ": ";
+	s << failedFunctionName << "() failed.\nWindows error code " << anErrorCode << ": ";
 	s << getWindowsErrorText(anErrorCode) << std::endl;
 	return s.str();
 }

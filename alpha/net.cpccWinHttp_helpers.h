@@ -19,6 +19,7 @@
 
 #include "../cpccUnicodeSupport.h"
 #include "../core.cpccOS.h"
+#include "../io.cpccLog.h"
 
 
 static bool stringStartsWith(const char *aStr, const char *aPrefix)
@@ -27,6 +28,41 @@ static bool stringStartsWith(const char *aStr, const char *aPrefix)
 	return (strnicmp(aStr, aPrefix, strlen(aPrefix)) == 0);
 }
 
+
+/*	
+debugging with WinHttpTraceCfg.exe, a Trace Configuration Tool
+https://msdn.microsoft.com/en-us/library/windows/desktop/aa384119(v=vs.85).aspx
+
+to check this option
+
+WINHTTP_OPTION_SECURE_PROTOCOLS
+
+Sets an unsigned long integer value that specifies which secure protocols are acceptable. 
+By default only SSL3 and TLS1 are enabled in Windows 7 and Windows 8. 
+By default only SSL3, TLS1.0, TLS1.1, and TLS1.2 are enabled in Windows 8.1 and Windows 10.
+The value can be a combination of one or more of the following values.
+
+WINHTTP_FLAG_SECURE_PROTOCOL_ALL
+
+The Secure Sockets Layer (SSL) 2.0, SSL 3.0, and Transport Layer Security (TLS) 1.0 protocols can be used.
+WINHTTP_FLAG_SECURE_PROTOCOL_SSL2
+
+The SSL 2.0 protocol can be used.
+WINHTTP_FLAG_SECURE_PROTOCOL_SSL3
+
+The SSL 3.0 protocol can be used.
+WINHTTP_FLAG_SECURE_PROTOCOL_TLS1
+
+The TLS 1.0 protocol can be used.
+WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_1
+
+The TLS 1.1 protocol can be used.
+WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2
+
+The TLS 1.2 protocol can be used.
+
+
+*/
 
 
  /* WinHttp overview of code
@@ -81,7 +117,7 @@ protected:
 
     bool attach(HINTERNET handle)
     {
-		assert((0 == m_handle) && "#5723: cWinHttp_handle.attach() called with NULL handle");
+		assert((0 == m_handle) && "#5723: cWinHttp_handle.attach() called to replace a non NULL handle");
         m_handle = handle;
         return 0 != m_handle;
     }
@@ -210,14 +246,20 @@ public:
 		// you need to do WinHttpOpenRequest for every resource request.
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384099(v=vs.85).aspx
 		attach(  WinHttpOpenRequest(aConnectionHandler, 
-										L"POST", 
+										L"POST", // L"GET", // 
 										aURLpath,
 										NULL, // use HTTP version 1.1
 										WINHTTP_NO_REFERER, 
 										WINHTTP_DEFAULT_ACCEPT_TYPES, 
 										flags));
 		if (!getHandle())
-			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", GetLastError());
+		{
+			DWORD errNo = GetLastError();
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", errNo));
+			std::cerr << errormsg;
+			errorLog().add(errormsg.c_str());
+		}
+
 		/*
 		If the application uses the WinHttpSetTimeouts function or the SetTimeouts method on the WinHttpRequest 
 		component to set a non-infinite DNS resolve timeout such as the dwResolveTimeout parameter, a thread 
@@ -238,9 +280,16 @@ public:
 		dwResolveTimeout = 0;
 		
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384116(v=vs.85).aspx
+		infoLog().addf("Set winhttp timeout of %i sec.", aTimeout);
 		BOOL result = WinHttpSetTimeouts(getHandle(), dwResolveTimeout, dwConnectTimeout, dwSendTimeout, dwReceiveTimeout );
 		if (result == FALSE)
-			std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpSetTimeouts", GetLastError());
+		{
+			DWORD errNo = GetLastError();
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpSetTimeouts", errNo));
+			std::cerr << errormsg;
+			errorLog().add(errormsg.c_str());
+		}
+		
 	}
 
 

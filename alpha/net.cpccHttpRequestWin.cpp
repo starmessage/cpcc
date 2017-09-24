@@ -238,9 +238,16 @@ public:
 
 
 cpccHttpPostWin::cpccHttpPostWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent, const bool runAsync )
-	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0)
+	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0), m_disabled(false)
 
 {  
+	if (!WinHttpCheckPlatform())
+	{
+		infoLog().add("cpccHttpPostWin was disabled becayse WinHTTP is not supported by your Windows version.");
+		m_disabled = true;
+		return;
+	}
+
 	// create the reusable WinHttp session 
 	wchar_from_char m_userAgent_w(aUserAgent);
 	m_sessionPtr = new cWinHttp_session(m_userAgent_w, runAsync);
@@ -298,12 +305,18 @@ bool cpccHttpPostWin::isGood(void) const
 
 int cpccHttpPostWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 	const char *postData, const int aTimeOutInSec)
 {
+	infoLog().add("cpccHttpPostWin::httpPostAsync() called");
 	return httpPost(postData, aTimeOutInSec);
 }
 
 
 int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 {
+	// proxy example:
+	// https://stackoverflow.com/questions/27977386/winhttpsendrequest-post-with-https-on-windows-server-2008-rc2
+	if (m_disabled)
+		return 1201;
+
 	if (!isGood())
 	{
 		std::cerr << "error 1959: not cpccHttpPostWin.isGood()" << std::endl;
@@ -344,6 +357,10 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 	LPCWSTR additionalHeaders = L"Content-Type: application/x-www-form-urlencoded";
    	DWORD additionalHeadersLen   = -1;
    
+	if (!postData)
+		return 1913;
+	std::string postDataBuffer(postData);
+
     // you need to pass narrow strings not wide as the post data
    	// https://stackoverflow.com/questions/38672719/post-request-in-winhttp-c
 	/*
@@ -362,26 +379,62 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 		An application must not delete or alter the buffer pointed to by lpOptional until the request 
 		handle is closed or the call to WinHttpReceiveResponse has completed.
 	*/
+
+	// std::cout << "debug post data:\n" << postDataBuffer << std::endl;
     BOOL winApiResult = WinHttpSendRequest(winhttp_request.getHandle(),
                                     additionalHeaders,
                                     additionalHeadersLen,
-                                    (LPSTR) postData, // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
-                                    (DWORD) strlen(postData),
-									(DWORD) strlen(postData),
+                                    (LPSTR) postDataBuffer.c_str(), // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
+                                    (DWORD)	postDataBuffer.length(),
+									(DWORD) postDataBuffer.length(),
                                     NULL);
 	if (winApiResult==FALSE)
 	{ 
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpSendRequest", GetLastError());
+		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
+		std::cerr << errormsg;
+		errorLog().add(errormsg.c_str());
 		return 1960;
 	}
 
+	/*
+		WinHTTP enforces a policy of one pending asynchronous operation per request handle. 
+		If one operation is pending and another WinHTTP function is called, the second function 
+		fails and GetLastError returns ERROR_INVALID_OPERATION.
+
+		Error 4317 is a standard Win32 error code, ERROR_INVALID_OPERATION.
+
+		WinHttpQueryAuthSchemes will typically return this error code if an
+		authentication challenge has not been received, or (less likely) if WinHTTP
+		does not recognize any of the authentication schemes listed in the
+		authentication challenge. 
+
+		Here are some possible causes to explain why you are seeing this error code
+		now, even though no change has been made to the call to
+		WinHttpQueryAuthSchemes:
+
+		1. The server or URL in the request has changed to something that does not
+		require authentication, and the application calls WinHttpQueryAuthSchemes
+		even though no 401 or 407 response has been received.
+
+		2. The request has been sent asynchronously and the application is calling
+		WinHttpQueryAuthSchemes before WinHttpReceiveResponse has completed (by
+		sending a WINHTTP_CALLBACK_STATUS_HEADERS_AVAILABLE callback notification).
+		Did you change the code to send the request asynchronously?
+	*/
+
+	// amazon https error
+	// https://stackoverflow.com/questions/29801450/winhttp-doesnt-download-from-amazon-s3-on-winxp
+
 	// End the WinHttpSendRequest.
-	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384102(v=vs.85).aspx
+	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384105(v=vs.85).aspx
 	winApiResult = WinHttpReceiveResponse(winhttp_request.getHandle(), NULL);
 	if (winApiResult==FALSE)
-	{	
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError());
-		return 1960;
+	{
+		DWORD errNo = GetLastError();
+		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
+		std::cerr << errormsg;
+		errorLog().add(errormsg.c_str());
+		return 1961;
 	}	
 
     DWORD dwStatusCode = 1965;
@@ -395,7 +448,9 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 
 	if (winApiResult==FALSE)
 	{
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpQueryHeaders", GetLastError());
+		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
+		std::cerr << errormsg;
+		errorLog().add(errormsg.c_str());
 		return 1981;
 	}
 

@@ -256,8 +256,10 @@ void cpccPathHelper::selfTest(void)
 		cpccPathHelper::removeTrailingPathDelimiter(test);
 		assert(test.compare( _T("c:/tmp") )==0);
 
-        cpcc_string parentFolder(getParentFolderOf("/"));
-        assert((parentFolder.compare( _T("/") )==0) && "#7267: parentFolderOf('/')");
+		cpcc_string rootFolder;
+		rootFolder += cpccPathHelper::getPreferredPathDelimiter();
+        cpcc_string parentFolder(getParentFolderOf(rootFolder));
+        assert((parentFolder.compare(rootFolder)==0) && "#7267: parentFolderOf('/')");
 
         
 		assert(cpccPathHelper::pathCat(_T("/folderroot/"), _T("/subfolder")).compare(_T("/folderroot/subfolder")) ==0);

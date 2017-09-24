@@ -50,10 +50,6 @@ public:
 	static bool createFolder(const cpcc_char *  aFoldername);
 	static bool	createFolder(const cpcc_string& aFoldername) { return createFolder(aFoldername.c_str()); }
 	
-	static bool folderExists(const cpcc_char *  aFoldername);
-	static bool	folderExists(const cpcc_string& aFoldername) { return folderExists(aFoldername.c_str()); };
-	
-
 	static cpcc_string getFolder_Desktop(void);
 	static cpcc_string getFolder_SystemsTemp(void);
 	static cpcc_string getFolder_UsersTemp(void);
@@ -114,7 +110,7 @@ public: // constructors
 	// explicit cpccPathString(const standardFolderIds aFolderID);
 
 public: // functions
-	bool	pathExists(void)	const { return (cpccFileSystemMini::fileExists(c_str()) || cpccFileSystemMini::folderExists(c_str())); }
+	bool	pathExists(void)	const { return (cpccFileSystemL1::fileExists(c_str()) || cpccFileSystemL1::folderExists(c_str())); }
 	void	appendPathSegment(const cpcc_char* aPathSegment);
 
     inline const cpccPathString & operator =(const cpcc_string& aPath)

@@ -348,22 +348,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 }
 
 
-bool cpccFileSystemMini::folderExists(const cpcc_char * aFoldername) 
-{
-#ifdef _WIN32
-	DWORD attrib = GetFileAttributes(aFoldername);
-	return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
-	// Other way:
-	// return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
-	
-#elif defined(__APPLE__)
-    return fileSystemOSX_helper::folderExists_OSX(aFoldername);
-    
-#else
-	#error 	Error #5414: unsupported platform for folderExists()
-#endif
-	return false;
-}
+
 
 
 
@@ -569,6 +554,7 @@ time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename)
 	if (!fileExists(aFilename) && !folderExists(aFilename))
 		return 0;
 
+	// todo: _stat does not work on XP
 	cpcc_struct_stat attrib;         // create a file attribute structure
 	cpcc_stat(aFilename, &attrib);     // get the attributes of afile.txt
 	return attrib.st_mtime; 
@@ -612,10 +598,10 @@ void cpccFileSystemMini::selfTest(void)
 	
 	cpccPathHelper::addTrailingPathDelimiter(tmpFolder);
 	
-    if(!folderExists(tmpFolder))
+    if(!folderExists(tmpFolder.c_str()))
         createFolder(tmpFolder);
     
-    assert(folderExists(tmpFolder) && _T("#5356p: cpccFileSystemMini::selfTest"));
+    assert(folderExists(tmpFolder.c_str()) && _T("#5356p: cpccFileSystemMini::selfTest"));
     
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");

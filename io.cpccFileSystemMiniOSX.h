@@ -83,19 +83,7 @@ static const std::string  expandTilde_OSX(const char *aPath)
 }
 
 
-static const bool folderExists_OSX(const cpcc_char * aFoldername)
-{
-    cpcc_string finalPath(expandTilde_OSX(aFoldername));
 
-    struct stat fileinfo;
-    if (stat(finalPath.c_str(), &fileinfo) == -1)
-    {	// On success, zero is returned.
-        // On error, -1 is returned, and errno is set appropriately.
-        return false;
-    }
-    else
-        return (S_ISDIR(fileinfo.st_mode));
-}
 
 
 

@@ -27,7 +27,7 @@ class cpccHttpPostWin
 {
 private:
 	// cWinHttp_reusableSessionAndConnection m_reusedSessionAndConnection;
-	bool				m_isHTTPS;
+	bool				m_isHTTPS, m_disabled;
 	std::string			m_postPath;
 	cWinHttp_session	*m_sessionPtr;
 	cWinHttp_connection *m_connectionPtr;
