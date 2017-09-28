@@ -15,6 +15,7 @@
 #include "net.cpccHttpRequestWin.h"
 #include "../cpccUnicodeSupport.h"
 #include "../core.cpccOS.h"
+#include "../core.cpccStringUtil.h"
 #include <string>
 #include <iostream>
 #include <windows.h>
@@ -54,37 +55,12 @@ or to ensure desrtruction:
 */
 
 
-///////////////////////////////////////////////////////////
-//
-//
-//		class helper_WinHttpInstallCallback
-//
-//
-///////////////////////////////////////////////////////////
 
-
-class helper_WinHttpInstallCallback
-{
-private:
-    bool m_isGood;
-    
-public:
-    helper_WinHttpInstallCallback(const HINTERNET aHandle, WINHTTP_STATUS_CALLBACK aCallback)
-    {
-        // Install the status callback function.
-        WINHTTP_STATUS_CALLBACK result =
-            WinHttpSetStatusCallback( aHandle, aCallback, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
-        m_isGood = (result !=WINHTTP_INVALID_STATUS_CALLBACK);
-    }
-    
-    bool isGood(void) { return m_isGood; }
-
-};
 
 ///////////////////////////////////////////////////////////
 //
 //
-//		class cpccHttpPostWin
+//		class cpccHttpRequestClientWin
 //
 //
 ///////////////////////////////////////////////////////////
@@ -237,13 +213,17 @@ public:
 
 
 
-cpccHttpPostWin::cpccHttpPostWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent, const bool runAsync )
+cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent, const bool runAsync )
 	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0), m_disabled(false)
 
 {  
+	if (runAsync)
+		infoLog().add("cpccHttpRequestClientWin created with Async flag");
+	
+
 	if (!WinHttpCheckPlatform())
 	{
-		infoLog().add("cpccHttpPostWin was disabled becayse WinHTTP is not supported by your Windows version.");
+		infoLog().add("cpccHttpRequestClientWin was disabled becayse WinHTTP is not supported by your Windows version.");
 		m_disabled = true;
 		return;
 	}
@@ -263,9 +243,9 @@ cpccHttpPostWin::cpccHttpPostWin(const char *aURLHost, const char *aURLpath, con
 	// check if aURLpath starts with http:// or https:// and separate the server address that is needed for the WinHttp connection.
 	bool startsWithHTTPS = false;
 	const char *postHost_noProtocol = NULL;
-	if (stringStartsWith(aURLHost, "http://"))
+	if (stringUtils::stringStartsWith(aURLHost, "http://"))
 		postHost_noProtocol = &aURLHost[7];
-	else if (stringStartsWith(aURLHost, "https://"))
+	else if (stringUtils::stringStartsWith(aURLHost, "https://"))
 	{
 		postHost_noProtocol = &aURLHost[8];
 		startsWithHTTPS = true;
@@ -291,7 +271,7 @@ cpccHttpPostWin::cpccHttpPostWin(const char *aURLHost, const char *aURLpath, con
 }
 
 
-bool cpccHttpPostWin::isGood(void) const
+bool cpccHttpRequestClientWin::isGood(void) const
 {
 	if (!m_sessionPtr || !m_connectionPtr)
 		return false;
@@ -303,14 +283,14 @@ bool cpccHttpPostWin::isGood(void) const
 }
 
 
-int cpccHttpPostWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 	const char *postData, const int aTimeOutInSec)
+int cpccHttpRequestClientWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 	const char *postData, const int aTimeOutInSec)
 {
-	infoLog().add("cpccHttpPostWin::httpPostAsync() called");
+	infoLog().add("cpccHttpRequestClientWin::httpPostAsync() called");
 	return httpPost(postData, aTimeOutInSec);
 }
 
 
-int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
+int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutInSec)
 {
 	// proxy example:
 	// https://stackoverflow.com/questions/27977386/winhttpsendrequest-post-with-https-on-windows-server-2008-rc2
@@ -319,7 +299,7 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 
 	if (!isGood())
 	{
-		std::cerr << "error 1959: not cpccHttpPostWin.isGood()" << std::endl;
+		std::cerr << "error 1959: not cpccHttpRequestClientWin.isGood()" << std::endl;
 		return 1959;
 	}
 
@@ -351,7 +331,8 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 		std::cout << "NULL" << std::endl;
 	*/
     
-  	
+  	// test for XP; No improvement
+	// WinHttpSetOption(winhttp_request.getHandle(), WINHTTP_OPTION_CLIENT_CERT_CONTEXT, WINHTTP_NO_CLIENT_CERT_CONTEXT, 0);
 
     // I have found that for PHP to recognise the POSTed data, I had to also do this:
 	LPCWSTR additionalHeaders = L"Content-Type: application/x-www-form-urlencoded";
@@ -379,6 +360,8 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 		An application must not delete or alter the buffer pointed to by lpOptional until the request 
 		handle is closed or the call to WinHttpReceiveResponse has completed.
 	*/
+
+	// https://src.chromium.org/viewvc/chrome/trunk/src/net/http/http_transaction_winhttp.cc?pathrev=1919
 
 	// std::cout << "debug post data:\n" << postDataBuffer << std::endl;
     BOOL winApiResult = WinHttpSendRequest(winhttp_request.getHandle(),
@@ -424,6 +407,19 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 
 	// amazon https error
 	// https://stackoverflow.com/questions/29801450/winhttp-doesnt-download-from-amazon-s3-on-winxp
+		
+	/*
+		SSL error on XP
+		https://community.constantcontact.com/t5/Authentication-and-Access-ie-401/The-message-received-was-unexpected-or-badly-formatted/m-p/258579#M830
+		It sounds like it might be an issue with the security protocol used by your XP environment.
+		We stopped supporting TLS 1.0 with RC4 ciphers and SSL 3 to prevent the man - in - the - middle, or POODLE, 
+		attacks that were widely publicized around the web.More information on that is at 
+		http ://techblog.constantcontact.com/api/release-updates/support-ending-for-tls-v1-0-rc4-cipher-and-s... 
+		If you can upgrade the security protocol to TLS 1.1 or 1.2, you'll likely see the issue resolved.
+		Constant Contact no longer supports or works on Windows XP.  The change mentioned by Shannon for 
+		TLS 1.0 and SSL v3 mean that there are no supported SSL security protocols left on Windows XP that 
+		comply with the security standards of Constant Contact.
+	*/
 
 	// End the WinHttpSendRequest.
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384105(v=vs.85).aspx
@@ -448,7 +444,8 @@ int cpccHttpPostWin::httpPost(const char *postData, const int aTimeOutInSec)
 
 	if (winApiResult==FALSE)
 	{
-		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
+		DWORD errNo = GetLastError();
+		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
 		std::cerr << errormsg;
 		errorLog().add(errormsg.c_str());
 		return 1981;

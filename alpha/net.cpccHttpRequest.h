@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		net.cpccHttpRequest.h
+ *  File:		net.cpccHttpRequestClient.h
  *	Purpose:	Portable (cross-platform), light-weight, httpDownloader class
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
@@ -21,7 +21,7 @@
         typedef cpccHttpPostMac cpccHttpPostImpl;
 #elif _WIN32
         #include "net.cpccHttpRequestWin.h"
-        typedef cpccHttpPostWin cpccHttpPostImpl;
+        typedef cpccHttpRequestClientWin cpccHttpPostImpl;
 #endif
 
 
@@ -39,24 +39,27 @@
  std::cout << "strParams=" << strParams << std::endl;
  */
 
-class cpccHttpRequest
+class cpccHttpRequestClient
 {
 private:
     cpccHttpPostImpl m_impl;
     
 public:
-    explicit cpccHttpRequest(const char *aURLHost,
-							const char *aURLpath,
-							const bool isHTTPS,
-							const char *aUserAgent = 0,
-							const bool runAsync=false)
-		: m_impl(aURLHost, aURLpath, isHTTPS, aUserAgent, runAsync)
+    explicit cpccHttpRequestClient(	const char *aProtocolAndHostAddress,
+									const char *aURLpath,
+									const bool isHTTPS,
+									const char *aUserAgent = 0,
+									const bool runAsync=false)
+		: m_impl(aProtocolAndHostAddress, aURLpath, isHTTPS, aUserAgent, runAsync)
     {   
-		
+		if (runAsync)
+			infoLog().add("cpccHttpRequestClient created with Async flag");
 
+		if (isHTTPS)
+			infoLog().add("cpccHttpRequestClient created with HTTPS flag");
 	}
     
-    virtual ~cpccHttpRequest() {  }
+    virtual ~cpccHttpRequestClient() {  }
     
     // static bool internetIsOn(void) { return cpccHttpPostImpl::internetIsOn(); }
 

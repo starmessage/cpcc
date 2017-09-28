@@ -14,8 +14,10 @@
 #pragma once
 
 #include <string>
+
 #include <map>
 #include <sstream>
+
 
 
 /*
@@ -39,23 +41,27 @@ class cpccURLbuilder
 private:
     
     typedef std::map<std::string, std::string> tParameters;
-    std::string m_host,
-				m_path,
-                m_fullURL,
-                m_UrlParametersCache;
+	std::string m_connectionProtocol, // http, https, etc
+				m_hostAddress,
+				m_path;
+                // m_fullURLcache,
+                // m_UrlParametersCache;
     tParameters m_urlParamsList;
     
 public:
-    cpccURLbuilder(void)
-    { }
 
-    cpccURLbuilder(const char *aHost, const char *aPath): 
-			m_host(aHost?aHost:""),
+    // cpccURLbuilder(void)    { }
+
+    cpccURLbuilder(const char *aConnectionProtocol, const char *aHost, const char *aPath):
+			m_connectionProtocol(aConnectionProtocol ? aConnectionProtocol : ""),
+			m_hostAddress(aHost?aHost:""),
 			m_path(aPath ? aPath : "")
     { }
     
+
     cpccURLbuilder(cpccURLbuilder &another): 
-			m_host(another.m_host), 
+			m_connectionProtocol(another.m_connectionProtocol),
+			m_hostAddress(another.m_hostAddress), 
 			m_path(another.m_path),
 			m_urlParamsList (another.m_urlParamsList)
     { }
@@ -66,13 +72,27 @@ public:
         return *this;
     }
     
+	bool isHttps(void) const
+	{
+        
+#ifdef _WIN32
+		#pragma warning( suppress : 4996 )
+		return (strcmpi("https://", m_connectionProtocol.c_str()) == 0);
+#else
+        // Unix libraries use strcasecmp, from <strings.h>.
+        return (strcasecmp("https://", m_connectionProtocol.c_str()) == 0);
+#endif
+	}
+
     void copyFrom(cpccURLbuilder &another)
     {
-        m_host = another.m_host;
+		m_connectionProtocol = another.m_connectionProtocol;
+        m_hostAddress = another.m_hostAddress;
         m_path = another.m_path;
         m_urlParamsList = another.m_urlParamsList;
     }
     
+
     static std::string urlEncode(const char *s)
     {
         const std::string safechars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
@@ -96,17 +116,7 @@ public:
         return encoded;
     }
     
-    
-    /*
-    void setServer(const char *aServer)
-    {
-        if (aServer)
-            m_server = aServer;
-        else
-            m_server = "";
-    }
-    */
-    
+      
     void clearParameters(void)
     {
         m_urlParamsList.clear();
@@ -146,34 +156,47 @@ public:
     }
     
     
-    const char * getFullURL(void)
+    const std::string getFullURL(void)
     {
-        m_fullURL = m_host + m_path + '?' + getUrlParameters();
-        return m_fullURL.c_str();
+		std::string result(m_connectionProtocol);
+		result +=  m_hostAddress + m_path + '?' + getUrlParameters();
+        return result;
     }
     
     
     /// without the starting ?
-    const char * getUrlParameters(void)
+    const std::string  getUrlParameters(void)
     {
-        m_UrlParametersCache = "";
-        std::string glueChar="";
+		std::string result, glueChar;
         for (tParameters::iterator it = m_urlParamsList.begin() ; it != m_urlParamsList.end() ; ++it, glueChar='&')
-            m_UrlParametersCache += glueChar + it->first + "=" + it->second;
+			result += glueChar + it->first + "=" + it->second;
         
-        return m_UrlParametersCache.c_str();
+        return result;
     }
-    
-    
+
+	void setConnectionProtocol(const char *aConnectionProtocol)
+	{
+		m_connectionProtocol = aConnectionProtocol ? aConnectionProtocol:"";
+	}
+
     const char * getHost(void) const
     {
-        return m_host.c_str();
+        return m_hostAddress.c_str();
     }
+
+	const std::string getConnectionProtocolAndHost(void)
+	{
+		std::string result(m_connectionProtocol);
+		result += m_hostAddress;
+		return result;
+	}
 
 	const char * getPath(void) const
 	{
 		return m_path.c_str();
 	}
+
+	
 };
 
  

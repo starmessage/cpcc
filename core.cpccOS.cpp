@@ -116,7 +116,7 @@ const std::string &cpccOS::getWindowsFullVersionNumber(void)
 
 
 
-const std::string &cpccOS::getWindowsShortVersionNumber(void)
+const std::string &cpccOS::getWindowsShortVersionNumber(void) // returns something like: "6.1"
 {
 	static std::string cached_result;
 	if (cached_result.length() == 0)

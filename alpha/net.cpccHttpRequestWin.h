@@ -23,17 +23,17 @@
 
 
 
-class cpccHttpPostWin
+class cpccHttpRequestClientWin
 {
 private:
-	// cWinHttp_reusableSessionAndConnection m_reusedSessionAndConnection;
+	
 	bool				m_isHTTPS, m_disabled;
 	std::string			m_postPath;
 	cWinHttp_session	*m_sessionPtr;
 	cWinHttp_connection *m_connectionPtr;
 
 public:
-	cpccHttpPostWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent = 0, const bool runAsync = false);
+	cpccHttpRequestClientWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent = 0, const bool runAsync = false);
 
     int httpPost(const char *postData , const int timeoutInSec=60);
 	

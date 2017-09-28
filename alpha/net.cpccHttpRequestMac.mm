@@ -45,8 +45,8 @@ int cpccHttpPostMac::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<
     strPostFullURL += m_postPath;
     std::string strPostData(postData);
     
-    std::cout << "postURL=" << strPostFullURL << std::endl;
-    std::cout << "postData=" << strPostData << std::endl;
+    // std::cout << "postURL=" << strPostFullURL << std::endl;
+    // std::cout << "postData=" << strPostData << std::endl;
     
     
     NSString *URLmacstring = [NSString stringWithCString:strPostFullURL.c_str() encoding:NSASCIIStringEncoding];
@@ -146,8 +146,8 @@ int cpccHttpPostMac::httpPost(const char *postData, const int timeoutInSec)
     std::string strPostFullURL(m_postHost);
     strPostFullURL += m_postPath;
     std::string strPostData(postData);
-    std::cout << "postURL=" << strPostFullURL << std::endl;
-    std::cout << "postData=" << strPostData << std::endl;
+    // std::cout << "postURL=" << strPostFullURL << std::endl;
+    // std::cout << "postData=" << strPostData << std::endl;
     
     
     NSString *URLmacstring = [NSString stringWithCString:strPostFullURL.c_str() encoding:NSASCIIStringEncoding];

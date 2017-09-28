@@ -31,6 +31,60 @@
 */
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class stringUtils
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class stringUtils
+{
+
+public:
+	static bool stringStartsWith(const char *aStr, const char *aPrefix)
+	{
+#ifdef _WIN32
+		#pragma warning( suppress : 4996 )
+		return (strnicmp(aStr, aPrefix, strlen(aPrefix)) == 0);
+#else
+        // Unix libraries use strcasecmp, from <strings.h>.
+        return (strncasecmp(aStr, aPrefix, strlen(aPrefix)) == 0);
+#endif
+	}
+
+	static bool stringsAreEqual(const char *aStr1, const char *aStr2)
+	{
+		
+#ifdef _WIN32
+        #pragma warning( suppress : 4996 )
+        return (strcmpi(aStr1, aStr2) == 0);
+#else
+        // Unix libraries use strcasecmp, from <strings.h>.
+        return (strcasecmp(aStr1, aStr2) == 0);
+#endif
+        
+	}
+
+
+	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
+	{
+		size_t start = 0;
+		size_t end = inputStr.find_first_of(delimiter);
+		outputList.clear();
+	
+		while (end <= cpcc_string::npos)
+		{
+			outputList.push_back(inputStr.substr(start, end - start));
+
+			if (end == cpcc_string::npos)
+				break;
+
+			start = end + 1;
+			end = inputStr.find_first_of(delimiter, start);
+		}
+	}
+
+};
 
 
 
@@ -229,28 +283,3 @@ public:
 	}
 };
 
-
-
-class stringUtils
-{
-
-public:
-	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
-	{
-		size_t start = 0;
-		size_t end = inputStr.find_first_of(delimiter);
-		outputList.clear();
-	
-		while (end <= cpcc_string::npos)
-		{
-			outputList.push_back(inputStr.substr(start, end - start));
-
-			if (end == cpcc_string::npos)
-				break;
-
-			start = end + 1;
-			end = inputStr.find_first_of(delimiter, start);
-		}
-	}
-
-};

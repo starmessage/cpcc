@@ -22,16 +22,21 @@
 #include "../io.cpccLog.h"
 
 
-static bool stringStartsWith(const char *aStr, const char *aPrefix)
-{
-	#pragma warning( suppress : 4996 )
-	return (strnicmp(aStr, aPrefix, strlen(aPrefix)) == 0);
-}
 
 
 /*	
 debugging with WinHttpTraceCfg.exe, a Trace Configuration Tool
 https://msdn.microsoft.com/en-us/library/windows/desktop/aa384119(v=vs.85).aspx
+
+Secure Socket Layer (SSL) and its successor Transport Layer Security (TLS) are protocols which use cryptographic algorithms to secure the communication between 2 entities.
+Old protocol versions, including SSL version 3 (“SSLv3”) and TLS version 1.0, are no longer considered secure.
+
+SSL 1.0, 2.0 and 3.0
+TLS 1.0 (or SSL 3.1, released in 1999)
+TLS 1.1 (or SSL 3.2, released in 2006)
+TLS 1.2 (or SSL 3.3, released in 2008)
+
+
 
 to check this option
 
@@ -178,8 +183,10 @@ public:
 	 {
 		 DWORD sessionFlags = 0;
 		 if (runAsync)
+		 {
 			 sessionFlags |= WINHTTP_FLAG_ASYNC;
-
+			 infoLog().add("cWinHttp_session created with Async flag");
+		 }
 		 attach( WinHttpOpen(aUserAgent, // optional
 						WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, 
 						WINHTTP_NO_PROXY_NAME,
@@ -296,3 +303,30 @@ public:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//
+//
+//		class helper_WinHttpInstallCallback
+//
+//
+///////////////////////////////////////////////////////////
+
+
+class helper_WinHttpInstallCallback
+{
+private:
+	bool m_isGood;
+
+public:
+	helper_WinHttpInstallCallback(const HINTERNET aHandle, WINHTTP_STATUS_CALLBACK aCallback)
+	{
+		// Install the status callback function.
+		WINHTTP_STATUS_CALLBACK result =
+			WinHttpSetStatusCallback(aHandle, aCallback, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
+		m_isGood = (result != WINHTTP_INVALID_STATUS_CALLBACK);
+	}
+
+	bool isGood(void) { return m_isGood; }
+
+};
