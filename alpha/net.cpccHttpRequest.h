@@ -15,6 +15,7 @@
 
 #include <cstdio>
 #include "../io.cpccLog.h"
+#include "../net.cpccURLbuilder.h"
 
 #ifdef __APPLE__
         #include "net.cpccHttpRequestMac.h"
@@ -23,7 +24,6 @@
         #include "net.cpccHttpRequestWin.h"
         typedef cpccHttpRequestClientWin cpccHttpPostImpl;
 #endif
-
 
 
 /*
@@ -63,9 +63,9 @@ public:
     
     // static bool internetIsOn(void) { return cpccHttpPostImpl::internetIsOn(); }
 
-    int httpPost(const char *postData, const int timeoutInSec = 60) {  return m_impl.httpPost(postData, timeoutInSec); 	}
+    int httpPost(const char *postData, const int timeoutInSec) {  return m_impl.httpPost(postData, timeoutInSec); 	}
 
-	int httpPostAsync( std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec = 60)
+	int httpPostAsync( std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec)
 	{
 		int i = nPending;
 		infoLog().addf("httpPostAsync() found %i pending tasks", i);

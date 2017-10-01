@@ -19,6 +19,11 @@
 	#include <tchar.h>
 	// TCHAR is either char or wchar_t, so a
 	// typedef basic_string<TCHAR>   tstring;
+	#include "core.cpccOSWin.h"
+	#define  CPCCOS_IMPL	:public cpccOSWin
+#else
+	#define  CPCCOS_IMPL	
+
 #endif
 #include <vector>
 #include <string>
@@ -33,7 +38,7 @@ struct cpccMonitorInfoT
 typedef std::vector<cpccMonitorInfoT> cpccMonitorList;
 
 
-class cpccOS
+class cpccOS CPCCOS_IMPL
 {
 
 public:
@@ -57,9 +62,9 @@ public:
     static std::string& readProgramVersion(void);
     
 #ifdef _WIN32
-    static const std::string &getWindowsFullVersionNumber(void);
-	static const std::string &getWindowsShortVersionNumber(void);
-	static std::string GetFileVersion( const char* aFilePath);
+    //static const std::string getWindowsFullVersionNumber(void);
+	//static const std::string getWindowsShortVersionNumber(void);
+	//static std::string GetFileVersion( const char* aFilePath);
     
 #endif
     

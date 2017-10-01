@@ -217,6 +217,8 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0), m_disabled(false)
 
 {  
+	logFunctionLife _conLife("cpccHttpRequestClientWin Constructor");
+
 	if (runAsync)
 		infoLog().add("cpccHttpRequestClientWin created with Async flag");
 	
@@ -235,12 +237,16 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 		return;
 
 	if (!m_sessionPtr->getHandle())
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpOpen", GetLastError());
-	
+	{
+		errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpOpen", GetLastError()));
+		return;
+	}
+
 	if (!m_sessionPtr->isGood())
 		return;
 	
 	// check if aURLpath starts with http:// or https:// and separate the server address that is needed for the WinHttp connection.
+	// debugLog().add("cpccHttpRequestClientWin point 1");
 	bool startsWithHTTPS = false;
 	const char *postHost_noProtocol = NULL;
 	if (stringUtils::stringStartsWith(aURLHost, "http://"))
@@ -252,18 +258,23 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	}
 	else
 	{
-		printf("httpPost(): postURL must start with http:// or https://\n%s\n", aURLHost);
+		errorLog().addf("httpPost(): postURL must start with http:// or https://\n%s\n", aURLHost);
 		//m_isGood = false;
 		return;
 	}
 
+	// debugLog().add("cpccHttpRequestClientWin point 2");
 	wchar_from_char m_serverAddress_w(postHost_noProtocol);	// bare address without https:// nor http://
 	m_connectionPtr = new cWinHttp_connection(m_sessionPtr->getHandle(), m_serverAddress_w.get());
 	if (!m_connectionPtr)
 		return;
 
+	// debugLog().add("cpccHttpRequestClientWin point 3");
 	if (!m_sessionPtr->getHandle())
-		std::cerr << cpccOS::getWindowsErrorCodeAndText("WinHttpConnect", GetLastError());
+	{
+		errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpConnect", GetLastError()));
+		return;
+	}
 
 	if (!m_connectionPtr->isGood())
 		return;
@@ -309,7 +320,6 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 	if (!winhttp_request.isGood())
 		return 1940;
 	
-
 	/*
 	https://msdn.microsoft.com/en-us/library/windows/desktop/aa383138%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396#initialize
 	The first step in this process is to use WinHttpCrackUrl to parse the URL supplied by the user
@@ -374,8 +384,7 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 	if (winApiResult==FALSE)
 	{ 
 		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
-		std::cerr << errormsg;
-		errorLog().add(errormsg.c_str());
+		errorLog().add(errormsg);
 		return 1960;
 	}
 
@@ -428,8 +437,7 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 	{
 		DWORD errNo = GetLastError();
 		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
-		std::cerr << errormsg;
-		errorLog().add(errormsg.c_str());
+		errorLog().add(errormsg);
 		return 1961;
 	}	
 
@@ -446,8 +454,7 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 	{
 		DWORD errNo = GetLastError();
 		std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
-		std::cerr << errormsg;
-		errorLog().add(errormsg.c_str());
+		errorLog().add(errormsg);
 		return 1981;
 	}
 

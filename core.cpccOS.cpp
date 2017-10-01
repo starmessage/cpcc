@@ -38,7 +38,8 @@
     // #include <Lmcons.h> / /for GetUserName()
     // #include <VersionHelpers.h> // for version check
     #pragma comment(lib, "user32.lib") // for GetSystemInfo
-    #pragma comment(lib, "Version.lib") // for GetFileVersionInfo
+	#include "core.cpccOSWin.h"
+
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>
@@ -46,96 +47,6 @@
 #endif
 
 
-#ifdef _WIN32
-
-/*
- https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
-To obtain the full version number for the operating system, call the GetFileVersionInfo function 
- on one of the system DLLs, such as Kernel32.dll, then call VerQueryValue to obtain the 
- \\StringFileInfo\\<lang><codepage>\\ProductVersion 
- subblock of the file version information.
-*/
-std::string cpccOS::GetFileVersion( const char* aFilePath)
-{
-
-    // https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
-    DWORD  verHandle = 0;
-	UINT   size      = 0;
-	LPBYTE lpBuffer  = NULL;
-	DWORD  verSize   = GetFileVersionInfoSize(aFilePath, &verHandle);
-
-	std::string result;
-	if (verSize == 0)
-		return result;
-
-	LPSTR verData = new char[verSize];
-	
-    if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
-    {
-       	if (VerQueryValue(verData,"\\",(VOID FAR* FAR*)&lpBuffer,&size))
-       	{
-           	if (size)
-           	{
-                VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
-                if (verInfo->dwSignature == 0xfeef04bd)
-                {
-
-                    // Doesn't matter if you are on 32 bit or 64 bit,
-                    // DWORD is always 32 bits, so first two revision numbers
-                    // come from dwFileVersionMS, last two come from dwFileVersionLS
-                    std::stringstream ssresult;
-					ssresult << (( verInfo->dwFileVersionMS >> 16 ) & 0xffff );
-					ssresult << ".";
-					ssresult << (( verInfo->dwFileVersionMS) & 0xffff);
-					ssresult << ".";
-					ssresult << (( verInfo->dwFileVersionLS >>  16 ) & 0xffff);
-					ssresult << ".";
-					ssresult << (( verInfo->dwFileVersionLS) & 0xffff);
-    				result = ssresult.str();
-				}
-			}
-        }
-    }
-	delete[] verData;
-	return result;
-}
-
-
-
-/// returns the full versoion and build number, e.g. for windows 10: "10.0.15063.296"
-const std::string &cpccOS::getWindowsFullVersionNumber(void)
-{
-    static std::mutex _mutex;
-    static std::string cached_result;
-    
-    std::lock_guard<std::mutex> autoMutex(_mutex);
-    if (cached_result.length()==0)
-        cached_result =GetFileVersion("kernel32.dll");
-    return cached_result;
-}
-
-
-
-const std::string &cpccOS::getWindowsShortVersionNumber(void) // returns something like: "6.1"
-{
-	static std::string cached_result;
-	if (cached_result.length() == 0)
-	{
-		cached_result = getWindowsFullVersionNumber();	// returns something like: "6.1.7601.23864"
-
-		// remove the last two fragments
-		std::size_t found = cached_result.rfind("."); // remove everything after the last .
-		if (found != std::string::npos)
-			cached_result.erase(found);
-		found = cached_result.rfind("."); // remove everything after the last .
-		if (found != std::string::npos)
-			cached_result.erase(found);
-	}
-	return cached_result;
-}
-
-
-#endif
 
 
 std::string cpccOS::getOSnameAndVersion(void)
@@ -159,23 +70,11 @@ std::string cpccOS::getOSnameAndVersion(void)
 bool cpccOS::is64bit(void)
 {
     #ifdef _WIN32
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724423%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-        //  PROCESSOR_ARCHITECTURE_AMD64 -> x64 (AMD or Intel)
+		return cpccOSWin::is64bit();
         
-        SYSTEM_INFO siSysInfo;
-        // To retrieve accurate information for an application running on WOW64, call the GetNativeSystemInfo function.
-        //GetSystemInfo(&siSysInfo);
-    
-        // Copy the hardware information to the SYSTEM_INFO structure.
-        GetNativeSystemInfo(&siSysInfo);
-        // PROCESSOR_ARCHITECTURE_AMD64 means x64 (AMD or Intel)
-        return ( siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64);
-        
-    
     #elif __APPLE__
     
         return true;
-    
     #endif
     
 }
@@ -197,7 +96,8 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
     // Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
     // It can obtain additional processor information by calling the GetNativeSystemInfo function.
     
-	std::string result(getWindowsShortVersionNumber());
+	std::string result(cpccOSWin::getWindowsShortVersionNumber());
+    // std::cout << "getOSnameVersionAndBuildNumber() point 1, os=" << result << std::endl;
 	if (result.compare("10.0") == 0)
 		result = "Windows 10"; // or Windows Server 2016
 	else
@@ -214,13 +114,14 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
 						result = "Windows Vista"; 
 					else
 						if (result.compare("5.2") == 0)
-							result = "Windows XP 64bit"; 
+							result = "Windows XP 64bit"; // or Windows server 2003
 						else
-							if (result.compare("5.1") == 0)
+							if (result.compare("5.1") == 0) // 5.1.2600 -> with SP3
 								result = "Windows XP";
 							else
 								if (result.compare("5.0") == 0)
 									result = "Windows 2000";
+								else result = "Windows unknown";
 
 	
     // must be in reverse order
@@ -267,14 +168,14 @@ std::string cpccOS::getOSnameVersionAndBuildNumber(void)
         ver = "Win 2000 or older";
     */
 
-    
-    
+
     if (is64bit())
         result+=", 64bit";
     else
         result+=", 32bit";
     
 	result += " (" + getWindowsFullVersionNumber() + ")";
+    // std::cout << "getOSnameVersionAndBuildNumber() point 2, os=" << result << std::endl;
     return result;
     
     
@@ -430,7 +331,9 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 		case 12002: return  std::string("The request has timed out.");
 		case 12004: return  std::string("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
 		case 12019: return  std::string("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
-
+		// encoding help: https://msdn.microsoft.com/en-us/library/aa383955(v=vs.85).aspx
+		case 12175: return  std::string("ERROR_INTERNET_DECODING_FAILED. WinINet failed to perform content decoding on the response.");
+		
 		// winHttpErrors
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa383770(v=vs.85).aspx
 
