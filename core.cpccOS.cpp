@@ -33,13 +33,9 @@
 #include <mutex>
 
 #ifdef _WIN32
-	# pragma warning (disable: 4005)
-	#include <windows.h>
-    // #include <Lmcons.h> / /for GetUserName()
-    // #include <VersionHelpers.h> // for version check
-    #pragma comment(lib, "user32.lib") // for GetSystemInfo
 	#include "core.cpccOSWin.h"
-
+    #pragma comment(lib, "user32.lib") // for GetSystemInfo
+	
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>
@@ -47,150 +43,48 @@
 #endif
 
 
-
-
-std::string cpccOS::getOSnameAndVersion(void)
+std::string cpccOS::getOSNameAndVersion(void)
 {
 #ifdef _WIN32
-	return getOSnameVersionAndBuildNumber();
+	return cpccOSWin::getWindowsNameVersionAndBuild();
 
 #elif __APPLE__
-    std::string result = getOSnameVersionAndBuildNumber();
+    std::string result = getOSNameVersionAndBuild();
     // e.g.: Mac OS X 10.12.6 (Build 16G29)
     
     std::size_t found = result.rfind(" ("); // remove build number
     if (found!=std::string::npos)
         result.erase(found);
     return result;
-    
 #endif
-    
 }
+
 
 bool cpccOS::is64bit(void)
 {
-    #ifdef _WIN32
-		return cpccOSWin::is64bit();
-        
-    #elif __APPLE__
-    
-        return true;
-    #endif
-    
+#ifdef __APPLE__	
+	return true;
+#else
+	return cpccOSWin::is64bit();
+#endif
+
 }
 
 
-std::string cpccOS::getOSnameVersionAndBuildNumber(void)
+std::string cpccOS::getOSNameVersionAndBuild(void)
 {
-#ifdef _WIN32
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724439%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-    // GetVersion may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
-    // GetVersionEx may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
-    
-    // all the helpers:
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
-    
-    // table of version numbers
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
-    
-    // Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
-    // It can obtain additional processor information by calling the GetNativeSystemInfo function.
-    
-	std::string result(cpccOSWin::getWindowsShortVersionNumber());
-    // std::cout << "getOSnameVersionAndBuildNumber() point 1, os=" << result << std::endl;
-	if (result.compare("10.0") == 0)
-		result = "Windows 10"; // or Windows Server 2016
-	else
-		if (result.compare("6.3") == 0)
-			result = "Windows 8.1"; // Windows Server 2012 R2
-		else
-			if (result.compare("6.2") == 0)
-				result = "Windows 8"; // or Windows Server 2012
-			else
-				if (result.compare("6.1") == 0)
-					result = "Windows 7"; // or Windows Server 2008 R2
-				else
-					if (result.compare("6.0") == 0)
-						result = "Windows Vista"; 
-					else
-						if (result.compare("5.2") == 0)
-							result = "Windows XP 64bit"; // or Windows server 2003
-						else
-							if (result.compare("5.1") == 0) // 5.1.2600 -> with SP3
-								result = "Windows XP";
-							else
-								if (result.compare("5.0") == 0)
-									result = "Windows 2000";
-								else result = "Windows unknown";
-
-	
-    // must be in reverse order
-	/*
-	char *ver;
-	getWindowsFullVersionNumber
-
-    if (IsWindows10OrGreater())
-        ver = "Win 10 or newer";
-    else 
-    if (IsWindows8Point1OrGreater())
-        ver = "Win 8.1 or newer";
-    else
-    if (IsWindows8OrGreater())
-        ver = "Win 8";
-    else
-    if (IsWindows7SP1OrGreater())
-        ver = "Win 7 SP1";
-    else
-    if (IsWindows7OrGreater())
-        ver = "Win 7";
-    else
-    if (IsWindowsVistaSP2OrGreater())
-        ver = "Win Vista SP2";
-    else
-    if (IsWindowsVistaSP1OrGreater())
-        ver = "Win Vista SP1";
-    else
-    if (IsWindowsVistaOrGreater())
-        ver = "Win Vista";
-    else
-    if (IsWindowsXPSP3OrGreater())
-        ver = "Win XP SP3";
-    else
-    if (IsWindowsXPSP2OrGreater())
-        ver = "Win XP SP2";
-    else
-    if (IsWindowsXPSP1OrGreater())
-        ver = "Win XP SP1";
-    else
-    if (IsWindowsXPOrGreater())
-        ver = "Win XP";
-    else
-        ver = "Win 2000 or older";
-    */
-
-
-    if (is64bit())
-        result+=", 64bit";
-    else
-        result+=", 32bit";
-    
-	result += " (" + getWindowsFullVersionNumber() + ")";
-    // std::cout << "getOSnameVersionAndBuildNumber() point 2, os=" << result << std::endl;
-    return result;
-    
-    
-#elif __APPLE__
-    NSString * operatingSystemVersionString = [[NSProcessInfo processInfo] operatingSystemVersionString];
+#ifdef __APPLE__
+	NSString * operatingSystemVersionString = [[NSProcessInfo processInfo] operatingSystemVersionString];
     // returns: Version 10.12.6 (Build 16G29)
     std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
     result.erase(0, 8);
     result.insert(0,"Mac OS X ");
     return result; // returns: Mac OS X 10.12.6 (Build 16G29)
-    
+#else
+	return cpccOSWin::getWindowsNameVersionAndBuild();
 #endif
-
-    
 }
+
 
 
 std::string cpccOS::getPreferredLanguage(void)
@@ -330,6 +224,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 		// https://msdn.microsoft.com/en-us/library/aa385465(v=vs.85).aspx
 		case 12002: return  std::string("The request has timed out.");
 		case 12004: return  std::string("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
+		case 12017: return  std::string("ERROR_INTERNET_OPERATION_CANCELLED. The operation was canceled, usually because the handle on which the request was operating was closed before the operation completed.");
 		case 12019: return  std::string("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
 		// encoding help: https://msdn.microsoft.com/en-us/library/aa383955(v=vs.85).aspx
 		case 12175: return  std::string("ERROR_INTERNET_DECODING_FAILED. WinINet failed to perform content decoding on the response.");
@@ -369,7 +264,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 		// Load the library.
 		hInst = LoadLibrary(_T("Ntdsbmsg.dll"));
 		if (hInst == NULL)
-			return  std::string("getWindowsErrorText() did not find the error description because it could not load Ntdsbmsg.dll\n");
+			return  std::string("No description of the error because getWindowsErrorText() could not load Ntdsbmsg.dll\n");
 			
 		
 		// Try getting message text from ntdsbmsg.

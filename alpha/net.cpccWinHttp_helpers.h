@@ -109,10 +109,11 @@ private:
 
 protected:
 	bool m_isGood;
+	bool m_hasCallback;
 
 public:
 
-    cWinHttp_handle() : m_handle(0), m_isGood(true) { }
+    cWinHttp_handle() : m_handle(0), m_isGood(true), m_hasCallback(false) { }
 
     virtual ~cWinHttp_handle() { close(); }
 
@@ -134,16 +135,21 @@ protected:
         return handle;
     }
 
+
     void close()
     {
+		removeStatusCallback();
         if (0 != m_handle)
-        {   
-            ::WinHttpCloseHandle(m_handle);
+        {
+			if (::WinHttpCloseHandle(m_handle) == FALSE)
+			{
+				DWORD errNo = GetLastError();
+				errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", errNo));
+			}
             m_handle = 0;
         }
     }
 
-	
 
 public:
 	
@@ -163,7 +169,72 @@ public:
 		return HRESULT_FROM_WIN32(::GetLastError());  
     }
 
+
+	BOOL SetStatusCallback(WINHTTP_STATUS_CALLBACK aCallback)
+	{
+		// Install the status callback function.
+		WINHTTP_STATUS_CALLBACK pCallback = WinHttpSetStatusCallback(m_handle, aCallback,
+			// WINHTTP_CALLBACK_STATUS_REQUEST_SENT |
+			// WINHTTP_CALLBACK_STATUS_RESPONSE_RECEIVED |
+			WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE |
+			WINHTTP_CALLBACK_STATUS_REQUEST_ERROR |
+			WINHTTP_CALLBACK_STATUS_HEADERS_AVAILABLE 
+
+			//| WINHTTP_CALLBACK_FLAG_ALL_COMPLETIONS 
+			//| WINHTTP_CALLBACK_FLAG_REDIRECT 
+			//|  WINHTTP_CALLBACK_FLAG_CLOSE_CONNECTION 
+			//| WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS
+			, NULL);
+		/*
+		Other status flags:
+		WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE |
+		WINHTTP_CALLBACK_STATUS_REQUEST_ERROR |
+		WINHTTP_CALLBACK_STATUS_REDIRECT |
+		WINHTTP_CALLBACK_STATUS_SECURE_FAILURE |
+		WINHTTP_CALLBACK_STATUS_INTERMEDIATE_RESPONSE |
+		WINHTTP_CALLBACK_STATUS_CLOSING_CONNECTION |
+		WINHTTP_CALLBACK_STATUS_CONNECTION_CLOSED,
+
+		If successful, returns a pointer to the previously defined status callback function or NULL
+		if there was no previously defined status callback function.
+		Returns WINHTTP_INVALID_STATUS_CALLBACK if the callback function could not be installed.
+		*/
+		if (pCallback != NULL)
+		{
+			errorLog().add("#4961: expected NULL after WinHttpSetStatusCallback()");
+			if (pCallback == WINHTTP_INVALID_STATUS_CALLBACK)
+			{
+				DWORD errNo = GetLastError();
+				std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpSetStatusCallback", errNo));
+				std::cerr << errormsg;
+				errorLog().add(errormsg.c_str());
+			}
+			return FALSE;
+		}
+		m_hasCallback = true;
+		infoLog().add("callback function added.");
+		return TRUE;
+	}
+
+
+	void removeStatusCallback(void)
+	{
+		if (!m_hasCallback)
+		{
+			infoLog().add("removeStatusCallback() but no callback installed.");
+			return;
+		}
+		/* At the end of asynchronous processing, the application may set the callback function to NULL.
+		This prevents the client application from receiving additional notifications.
+		*/
+		WinHttpSetStatusCallback(m_handle, NULL, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
+		m_hasCallback = false;
+		infoLog().add("callback function removed.");
+	}
+
 };
+
+
 
  
  ///////////////////////////////////////////////////////////
@@ -197,6 +268,7 @@ public:
 
  };
 
+ 
 
  ///////////////////////////////////////////////////////////
  //
@@ -209,7 +281,7 @@ public:
 
  class cWinHttp_connection : public cWinHttp_handle
  {
-
+ 
  public:
 	 explicit cWinHttp_connection(const HINTERNET aSessionHandler, const LPCWSTR aServerAddress)
 	 {
@@ -225,12 +297,13 @@ public:
 		 WINHTTP_FLAG_SECURE flag with WinHttpOpenRequest.
 		 */
 		 attach(WinHttpConnect(aSessionHandler, aServerAddress, INTERNET_DEFAULT_PORT, 0));
+		 
 	 }
 
+
  };
-
-
-
+ 
+ 
 
 ///////////////////////////////////////////////////////////
 //
@@ -300,33 +373,62 @@ public:
 	}
 
 
-
-};
-
-
-///////////////////////////////////////////////////////////
-//
-//
-//		class helper_WinHttpInstallCallback
-//
-//
-///////////////////////////////////////////////////////////
-
-
-class helper_WinHttpInstallCallback
-{
-private:
-	bool m_isGood;
-
-public:
-	helper_WinHttpInstallCallback(const HINTERNET aHandle, WINHTTP_STATUS_CALLBACK aCallback)
+	BOOL sendRequest(const LPSTR postDataBuffer, const DWORD postDataBufferSize, DWORD_PTR aContextPtr)
 	{
-		// Install the status callback function.
-		WINHTTP_STATUS_CALLBACK result =
-			WinHttpSetStatusCallback(aHandle, aCallback, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
-		m_isGood = (result != WINHTTP_INVALID_STATUS_CALLBACK);
+		// I have found that for PHP to recognise the POSTed data, I had to also do this:
+		LPCWSTR additionalHeaders = L"Content-Type: application/x-www-form-urlencoded";
+		DWORD additionalHeadersLen = -1;
+		// infoLog().addf("payload=%s", postDataBuffer);
+		BOOL result = ::WinHttpSendRequest(getHandle(),
+								additionalHeaders,
+								additionalHeadersLen,
+								postDataBuffer, // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
+								postDataBufferSize,
+								postDataBufferSize,
+								aContextPtr);
+		if (result == FALSE)
+		{
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
+			errorLog().add(errormsg);
+		}
+		return result;
 	}
 
-	bool isGood(void) { return m_isGood; }
 
+	BOOL ReceiveResponse(void)
+	{
+		if (WinHttpReceiveResponse(getHandle(), NULL) == FALSE)
+		{
+			DWORD errNo = GetLastError();
+			errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+
+	BOOL QueryHeaders_statuscode(DWORD *statusCode)
+	{
+		if (!statusCode)
+			return FALSE;
+
+		DWORD dwSize = sizeof(DWORD);
+
+		// WinHttpReceiveResponse must have been called for this handle and have completed before WinHttpQueryHeaders is called.
+		BOOL result = WinHttpQueryHeaders(getHandle(),
+											WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+											WINHTTP_HEADER_NAME_BY_INDEX,
+											statusCode, &dwSize, 
+											WINHTTP_NO_HEADER_INDEX);
+
+		if (result == FALSE)
+		{
+			DWORD errNo = GetLastError();
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpQueryHeaders", errNo));
+			errorLog().add(errormsg);
+		}
+		return result;
+	}
 };
+
+

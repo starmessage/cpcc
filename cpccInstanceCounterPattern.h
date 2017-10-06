@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <atomic>
 
 /** Abstract base class to perform instance counting.
 	Counts how many objects of a specific class were created.
@@ -27,11 +28,11 @@
 class cpccInstanceCounterPattern
 {
 private:
-	int &_nCount;
+	std::atomic<int> &_nCount;
 
 public:	// ctor/dtor
 
-	explicit cpccInstanceCounterPattern(int &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }
+	explicit cpccInstanceCounterPattern(std::atomic<int> &aStaticCounter): _nCount(aStaticCounter)	{   ++_nCount;  }
 
 	~cpccInstanceCounterPattern(void)   {   --_nCount;  }
 		

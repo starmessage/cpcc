@@ -14,20 +14,14 @@
 
 #pragma once
 
-#ifdef _WIN32
-	#include <windows.h>
-	#include <tchar.h>
-	// TCHAR is either char or wchar_t, so a
-	// typedef basic_string<TCHAR>   tstring;
-	
-#endif
-#include <vector>
+#include <windows.h>
+#include <tchar.h> 	// TCHAR is either char or wchar_t, so a typedef basic_string<TCHAR>   tstring;
+
 #include <string>
 #include <sstream>
 #include <iostream>
 
 #pragma comment(lib, "Version.lib") // for GetFileVersionInfo
-
 
 
 
@@ -66,9 +60,7 @@ public:
 
 		return GetFileVersion("kernel32.dll");
 	}
-
-
-
+	
 
 	static const std::string getWindowsShortVersionNumber(void) // returns something like: "6.1"
 	{
@@ -89,7 +81,107 @@ public:
 	}
 
 
-	static std::string GetFileVersion( const char* aFilePath)
+	static const std::string getWindowsNameVersionAndBuild(void)
+	{
+
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724439%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+		// GetVersion may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
+		// GetVersionEx may be altered or unavailable for releases after Windows 8.1. Instead, use the Version Helper functions
+
+		// all the helpers:
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
+
+		// table of version numbers
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724832(v=vs.85).aspx
+
+		// Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
+		// It can obtain additional processor information by calling the GetNativeSystemInfo function.
+
+		std::string result(cpccOSWin::getWindowsShortVersionNumber());
+		// std::cout << "getOSNameAndVersion() point 1, os=" << result << std::endl;
+		if (result.compare("10.0") == 0)
+			result = "Windows 10"; // or Windows Server 2016
+		else
+			if (result.compare("6.3") == 0)
+				result = "Windows 8.1"; // Windows Server 2012 R2
+			else
+				if (result.compare("6.2") == 0)
+					result = "Windows 8"; // or Windows Server 2012
+				else
+					if (result.compare("6.1") == 0)
+						result = "Windows 7"; // or Windows Server 2008 R2
+					else
+						if (result.compare("6.0") == 0)
+							result = "Windows Vista";
+						else
+							if (result.compare("5.2") == 0)
+								result = "Windows XP 64bit"; // or Windows server 2003
+							else
+								if (result.compare("5.1") == 0) // 5.1.2600 -> with SP3
+									result = "Windows XP";
+								else
+									if (result.compare("5.0") == 0)
+										result = "Windows 2000";
+									else result = "Windows unknown";
+
+
+		// must be in reverse order
+		/*
+		char *ver;
+		getWindowsFullVersionNumber
+
+		if (IsWindows10OrGreater())
+		ver = "Win 10 or newer";
+		else
+		if (IsWindows8Point1OrGreater())
+		ver = "Win 8.1 or newer";
+		else
+		if (IsWindows8OrGreater())
+		ver = "Win 8";
+		else
+		if (IsWindows7SP1OrGreater())
+		ver = "Win 7 SP1";
+		else
+		if (IsWindows7OrGreater())
+		ver = "Win 7";
+		else
+		if (IsWindowsVistaSP2OrGreater())
+		ver = "Win Vista SP2";
+		else
+		if (IsWindowsVistaSP1OrGreater())
+		ver = "Win Vista SP1";
+		else
+		if (IsWindowsVistaOrGreater())
+		ver = "Win Vista";
+		else
+		if (IsWindowsXPSP3OrGreater())
+		ver = "Win XP SP3";
+		else
+		if (IsWindowsXPSP2OrGreater())
+		ver = "Win XP SP2";
+		else
+		if (IsWindowsXPSP1OrGreater())
+		ver = "Win XP SP1";
+		else
+		if (IsWindowsXPOrGreater())
+		ver = "Win XP";
+		else
+		ver = "Win 2000 or older";
+		*/
+
+
+		if (is64bit())
+			result += ", 64bit";
+		else
+			result += ", 32bit";
+
+		result += " (" + getWindowsFullVersionNumber() + ")";
+		// std::cout << "getOSNameAndVersion() point 2, os=" << result << std::endl;
+		return result;
+
+	}
+
+	static const std::string GetFileVersion( const char* aFilePath)
 		/*
 		https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
 		To obtain the full version number for the operating system, call the GetFileVersionInfo function
@@ -142,7 +234,7 @@ public:
 	}
 
 
-	static bool			is64bit(void)
+	static const bool is64bit(void)
 	{
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724423%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
 		//  PROCESSOR_ARCHITECTURE_AMD64 -> x64 (AMD or Intel)

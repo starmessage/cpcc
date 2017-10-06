@@ -15,15 +15,7 @@
 #pragma once
 
 #ifdef _WIN32
-	#include <windows.h>
-	#include <tchar.h>
-	// TCHAR is either char or wchar_t, so a
-	// typedef basic_string<TCHAR>   tstring;
-	#include "core.cpccOSWin.h"
-	#define  CPCCOS_IMPL	:public cpccOSWin
-#else
-	#define  CPCCOS_IMPL	
-
+    #include <Windows.h>
 #endif
 #include <vector>
 #include <string>
@@ -38,7 +30,7 @@ struct cpccMonitorInfoT
 typedef std::vector<cpccMonitorInfoT> cpccMonitorList;
 
 
-class cpccOS CPCCOS_IMPL
+class cpccOS 
 {
 
 public:
@@ -61,15 +53,8 @@ public:
     
     static std::string& readProgramVersion(void);
     
-#ifdef _WIN32
-    //static const std::string getWindowsFullVersionNumber(void);
-	//static const std::string getWindowsShortVersionNumber(void);
-	//static std::string GetFileVersion( const char* aFilePath);
-    
-#endif
-    
-    static std::string	getOSnameAndVersion(void);
-    static std::string	getOSnameVersionAndBuildNumber(void);
+    static std::string	getOSNameAndVersion(void);
+    static std::string	getOSNameVersionAndBuild(void);
 	static bool			is64bit(void);
     
 #ifdef __APPLE__
