@@ -136,14 +136,7 @@
  
  
 
-/*
-class   logObjectLife4ScreenSaveLibMac: logObjectLife
-{
-public:
-    logObjectLife4ScreenSaveLibMac(): logObjectLife((char *)"cpccScreenSaveLibMac_OsInterface object")
-    { }
-};
-*/
+
 
 
 @interface cpccScreenSaveLibMac_OsInterface : ScreenSaverView 

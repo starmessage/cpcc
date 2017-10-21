@@ -203,11 +203,6 @@ NULL );
 
 class cpccHttpRequestAsync
 {
-public:
-
-	//enum  WF { step0_noAction, step1_sendRequest, step2_receiveResponse, step3_getStatusCode, step4_autoDestruct, step5_finished };
-	//WF					m_nextStep = step0_noAction;
-	// DWORD				m_callback_status = 0;
 
 private:
 	
