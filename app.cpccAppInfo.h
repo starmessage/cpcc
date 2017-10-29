@@ -69,8 +69,7 @@ public:
 				*DonateURL,
 				*CheckForUpdatesURL,
 				*Email;
-    const static int
-        licenseType;
+    const static int licenseType;
 
     
 	static cpcc_string getText_pleaseBuyTheFullVersion_html(const cpcc_char *aProgramName)

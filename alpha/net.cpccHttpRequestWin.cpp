@@ -625,10 +625,7 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	logFunctionLife _conLife("cpccHttpRequestClientWin Constructor");
 	debugLog().addf("connection handler for server: [%s]", aURLHost);
 
-	if (runAsync)
-		infoLog().add("cpccHttpRequestClientWin created with Async flag");
 	
-
 	if (!WinHttpCheckPlatform())
 	{
 		infoLog().add("cpccHttpRequestClientWin was disabled becayse WinHTTP is not supported by your Windows version.");
