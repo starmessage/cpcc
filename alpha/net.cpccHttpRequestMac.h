@@ -29,17 +29,15 @@ public:
                              const bool isHTTPS,
                              const char *aUserAgent = 0,
                              const bool runAsync=false)
-            : m_postHost(aURLhost), m_postPath(aURLpath), m_userAgent(aUserAgent?aUserAgent:"")
+            : m_postHost(aURLhost?aURLhost:""), m_postPath(aURLpath?aURLpath:""), m_userAgent(aUserAgent?aUserAgent:"")
     { }
     
     int httpPost(	const char *postData ,
                     const int timeoutInSec);
     
-    int httpPostAsync(/* int &asynResult, */
-                        std::atomic<bool> &errorOccured,
-                        std::atomic<int> &nPending,
-                        const char *postData ,
+    int httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, 
+						const char *postData ,
                         const int timeoutInSec);
     
-    // static bool internetIsOn(void);
+
 };

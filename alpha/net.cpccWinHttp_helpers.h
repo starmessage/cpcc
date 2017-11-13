@@ -20,7 +20,7 @@
 #include "../cpccUnicodeSupport.h"
 #include "../core.cpccOS.h"
 #include "../io.cpccLog.h"
-
+#include "../cpccInstanceCounterPattern.h"
 
 
 
@@ -432,3 +432,134 @@ public:
 };
 
 
+
+///////////////////////////////////////////////////////////
+//
+//
+//		class cpccWinHttpRequestAsync
+//
+//
+///////////////////////////////////////////////////////////
+
+class cpccWinHttpRequestAsync
+{
+
+private:
+
+	cWinHttp_request	m_request;
+	std::atomic<int>	&m_nPending;
+	std::atomic<bool>	&m_errorOccured;
+	cpccInstanceCounterPattern m_instanceCounter;
+	std::string			m_postPayloadBuffer; // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
+	bool				m_receiveResponseCalled = false,
+		m_getStatusCodeCalled = false;
+
+public:
+
+	explicit cpccWinHttpRequestAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const HINTERNET aConnectionHandle, const bool isHTTPS, const LPCWSTR aPostPath, const char *aPostPayload, const int aTimeout, WINHTTP_STATUS_CALLBACK aCallback) :
+		m_nPending(nPending), m_errorOccured(errorOccured),
+		m_postPayloadBuffer(aPostPayload ? aPostPayload : ""),
+		m_request(aConnectionHandle, isHTTPS, aPostPath, aTimeout),
+		m_instanceCounter(nPending)
+	{
+		int i = nPending;
+		infoLog().addf(__FUNCTION__ ", asyncCountrer=%i", i);
+
+		if (!m_request.isGood())
+		{
+			m_errorOccured = true;
+			return;
+		}
+		m_request.SetStatusCallback(aCallback);
+		infoLog().add("will sendRequest()");
+		sendRequest();
+
+	}
+
+
+	~cpccWinHttpRequestAsync()
+	{
+		infoLog().addf("destructor with context =%lu", (DWORD_PTR)this);
+	}
+
+
+	void autoDestruct(void)
+	{
+		// cannot be called from the constructor
+		delete this;
+	}
+
+
+	void sendRequest(void)
+	{
+		if (m_errorOccured)
+			return;
+
+		infoLog().addf("sendRequest() called for context %lu", (DWORD_PTR)this);
+		DWORD_PTR context = (DWORD_PTR)this;
+		BOOL winApiResult = m_request.sendRequest((LPSTR)m_postPayloadBuffer.c_str(), (DWORD)m_postPayloadBuffer.length(), context);
+		/* δημιουργει τα παρακατω messages
+		WINHTTP_CALLBACK_STATUS_SENDING_REQUEST
+		WINHTTP_CALLBACK_STATUS_REQUEST_SENT
+
+		WINHTTP_CALLBACK_STATUS_SENDING_REQUEST
+		WINHTTP_CALLBACK_STATUS_REQUEST_SENT
+
+		WINHTTP_CALLBACK_STATUS_SENDREQUEST_COMPLETE
+		*/
+		if (winApiResult == FALSE)
+		{
+			m_errorOccured = true;
+			return;
+		}
+	}
+
+
+	void receiveResponse(void)
+	{
+		if (m_receiveResponseCalled)
+		{
+			warningLog().addf("receiveResponse() called AGAIN for context %lu", (DWORD_PTR)this);
+			return;
+		}
+
+		m_receiveResponseCalled = true;
+		infoLog().addf("receiveResponse() called for context %lu", (DWORD_PTR)this);
+		if (m_errorOccured)
+			return;
+
+		if (m_request.ReceiveResponse() == FALSE)
+			m_errorOccured = true;
+		/* δημιουργει τα παρακατω messages
+		WINHTTP_CALLBACK_STATUS_RECEIVING_RESPONSE
+		WINHTTP_CALLBACK_STATUS_RESPONSE_RECEIVED
+		WINHTTP_CALLBACK_STATUS_HEADERS_AVAILABLE
+		*/
+	}
+
+
+	void getStatusCode(void)
+	{
+
+		if (m_getStatusCodeCalled)
+		{
+			warningLog().addf("getStatusCode() called AGAIN for context %lu", (DWORD_PTR)this);
+			return;
+		}
+		m_getStatusCodeCalled = true;
+		infoLog().addf("getStatusCode() called for context %lu", (DWORD_PTR)this);
+		// to keep or not to keep?
+		// m_request.removeStatusCallback();
+
+		DWORD dwStatusCode;
+		if (m_request.QueryHeaders_statuscode(&dwStatusCode) == false)
+		{
+			m_errorOccured = true;
+		}
+		infoLog().addf("async status code=%lu", dwStatusCode);
+	}
+
+};
+
+// declaration here, Implementation in the .cpp file
+void CALLBACK winHttp_ProgressCallback(HINTERNET hInternet, _In_ DWORD_PTR dwContext, _In_ DWORD dwInternetStatus, _In_ LPVOID lpvStatusInformation, _In_ DWORD     dwStatusInformationLength);

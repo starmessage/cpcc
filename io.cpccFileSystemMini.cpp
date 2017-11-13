@@ -281,18 +281,12 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
-    
-    
-/*
-cpcc_string finalFilename = aFilename;
- #ifdef __APPLE__
-    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
-        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
-#endif
- */
-	 //static std::mutex _fileAppendMutex;
-	//std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
+    static std::mutex _fileAppendMutex;
+    std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
 
+// #define USE_FOPEN
+#ifdef  USE_FOPEN
+    
 	FILE *fp; 
 	#pragma warning(suppress : 4996)
 	fp= cpcc_fopen(aFilename,  _T("at")); // write append // todo: UNICODE
@@ -300,6 +294,20 @@ cpcc_string finalFilename = aFilename;
 	cpcc_fprintf(fp,_T("%s"),txt);
 	fclose(fp);
 	return true;
+#else
+    // std::ofstream outfile("thefile.txt", std::ios_base::app | std::ios_base::out);
+    // ios::app = opens the file in append mode.
+    static std::ofstream _f;
+    
+    _f.open(aFilename, std::ios_base::app | std::ios_base::out);
+    if (!_f.good())
+        return false;
+    
+    _f << txt;
+    // _f << fflush;
+    _f.close();
+    return true;
+#endif
 }
 
 
@@ -628,6 +636,12 @@ void cpccFileSystemMini::selfTest(void)
 	deleteFile(tmpFile.c_str());
 	assert(!fileExists(tmpFile.c_str()) && _T("#5356g: cpccFileSystemMini::selfTest"));
 	
+    // check if the appendFile also creates the file if it does not already exist
+    appendTextFile(tmpFile.c_str(), "test to create a file" );
+    assert(fileExists(tmpFile.c_str()) && _T("#5356r: cpccFileSystemMini::selfTest"));
+    deleteFile(tmpFile.c_str());
+    
+    
 	//std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	
 #ifdef _WIN32
