@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccLog.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
@@ -79,7 +80,18 @@ public:
 		if (m_filename.length() > 0)
 		{
 			if (cpccFileSystemMini::fileExists(m_filename.c_str()))
-				cpccFileSystemMini::appendTextFile(m_filename.c_str(), txt);
+            {
+                try
+                {
+                    cpccFileSystemMini::appendTextFile(m_filename.c_str(), txt);
+                }
+                catch ( ... )
+                {
+                    std::cerr << "Exception in cpccFileWriterWithBuffer.add(""" << txt << """)" << std::endl;
+                    throw std::runtime_error("Exception #6246 in cpccFileWriterWithBuffer.add() when calling cpccFileSystemMini::appendTextFile()");
+                }
+				
+            }
 		}
 		else
 		{

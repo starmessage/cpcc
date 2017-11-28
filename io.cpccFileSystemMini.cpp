@@ -22,7 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <errno.h>
-#include <mutex>
+
 
 #ifdef _WIN32
 	#include	<io.h> // for _access on windows
@@ -52,7 +52,8 @@
 
 
 // std::mutex _fileAppendMutex, _writeToFileMutex;
-
+// std::mutex cpccFileSystemMini::fileAppendMutex_;
+static std::mutex fileAppendMutex_;
 
 // main class
 
@@ -281,11 +282,14 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
-    static std::mutex _fileAppendMutex;
-    std::lock_guard<std::mutex> autoMutex(_fileAppendMutex);
-
-// #define USE_FOPEN
-#ifdef  USE_FOPEN
+// when mutex is used, an exception "mutex lock failed: Invalid argument" occurs when the log add() function is called on program termination
+// #define USE_MUTEX_F
+#ifdef USE_MUTEX_F
+    std::lock_guard<std::mutex> autoMutex(fileAppendMutex_);
+#endif
+    
+// #define USE_FOPEN_F
+#ifdef  USE_FOPEN_F
     
 	FILE *fp; 
 	#pragma warning(suppress : 4996)

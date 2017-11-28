@@ -15,6 +15,8 @@
 #pragma once
 
 #include <string>
+#include <mutex>
+
 #include "cpccUnicodeSupport.h"
 #include "io.cpccFileSystemL1.h"
 
@@ -35,6 +37,7 @@
 */
 class cpccFileSystemMini: public cpccFileSystemL1
 {
+    
 public:	// class metadata and selftest
 
     
