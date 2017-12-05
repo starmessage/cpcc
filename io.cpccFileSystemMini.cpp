@@ -360,11 +360,6 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 }
 
 
-
-
-
-
-
 bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
 {
 	/*

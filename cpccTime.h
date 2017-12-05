@@ -139,7 +139,9 @@ public:
 		timeinfo = localtime(&a); // The returned value points to an internal object whose validity or value may be altered by any subsequent call to gmtime or localtime.
 
 		//printf("Current local time and date: %s", asctime(timeinfo));
-		struct tm result = *timeinfo;
+		struct tm result;
+		if (timeinfo!=NULL) 
+			result = *timeinfo;
 		return result;
 	}
 
