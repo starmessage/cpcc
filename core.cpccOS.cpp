@@ -26,11 +26,11 @@
 	#endif
 #endif
 
-
-#include "core.cpccOS.h"
 #include <iostream>
 #include <sstream>
 #include <mutex>
+#include "core.cpccOS.h"
+
 
 #ifdef _WIN32
 	#include "core.cpccOSWin.h"
@@ -178,6 +178,7 @@ void cpccOS::getMainMonitorResolution(int &width, int &height)
 
 
 #ifdef _WIN32
+
 static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
 {
 	//lprcMonitor holds the rectangle that describes the monitor position and resolution)
@@ -213,21 +214,25 @@ const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
     return FindWindow(aClassName, NULL);
 }
 
-
-std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
+#ifdef UNICODE
+	std::wstring
+#else
+	std::string
+#endif
+	cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 {
 	// some ready codes, because the win functions do not always find the error text
 	switch(anErrorCode) 
 	{
-		case 0: return  std::string("No error text for error code 0");
+		case 0: return  _T("No error text for error code 0");
 		//  WinINet errors
 		// https://msdn.microsoft.com/en-us/library/aa385465(v=vs.85).aspx
-		case 12002: return  std::string("The request has timed out.");
-		case 12004: return  std::string("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
-		case 12017: return  std::string("ERROR_INTERNET_OPERATION_CANCELLED. The operation was canceled, usually because the handle on which the request was operating was closed before the operation completed.");
-		case 12019: return  std::string("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
+		case 12002: return  _T("The request has timed out.");
+		case 12004: return  _T("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
+		case 12017: return  _T("ERROR_INTERNET_OPERATION_CANCELLED. The operation was canceled, usually because the handle on which the request was operating was closed before the operation completed.");
+		case 12019: return  _T("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
 		// encoding help: https://msdn.microsoft.com/en-us/library/aa383955(v=vs.85).aspx
-		case 12175: return  std::string("ERROR_INTERNET_DECODING_FAILED. WinINet failed to perform content decoding on the response.");
+		case 12175: return  _T("ERROR_INTERNET_DECODING_FAILED. WinINet failed to perform content decoding on the response.");
 		
 		// winHttpErrors
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa383770(v=vs.85).aspx
@@ -235,9 +240,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 
 		// System Error Codes (4000-5999)
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
-		case 4317: return  std::string("ERROR_INVALID_OPERATION. The operation identifier is not valid.");
-
-
+		case 4317: return  _T("ERROR_INVALID_OPERATION. The operation identifier is not valid.");
 	}
 	
 
@@ -264,7 +267,7 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 		// Load the library.
 		hInst = LoadLibrary(_T("Ntdsbmsg.dll"));
 		if (hInst == NULL)
-			return  std::string("No description of the error because getWindowsErrorText() could not load Ntdsbmsg.dll\n");
+			return  _T("No description of the error because getWindowsErrorText() could not load Ntdsbmsg.dll\n");
 			
 		
 		// Try getting message text from ntdsbmsg.
@@ -276,16 +279,16 @@ std::string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 	}
 		
 	if (nChars == 0)
-		return std::string("FormatMessage() failed inside getWindowsErrorText()\n");
+		return _T("FormatMessage() failed inside getWindowsErrorText()\n");
     
-    return std::string(lpBuffer);
+    return lpBuffer;
 }
 
 
-std::string cpccOS::getWindowsErrorCodeAndText(const char *failedFunctionName, const DWORD anErrorCode)
+cpcc_string cpccOS::getWindowsErrorCodeAndText(const cpcc_char *failedFunctionName, const DWORD anErrorCode)
 {
-	std::ostringstream s;
-	s << failedFunctionName << "() failed.\nWindows error code " << anErrorCode << ": ";
+	cpcc_ostringstream s;
+	s << failedFunctionName << _T("() failed.\nWindows error code ") << anErrorCode << _T(": ");
 	s << getWindowsErrorText(anErrorCode) << std::endl;
 	return s.str();
 }

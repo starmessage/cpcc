@@ -19,7 +19,7 @@
 #endif
 #include <vector>
 #include <string>
-
+#include "cpccUnicodeSupport.h"
 
 struct cpccMonitorInfoT
 {
@@ -70,8 +70,9 @@ public:
     
 	/// returns the textual verison of the windows error code.
 	/// Parameter: the number given by GetLastError()
-    static std::string getWindowsErrorText(const DWORD anErrorCode);
-	static std::string getWindowsErrorCodeAndText(const char *failedFunctionName, const DWORD anErrorCode);
+    
+	static cpcc_string	getWindowsErrorText(const DWORD anErrorCode);
+	static cpcc_string	getWindowsErrorCodeAndText(const TCHAR *failedFunctionName, const DWORD anErrorCode);
 
 #endif
 

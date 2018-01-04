@@ -74,9 +74,15 @@ public: // constructor / destructor
 public: // functions
 	bool 				isEmpty(void) const { return m_isEmpty; }
 	static const cpcc_string &	getFilename(void);
-	void				add(const std::string &txt) { add(txt.c_str()); }
+	inline void			add(const cpcc_string &txt) { add(txt.c_str()); }
 	void 				add(const cpcc_char* txt);
-	void 				addf(const cpcc_char* format, ...);
+#ifdef _WIN32
+#ifdef UNICODE
+	void				addf(const wchar_t* format, ...);
+#endif
+#endif
+	void 				addf(const char* format, ...);
+
 	// void				markLogClosure(void);
 	static cpcc_string 	toString(const cpcc_char* format, ...);
     

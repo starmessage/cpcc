@@ -12,6 +12,7 @@
  */
 
 #include "net.cpccInternet.h"
+#include "../cpccUnicodeSupport.h"
 
 #include <windows.h>
 #include <wininet.h>
@@ -29,7 +30,7 @@ bool cpccInternet::isConnectedToInternet(void)
     // for InternetCheckConnection. WinINET, uses the IE settings for accessing the internet. Security, firewall, proxy, etc.
     
 	// The function was never successful if I didn't specify a URL to use.
-	return InternetCheckConnection("http://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0) !=0 ;
+	return InternetCheckConnection( _T("http://www.google.com"), FLAG_ICC_FORCE_CONNECTION, 0) !=0 ;
 
 	/* e.g. with COM objects
 	VARIANT_BOOL *pbIsConnected;

@@ -144,7 +144,7 @@ protected:
 			if (::WinHttpCloseHandle(m_handle) == FALSE)
 			{
 				DWORD errNo = GetLastError();
-				errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", errNo));
+				errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
 			}
             m_handle = 0;
         }
@@ -201,12 +201,12 @@ public:
 		*/
 		if (pCallback != NULL)
 		{
-			errorLog().add("#4961: expected NULL after WinHttpSetStatusCallback()");
+			errorLog().add(_T("#4961: expected NULL after WinHttpSetStatusCallback()"));
 			if (pCallback == WINHTTP_INVALID_STATUS_CALLBACK)
 			{
 				DWORD errNo = GetLastError();
-				std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpSetStatusCallback", errNo));
-				std::cerr << errormsg;
+				cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpSetStatusCallback"), errNo));
+				cpcc_cerr << errormsg;
 				errorLog().add(errormsg.c_str());
 			}
 			return FALSE;
@@ -335,7 +335,7 @@ public:
 		if (!getHandle())
 		{
 			DWORD errNo = GetLastError();
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpOpenRequest", errNo));
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
 			std::cerr << errormsg;
 			errorLog().add(errormsg.c_str());
 		}
@@ -360,7 +360,7 @@ public:
 		dwResolveTimeout = 0;
 		
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa384116(v=vs.85).aspx
-		infoLog().addf("Set winhttp timeout of %i sec.", aTimeout);
+		infoLog().addf(_T("Set winhttp timeout of %i sec."), aTimeout);
 		BOOL result = WinHttpSetTimeouts(getHandle(), dwResolveTimeout, dwConnectTimeout, dwSendTimeout, dwReceiveTimeout );
 		if (result == FALSE)
 		{
@@ -388,7 +388,7 @@ public:
 								aContextPtr);
 		if (result == FALSE)
 		{
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", GetLastError()));
+			std::string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), GetLastError()));
 			errorLog().add(errormsg);
 		}
 		return result;
@@ -400,7 +400,7 @@ public:
 		if (WinHttpReceiveResponse(getHandle(), NULL) == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpReceiveResponse", errNo));
+			errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), errNo));
 			return FALSE;
 		}
 		return TRUE;
@@ -463,7 +463,7 @@ public:
 		m_instanceCounter(nPending)
 	{
 		int i = nPending;
-		infoLog().addf(__FUNCTION__ ", asyncCountrer=%i", i);
+		infoLog().addf(_T(__FUNCTION__) _T(", asyncCountrer=%i"), i);
 
 		if (!m_request.isGood())
 		{
@@ -479,7 +479,7 @@ public:
 
 	~cpccWinHttpRequestAsync()
 	{
-		infoLog().addf("destructor with context =%lu", (DWORD_PTR)this);
+		infoLog().addf(_T("destructor with context =%lu"), (DWORD_PTR)this);
 	}
 
 
@@ -495,7 +495,7 @@ public:
 		if (m_errorOccured)
 			return;
 
-		infoLog().addf("sendRequest() called for context %lu", (DWORD_PTR)this);
+		infoLog().addf(_T("sendRequest() called for context %lu"), (DWORD_PTR)this);
 		DWORD_PTR context = (DWORD_PTR)this;
 		BOOL winApiResult = m_request.sendRequest((LPSTR)m_postPayloadBuffer.c_str(), (DWORD)m_postPayloadBuffer.length(), context);
 		/* δημιουργει τα παρακατω messages
@@ -519,12 +519,12 @@ public:
 	{
 		if (m_receiveResponseCalled)
 		{
-			warningLog().addf("receiveResponse() called AGAIN for context %lu", (DWORD_PTR)this);
+			warningLog().addf( _T("receiveResponse() called AGAIN for context %lu"), (DWORD_PTR)this);
 			return;
 		}
 
 		m_receiveResponseCalled = true;
-		infoLog().addf("receiveResponse() called for context %lu", (DWORD_PTR)this);
+		infoLog().addf(_T("receiveResponse() called for context %lu"), (DWORD_PTR)this);
 		if (m_errorOccured)
 			return;
 
@@ -543,11 +543,11 @@ public:
 
 		if (m_getStatusCodeCalled)
 		{
-			warningLog().addf("getStatusCode() called AGAIN for context %lu", (DWORD_PTR)this);
+			warningLog().addf(_T("getStatusCode() called AGAIN for context %lu"), (DWORD_PTR)this);
 			return;
 		}
 		m_getStatusCodeCalled = true;
-		infoLog().addf("getStatusCode() called for context %lu", (DWORD_PTR)this);
+		infoLog().addf(_T("getStatusCode() called for context %lu"), (DWORD_PTR)this);
 		// to keep or not to keep?
 		// m_request.removeStatusCallback();
 
@@ -556,7 +556,7 @@ public:
 		{
 			m_errorOccured = true;
 		}
-		infoLog().addf("async status code=%lu", dwStatusCode);
+		infoLog().addf(_T("async status code=%lu"), dwStatusCode);
 	}
 
 };

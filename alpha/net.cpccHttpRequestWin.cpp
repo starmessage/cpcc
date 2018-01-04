@@ -377,8 +377,8 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0), m_disabled(false)
 
 {  
-	logFunctionLife _conLife("cpccHttpRequestClientWin Constructor");
-	debugLog().addf("connection handler for server: [%s]", aURLHost);
+	logFunctionLife _conLife(_T("cpccHttpRequestClientWin Constructor"));
+	debugLog().addf(_T("connection handler for server: [%s]"), aURLHost);
 
 	
 	if (!WinHttpCheckPlatform())
@@ -417,7 +417,7 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	}
 	else
 	{
-		errorLog().addf("httpPost(): postURL must start with http:// or https://\n%s\n", aURLHost);
+		errorLog().addf(_T("httpPost(): postURL must start with http:// or https://\n%s\n"), aURLHost);
 		//m_isGood = false;
 		return;
 	}

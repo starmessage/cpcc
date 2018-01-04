@@ -101,7 +101,7 @@ public:
 
 	int httpPostAsync( const char *postData, const int timeoutInSec)
 	{
-		infoLog().addf("httpPostAsync() found %i pending tasks", pendingRequestsCount());
+		infoLog().addf( _T("httpPostAsync() found %i pending tasks"), pendingRequestsCount());
 		return m_impl.httpPostAsync(m_errorOccured, m_pendingAsyncTasks, postData, timeoutInSec);
 	}
      

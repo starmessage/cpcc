@@ -58,7 +58,7 @@ public:
 
 		// std::cout << "Inside getWindowsFullVersionNumber(), cached_result: " << cached_result << std::endl;
 
-		return GetFileVersion("kernel32.dll");
+		return GetFileVersion(_T("kernel32.dll"));
 	}
 	
 
@@ -181,7 +181,7 @@ public:
 
 	}
 
-	static const std::string GetFileVersion( const char* aFilePath)
+	static const std::string GetFileVersion( const TCHAR* aFilePath)
 		/*
 		https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
 		To obtain the full version number for the operating system, call the GetFileVersionInfo function
@@ -205,7 +205,7 @@ public:
 
 		if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
 		{
-			if (VerQueryValue(verData, "\\", (VOID FAR* FAR*)&lpBuffer, &size))
+			if (VerQueryValue(verData, _T("\\"), (VOID FAR* FAR*)&lpBuffer, &size))
 			{
 				if (size)
 				{

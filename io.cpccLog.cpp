@@ -23,7 +23,7 @@
 #include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
 #include "core.cpccIdeMacros.h"
-#include "cpccUnicodeSupport.h"
+
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
 #define cpccLogClosingStamp		_T("cpccLog closing. Bye bye...")
@@ -177,16 +177,40 @@ cpcc_string cpccLogFormatter::toString(const cpcc_char* format, ...)
 }
 
 
-void cpccLogFormatter::addf(const cpcc_char* format, ...)
+#ifdef _WIN32
+#ifdef UNICODE
+
+void cpccLogFormatter::addf(const wchar_t* format, ...)
 {
-	const int MAX_LOG_STRING = 8000 ;
-	cpcc_char buff[MAX_LOG_STRING + 1]; // = { 0 };
+	const int MAX_LOG_STRING = 8000;
+	wchar_t buff[MAX_LOG_STRING + 1]; // = { 0 };
 
 	va_list args;
 	va_start(args, format);
 #if (_MSC_VER >= 1400) // Visual Studio 2005
 	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
 	_vstprintf_s(buff, MAX_LOG_STRING, format, args);
+#else
+	vsprintf(buff, format, args);
+#endif
+	va_end(args);
+
+	add(buff);
+}
+
+#endif
+#endif
+
+void cpccLogFormatter::addf(const char* format, ...)
+{
+	const int MAX_LOG_STRING = 8000 ;
+	char buff[MAX_LOG_STRING + 1]; // = { 0 };
+
+	va_list args;
+	va_start(args, format);
+#if (_MSC_VER >= 1400) // Visual Studio 2005
+	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
+	vsprintf_s(buff, MAX_LOG_STRING, format, args); // or _vstprintf_s for automatic unicode/ non-unicode
 #else
 	vsprintf(buff, format, args);
 #endif
