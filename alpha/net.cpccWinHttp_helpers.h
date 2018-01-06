@@ -212,7 +212,7 @@ public:
 			return FALSE;
 		}
 		m_hasCallback = true;
-		infoLog().add("callback function added.");
+		infoLog().add(_T("callback function added."));
 		return TRUE;
 	}
 
@@ -221,7 +221,7 @@ public:
 	{
 		if (!m_hasCallback)
 		{
-			infoLog().add("removeStatusCallback() but no callback installed.");
+			infoLog().add(_T("removeStatusCallback() but no callback installed."));
 			return;
 		}
 		/* At the end of asynchronous processing, the application may set the callback function to NULL.
@@ -229,7 +229,7 @@ public:
 		*/
 		WinHttpSetStatusCallback(m_handle, NULL, WINHTTP_CALLBACK_FLAG_ALL_NOTIFICATIONS, NULL);
 		m_hasCallback = false;
-		infoLog().add("callback function removed.");
+		infoLog().add(_T("callback function removed."));
 	}
 
 };
@@ -256,7 +256,7 @@ public:
 		 if (runAsync)
 		 {
 			 sessionFlags |= WINHTTP_FLAG_ASYNC;
-			 infoLog().add("cWinHttp_session created with Async flag");
+			 infoLog().add(_T("cWinHttp_session created with Async flag"));
 		 }
 		 attach( WinHttpOpen(aUserAgent, // optional
 						WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, 
@@ -335,8 +335,8 @@ public:
 		if (!getHandle())
 		{
 			DWORD errNo = GetLastError();
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
-			std::cerr << errormsg;
+			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
+			cpcc_cerr << errormsg;
 			errorLog().add(errormsg.c_str());
 		}
 
@@ -365,8 +365,8 @@ public:
 		if (result == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpSetTimeouts", errNo));
-			std::cerr << errormsg;
+			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpSetTimeouts"), errNo));
+			cpcc_cerr << errormsg;
 			errorLog().add(errormsg.c_str());
 		}
 		
@@ -388,7 +388,7 @@ public:
 								aContextPtr);
 		if (result == FALSE)
 		{
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), GetLastError()));
+			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), GetLastError()));
 			errorLog().add(errormsg);
 		}
 		return result;
@@ -424,7 +424,7 @@ public:
 		if (result == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			std::string errormsg(cpccOS::getWindowsErrorCodeAndText("WinHttpQueryHeaders", errNo));
+			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpQueryHeaders"), errNo));
 			errorLog().add(errormsg);
 		}
 		return result;
@@ -452,7 +452,7 @@ private:
 	cpccInstanceCounterPattern m_instanceCounter;
 	std::string			m_postPayloadBuffer; // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
 	bool				m_receiveResponseCalled = false,
-		m_getStatusCodeCalled = false;
+						m_getStatusCodeCalled = false;
 
 public:
 
@@ -471,7 +471,7 @@ public:
 			return;
 		}
 		m_request.SetStatusCallback(aCallback);
-		infoLog().add("will sendRequest()");
+		infoLog().add(_T("will sendRequest()"));
 		sendRequest();
 
 	}

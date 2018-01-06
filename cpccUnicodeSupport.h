@@ -15,6 +15,12 @@
  
  
  /*
+	On Windows, TCHAR is either wchar_t or plain char depending on your project settings.
+	Likewise, _tprintf is either wprintf of printf to match the choice of characters.
+	On OSX you will likely have to make this choice yourself, perhaps
+	#define _tprintf    wprintf
+
+
 	example of using std::string in both Unicode and Non-Unicode
 	typedef std::basic_string<TCHAR> tstring;
 	tstring(_T("Hello"));
@@ -56,6 +62,11 @@
     	return ws ;
 	}
 	
+
+	// Linux isn't exactly "agnostic" to Unicode -- it does recognize Unicode but the standard library functions assume UTF-8 encoding,
+	// so Unicode strings fit into standard char arrays.
+	// Windows, on the other hand, uses UTF-16 encoding, so you need a wchar_t array to represent 16-bit characters.
+
  */
 #pragma once
 
@@ -83,7 +94,13 @@
 #define UTF16_BOM	"\xff\xfe"
 #define UTF8_BOM	"\xEF\xBB\xBF"
 
+// todo: replace cpcc_char with TCHAR (define it in Mac, leave it as is in Microsoft)
+// What do do for std::string as there is no ready define  in Microsoft?
+
+
 #ifdef UNICODE
+	typedef		wchar_t				cpcc_char;
+	typedef		std::wstring		cpcc_string;
 
 	#define		cpcc_cout			std::wcout 		
 	#define		cpcc_cerr			std::wcerr 	
@@ -100,22 +117,26 @@
 	#define		cpcc_fprintf		fwprintf	// _ftprintf
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
+	#define		cpcc_strstr			wcsstr
 	#define		cpcc_strtol			wcstol
 	#define		cpcc_strtod			wcstold
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
 	typedef		struct _stat		cpcc_struct_stat;
 
-	typedef		wchar_t				cpcc_char;
+	
 	typedef		std::wifstream		cpcc_ifstream;	
 	typedef		std::wofstream		cpcc_ofstream;	// wchar_t is the type that backs wstream and wstring
 	typedef		std::wostringstream cpcc_ostringstream;
 	typedef		std::wistringstream cpcc_istringstream;
 	typedef		std::wstringstream	cpcc_stringstream;
-	typedef		std::wstring		cpcc_string;
+	
 	
 
  #else 
+	typedef		char				cpcc_char;
+	typedef		std::string			cpcc_string;
+
 	#define		cpcc_cout			std::cout 	
 	#define		cpcc_cerr			std::cerr
 	#define		cpcc_thread			std::thread
@@ -127,19 +148,20 @@
 	#define		cpcc_fprintf		fprintf
 	#define		cpcc_strtok			strtok
 	#define		cpcc_strcpy			strcpy
+	#define		cpcc_strstr			strstr
 	#define		cpcc_strtol			strtol
 	#define		cpcc_strtod			strtod
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			stat
 	typedef		struct stat			cpcc_struct_stat;
 
-	typedef		char				cpcc_char;
+	
 	typedef		std::ifstream		cpcc_ifstream;
 	typedef		std::ofstream		cpcc_ofstream;
 	typedef		std::ostringstream	cpcc_ostringstream;
 	typedef		std::istringstream	cpcc_istringstream;
 	typedef		std::stringstream	cpcc_stringstream;
-	typedef		std::string			cpcc_string;
+	
  #endif
  
 

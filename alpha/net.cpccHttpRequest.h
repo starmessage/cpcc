@@ -89,10 +89,10 @@ public:
 		: m_impl(aProtocolAndHostAddress, aURLpath, isHTTPS, aUserAgent, runAsync)
     {   
 		if (runAsync)
-			infoLog().add("cpccHttpPostClient created with Async flag");
+			infoLog().add(_T("cpccHttpPostClient created with Async flag"));
 
 		if (isHTTPS)
-			infoLog().add("cpccHttpPostClient created with HTTPS flag");
+			infoLog().add(_T("cpccHttpPostClient created with HTTPS flag"));
 	}
     
     virtual ~cpccHttpPostClient() {  }

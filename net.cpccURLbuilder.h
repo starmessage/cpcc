@@ -18,7 +18,7 @@
 #include <map>
 #include <sstream>
 
-
+#include "cpccUnicodeSupport.h"
 
 /*
  tutorial and examples:
@@ -40,17 +40,16 @@ class cpccURLbuilder
 {
 private:
     
-    typedef std::map<std::string, std::string> tParameters;
-	std::string m_connectionProtocol, // http, https, etc
+    typedef std::map<cpcc_string, cpcc_string> tParameters;
+	cpcc_string m_connectionProtocol, // http, https, etc
 				m_hostAddress,
 				m_path;
-                // m_fullURLcache,
-                // m_UrlParametersCache;
+
     tParameters m_urlParamsList;
     
 public:
 
-    // cpccURLbuilder(void)    { }
+    cpccURLbuilder(void)    { }
 
     cpccURLbuilder(const char *aConnectionProtocol, const char *aHost, const char *aPath):
 			m_connectionProtocol(aConnectionProtocol ? aConnectionProtocol : ""),
