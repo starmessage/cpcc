@@ -31,3 +31,34 @@
 		#define cpccDEBUG
 	#endif
 #endif
+
+
+class cppcIDE
+{
+public:
+
+	// http://nadeausoftware.com/articles/2012/10/c_c_tip_how_detect_compiler_name_and_version_using_compiler_predefined_macros
+	static const char *getCompilerVersion(void)
+	{
+	#if __cplusplus == 201703L 
+		return "2017 C++ standard";
+	#endif
+
+	#if __cplusplus == 201402L
+		return "2014 C++ standard";
+	#endif
+
+	#if __cplusplus == 201103L 
+		return "2011 C++ standard";
+	#endif
+
+	#if __cplusplus == 199711L 
+		return "1998 C++ standard";
+	#endif
+
+	#ifdef  __STDC_VERSION__
+		return __STDC_VERSION__;
+	#endif
+		return "Undetected compliler version";
+}
+};

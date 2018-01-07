@@ -90,7 +90,6 @@ public:
                     std::cerr << "Exception in cpccFileWriterWithBuffer.add(""" << txt << """)" << std::endl;
                     throw std::runtime_error("Exception #6246 in cpccFileWriterWithBuffer.add() when calling cpccFileSystemMini::appendTextFile()");
                 }
-				
             }
 		}
 		else
@@ -283,6 +282,7 @@ void cpccLogManager::initialize(const char *appNameStem, const char *macBundleId
 		#endif 
 
         info.addf("cpccLogManager::initialize() called");
+		info.addf("Compiler version:%s", cppcIDE::getCompilerVersion());
 		cpcc_string fn = getAutoFullpathFilename(appNameStem, bundleID);
 		// check previous run
 		if ((config_checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
