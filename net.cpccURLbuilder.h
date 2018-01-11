@@ -39,7 +39,6 @@
 class cpccURLbuilder
 {
 private:
-    
     typedef std::map<cpcc_string, cpcc_string> tParameters;
 	cpcc_string m_connectionProtocol, // http, https, etc
 				m_hostAddress,
@@ -51,10 +50,10 @@ public:
 
     cpccURLbuilder(void)    { }
 
-    cpccURLbuilder(const char *aConnectionProtocol, const char *aHost, const char *aPath):
-			m_connectionProtocol(aConnectionProtocol ? aConnectionProtocol : ""),
-			m_hostAddress(aHost?aHost:""),
-			m_path(aPath ? aPath : "")
+    cpccURLbuilder(const cpcc_char *aConnectionProtocol, const cpcc_char *aHost, const cpcc_char *aPath):
+			m_connectionProtocol(aConnectionProtocol ? aConnectionProtocol : _T("")),
+			m_hostAddress(aHost?aHost: _T("")),
+			m_path(aPath ? aPath : _T(""))
     { }
     
 
@@ -76,7 +75,7 @@ public:
         
 #ifdef _WIN32
 		#pragma warning( suppress : 4996 )
-		return (strcmpi("https://", m_connectionProtocol.c_str()) == 0);
+		return (cpcc_stricmp(_T("https://"), m_connectionProtocol.c_str()) == 0);
 #else
         // Unix libraries use strcasecmp, from <strings.h>.
         return (strcasecmp("https://", m_connectionProtocol.c_str()) == 0);
@@ -92,22 +91,22 @@ public:
     }
     
 
-    static std::string urlEncode(const char *s)
+    static cpcc_string urlEncode(const cpcc_char *s)
     {
-        const std::string safechars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
+        const cpcc_string safechars = _T("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
         
-        std::string encoded="";
-        for(size_t i=0, len=strlen(s); i<len; ++i)
+		cpcc_string encoded= _T("");
+        for(size_t i=0, len=cpcc_strlen(s); i<len; ++i)
         {
-            if (safechars.find_first_of(s[i]) != std::string::npos)
+            if (safechars.find_first_of(s[i]) != cpcc_string::npos)
                 encoded.push_back(s[i]);
             else
             {
-                encoded.append("%");
-                char buf[3];
+                encoded.append(_T("%"));
+				cpcc_char buf[3];
 				// #pragma warning( disable : 4996 )  
 				#pragma warning( suppress : 4996 )  
-                sprintf(buf, "%.2X", (unsigned char) s[i]); // for Multibyte string.
+				cpcc_sprintf(buf, _T("%.2X"), (unsigned char) s[i]); // for Multibyte string.
 				// #pragma warning( default : 4996; )  
 				encoded.append(buf);
             }
@@ -130,7 +129,7 @@ public:
 	}
 	*/
 	
-    void setParameter(const char *aName, const char *aValue)
+    void setParameter(const cpcc_char *aName, const cpcc_char *aValue)
     {
         if (!aName)
             return;
@@ -138,59 +137,59 @@ public:
         if (aValue)
             m_urlParamsList[aName] = urlEncode(aValue);
         else
-            m_urlParamsList[aName] = "";
+            m_urlParamsList[aName] = _T("");
     }
     
     
-    void setParameter(const char *aName, const std::string &aValue)
+    void setParameter(const cpcc_char *aName, const cpcc_string &aValue)
     {
         setParameter(aName, aValue.c_str());
     }
     
     
-    void setParameter(const char *aName, const int aValue)
+    void setParameter(const cpcc_char *aName, const int aValue)
     {
-        std::ostringstream ss; ss << aValue;
+		cpcc_ostringstream ss; ss << aValue;
         setParameter(aName, ss.str());
     }
     
     
-    const std::string getFullURL(void)
+    const cpcc_string getFullURL(void)
     {
-		std::string result(m_connectionProtocol);
-		result +=  m_hostAddress + m_path + '?' + getUrlParameters();
+		cpcc_string result(m_connectionProtocol);
+		result +=  m_hostAddress + m_path + _T("?") + getUrlParameters();
         return result;
     }
     
     
     /// without the starting ?
-    const std::string  getUrlParameters(void)
+    const cpcc_string  getUrlParameters(void)
     {
-		std::string result, glueChar;
-        for (tParameters::iterator it = m_urlParamsList.begin() ; it != m_urlParamsList.end() ; ++it, glueChar='&')
-			result += glueChar + it->first + "=" + it->second;
+		cpcc_string result, glueChar;
+        for (tParameters::iterator it = m_urlParamsList.begin() ; it != m_urlParamsList.end() ; ++it, glueChar= _T("&"))
+			result += glueChar + it->first + _T("=") + it->second;
         
         return result;
     }
 
-	void setConnectionProtocol(const char *aConnectionProtocol)
+	void setConnectionProtocol(const cpcc_char *aConnectionProtocol)
 	{
-		m_connectionProtocol = aConnectionProtocol ? aConnectionProtocol:"";
+		m_connectionProtocol = aConnectionProtocol ? aConnectionProtocol: _T("");
 	}
 
-    const char * getHost(void) const
+    const cpcc_char * getHost(void) const
     {
         return m_hostAddress.c_str();
     }
 
-	const std::string getConnectionProtocolAndHost(void)
+	const cpcc_string getConnectionProtocolAndHost(void)
 	{
-		std::string result(m_connectionProtocol);
+		cpcc_string result(m_connectionProtocol);
 		result += m_hostAddress;
 		return result;
 	}
 
-	const char * getPath(void) const
+	const cpcc_char * getPath(void) const
 	{
 		return m_path.c_str();
 	}

@@ -31,7 +31,7 @@ class cpccOSWin
 public:
 
 	/// returns the full versoion and build number, e.g. for windows 10: "10.0.15063.296"
-	static const std::string getWindowsFullVersionNumber(void)
+	static const cpcc_string getWindowsFullVersionNumber(void)
 	{
 		/*
 			TCHAR bufferSystemFolder[600];
@@ -62,17 +62,17 @@ public:
 	}
 	
 
-	static const std::string getWindowsShortVersionNumber(void) // returns something like: "6.1"
+	static const cpcc_string getWindowsShortVersionNumber(void) // returns something like: "6.1"
 	{
-		std::string  result = getWindowsFullVersionNumber();	// returns something like: "6.1.7601.23864"
+		cpcc_string  result = getWindowsFullVersionNumber();	// returns something like: "6.1.7601.23864"
 		// std::cout << "inside getWindowsShortVersionNumber(), point 1, result= " << result << std::endl;
 
 		// remove the last two fragments
-		std::size_t found = result.rfind("."); // remove everything after the last .
+		std::size_t found = result.rfind(_T(".")); // remove everything after the last .
 		if (found != std::string::npos)
 			result.erase(found);
 
-		found = result.rfind("."); // remove everything after the last .
+		found = result.rfind(_T(".")); // remove everything after the last .
 		if (found != std::string::npos)
 			result.erase(found);
 
@@ -81,7 +81,7 @@ public:
 	}
 
 
-	static const std::string getWindowsNameVersionAndBuild(void)
+	static const cpcc_string getWindowsNameVersionAndBuild(void)
 	{
 
 		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724439%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
@@ -97,32 +97,32 @@ public:
 		// Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
 		// It can obtain additional processor information by calling the GetNativeSystemInfo function.
 
-		std::string result(cpccOSWin::getWindowsShortVersionNumber());
+		cpcc_string result(cpccOSWin::getWindowsShortVersionNumber());
 		// std::cout << "getOSNameAndVersion() point 1, os=" << result << std::endl;
-		if (result.compare("10.0") == 0)
-			result = "Windows 10"; // or Windows Server 2016
+		if (result.compare(_T("10.0")) == 0)
+			result = _T("Windows 10"); // or Windows Server 2016
 		else
-			if (result.compare("6.3") == 0)
-				result = "Windows 8.1"; // Windows Server 2012 R2
+			if (result.compare(_T("6.3")) == 0)
+				result = _T("Windows 8.1"); // Windows Server 2012 R2
 			else
-				if (result.compare("6.2") == 0)
-					result = "Windows 8"; // or Windows Server 2012
+				if (result.compare(_T("6.2")) == 0)
+					result = _T("Windows 8"); // or Windows Server 2012
 				else
-					if (result.compare("6.1") == 0)
-						result = "Windows 7"; // or Windows Server 2008 R2
+					if (result.compare(_T("6.1")) == 0)
+						result = _T("Windows 7"); // or Windows Server 2008 R2
 					else
-						if (result.compare("6.0") == 0)
-							result = "Windows Vista";
+						if (result.compare(_T("6.0")) == 0)
+							result = _T("Windows Vista");
 						else
-							if (result.compare("5.2") == 0)
-								result = "Windows XP 64bit"; // or Windows server 2003
+							if (result.compare(_T("5.2")) == 0)
+								result = _T("Windows XP 64bit"); // or Windows server 2003
 							else
-								if (result.compare("5.1") == 0) // 5.1.2600 -> with SP3
-									result = "Windows XP";
+								if (result.compare(_T("5.1")) == 0) // 5.1.2600 -> with SP3
+									result = _T("Windows XP");
 								else
-									if (result.compare("5.0") == 0)
-										result = "Windows 2000";
-									else result = "Windows unknown";
+									if (result.compare(_T("5.0")) == 0)
+										result = _T("Windows 2000");
+									else result = _T("Windows unknown");
 
 
 		// must be in reverse order
@@ -171,17 +171,18 @@ public:
 
 
 		if (is64bit())
-			result += ", 64bit";
+			result += _T(", 64bit");
 		else
-			result += ", 32bit";
+			result += _T(", 32bit");
 
-		result += " (" + getWindowsFullVersionNumber() + ")";
+		result += _T(" (") + getWindowsFullVersionNumber() + _T(")");
 		// std::cout << "getOSNameAndVersion() point 2, os=" << result << std::endl;
+
 		return result;
 
 	}
 
-	static const std::string GetFileVersion( const TCHAR* aFilePath)
+	static const cpcc_string GetFileVersion( const TCHAR* aFilePath)
 		/*
 		https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
 		To obtain the full version number for the operating system, call the GetFileVersionInfo function
@@ -197,7 +198,7 @@ public:
 		LPBYTE lpBuffer = NULL;
 		DWORD  verSize = GetFileVersionInfoSize(aFilePath, &verHandle);
 
-		std::string result;
+		cpcc_string result;
 		if (verSize == 0)
 			return result;
 
@@ -216,13 +217,13 @@ public:
 						// Doesn't matter if you are on 32 bit or 64 bit,
 						// DWORD is always 32 bits, so first two revision numbers
 						// come from dwFileVersionMS, last two come from dwFileVersionLS
-						std::stringstream ssresult;
+						cpcc_stringstream ssresult;
 						ssresult << ((verInfo->dwFileVersionMS >> 16) & 0xffff);
-						ssresult << ".";
+						ssresult << _T(".");
 						ssresult << ((verInfo->dwFileVersionMS) & 0xffff);
-						ssresult << ".";
+						ssresult << _T(".");
 						ssresult << ((verInfo->dwFileVersionLS >> 16) & 0xffff);
-						ssresult << ".";
+						ssresult << _T(".");
 						ssresult << ((verInfo->dwFileVersionLS) & 0xffff);
 						result = ssresult.str();
 					}

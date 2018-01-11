@@ -53,9 +53,9 @@ private:
 	int maxBufferedLines;
 	
 public:
-	cpccFileWriterWithBuffer(): maxBufferedLines(200), m_filename("") 	{  add("cpccFileWriterWithBuffer starting.\n"); }
+	cpccFileWriterWithBuffer(): maxBufferedLines(200), m_filename(_T("")) 	{  add( _T("cpccFileWriterWithBuffer starting.\n")); }
 
-	virtual ~cpccFileWriterWithBuffer()  { 	add("cpccFileWriterWithBuffer closing.\n"); }
+	virtual ~cpccFileWriterWithBuffer()  { 	add( _T("cpccFileWriterWithBuffer closing.\n")); }
 	
 	void setFilename(const cpcc_char* aFilename) 
 	{ 
@@ -274,9 +274,9 @@ int					cpccLogFormatter::m_IdentLevel = 0;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void cpccLogManager::initialize(const char *appNameStem, const char *macBundleId)
+void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId)
 	{
-		const char *bundleID = NULL;
+		const cpcc_char *bundleID = NULL;
 		#ifdef __APPLE__
 			bundleID = macBundleId;
 		#endif 
@@ -335,7 +335,7 @@ cpccLogManager::~cpccLogManager()	// in MSVC, this destructor is not called
 	}
 	
 
-cpcc_string cpccLogManager::getFolderForTheLogFile(const char *aBundleID)
+cpcc_string cpccLogManager::getFolderForTheLogFile(const cpcc_char *aBundleID)
 	{
 		cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
 		if (aBundleID)
@@ -347,7 +347,7 @@ cpcc_string cpccLogManager::getFolderForTheLogFile(const char *aBundleID)
 	}
 
 
-cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, const char *aBundleID) const
+cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID) const
 	{
         cpccPathString result(getFolderForTheLogFile(aBundleID));
 		if (aFilename)

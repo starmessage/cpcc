@@ -104,7 +104,7 @@ public:  // other functions
         aa = 5.1f;
 
 		float minval = cpccFastFloat<T, fBits>::getMinPossibleValue();
-        consolePut( "cpccFixedPointNumber. a:" << a << " b:" << b << " getMinimum:" << minval << " internal rep:" << a.m_value );
+        consolePut(_T("cpccFixedPointNumber. a:") << a << " b:" << b << _T(" getMinimum:") << minval << _T(" internal rep:") << a.m_value );
         
 		assert(a.practicallyEqual(3.14f) && "#8515a: cpccFixedPointNumber::selfTest()");
 		assert(a.practicallyEqual(b) && "#8515b: cpccFixedPointNumber::selfTest()");
@@ -113,16 +113,16 @@ public:  // other functions
         b = 2*b - 0.2f;
         
 		// float tmp=a;
-		consolePut( "cpccFixedPointNumber of 6.08 =" << a );
+		consolePut( _T("cpccFixedPointNumber of 6.08 =") << a );
 		assert(a.practicallyEqual(b) && "#8515c: cpccFixedPointNumber::selfTest()");
 
-		consolePut("cpccFixedPointNumber of 6.08 =" << a );
+		consolePut(_T("cpccFixedPointNumber of 6.08 =") << a );
         assert(aa.practicallyEqual(bb) && "#8515d: cpccFixedPointNumber::selfTest()");
         a = a *aa;
         b = b *bb;
         
-		consolePut( "cpccFixedPointNumber a=" << a << " a.val=" << a.m_value << " b=" << b );
-		consolePut( "getPracticallyEqualThresshold(a)=" << a.getPracticallyEqualThresshold(b) );
+		consolePut(_T("cpccFixedPointNumber a=") << a << _T(" a.val=") << a.m_value << _T(" b=") << b );
+		consolePut(_T("getPracticallyEqualThresshold(a)=") << a.getPracticallyEqualThresshold(b) );
         assert(a.practicallyEqual(b) && "#8515e: cpccFixedPointNumber::selfTest()");
     }
     

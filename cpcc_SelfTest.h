@@ -16,7 +16,7 @@
 
 #pragma once
 #include "core.cpccIdeMacros.h"
-
+#include "cpccUnicodeSupport.h"
 
 /// Central switch to close all selfTests in your application
 #ifdef cpccDEBUG
@@ -68,9 +68,11 @@
 */
 
 
-	#define consolePut(x)	{	std::ostringstream s;  s << x << std::endl;  \
+	#define consolePut(x)	{	cpcc_ostringstream s;  s << x << std::endl;  \
 								OutputDebugString(s.str().c_str()); \
 							}
+
+
 #else
 	#define consolePut(x)	std::cout << x << std::endl;
 	

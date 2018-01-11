@@ -450,15 +450,15 @@ private:
 	std::atomic<int>	&m_nPending;
 	std::atomic<bool>	&m_errorOccured;
 	cpccInstanceCounterPattern m_instanceCounter;
-	std::string			m_postPayloadBuffer; // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
+	cpcc_string			m_postPayloadBuffer; // This buffer must remain available until the request handle is closed or the call to WinHttpReceiveResponse has completed.
 	bool				m_receiveResponseCalled = false,
 						m_getStatusCodeCalled = false;
 
 public:
 
-	explicit cpccWinHttpRequestAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const HINTERNET aConnectionHandle, const bool isHTTPS, const LPCWSTR aPostPath, const char *aPostPayload, const int aTimeout, WINHTTP_STATUS_CALLBACK aCallback) :
+	explicit cpccWinHttpRequestAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const HINTERNET aConnectionHandle, const bool isHTTPS, const LPCWSTR aPostPath, const cpcc_char *aPostPayload, const int aTimeout, WINHTTP_STATUS_CALLBACK aCallback) :
 		m_nPending(nPending), m_errorOccured(errorOccured),
-		m_postPayloadBuffer(aPostPayload ? aPostPayload : ""),
+		m_postPayloadBuffer(aPostPayload ? aPostPayload : _T("")),
 		m_request(aConnectionHandle, isHTTPS, aPostPath, aTimeout),
 		m_instanceCounter(nPending)
 	{

@@ -19,7 +19,7 @@
 #include "net.cpccWinHttp_helpers.h"
 #include "../io.cpccLog.h"
 #include "../core.cpccOS.h"
-
+#include "../cpccUnicodeSupport.h"
 
 
 
@@ -28,16 +28,16 @@ class cpccHttpRequestClientWin
 private:
 	
 	bool				m_isHTTPS, m_disabled;
-	std::string			m_postPath;
+	cpcc_string			m_postPath;
 	cWinHttp_session	*m_sessionPtr;
 	cWinHttp_connection *m_connectionPtr;
 
 public:
-	cpccHttpRequestClientWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent = 0, const bool runAsync = false);
+	cpccHttpRequestClientWin(const cpcc_char *aURLHost, const cpcc_char *aURLpath, const bool isHTTPS, const cpcc_char *aUserAgent = 0, const bool runAsync = false);
 
-    int httpPost(const char *postData , const int timeoutInSec=60);
+    int httpPost(const cpcc_char *postData , const int timeoutInSec=60);
 	
-	int httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int timeoutInSec=60);
+	int httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const cpcc_char *postData, const int timeoutInSec=60);
 
 	bool isGood(void) const;
 };

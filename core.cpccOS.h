@@ -43,18 +43,18 @@ public:
 
     
     static void getMainMonitorResolution(int &width, int &height);
-    static std::string getMainMonitorResolutionAsText(void);
+    static cpcc_string getMainMonitorResolutionAsText(void);
     
 	static void sleep(const unsigned int msec);
     
     // portable / cross platform C function for Windows, OSX returns the computer name
-	static const std::string getComputerName(void);
-    static const std::string getUserName(void);
+	static const cpcc_string getComputerName(void);
+    static const cpcc_string getUserName(void);
     
-    static std::string& readProgramVersion(void);
+    static cpcc_string& readProgramVersion(void);
     
-    static std::string	getOSNameAndVersion(void);
-    static std::string	getOSNameVersionAndBuild(void);
+    static cpcc_string	getOSNameAndVersion(void);
+    static cpcc_string	getOSNameVersionAndBuild(void);
 	static bool			is64bit(void);
     
 #ifdef __APPLE__
@@ -63,7 +63,7 @@ public:
     static std::string getBundleID(void);
 #endif
 
-    static std::string getPreferredLanguage(void);
+    static cpcc_string getPreferredLanguage(void);
 
 #ifdef _WIN32
     static const HWND getWindowHandleOfProgram(const TCHAR *aClassName);

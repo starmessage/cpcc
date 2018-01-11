@@ -15,7 +15,7 @@
 
 #include <cstdio>
 #include "../io.cpccLog.h"
-
+#include "../cpccUnicodeSupport.h"
 
 #ifdef __APPLE__
         #include "net.cpccHttpRequestMac.h"
@@ -79,10 +79,10 @@ private:
 
 	
 public:
-    explicit cpccHttpPostClient(	const char *aProtocolAndHostAddress,
-									const char *aURLpath,
+    explicit cpccHttpPostClient(	const cpcc_char *aProtocolAndHostAddress,
+									const cpcc_char *aURLpath,
 									const bool isHTTPS,
-									const char *aUserAgent = 0,
+									const cpcc_char *aUserAgent = 0,
 									const bool runAsync=false)
 									// todo:  maybe split it into two classes, one sync and one async,
 									// then maybe also the implementation classes need similar split
@@ -97,9 +97,9 @@ public:
     
     virtual ~cpccHttpPostClient() {  }
     
-    int httpPost(const char *postData, const int timeoutInSec) {  return m_impl.httpPost(postData, timeoutInSec); 	}
+    int httpPost(const cpcc_char *postData, const int timeoutInSec) {  return m_impl.httpPost(postData, timeoutInSec); 	}
 
-	int httpPostAsync( const char *postData, const int timeoutInSec)
+	int httpPostAsync( const cpcc_char *postData, const int timeoutInSec)
 	{
 		infoLog().addf( _T("httpPostAsync() found %i pending tasks"), pendingRequestsCount());
 		return m_impl.httpPostAsync(m_errorOccured, m_pendingAsyncTasks, postData, timeoutInSec);

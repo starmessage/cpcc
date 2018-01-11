@@ -79,7 +79,13 @@ public:
 	static bool createEmptyFile(const cpcc_char * aFilename);
 	// static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
-	
+	#ifdef _WIN32
+	#ifdef UNICODE
+	static bool appendTextFile(const cpcc_char* aFilename, const char *txt) { wchar_from_char wtxt(txt); return appendTextFile(aFilename, wtxt.get()); }
+	#endif
+	#endif
+
+
 	static bool deleteFile(const cpcc_char * filename);
 	
 	static bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);

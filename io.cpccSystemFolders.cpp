@@ -38,23 +38,27 @@
 #endif
 
 
-std::string cpccSystemFolders::getFolder_CurrentDir(void)
+cpcc_string cpccSystemFolders::getFolder_CurrentDir(void)
 {
     
     #ifdef _WIN32
-		#define getcwd  _getcwd 
+		#ifdef UNICODE
+			#define getcwd  _wgetcwd 
+		#else
+			#define getcwd  _getcwd 
+		#endif
     #else
         
     
     #endif
     
-    char buff[FILENAME_MAX];
-    char *result = getcwd( buff, FILENAME_MAX );
+    cpcc_char buff[FILENAME_MAX];
+	cpcc_char *result = getcwd( buff, FILENAME_MAX );
     
     if (!result)
-        return std::string("");
+        return _T("");
     else
-        return std::string(result);
+        return result;
 }
 
 

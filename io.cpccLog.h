@@ -76,8 +76,13 @@ public: // functions
 	static const cpcc_string &	getFilename(void);
 	inline void			add(const cpcc_string &txt) { add(txt.c_str()); }
 	void 				add(const cpcc_char* txt);
+
+
+
+
 #ifdef _WIN32
 #ifdef UNICODE
+	void 				add(const char* txt) { wchar_from_char wtxt(txt); add(wtxt.get()); }
 	void				addf(const wchar_t* format, ...);
 #endif
 #endif
@@ -148,14 +153,14 @@ public:
 
 public: // functions
 
-	void initialize( const char *appNameStem, const char *macBundleId);
+	void initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId);
 
 	
 private:
 	// find the appropriate folder and create it if it does not exist
-	static cpcc_string getFolderForTheLogFile(const char *aBundleID);
+	static cpcc_string getFolderForTheLogFile(const cpcc_char *aBundleID);
 
-	cpcc_string getAutoFullpathFilename(const cpcc_char *aFilename, const char *aBundleID) const;
+	cpcc_string getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID) const;
 
 	static bool    fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
 

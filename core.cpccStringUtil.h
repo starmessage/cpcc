@@ -1,6 +1,7 @@
 ﻿/*  *****************************************
  *  File:		core.cpccStringUtil.h
  *	Purpose:	Portable (cross-platform), light-weight library
+ *  			String utility functions
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2015 StarMessage software.
@@ -26,10 +27,6 @@
 #include "cpccUnicodeSupport.h"
 
 
-/** A small and portable (cross platform) C++ class 
-	with string utility functions
-*/
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -41,28 +38,27 @@ class stringUtils
 {
 
 public:
-	static bool stringStartsWith(const char *aStr, const char *aPrefix)
+	static bool stringStartsWith(const cpcc_char *aStr, const cpcc_char *aPrefix)
 	{
 #ifdef _WIN32
 		#pragma warning( suppress : 4996 )
-		return (strnicmp(aStr, aPrefix, strlen(aPrefix)) == 0);
+		return (cpcc_strnicmp(aStr, aPrefix, cpcc_strlen(aPrefix)) == 0);
 #else
         // Unix libraries use strcasecmp, from <strings.h>.
         return (strncasecmp(aStr, aPrefix, strlen(aPrefix)) == 0);
 #endif
 	}
 
-	static bool stringsAreEqual(const char *aStr1, const char *aStr2)
+	// todo: to delete. Na do an xreiazetai gia to mac #define stricmp strcasecmp
+	static bool stringsAreEqual(const cpcc_char *aStr1, const cpcc_char *aStr2)
 	{
-		
 #ifdef _WIN32
         #pragma warning( suppress : 4996 )
-        return (strcmpi(aStr1, aStr2) == 0);
+        return (cpcc_stricmp(aStr1, aStr2) == 0);
 #else
         // Unix libraries use strcasecmp, from <strings.h>.
         return (strcasecmp(aStr1, aStr2) == 0);
 #endif
-        
 	}
 
 
@@ -111,7 +107,6 @@ private:
 		};
 		return encodedINIcharacterTable;
 	}
-
 
 public:
 	// a pity the whole std library does not contain a ready function for this

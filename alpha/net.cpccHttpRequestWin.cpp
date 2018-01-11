@@ -204,7 +204,7 @@ NULL );
 
 
 
-int cpccHttpRequestClientWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const char *postData, const int aTimeOutInSec)
+int cpccHttpRequestClientWin::httpPostAsync(std::atomic<bool> &errorOccured, std::atomic<int> &nPending, const cpcc_char *postData, const int aTimeOutInSec)
 {
 	infoLog().add("cpccHttpRequestClientWin::httpPostAsync() called");
 
@@ -230,8 +230,11 @@ int cpccHttpRequestClientWin::httpPostAsync(std::atomic<bool> &errorOccured, std
 
 	// δημιουργει μηνυμα WINHTTP_CALLBACK_STATUS_HANDLE_CREATED for context 0
 	// m_connectionPtr->SetStatusCallback(winHttp_ProgressCallback);
-	
+#ifdef UNICODE
+	const wchar_t *postPath_w = m_postPath.c_str();
+#else
 	wchar_from_char	postPath_w(m_postPath.c_str());
+#endif
 
 	cpccWinHttpRequestAsync *fireAndForgetRequest = 
 		new cpccWinHttpRequestAsync(errorOccured, nPending, 
@@ -248,7 +251,7 @@ int cpccHttpRequestClientWin::httpPostAsync(std::atomic<bool> &errorOccured, std
 }
 
 
-int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutInSec)
+int cpccHttpRequestClientWin::httpPost(const cpcc_char *postData, const int aTimeOutInSec)
 {
 
 	// proxy example:
@@ -262,7 +265,11 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 		return 1959;
 	}
 
+#ifdef UNICODE
+	const wchar_t	*postPath_w = m_postPath.c_str();
+#else
 	wchar_from_char	postPath_w(m_postPath.c_str());
+#endif
 	cWinHttp_request winhttp_request(m_connectionPtr->getHandle(), m_isHTTPS, postPath_w, aTimeOutInSec);
 
 	if (!winhttp_request.isGood())
@@ -293,7 +300,7 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 
 	if (!postData)
 		return 1913;
-	std::string postDataBuffer(postData);
+	cpcc_string postDataBuffer(postData);
 
 	// you need to pass narrow strings not wide as the post data
 	// https://stackoverflow.com/questions/38672719/post-request-in-winhttp-c
@@ -373,7 +380,7 @@ int cpccHttpRequestClientWin::httpPost(const char *postData, const int aTimeOutI
 
 
 
-cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const char *aURLpath, const bool isHTTPS, const char *aUserAgent, const bool runAsync )
+cpccHttpRequestClientWin::cpccHttpRequestClientWin(const cpcc_char *aURLHost, const cpcc_char *aURLpath, const bool isHTTPS, const cpcc_char *aUserAgent, const bool runAsync )
 	:	m_isHTTPS(isHTTPS), m_postPath(aURLpath), m_sessionPtr(0), m_connectionPtr(0), m_disabled(false)
 
 {  
@@ -389,14 +396,19 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	}
 
 	// create the reusable WinHttp session 
+#ifdef UNICODE
+	const wchar_t *m_userAgent_w = aUserAgent;
+#else
 	wchar_from_char m_userAgent_w(aUserAgent);
+#endif
+
 	m_sessionPtr = new cWinHttp_session(m_userAgent_w, runAsync);
 	if (!m_sessionPtr)
 		return;
 
 	if (!m_sessionPtr->getHandle())
 	{
-		errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpOpen", GetLastError()));
+		errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpen"), GetLastError()));
 		return;
 	}
 
@@ -407,10 +419,10 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	// check if aURLpath starts with http:// or https:// and separate the server address that is needed for the WinHttp connection.
 	// debugLog().add("cpccHttpRequestClientWin point 1");
 	bool startsWithHTTPS = false;
-	const char *postHost_noProtocol = NULL;
-	if (stringUtils::stringStartsWith(aURLHost, "http://"))
+	const cpcc_char *postHost_noProtocol = NULL;
+	if (stringUtils::stringStartsWith(aURLHost, _T("http://")))
 		postHost_noProtocol = &aURLHost[7];
-	else if (stringUtils::stringStartsWith(aURLHost, "https://"))
+	else if (stringUtils::stringStartsWith(aURLHost, _T("https://")))
 	{
 		postHost_noProtocol = &aURLHost[8];
 		startsWithHTTPS = true;
@@ -423,15 +435,19 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const char *aURLHost, const c
 	}
 
 	// debugLog().add("cpccHttpRequestClientWin point 2");
+#ifdef UNICODE
+	const wchar_t *m_serverAddress_w = postHost_noProtocol;
+#else
 	wchar_from_char m_serverAddress_w(postHost_noProtocol);	// bare address without https:// nor http://
-	m_connectionPtr = new cWinHttp_connection(m_sessionPtr->getHandle(), m_serverAddress_w.get());
+#endif
+	m_connectionPtr = new cWinHttp_connection(m_sessionPtr->getHandle(), m_serverAddress_w);
 	if (!m_connectionPtr)
 		return;
 
 	// debugLog().add("cpccHttpRequestClientWin point 3");
 	if (!m_sessionPtr->getHandle())
 	{
-		errorLog().add(cpccOS::getWindowsErrorCodeAndText("WinHttpConnect", GetLastError()));
+		errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpConnect"), GetLastError()));
 		return;
 	}
 

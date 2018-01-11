@@ -43,7 +43,7 @@
 #endif
 
 
-std::string cpccOS::getOSNameAndVersion(void)
+cpcc_string cpccOS::getOSNameAndVersion(void)
 {
 #ifdef _WIN32
 	return cpccOSWin::getWindowsNameVersionAndBuild();
@@ -71,7 +71,7 @@ bool cpccOS::is64bit(void)
 }
 
 
-std::string cpccOS::getOSNameVersionAndBuild(void)
+cpcc_string cpccOS::getOSNameVersionAndBuild(void)
 {
 #ifdef __APPLE__
 	NSString * operatingSystemVersionString = [[NSProcessInfo processInfo] operatingSystemVersionString];
@@ -87,7 +87,7 @@ std::string cpccOS::getOSNameVersionAndBuild(void)
 
 
 
-std::string cpccOS::getPreferredLanguage(void)
+cpcc_string cpccOS::getPreferredLanguage(void)
 {
     
 #ifdef _WIN32
@@ -115,7 +115,7 @@ std::string cpccOS::getPreferredLanguage(void)
         return std::string(pwszLanguagesBuffer);
 		*/
 
-    return std::string("en-US");
+    return cpcc_string( _T("en-US"));
     
 #elif __APPLE__
     NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
@@ -140,9 +140,9 @@ static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
 }
 
 
-std::string cpccOS::getMainMonitorResolutionAsText(void)
+cpcc_string cpccOS::getMainMonitorResolutionAsText(void)
 {
-    std::stringstream result;
+	cpcc_stringstream result;
     int mw,mh;
     getMainMonitorResolution(mw, mh);
     result << mw;
@@ -214,12 +214,8 @@ const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
     return FindWindow(aClassName, NULL);
 }
 
-#ifdef UNICODE
-	std::wstring
-#else
-	std::string
-#endif
-	cpccOS::getWindowsErrorText(const DWORD anErrorCode)
+
+cpcc_string cpccOS::getWindowsErrorText(const DWORD anErrorCode)
 {
 	// some ready codes, because the win functions do not always find the error text
 	switch(anErrorCode) 
@@ -359,29 +355,29 @@ void cpccOS::sleep(const unsigned int msec)
 }
     
 
-const std::string cpccOS::getUserName(void)
+const cpcc_string cpccOS::getUserName(void)
 {
 #ifdef _WIN32
-    char username[200];
+    cpcc_char username[200];
     DWORD username_len = sizeof(username)-1;
     GetUserName(username, &username_len);
-    return std::string(username);
+    return username;
 #elif __APPLE__
     NSString *un = NSUserName();
-    return std::string([un UTF8String]);
+    return [un UTF8String];
 #endif
 }
 
 
 // portable / cross platform C function for Windows, OSX
 // returns the computer name 
-const std::string cpccOS::getComputerName(void)
+const cpcc_string cpccOS::getComputerName(void)
 {
 #ifdef _WIN32
-    char name[255]; DWORD size;
+    cpcc_char name[255]; DWORD size;
     size = sizeof(name) - 1;
     GetComputerName(name, &size);
-    return std::string(name);
+    return name;
 #endif
 #ifdef __APPLE__
     char name[_POSIX_HOST_NAME_MAX + 1];
@@ -453,10 +449,10 @@ std::string cpccOS::getBundleID(void)
 
 
 
-std::string& cpccOS::readProgramVersion(void)
+cpcc_string& cpccOS::readProgramVersion(void)
 {
-    static std::string ver("Version N/A");
-    if (ver!= "Version N/A")
+    static cpcc_string ver(_T("Version N/A"));
+    if (ver!= _T("Version N/A"))
         return ver;
     
 #ifdef __APPLE__

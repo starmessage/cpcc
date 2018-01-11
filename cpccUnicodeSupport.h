@@ -66,6 +66,10 @@
 	// Linux isn't exactly "agnostic" to Unicode -- it does recognize Unicode but the standard library functions assume UTF-8 encoding,
 	// so Unicode strings fit into standard char arrays.
 	// Windows, on the other hand, uses UTF-16 encoding, so you need a wchar_t array to represent 16-bit characters.
+	
+	On  Unix/Linux system there is no point in looking for a wchar_t version of getcwd. 
+	That is because all file names and directory names are just bytes with the exception of the '/' and '\0' characters. 
+	You can use UTF-8 encoding with them but the filesystem itself does not care.
 
  */
 #pragma once
@@ -110,11 +114,15 @@
 	// #define		cpcc_sprintf		wsprintf		
 	// #define		cpcc_sprintf		swprintf		
 	#define		cpcc_sprintf		_stprintf
+	#define		cpcc_fprintf		fwprintf	// _ftprintf
 	#define		cpcc_fscanf			fwscanf
 	#define		cpcc_fopen			_wfopen
 	#define		cpcc_strlen			_tcslen
+	//  stricmp, wcsicmp: These POSIX functions are deprecated. Use the ISO C++ conformant _stricmp, _wcsicmp,
+	#define		cpcc_stricmp		_wcsicmp
+	#define		cpcc_strnicmp		_wcsnicmp
 	#define		cpcc_strftime		_tcsftime	
-	#define		cpcc_fprintf		fwprintf	// _ftprintf
+
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
 	#define		cpcc_strstr			wcsstr
@@ -131,7 +139,6 @@
 	typedef		std::wistringstream cpcc_istringstream;
 	typedef		std::wstringstream	cpcc_stringstream;
 	
-	
 
  #else 
 	typedef		char				cpcc_char;
@@ -141,11 +148,14 @@
 	#define		cpcc_cerr			std::cerr
 	#define		cpcc_thread			std::thread
 	#define		cpcc_sprintf		sprintf	
+	#define		cpcc_fprintf		fprintf
 	#define		cpcc_fscanf			fscanf
 	#define		cpcc_fopen			fopen
 	#define		cpcc_strlen			strlen
+	#define		cpcc_stricmp		_stricmp
+	#define		cpcc_strnicmp		_strnicmp
 	#define		cpcc_strftime		strftime	
-	#define		cpcc_fprintf		fprintf
+	
 	#define		cpcc_strtok			strtok
 	#define		cpcc_strcpy			strcpy
 	#define		cpcc_strstr			strstr
