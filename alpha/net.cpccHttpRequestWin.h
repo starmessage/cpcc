@@ -33,7 +33,7 @@ private:
 	cWinHttp_connection *m_connectionPtr;
 
 public:
-	cpccHttpRequestClientWin(const cpcc_char *aURLHost, const cpcc_char *aURLpath, const bool isHTTPS, const cpcc_char *aUserAgent = 0, const bool runAsync = false);
+	explicit cpccHttpRequestClientWin(const cpcc_char *aURLHost, const cpcc_char *aURLpath, const bool isHTTPS, const cpcc_char *aUserAgent = 0, const bool runAsync = false);
 
     int httpPost(const cpcc_char *postData , const int timeoutInSec=60);
 	

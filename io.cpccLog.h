@@ -139,21 +139,24 @@ private: // configuation
 		#endif
 		};
 
-	bool config_checkForIncompleteLog;
+	
 
 
 public: 	// data
 	cpccLogFormatter	error, warning, info;
 
-public:
-	explicit cpccLogManager(const bool checkForIncompleteLog);
+private:
+	// this is private because only &getInst() should create this object as singleton
+	explicit cpccLogManager(void);
 
+public:
 	virtual ~cpccLogManager();	// in MSVC, this destructor is not called when run from a screensaver
 
+	static cpccLogManager &getInst(void);
 
 public: // functions
 
-	void initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId);
+	void initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId, const bool checkForIncompleteLog);
 
 	
 private:
@@ -171,8 +174,8 @@ private:
 	inline bool hasErrors(void) const { return !error.isEmpty(); }
 };
 
-// you must allocate somewhere in the cpp code this object.
-extern cpccLogManager _singletonAppLog;
+
+
 
 /////////////////////////////////////////////////////////////////////////
 //

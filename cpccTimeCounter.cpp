@@ -64,7 +64,6 @@ cpccTimeCounter::cpccTimeCounter()
 {	
 	mStartTime = new struct timeval;
 	resetTimer(); 
-
 }
 
 

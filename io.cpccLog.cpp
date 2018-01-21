@@ -274,23 +274,31 @@ int					cpccLogFormatter::m_IdentLevel = 0;
 ///////////////////////////////////////////////////////////////////////////////
 
 
-void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId)
+cpccLogManager &cpccLogManager::getInst(void)
+{
+	// std::cout << "getLogManagerSingleton()" << std::endl;
+	static cpccLogManager _instance;
+	// std::cout << "getLogManagerSingleton() step2" << std::endl;
+	return _instance;
+}
+
+
+void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId, const bool checkForIncompleteLog)
 	{
-		const cpcc_char *bundleID = NULL;
+		const cpcc_char *bundleID = NULL; // ignored in Windows
 		#ifdef __APPLE__
 			bundleID = macBundleId;
 		#endif 
 
         info.addf("cpccLogManager::initialize() called");
-		info.addf("Compiler version:%s", cppcIDE::getCompilerVersion());
+		info.addf("Compiler C/C++ standard:%s", cppcIDE::getCompilerVersion());
 		cpcc_string fn = getAutoFullpathFilename(appNameStem, bundleID);
 		// check previous run
-		if ((config_checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
+		if ((checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
 			||
 			(config_CheckIfLogHasErrors && fileContainsText(fn.c_str(), _T("ERROR>\t")))
 			)
 			copyToDesktop();
-
 
 		// empty the file
 		if (cpccFileSystemMini::fileExists(fn.c_str()))
@@ -304,11 +312,10 @@ void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *m
 	}
 
 
-cpccLogManager::cpccLogManager(const bool checkForIncompleteLog):
+cpccLogManager::cpccLogManager(void):
 		error(_T("ERROR>\t"),  !config_CreateFileOnError, echoToCOUT),
 		warning(_T("Warning>\t"), !config_CreateFileOnWarning, echoToCOUT),
-		info(_T("Info>\t"),  !config_CreateFileOnInfo, echoToCOUT),
-		config_checkForIncompleteLog(checkForIncompleteLog)
+		info(_T("Info>\t"),  !config_CreateFileOnInfo, echoToCOUT)
 	{
 		        
         info.add(cpccLogOpeningStamp);
@@ -383,10 +390,10 @@ bool    cpccLogManager::fileContainsText(const cpcc_char *fn, const cpcc_char *t
     }
     
     
- bool    cpccLogManager::logfileIsIncomplete(const cpcc_char *fn)
-    {
+bool    cpccLogManager::logfileIsIncomplete(const cpcc_char *fn)
+{
         return (fileContainsText(fn, cpccLogOpeningStamp) && !fileContainsText(fn, cpccLogClosingStamp));
-    }
+}
     
     
 void    cpccLogManager::copyToDesktop(void)
@@ -401,31 +408,11 @@ void    cpccLogManager::copyToDesktop(void)
 
 
 
-
-
-
-/*
-cpccLogManager &getInstance_cpccLog(void)
-{
-	static cpccLogManager _singletonAppLog(globalLogConfig.logFilename, globalLogConfig.checkForIncompleteLog, globalLogConfig.checkHasErrors);
-	return _singletonAppLog;
-}
-*/
-
 /////////////////////////////////////////////////////////////////////////
 // inside your program use the following functions to write to the 3 levels of the logs.
 // all the 3 logs point to the same file.
-cpccLogFormatter			&infoLog(void)		{ return _singletonAppLog.info; }
-cpccLogFormatter			&warningLog(void)	{ return _singletonAppLog.warning;  }
-cpccLogFormatter			&errorLog(void)		{ return _singletonAppLog.error;  }
+cpccLogFormatter			&infoLog(void)		{ return cpccLogManager::getInst().info; }
+cpccLogFormatter			&warningLog(void)	{ return cpccLogManager::getInst().warning;  }
+cpccLogFormatter			&errorLog(void)		{ return cpccLogManager::getInst().error;  }
 
 
-/*
-void initializeLog(const cpccLogConfig &aConfig)
-{
-	static bool _initialized = false;
-	if (!_initialized)
-		_singletonAppLog.initialize(aConfig);
-	_initialized = true;
-}
-*/

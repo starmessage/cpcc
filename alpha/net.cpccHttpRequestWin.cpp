@@ -387,7 +387,6 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const cpcc_char *aURLHost, co
 	logFunctionLife _conLife(_T("cpccHttpRequestClientWin Constructor"));
 	debugLog().addf(_T("connection handler for server: [%s]"), aURLHost);
 
-	
 	if (!WinHttpCheckPlatform())
 	{
 		infoLog().add("cpccHttpRequestClientWin was disabled becayse WinHTTP is not supported by your Windows version.");
@@ -418,14 +417,14 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const cpcc_char *aURLHost, co
 
 	// check if aURLpath starts with http:// or https:// and separate the server address that is needed for the WinHttp connection.
 	// debugLog().add("cpccHttpRequestClientWin point 1");
-	bool startsWithHTTPS = false;
+	// bool startsWithHTTPS = false;
 	const cpcc_char *postHost_noProtocol = NULL;
 	if (stringUtils::stringStartsWith(aURLHost, _T("http://")))
 		postHost_noProtocol = &aURLHost[7];
 	else if (stringUtils::stringStartsWith(aURLHost, _T("https://")))
 	{
 		postHost_noProtocol = &aURLHost[8];
-		startsWithHTTPS = true;
+		// startsWithHTTPS = true;
 	}
 	else
 	{

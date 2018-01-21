@@ -40,7 +40,7 @@ private:
 	void		gettimeofdayCrossPlatform(struct timeval *currentTime);
 
 public: // ctor
-	cpccTimeCounter(); 		
+	explicit cpccTimeCounter(); 		
 	~cpccTimeCounter();
 	
 public: // functions

@@ -53,7 +53,7 @@
 
 // std::mutex _fileAppendMutex, _writeToFileMutex;
 // std::mutex cpccFileSystemMini::fileAppendMutex_;
-static std::mutex fileAppendMutex_;
+// static std::mutex fileAppendMutex_;
 
 // main class
 
@@ -285,6 +285,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 // when mutex is used, an exception "mutex lock failed: Invalid argument" occurs when the log add() function is called on program termination
 // #define USE_MUTEX_F
 #ifdef USE_MUTEX_F
+	static std::mutex fileAppendMutex_;
     std::lock_guard<std::mutex> autoMutex(fileAppendMutex_);
 #endif
     
@@ -379,13 +380,7 @@ size_t	cpccFileSystemMini::writeToFile(const cpcc_char *aFilename, const char *b
 {
     if (!buffer)
         return -3;
-    
-    
-#ifdef __APPLE__
-	cpcc_string finalFilename = aFilename;
-    if (fileSystemOSX_helper::startsWithTilde_OSX(aFilename))
-        finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFilename);
-#endif
+
     //static std::mutex _writeToFileMutex;
     //std::lock_guard<std::mutex> autoMutex(_writeToFileMutex);
     #pragma warning(disable : 4996)
