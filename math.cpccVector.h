@@ -282,8 +282,7 @@ public: // Public functions
 	static void selfTest(void)
 	{
 		cpccVector<int,3> a3d;
-		std::cout << "cpccVector::selfTest starting\n";
-		
+				
 		if (!a3d.isZero())
 			assert(false && "#4231a: cpccVector::selfTest isZero");
 			
@@ -326,7 +325,6 @@ public: // Public functions
 		a3d = c3d/3.0f;
 		assert(a3d.x() == 3 && a3d.y() == 2 && a3d.z() == 1   && "#4231k: cpccVector::selfTest division problem");
 
-		std::cout <<   "cpccVector::selfTest ended\n";
 	}
  
  };		// end of class cpccVector

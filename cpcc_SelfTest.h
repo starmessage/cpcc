@@ -85,7 +85,8 @@
 	#define SelftestVariableName
 #endif
 
-
+#define selfTest_STR(value) #value
+#define selfTest_MAKESTRING(value) selfTest_STR(value)
 
 #define SELFTEST_BEGIN(SelfTestUniqueName)	\
 	namespace SelfTestUniqueName {			\
@@ -93,12 +94,13 @@
 	{										\
 	public:									\
 		cpccSelfTest()					\
-		{ 
+		{	std::cout << "/ Starting selftest:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl;
 
 
 
 
 #define SELFTEST_END			\
+			std::cout << "\\ Ending selftest:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl; \
 		};						\
 	} SelftestVariableName; }
 

@@ -302,7 +302,8 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 #else
     // std::ofstream outfile("thefile.txt", std::ios_base::app | std::ios_base::out);
     // ios::app = opens the file in append mode.
-    static std::ofstream _f;
+    // static std::ofstream _f; // with static is hangs in WinXP
+	std::ofstream _f;
     
     _f.open(aFilename, std::ios_base::app | std::ios_base::out);
     if (!_f.good())
@@ -584,7 +585,7 @@ void		cpccPathString::appendPathSegment(const cpcc_char* aPathSegment)
 void cpccFileSystemMini::selfTest(void)
 {
 #ifdef cpccDEBUG
-    std::cout << "cpccFileSystemMini::SelfTest starting\n";
+    
 
 	// "#5349a: path delimiter"
 	cpcc_char pDelimiter = cpccPathHelper::getPreferredPathDelimiter();
@@ -607,21 +608,27 @@ void cpccFileSystemMini::selfTest(void)
     
 	// fileExists or createEmptyFile
 	cpcc_string tmpFile = tmpFolder + _T("selftest-cpccFileSystemMini.txt");
-	cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");
+	// cpcc_cout << _T("\nTmpFile:") << tmpFile << _T("\n");
     
-	createEmptyFile(tmpFile.c_str());
+	bool created = createEmptyFile(tmpFile.c_str());
+	if (!created)
+		std::cerr << "createEmptyFile() failed" << std::endl;
+
 	assert(fileExists(tmpFile.c_str()) && _T("#5356d: cpccFileSystemMini::selfTest"));
 
-	//std::cout << "cpccFileSystemMini::SelfTest point3\n";
+	// std::cout << "cpccFileSystemMini::SelfTest point3\n";
 	
 	createEmptyFile(tmpFile.c_str());
+	// std::cout << "cpccFileSystemMini::SelfTest point3.1\n";
+
 	assert(getFileSize(tmpFile.c_str())==0 && _T("#5356e: cpccFileSystemMini::selfTest"));
 			
-			
+	// std::cout << "cpccFileSystemMini::SelfTest point3.2\n";
+
 	const cpcc_char * fileContent= _T("kalimera sas");
 	appendTextFile(tmpFile.c_str(),fileContent);
 			
-	//std::cout << "cpccFileSystemMini::SelfTest point4\n";
+	// std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
 	assert(getFileSize(tmpFile.c_str())==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
@@ -636,7 +643,7 @@ void cpccFileSystemMini::selfTest(void)
     deleteFile(tmpFile.c_str());
     
     
-	//std::cout << "cpccFileSystemMini::SelfTest point5\n";
+	// std::cout << "cpccFileSystemMini::SelfTest point5\n";
 	
 #ifdef _WIN32
 	assert(folderExists(_T("c:\\")) && _T("#5356h: cpccFileSystemMini::selfTest"));
@@ -648,7 +655,7 @@ void cpccFileSystemMini::selfTest(void)
 
 #endif
 	
-	cpcc_cout << _T("cpccFileSystemMini::SelfTest ended\n");
+	
 #endif
 }
 

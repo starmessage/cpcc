@@ -60,5 +60,5 @@ public:
 		return __STDC_VERSION__;
 	#endif
 		return "Undetected compliler version";
-}
+	}
 };

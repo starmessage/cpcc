@@ -23,6 +23,7 @@
 #include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
 #include "core.cpccIdeMacros.h"
+#include "core.cpccTryAndCatch.h"
 
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
@@ -285,28 +286,39 @@ cpccLogManager &cpccLogManager::getInst(void)
 
 void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId, const bool checkForIncompleteLog)
 	{
+		info.addf("cpccLogManager::initialize() called");
 		const cpcc_char *bundleID = NULL; // ignored in Windows
 		#ifdef __APPLE__
 			bundleID = macBundleId;
 		#endif 
 
-        info.addf("cpccLogManager::initialize() called");
+		debugLog().add("cpccLogManager::initialize() step1");
 		info.addf("Compiler C/C++ standard:%s", cppcIDE::getCompilerVersion());
+		
+		debugLog().add("cpccLogManager::initialize() step2");
 		cpcc_string fn = getAutoFullpathFilename(appNameStem, bundleID);
+		debugLog().addf("cpccLogManager::initialize() step3, filename=%s", fn.c_str());
 		// check previous run
 		if ((checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
 			||
 			(config_CheckIfLogHasErrors && fileContainsText(fn.c_str(), _T("ERROR>\t")))
 			)
 			copyToDesktop();
-
+		debugLog().add("cpccLogManager::initialize() step4");
 		// empty the file
 		if (cpccFileSystemMini::fileExists(fn.c_str()))
 			cpccFileSystemMini::createEmptyFile(fn.c_str());
+
+		debugLog().add("cpccLogManager::initialize() step5");
 		gbl_logWriterWithBuffer.setFilename(fn.c_str());
+
+		debugLog().add("cpccLogManager::initialize() step6");
 
 		consolePut(_T("Log filename:") << fn.c_str());
 		info.addf(_T("Log filename:%s"), fn.c_str());
+		
+		debugLog().add("cpccLogManager::initialize() step7");
+
 		if (!cpccFileSystemMini::fileExists(fn.c_str()))
 			consolePut(_T("Disabling log becase file does not exist at:") << fn.c_str());
 	}
@@ -343,15 +355,25 @@ cpccLogManager::~cpccLogManager()	// in MSVC, this destructor is not called
 	
 
 cpcc_string cpccLogManager::getFolderForTheLogFile(const cpcc_char *aBundleID)
-	{
-		cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
-		if (aBundleID)
+{
+	debugLog().add("getFolderForTheLogFile() step1");
+	cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
+	debugLog().add("getFolderForTheLogFile() step2");
+	if (aBundleID)
+		if (cpcc_strlen( aBundleID)>1)
 			result.appendPathSegment(aBundleID);
-		if (!result.pathExists())
-			if (!cpccFileSystemMini::createFolder(result.c_str()))
-				cpcc_cerr << _T("#8672: getFolderForTheLogFile() could not create folder:") << result << _T("\n");
-		return result;
+	debugLog().addf("getFolderForTheLogFile() step3. Log path=%s", result.c_str());
+	if (!result.pathExists())
+	{
+		bool folderCreated = false;
+		CPCC_TRY_AND_CATCH_TO_CERR(folderCreated = cpccFileSystemMini::createFolder(result.c_str()), "getFolderForTheLogFile()");
+		debugLog().add("getFolderForTheLogFile() step4");
+		if (!folderCreated)
+			cpcc_cerr << _T("#8672: getFolderForTheLogFile() could not create folder:") << result << _T("\n");
 	}
+	debugLog().add("getFolderForTheLogFile() Existing");
+	return result;
+}
 
 
 cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID) const
