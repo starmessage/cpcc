@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include "cpccUnicodeSupport.h"
+#include "core.cpccStringUtil.h" 
 #include "io.cpccLog.h"
 
 

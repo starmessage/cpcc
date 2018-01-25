@@ -94,13 +94,14 @@
 	{										\
 	public:									\
 		cpccSelfTest()					\
-		{	std::cout << "/ Starting selftest:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl;
+		{	std::cout << "/ Starting selftest:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl; \
+			const char* tmpSelfTestNameA = selfTest_MAKESTRING(SelfTestUniqueName);
 
 
 
 
 #define SELFTEST_END			\
-			std::cout << "\\ Ending selftest:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl; \
+			std::cout << "\\ Ending   selftest:" << tmpSelfTestNameA << std::endl; \
 		};						\
 	} SelftestVariableName; }
 

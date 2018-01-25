@@ -1,10 +1,10 @@
-﻿
+
 /*  *****************************************
  *  File:		cpccDefines.h
  *	Purpose:	Portable (cross-platform), light-weight, library
   *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2016 StarMessage software.
+ *  Copyright: 	2018 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
@@ -22,16 +22,21 @@
  // ie _DEBUG if you want your debugging code to be consistent with the MS CRT debugging techniques and 
  // NDEBUG if you want to be consistent with assert().
 
+// xcode: In iOS, in debug mode, the DEBUG preprocessor directive is defined
+
 #ifdef _DEBUG
 	#define cpccDEBUG
 #endif
 
-#ifdef __APPLE__
-	#ifndef NDEBUG
-		#define cpccDEBUG
-	#endif
+#ifdef DEBUG
+    #define cpccDEBUG
+#else
+    #ifdef __APPLE__
+	    //#ifndef NDEBUG
+		//    #define cpccDEBUG
+	    //#endif
+    #endif
 #endif
-
 
 class cppcIDE
 {

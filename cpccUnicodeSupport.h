@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccUnicodeSupport.h
  *  Version:	1.0
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking
@@ -88,23 +88,27 @@
 #ifdef __APPLE__	// define the _T() macro that is a MS VC macro
 	#ifdef UNICODE
 		#define _T(s) L ## s
+		#define  TCHAR wchar_t
 	#else
 		#define _T(s) s
+		#define  TCHAR char
 	#endif
 #endif
-
 
 // http://unicode.org/faq/utf_bom.html#BOM		
 #define UTF16_BOM	"\xff\xfe"
 #define UTF8_BOM	"\xEF\xBB\xBF"
 
-// todo: replace cpcc_char with TCHAR (define it in Mac, leave it as is in Microsoft)
-// What do do for std::string as there is no ready define  in Microsoft?
+typedef 	TCHAR							cpcc_char;
+typedef		std::basic_string<TCHAR>		cpcc_string;
+typedef		std::basic_stringstream<TCHAR>	cpcc_stringstream;
+typedef		std::basic_ostringstream<TCHAR> cpcc_ostringstream;
+typedef		std::basic_istringstream<TCHAR> cpcc_istringstream;
+typedef		std::basic_ifstream<TCHAR>		cpcc_ifstream;
+typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 
 
 #ifdef UNICODE
-	typedef		wchar_t				cpcc_char;
-	typedef		std::wstring		cpcc_string;
 
 	#define		cpcc_cout			std::wcout 		
 	#define		cpcc_cerr			std::wcerr 	
@@ -131,18 +135,8 @@
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
 	typedef		struct _stat		cpcc_struct_stat;
-
 	
-	typedef		std::wifstream		cpcc_ifstream;	
-	typedef		std::wofstream		cpcc_ofstream;	// wchar_t is the type that backs wstream and wstring
-	typedef		std::wostringstream cpcc_ostringstream;
-	typedef		std::wistringstream cpcc_istringstream;
-	typedef		std::wstringstream	cpcc_stringstream;
-	
-
  #else 
-	typedef		char				cpcc_char;
-	typedef		std::string			cpcc_string;
 
 	#define		cpcc_cout			std::cout 	
 	#define		cpcc_cerr			std::cerr
@@ -165,17 +159,9 @@
 	#define		cpcc_stat			stat
 	typedef		struct stat			cpcc_struct_stat;
 
-	
-	typedef		std::ifstream		cpcc_ifstream;
-	typedef		std::ofstream		cpcc_ofstream;
-	typedef		std::ostringstream	cpcc_ostringstream;
-	typedef		std::istringstream	cpcc_istringstream;
-	typedef		std::stringstream	cpcc_stringstream;
-	
  #endif
  
 
-typedef std::vector<cpcc_string> cpcc_stringList;
 
 #ifdef _WIN32
 

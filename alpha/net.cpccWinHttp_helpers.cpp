@@ -130,7 +130,7 @@ void CALLBACK winHttp_ProgressCallback(HINTERNET hInternet, _In_ DWORD_PTR dwCon
 		// Its dwResult member indicates the ID of the called function and dwError indicates the return value.
 		errorLog().addf("WINHTTP_CALLBACK_STATUS_REQUEST_ERROR for context %lu", dwContext);
 		{	DWORD rerror = ((WINHTTP_ASYNC_RESULT*)lpvStatusInformation)->dwError;
-			errorLog().addf(cpccOS::getWindowsErrorCodeAndText(_T("WINHTTP_CALLBACK_STATUS_REQUEST_ERROR"), rerror).c_str());
+			errorLog().addf(cpccOSWinErrorCodes::getDescription(_T("WINHTTP_CALLBACK_STATUS_REQUEST_ERROR"), rerror).c_str());
 		}
 		break;
 

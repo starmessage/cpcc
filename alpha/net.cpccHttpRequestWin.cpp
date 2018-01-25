@@ -407,7 +407,7 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const cpcc_char *aURLHost, co
 
 	if (!m_sessionPtr->getHandle())
 	{
-		errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpen"), GetLastError()));
+		errorLog().add(cpccOSWinErrorCodes::getDescription(_T("WinHttpOpen"), GetLastError()));
 		return;
 	}
 
@@ -446,13 +446,12 @@ cpccHttpRequestClientWin::cpccHttpRequestClientWin(const cpcc_char *aURLHost, co
 	// debugLog().add("cpccHttpRequestClientWin point 3");
 	if (!m_sessionPtr->getHandle())
 	{
-		errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpConnect"), GetLastError()));
+		errorLog().add(cpccOSWinErrorCodes::getDescription(_T("WinHttpConnect"), GetLastError()));
 		return;
 	}
 
 	if (!m_connectionPtr->isGood())
 		return;
-
 }
 
 

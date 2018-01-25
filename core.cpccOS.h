@@ -68,12 +68,8 @@ public:
 #ifdef _WIN32
     static const HWND getWindowHandleOfProgram(const TCHAR *aClassName);
     
-	/// returns the textual verison of the windows error code.
-	/// Parameter: the number given by GetLastError()
-    
-	static cpcc_string	getWindowsErrorText(const DWORD anErrorCode);
-	static cpcc_string	getWindowsErrorCodeAndText(const TCHAR *failedFunctionName, const DWORD anErrorCode);
-
+	
+	
 #endif
 
 };

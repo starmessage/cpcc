@@ -18,7 +18,8 @@
 #include <assert.h>
 
 #include "../cpccUnicodeSupport.h"
-#include "../core.cpccOS.h"
+// #include "../core.cpccOS.h"
+#include "../core.cpccOSWinErrorCodes.h"
 #include "../io.cpccLog.h"
 #include "../cpccInstanceCounterPattern.h"
 
@@ -144,7 +145,7 @@ protected:
 			if (::WinHttpCloseHandle(m_handle) == FALSE)
 			{
 				DWORD errNo = GetLastError();
-				errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
+				errorLog().add(cpccOSWinErrorCodes::getDescription(_T("WinHttpOpenRequest"), errNo));
 			}
             m_handle = 0;
         }
@@ -205,7 +206,7 @@ public:
 			if (pCallback == WINHTTP_INVALID_STATUS_CALLBACK)
 			{
 				DWORD errNo = GetLastError();
-				cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpSetStatusCallback"), errNo));
+				cpcc_string errormsg(cpccOSWinErrorCodes::getDescription(_T("WinHttpSetStatusCallback"), errNo));
 				cpcc_cerr << errormsg;
 				errorLog().add(errormsg.c_str());
 			}
@@ -335,7 +336,7 @@ public:
 		if (!getHandle())
 		{
 			DWORD errNo = GetLastError();
-			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpOpenRequest"), errNo));
+			cpcc_string errormsg(cpccOSWinErrorCodes::getDescription(_T("WinHttpOpenRequest"), errNo));
 			cpcc_cerr << errormsg;
 			errorLog().add(errormsg.c_str());
 		}
@@ -365,7 +366,7 @@ public:
 		if (result == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpSetTimeouts"), errNo));
+			cpcc_string errormsg(cpccOSWinErrorCodes::getDescription(_T("WinHttpSetTimeouts"), errNo));
 			cpcc_cerr << errormsg;
 			errorLog().add(errormsg.c_str());
 		}
@@ -388,7 +389,7 @@ public:
 								aContextPtr);
 		if (result == FALSE)
 		{
-			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), GetLastError()));
+			cpcc_string errormsg(cpccOSWinErrorCodes::getDescription(_T("WinHttpReceiveResponse"), GetLastError()));
 			errorLog().add(errormsg);
 		}
 		return result;
@@ -400,7 +401,7 @@ public:
 		if (WinHttpReceiveResponse(getHandle(), NULL) == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			errorLog().add(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpReceiveResponse"), errNo));
+			errorLog().add(cpccOSWinErrorCodes::getDescription(_T("WinHttpReceiveResponse"), errNo));
 			return FALSE;
 		}
 		return TRUE;
@@ -424,7 +425,7 @@ public:
 		if (result == FALSE)
 		{
 			DWORD errNo = GetLastError();
-			cpcc_string errormsg(cpccOS::getWindowsErrorCodeAndText(_T("WinHttpQueryHeaders"), errNo));
+			cpcc_string errormsg(cpccOSWinErrorCodes::getDescription(_T("WinHttpQueryHeaders"), errNo));
 			errorLog().add(errormsg);
 		}
 		return result;

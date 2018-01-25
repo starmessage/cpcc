@@ -24,89 +24,18 @@
 #include "cpcc_SelfTest.h"
 #include "core.cpccIdeMacros.h"
 #include "core.cpccTryAndCatch.h"
-
+#include "io.cpccLogFileWriterWithBuffer.h"
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
 #define cpccLogClosingStamp		_T("cpccLog closing. Bye bye...")
 
+int		cpccLogFormatter::m_IdentLevel = 0;
+bool    cpccLogFormatter::m_enabled(true);
+// std::atomic<bool>    cpccLogFormatter::m_enabled=true;
 
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// 	class cpccFileWithBuffer
-//
-//	class for writing to a text file.
-//
-//  It has an internal buffer where the writing is directed until the filename is specified.
-//  When setFilename() is called, the buffer is flushed in the file and any future logging occurs directly to the file.
-//  This allows the application to start logging events, even before it has the opportunity to calculate the filename.
-//  This is useful because a logObject is usally a global or singleton variable and you do not know exactly when it starts being used.
-//
-//  If the file specified does not exist, logging is disabled. This is a way for the application to enable/disable the logging.
-//  To enable the logging, the application must first create the file (unless it already exists) before calling setFilename()
-//   
-///////////////////////////////////////////////////////////////////////////////
-class  cpccFileWriterWithBuffer
-{
-private:
-	cpcc_string m_filename;
-	cpcc_stringstream m_buffer;
-	int maxBufferedLines;
-	
-public:
-	cpccFileWriterWithBuffer(): maxBufferedLines(200), m_filename(_T("")) 	{  add( _T("cpccFileWriterWithBuffer starting.\n")); }
-
-	virtual ~cpccFileWriterWithBuffer()  { 	add( _T("cpccFileWriterWithBuffer closing.\n")); }
-	
-	void setFilename(const cpcc_char* aFilename) 
-	{ 
-		assert((m_filename.length() == 0) && "#4721: cpccFileWriterWithBuffer.setFilename() already called.");
-		if (aFilename)
-			m_filename = aFilename;
-		else
-			return;
-
-		if (cpccFileSystemMini::fileExists(m_filename.c_str())) // empty the file if it exists already
-		{
-			cpccFileSystemMini::createEmptyFile(m_filename.c_str());
-			cpccFileSystemMini::appendTextFile(m_filename.c_str(), m_buffer.str().c_str());
-		}
-	}
-
-	const cpcc_string &getFilename(void) const { return m_filename; }
 
 
-	void add(const cpcc_char* txt) 
-	{
-		if (m_filename.length() > 0)
-		{
-			if (cpccFileSystemMini::fileExists(m_filename.c_str()))
-            {
-                try
-                {
-                    cpccFileSystemMini::appendTextFile(m_filename.c_str(), txt);
-                }
-                catch ( ... )
-                {
-                    std::cerr << "Exception in cpccFileWriterWithBuffer.add(""" << txt << """)" << std::endl;
-                    throw std::runtime_error("Exception #6246 in cpccFileWriterWithBuffer.add() when calling cpccFileSystemMini::appendTextFile()");
-                }
-            }
-		}
-		else
-		{
-			if (maxBufferedLines>0)
-			{
-				m_buffer << txt;
-				--maxBufferedLines;
-			}
-		}
-	}
-
-};
-
-
-static cpccFileWriterWithBuffer gbl_logWriterWithBuffer;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,44 +45,72 @@ static cpccFileWriterWithBuffer gbl_logWriterWithBuffer;
 ///////////////////////////////////////////////////////////////////////////////
 
 
+cpccLogFormatter::cpccLogFormatter(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
+	m_tag(aTag ? aTag : "NULL aTag "),
+	//m_IdentText(_T("| ")),
+	m_disableIfFileDoesNotExist(disableIfFileDoesNotExist),
+	m_echoToConsole(echoToConsole),
+	m_isEmpty(true)
+{
+	// std::cout << "creating cpccLogFormatter with tag:" << m_tag << std::endl;
+	if (m_tag.length() == 0)
+		std::cerr << "Error: #5613a: m_tag.length()==0" << std::endl;
+	
+}
+
 void cpccLogFormatter::add(const cpcc_char* txt)
 {
-	if (!isEnabled())
+	if (!txt)
+	{
+		std::cerr << "cpccLogFormatter::add(NULL)" << std::endl;
+		return;
+	}
+
+	// todo: reorganize the sequence of tasks here.
+	// Consider if logs should be kept in memory while !m_enabled
+
+	if (!m_enabled)
 		return;
 
 	//if (m_filename.length() == 0)
 	//	return;
-	cpcc_string _fn(gbl_logWriterWithBuffer.getFilename());
-	
+
+	cpcc_string _fn(cpccLogFileWriterWithBuffer::getInstance().getFilename());
 	
 	if ((_fn.length()>0) && !cpccFileSystemMini::fileExists(_fn.c_str()) && (!m_disableIfFileDoesNotExist))
 		cpccFileSystemMini::createEmptyFile(_fn.c_str());	// create a file so that the log can continue wrting on it.
 
-	cpcc_string m_outputBuffer(m_tag);
 
-    if (moreThanOneSecondPassed())
+	cpcc_string m_outputBuffer;
+	if (moreThanOneSecondPassed())
     {
-        cpcc_string currentTime = getCurrentTime(_T("     \t%F  %X"));
-        currentTime.append(_T("\n"));
-        m_outputBuffer.insert(0, currentTime);
+        m_outputBuffer.append( getCurrentTime(_T("     \t%F  %X")) );
+        m_outputBuffer.append(_T("\n"));
     }
-	
+
+	// Error here under WinXP
+    if (! (m_tag.length()>0) )
+        std::cerr << "Error: #5613b: !(m_tag.length()>0) with text=" << txt << std::endl;
+    
+    m_outputBuffer.append(m_tag);
+    
 	for (int i = 0; i<m_IdentLevel; ++i)
 		m_outputBuffer.append(m_IdentText);
 
 	m_outputBuffer.append(txt);
 	m_outputBuffer.append(_T("\n"));
-
+	
 	// cpccFileSystemMini::appendTextFile(m_filename, m_outputBuffer);
-	gbl_logWriterWithBuffer.add(m_outputBuffer.c_str());
+	cpccLogFileWriterWithBuffer::getInstance().add(m_outputBuffer.c_str());
 
 	if (m_echoToConsole)
 	{
 		cpcc_cout << m_outputBuffer;
-#if defined(_WIN32)
-		OutputDebugString(m_outputBuffer.c_str());
-#endif
+	    #if defined(_WIN32)
+			OutputDebugString(m_outputBuffer.c_str());
+	    #endif
 	}
+
 	m_isEmpty = false;
 }
 
@@ -167,12 +124,11 @@ cpcc_string cpccLogFormatter::toString(const cpcc_char* format, ...)
 	va_start(args, format);
 #if (_MSC_VER >= 1400) // Visual Studio 2005
 	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
-	_vstprintf_s(buff, MAX_LOG_STRING, format, args);
+	CPCC_TRY_AND_CATCH_TO_CERR(_vstprintf_s(buff, MAX_LOG_STRING, format, args), "_vstprintf_s(buff, MAX_LOG_STRING, format, args)");
 #else
-	vsprintf(buff, format, args);
+	CPCC_TRY_AND_CATCH_TO_CERR( vsprintf(buff, format, args) , "vsprintf(buff, format, args)");
 #endif
 	va_end(args);
-
 	return buff;
 }
 
@@ -182,6 +138,7 @@ cpcc_string cpccLogFormatter::toString(const cpcc_char* format, ...)
 
 void cpccLogFormatter::addf(const wchar_t* format, ...)
 {
+// todo: Use toString()
 	const int MAX_LOG_STRING = 8000;
 	wchar_t buff[MAX_LOG_STRING + 1]; // = { 0 };
 
@@ -203,6 +160,7 @@ void cpccLogFormatter::addf(const wchar_t* format, ...)
 
 void cpccLogFormatter::addf(const char* format, ...)
 {
+// todo: Use toString()
 	const int MAX_LOG_STRING = 8000 ;
 	char buff[MAX_LOG_STRING + 1]; // = { 0 };
 
@@ -210,9 +168,10 @@ void cpccLogFormatter::addf(const char* format, ...)
 	va_start(args, format);
 #if (_MSC_VER >= 1400) // Visual Studio 2005
 	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
-	vsprintf_s(buff, MAX_LOG_STRING, format, args); // or _vstprintf_s for automatic unicode/ non-unicode
+	//  _vstprintf_s for automatic unicode/ non-unicode
+	CPCC_TRY_AND_CATCH_TO_CERR( vsprintf_s(buff, MAX_LOG_STRING, format, args), "vsprintf_s(buff, MAX_LOG_STRING, format, args)");
 #else
-	vsprintf(buff, format, args);
+	CPCC_TRY_AND_CATCH_TO_CERR( vsprintf(buff, format, args), "vsprintf(buff, format, args)");
 #endif
 	va_end(args);
 
@@ -222,7 +181,7 @@ void cpccLogFormatter::addf(const char* format, ...)
 
 const cpcc_string &	cpccLogFormatter::getFilename(void)
 {
-    return gbl_logWriterWithBuffer.getFilename();
+    return cpccLogFileWriterWithBuffer::getInstance().getFilename();
 }
 
 
@@ -259,13 +218,11 @@ cpcc_string cpccLogFormatter::getCurrentTime(const cpcc_char * fmt)
 	// http://www.cplusplus.com/reference/clibrary/ctime/strftime/
 	// strftime(buffer, sizeof(buffer), fmt, &timeStruct);
 	cpcc_strftime(buffer, sizeof(buffer), fmt, &timeStruct);
-	return cpcc_string(buffer);  // e.g. 13:44:04
+	return buffer;  // e.g. 13:44:04
 }
 
 
 
-int					cpccLogFormatter::m_IdentLevel = 0;
-// std::atomic<bool>	cpccLogFormatter::m_enabled=true;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -274,110 +231,106 @@ int					cpccLogFormatter::m_IdentLevel = 0;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// constructor
+cpccLogManager::cpccLogManager(void):
+        error(_T("ERROR>\t"),  !config_CreateFileOnError, config_EchoToCOUT),
+        warning(_T("Warning>\t"), !config_CreateFileOnWarning, config_EchoToCOUT),
+        info(_T("Info>\t"),  !config_CreateFileOnInfo, config_EchoToCOUT)
+{
+#ifdef cpccDEBUG
+	std::cout << "cpccLogManager constructor" << std::endl;
+#endif
+    info.add(cpccLogOpeningStamp);
+#ifdef cpccDEBUG
+    info.add("Compiled in DEBUG mode");
+#else
+    info.add("Compiled in Release mode");
+#endif
+    
+    info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
+    info.add(_T("More info about the cpcc cross platform library at:\n     \twww.StarMessageSoftware.com/cpcclibrary"));
+    info.add(cpccFileSystemMini::getFileSystemReport());
+}
+
+
+cpccLogManager::~cpccLogManager()    // in MSVC, this destructor is not called
+{
+    //cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
+    info.add(cpccLogClosingStamp);
+    if (hasErrors())
+        copyToDesktop();
+}
+
 
 cpccLogManager &cpccLogManager::getInst(void)
 {
+	// static cpccLogManager _instance; // this does not work on WinXP inside a dll
+
 	// std::cout << "getLogManagerSingleton()" << std::endl;
-	static cpccLogManager _instance;
+	static cpccLogManager *_instancePtr=NULL;
 	// std::cout << "getLogManagerSingleton() step2" << std::endl;
-	return _instance;
+	if (!_instancePtr)
+		_instancePtr = new cpccLogManager;
+	return *_instancePtr;
 }
 
 
 void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId, const bool checkForIncompleteLog)
 	{
-		info.addf("cpccLogManager::initialize() called");
+		// info.addf("cpccLogManager::initialize() called");
 		const cpcc_char *bundleID = NULL; // ignored in Windows
 		#ifdef __APPLE__
 			bundleID = macBundleId;
 		#endif 
 
-		debugLog().add("cpccLogManager::initialize() step1");
 		info.addf("Compiler C/C++ standard:%s", cppcIDE::getCompilerVersion());
 		
-		debugLog().add("cpccLogManager::initialize() step2");
 		cpcc_string fn = getAutoFullpathFilename(appNameStem, bundleID);
-		debugLog().addf("cpccLogManager::initialize() step3, filename=%s", fn.c_str());
 		// check previous run
 		if ((checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
 			||
 			(config_CheckIfLogHasErrors && fileContainsText(fn.c_str(), _T("ERROR>\t")))
 			)
 			copyToDesktop();
-		debugLog().add("cpccLogManager::initialize() step4");
+		
 		// empty the file
 		if (cpccFileSystemMini::fileExists(fn.c_str()))
 			cpccFileSystemMini::createEmptyFile(fn.c_str());
 
-		debugLog().add("cpccLogManager::initialize() step5");
-		gbl_logWriterWithBuffer.setFilename(fn.c_str());
+		cpccLogFileWriterWithBuffer::getInstance().setFilename(fn.c_str());
 
-		debugLog().add("cpccLogManager::initialize() step6");
-
+		
 		consolePut(_T("Log filename:") << fn.c_str());
 		info.addf(_T("Log filename:%s"), fn.c_str());
-		
-		debugLog().add("cpccLogManager::initialize() step7");
-
+				
 		if (!cpccFileSystemMini::fileExists(fn.c_str()))
 			consolePut(_T("Disabling log becase file does not exist at:") << fn.c_str());
 	}
 
 
-cpccLogManager::cpccLogManager(void):
-		error(_T("ERROR>\t"),  !config_CreateFileOnError, echoToCOUT),
-		warning(_T("Warning>\t"), !config_CreateFileOnWarning, echoToCOUT),
-		info(_T("Info>\t"),  !config_CreateFileOnInfo, echoToCOUT)
-	{
-		        
-        info.add(cpccLogOpeningStamp);
-		#ifdef cpccDEBUG
-			info.add("Compiled in DEBUG mode");
-		#else
-			info.add("Compiled in Release mode");
-		#endif
-        
-        info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
-		info.add(_T("More info about the cpcc cross platform library at:\n     \twww.StarMessageSoftware.com/cpcclibrary"));
-		// std::string sysReport(cpccFileSystemMini::getFileSystemReport());
-		// info.add(sysReport.c_str());
-		info.add(cpccFileSystemMini::getFileSystemReport());
-	}
-	
-    
-cpccLogManager::~cpccLogManager()	// in MSVC, this destructor is not called
-	{	
-		//cpccFileSystemMini::appendTextFile("c:\\tmp\\a.txt", cpcc_string("this is the end"));
-		info.add(cpccLogClosingStamp);
-        if (hasErrors())
-            copyToDesktop();
-	}
+
 	
 
 cpcc_string cpccLogManager::getFolderForTheLogFile(const cpcc_char *aBundleID)
 {
-	debugLog().add("getFolderForTheLogFile() step1");
 	cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
-	debugLog().add("getFolderForTheLogFile() step2");
 	if (aBundleID)
 		if (cpcc_strlen( aBundleID)>1)
 			result.appendPathSegment(aBundleID);
-	debugLog().addf("getFolderForTheLogFile() step3. Log path=%s", result.c_str());
+
 	if (!result.pathExists())
 	{
 		bool folderCreated = false;
 		CPCC_TRY_AND_CATCH_TO_CERR(folderCreated = cpccFileSystemMini::createFolder(result.c_str()), "getFolderForTheLogFile()");
-		debugLog().add("getFolderForTheLogFile() step4");
 		if (!folderCreated)
 			cpcc_cerr << _T("#8672: getFolderForTheLogFile() could not create folder:") << result << _T("\n");
 	}
-	debugLog().add("getFolderForTheLogFile() Existing");
 	return result;
 }
 
 
-cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID) const
-	{
+cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID)
+{
         cpccPathString result(getFolderForTheLogFile(aBundleID));
 		if (aFilename)
 			result.appendPathSegment(aFilename);	
@@ -386,7 +339,7 @@ cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, 
 
         result.append(_T(".cpccLog.txt"));
         return result;
-	}
+}
 	
     
 bool    cpccLogManager::fileContainsText(const cpcc_char *fn, const cpcc_char *txt)
@@ -419,13 +372,13 @@ bool    cpccLogManager::logfileIsIncomplete(const cpcc_char *fn)
     
     
 void    cpccLogManager::copyToDesktop(void)
-    {
-        const cpcc_char *fn = gbl_logWriterWithBuffer.getFilename().c_str();
-        if (!cpccFileSystemMini::fileExists(fn))
-            return;
+{
+    const cpcc_char *fn = cpccLogFileWriterWithBuffer::getInstance().getFilename().c_str();
+    if (!cpccFileSystemMini::fileExists(fn))
+        return;
 
-        cpccFileSystemMini::copyFile(fn, cpccFileSystemMini::getFolder_Desktop().c_str());
-    }
+    cpccFileSystemMini::copyFile(fn, cpccFileSystemMini::getFolder_Desktop().c_str());
+}
     
 
 
@@ -433,8 +386,12 @@ void    cpccLogManager::copyToDesktop(void)
 /////////////////////////////////////////////////////////////////////////
 // inside your program use the following functions to write to the 3 levels of the logs.
 // all the 3 logs point to the same file.
-cpccLogFormatter			&infoLog(void)		{ return cpccLogManager::getInst().info; }
-cpccLogFormatter			&warningLog(void)	{ return cpccLogManager::getInst().warning;  }
-cpccLogFormatter			&errorLog(void)		{ return cpccLogManager::getInst().error;  }
+/*
+ cpccLogFormatter			&infoLog(void)		{ return cpccLogManager::getInst().info; }
+ cpccLogFormatter			&warningLog(void)	{ return cpccLogManager::getInst().warning;  }
+ cpccLogFormatter			&errorLog(void)		{ return cpccLogManager::getInst().error;  }
+*/
 
-
+cpccLogFormatter            &infoLog(void)        { return cpccLogManager::getInfo(); }
+cpccLogFormatter            &warningLog(void)    { return cpccLogManager::getWarning();  }
+cpccLogFormatter            &errorLog(void)        { return cpccLogManager::getError();  }

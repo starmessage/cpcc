@@ -36,6 +36,7 @@
 #include "app.cpccApp.h"
 #include "core.cpccOS.h"
 #include "core.cpccTryAndCatch.h"
+#include "core.cpccStringUtil.h"
 
 /*  Handling Screen Savers
 	http://msdn.microsoft.com/en-us/library/cc144066%28v=vs.85%29.aspx
