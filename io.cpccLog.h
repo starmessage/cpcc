@@ -47,8 +47,8 @@ private:
 	static bool			m_enabled;
 	
 public:
-	static void		 increaseIdent(void) { ++m_IdentLevel; }
-	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541: reducing log ident to <0"); }
+	static void		 increaseIdent(void) { ++m_IdentLevel; assert(m_IdentLevel > 0 && "#9541a: increased log ident to <=0"); }
+	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541b: reducing log ident to <0"); }
 	static void		 setEnabled(const bool enabled) { m_enabled = enabled;  }
 
 public: // constructor / destructor
@@ -207,7 +207,7 @@ protected:
         tag(aTag?aTag:"null-tag-at-logBlockOfCode"), startTag(aStartTag?aStartTag:"aStartTag"), endTag(aEndTag? aEndTag:"aEndTag")
     {
         infoLog().addf(_T("%s: %s"), startTag.c_str(), tag.c_str());
-
+		
         cpccLogFormatter::increaseIdent();
     }
     
