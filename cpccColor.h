@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccColor.h
  *  Version:	
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -181,6 +181,15 @@ public:
     {
         amplifyComponents(f,f,f);
         return *this;
+    }
+    
+    cpccColor32 operator +(const cpccColor32& c2)
+    {
+        cpccColor32 result;
+        result.r = r + c2.r;
+        result.g = g + c2.g;
+        result.b = b + c2.b;
+        return result;
     }
     
     static void selfTest(void)

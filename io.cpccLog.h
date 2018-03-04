@@ -204,7 +204,7 @@ protected:
 	    
 
     explicit logBlockOfCode(const cpcc_char *aTag, const cpcc_char *aStartTag, const cpcc_char *aEndTag) :
-        tag(aTag?aTag:"null-tag-at-logBlockOfCode"), startTag(aStartTag?aStartTag:"aStartTag"), endTag(aEndTag? aEndTag:"aEndTag")
+        tag(aTag?aTag:_T("null-tag-at-logBlockOfCode")), startTag(aStartTag?aStartTag:_T("aStartTag")), endTag(aEndTag? aEndTag:_T("aEndTag"))
     {
         infoLog().addf(_T("%s: %s"), startTag.c_str(), tag.c_str());
 		
@@ -223,7 +223,7 @@ public:
 class logObjectLife: protected logBlockOfCode
 {
 public:
-	explicit logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag ? aTag : "null-tag-at-logObjectLife", _T("creating"), _T("destroying"))
+	explicit logObjectLife(const cpcc_char *aTag) : logBlockOfCode(aTag ? aTag : _T("null-tag-at-logObjectLife"), _T("creating"), _T("destroying"))
 	{ }
 };
 

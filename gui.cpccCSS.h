@@ -63,7 +63,6 @@ public: // constructors
 		}
 
 public: // data
-		// cpccCss *						parentCSS;
 		cpccProperty<cpccColor>			color, bgColor;
 		cpccProperty<cpcc_string>		fontName;
 		cpccProperty<float>				fontSize; 

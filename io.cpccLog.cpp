@@ -31,10 +31,6 @@
 
 int		cpccLogFormatter::m_IdentLevel = 0;
 bool    cpccLogFormatter::m_enabled(true);
-// std::atomic<bool>    cpccLogFormatter::m_enabled=true;
-
-
-
 
 
 
@@ -46,7 +42,7 @@ bool    cpccLogFormatter::m_enabled(true);
 
 
 cpccLogFormatter::cpccLogFormatter(const cpcc_char *aTag, const bool disableIfFileDoesNotExist, const bool echoToConsole) :
-	m_tag(aTag ? aTag : "NULL aTag "),
+	m_tag(aTag ? aTag : _T("NULL aTag ")),
 	//m_IdentText(_T("| ")),
 	m_disableIfFileDoesNotExist(disableIfFileDoesNotExist),
 	m_echoToConsole(echoToConsole),
