@@ -68,6 +68,7 @@ public:
         a = 255;
     }
     
+	
     cpccColor32(const cpccColor32 &c) { data = c.data; }
 	cpccColor32(const unsigned char r_, const unsigned char g_, const unsigned char b_, const unsigned char a_=255 ) :
 		r(r_), g(g_), b(b_), a(a_) {}
