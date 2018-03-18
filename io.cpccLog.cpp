@@ -165,7 +165,9 @@ void cpccLogFormatter::addf(const char* format, ...)
 #if (_MSC_VER >= 1400) // Visual Studio 2005
 	// vsprintf_s( buff, MAX_LOG_STRING, format, args);
 	//  _vstprintf_s for automatic unicode/ non-unicode
+
 	CPCC_TRY_AND_CATCH_TO_CERR( vsprintf_s(buff, MAX_LOG_STRING, format, args), "vsprintf_s(buff, MAX_LOG_STRING, format, args)");
+	// vsprintf_s(buff, MAX_LOG_STRING, format, args);
 #else
 	CPCC_TRY_AND_CATCH_TO_CERR( vsprintf(buff, format, args), "vsprintf(buff, format, args)");
 #endif

@@ -160,15 +160,7 @@ public:
 		return false;
 	}
 
-	static const bool fromStrNew(const cpcc_char*  strValue, int& aValue)
-	{
-		cpcc_char* end;
-		// This parses "1234" (decimal) and also "0x4D2" (hex)
-		int n = (int) cpcc_strtol(strValue, &end, 0);
-		if (end <= strValue)	return false;
-		aValue = n;
-		return true;
-	}
+
 
 
 	static const bool fromStrNew(const cpcc_char* strValue, double& aValue)
@@ -228,6 +220,16 @@ public:
 	}
 #endif
 
+	static const bool fromStrNew(const cpcc_char*  strValue, int& aValue)
+	{
+		cpcc_char* end;
+		// This parses "1234" (decimal) and also "0x4D2" (hex)
+		int n = (int)cpcc_strtol(strValue, &end, 0);
+		if (end <= strValue)	return false;
+		aValue = n;
+		return true;
+	}
+
 	static const int fromStr(const cpcc_char*  strValue, const int aDefaultValue)
 	{
 		cpcc_char* end;
@@ -235,6 +237,7 @@ public:
 		int n = (int) cpcc_strtol(strValue, &end, 0);
 		return end > strValue ? n : aDefaultValue;
 	}
+
 
 	static const bool fromStr(const cpcc_char*  strValue, const bool aDefaultValue)  { return fromStr(cpcc_string(strValue), aDefaultValue); }
     
