@@ -165,6 +165,7 @@ private:
 	cpccWinGDIObject	*m_GDIObjectPtr;
 
 public:
+	// todo: remove depedencies to eFontWeight, eFontQuality
 	cpccWinGDIFont(HDC ahDC, const cpcc_char *aFontName, const float *aFontSize, const eFontWeight aWeight, const eFontQuality aQuality): m_GDIObjectPtr(NULL)
 	{ 
 		int fWeight = FW_NORMAL;

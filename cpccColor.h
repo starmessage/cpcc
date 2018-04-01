@@ -110,12 +110,26 @@ public:
     }
     */
     
+    //     typedef unsigned long DWORD; // 32bit
+    
 #ifdef _WIN32
-	inline const COLORREF asColorref(void) const		{ return RGB(r, g, b);  }
+	/* definitions from WinGDI.h
+	typedef DWORD   COLORREF;
+	#define GetRValue(rgb)      (LOBYTE(rgb))
+	#define GetGValue(rgb)      (LOBYTE(((WORD)(rgb)) >> 8))
+	#define GetBValue(rgb)      (LOBYTE((rgb)>>16))
+	#define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+	*/
+	inline const COLORREF asCOLORREF(void) const		{ return RGB(r, g, b);  }
+	inline void fromCOLORREF(const COLORREF c) 	{	r = GetRValue(c); g = GetGValue(c); b = GetBValue(c); }
+
 #endif
 
-#ifdef __APPLE__
+	inline cpccDWORD asDWORD(void) const { return data; }
+	inline void fromDWORD(const cpccDWORD c) { data = c; }
 
+#ifdef __APPLE__
+    
 	NSColor *asNSColor(void) const 	{ return[NSColor colorWithDeviceRed : (r/255.0f) green : (g/255.0f) blue : (b/255.0f) alpha : a/255.0f]; }
 
 	void fromNSColor(NSColor *c)
@@ -321,18 +335,15 @@ class cpccColorT
 			return * this;
 		}
 
-		/*
-		bool operator>(cpccColorT<T> &aColor ) 
+		cpccColorT<T>& operator=(const long &aColorAsLong)
 		{
-			return (aColor.getBrightness() < getBrightness() );
+			b = aColorAsLong & 0xFF;
+			aColorAsLong = aColorAsLong >> 8;
+			g = aColorAsLong & 0xFF;
+			aColorAsLong = aColorAsLong >> 8;
+			r = aColorAsLong & 0xFF;
 		}
-		
-		
-		bool operator<( cpccColorT<T> &aColor ) 
-		{
-			return ( aColor.getBrightness() > getBrightness() ) ;
-		}
-		*/
+
 		
 		cpccColorT<T> operator *(const float f)
 		{
@@ -400,7 +411,7 @@ public:
 	
 
 #ifdef _WIN32
-	const COLORREF asColorref(void) const
+	const COLORREF asCOLORREF(void) const
 	{	return	RGB(r,g,b); // return ((b << 16) | (g << 8) | r);
 	}
 

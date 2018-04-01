@@ -46,7 +46,7 @@ public:		// functions
 
 	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor) override
 	{
-		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
+		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asCOLORREF());
 		Ellipse(m_hDC, left, top, right, bottom);
 	}
 
@@ -54,7 +54,7 @@ public:		// functions
 	void 	fillRectWithColor(const RECT &r, const cpccColor& aColor)  override
 	{
 		// const COLORREF c = /* (DWORD) */ aColor.asColorref();
-		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asColorref());
+		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asCOLORREF());
 		
 		// The brush identified by the hbr parameter may be either a handle to a logical brush or a color value. 
 		// If specifying a handle to a logical brush, call CreatePatternBrush, or CreateSolidBrush to obtain the handle.
@@ -70,7 +70,7 @@ public:		// functions
 		tmpRect.top = tmpRect.bottom = y;
 
 		if (params.color)
-			SetTextColor(m_hDC, params.color->asColorref());
+			SetTextColor(m_hDC, params.color->asCOLORREF());
 
 		long alignment=DT_LEFT;
 		if (params.textAlign)
@@ -130,7 +130,7 @@ public:		// functions
 	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (m_hDC)
-			::SetPixel (m_hDC, x, y, aColor.asColorref());
+			::SetPixel (m_hDC, x, y, aColor.asCOLORREF());
 	}	
 	
 
@@ -155,7 +155,7 @@ public:		// functions
 		if (!transparentColor)
 			::BitBlt(m_hDC, x, y, srcW , srcH, srcContext, 0,0, SRCCOPY); 
 		else // http://www.winprog.org/tutorial/transparency.html
-			TransparentBlt(m_hDC, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asColorref());
+			TransparentBlt(m_hDC, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asCOLORREF());
 	}
 	
 
@@ -164,7 +164,7 @@ public:		// functions
 		if (!m_hDC)
 			return;
 
-		cpccWinGDIPen tmpPen(m_hDC, width, aColor.asColorref());
+		cpccWinGDIPen tmpPen(m_hDC, width, aColor.asCOLORREF());
 		::MoveToEx(m_hDC, x1, y1, NULL);
 		::LineTo(m_hDC, x2, y2);
 	}

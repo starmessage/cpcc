@@ -69,12 +69,18 @@ public:		// functions
 	cpcc_string getFilename(void) { return mFilename; }
 	
 	template <typename T>
-	const T read(const cpcc_char *aKey, const T aDefault) 						{ return stringConversions::fromStr(read(aKey, _T("")).c_str(), aDefault); }
-	const cpcc_string read(const cpcc_char *aKey, const cpcc_char *aDefault)	{ return mSettings.count(aKey) ? mSettings[aKey] : cpcc_string(aDefault); }
+	const T read(const cpcc_char *aKey, const T aDefault)
+    {
+        return stringConversions::fromStr(read(aKey, _T("")).c_str(), aDefault);
+    }
+    
+	const cpcc_string read(const cpcc_char *aKey, const cpcc_char *aDefault)
+    {
+        return mSettings.count(aKey) ? mSettings[aKey] : aDefault;
+    }
+    
 	const cpcc_string read(const cpcc_char *aKey, const cpcc_string &aDefault)	{ return read(aKey, aDefault.c_str()); }
     
-
-
 	void		write(const cpcc_char *aKey, const cpcc_char *aValue);
     void        write(const cpcc_char *aKey, const cpcc_string &aValue) { write(aKey, aValue.c_str()); };
     template <typename T>
@@ -112,7 +118,7 @@ class cpccPersistentVar
 private:
 	 cpccSettings &	mIniPtr;
 	 cpcc_string	mKey;
-     T				mDefaultValue;
+     const T		mDefaultValue;
 
 	const cpcc_string createIndexedKey(const int index) const
 	{
@@ -122,18 +128,20 @@ private:
 	}
 
 public:
-    cpccPersistentVar(cpccSettings &aIniPtr, const cpcc_char *aKey, const T aDefaultValue):
+    explicit cpccPersistentVar(cpccSettings &aIniPtr, const cpcc_char *aKey, const T aDefaultValue):
             mIniPtr(aIniPtr),
             mKey(aKey),
             mDefaultValue(aDefaultValue)
 	{ }
 
+    // get value
     inline const T getValue(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	inline  operator const T(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	// T read(void) const { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
 	inline const T operator[](const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
 
+    // set value
 	// void operator=(T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); } // try a non-const version
 	void operator=(const T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); }
 	//void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }

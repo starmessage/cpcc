@@ -36,22 +36,22 @@ class cpccRect
 {
 public:		// data
 	T	top, left, width, height;
-	T   &x, &y;     // the same as left, top
+	// T   &x, &y;     // the same as left, top. ToDo: delete them
 
 public:		// constructors
 	cpccRect() : 
-			x(left), y(top), 
+			// x(left), y(top), 
 			top(static_cast<T>(0)), left(static_cast<T>(0)), width(static_cast<T>(0)), height(static_cast<T>(0))
 	{}
 
 	cpccRect(const T &l, const T &t, const T &r, const T &b) : 
-			x(left), y(top), 
+			// x(left), y(top), 
 			top(t), left(l), width(r-l), height(b-t)
 	{}
 
 #ifdef _WIN32
 	explicit cpccRect(const RECT &r):	// construct from a Windows RECT
-		x(left), y(top),
+		// x(left), y(top),
 		left(r.left), top(r.top), width(r.right - r.left), height(r.bottom - r.top)
 	{ }
 #endif
@@ -94,9 +94,9 @@ public:		// functions
 public:		// convenience functions
 	inline virtual const T		getBottom(void) const	{ return top + height; }
 	inline virtual const T		getRight(void)	const	{ return left + width; }
-	inline virtual const void	setBottom(const T v)	{ height = v - top; }
-	inline virtual const void	setRight(const T v)		{ width = v - left; }
-	inline void			setXY(const T aX, const T aY) { x = aX; y = aY; }
+	// inline virtual const void	setBottom(const T v)	{ height = v - top; }
+	// inline virtual const void	setRight(const T v)		{ width = v - left; }
+	inline void			setXY(const T aX, const T aY) { left = aX; top = aY; }
 
 	inline const bool   overlapsWithRect(const cpccRect<T> &aRect) const
 	{
