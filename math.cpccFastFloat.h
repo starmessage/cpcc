@@ -1,5 +1,5 @@
 ﻿/*  *****************************************
- *  File:		math.cpccFixedPointNumber.h
+ *  File:		math.cpccFastFloat.h
  *	Purpose:	Portable (cross-platform), light-weight, class replacement for floats. 
  *				Fast real numbers.
  *	*****************************************

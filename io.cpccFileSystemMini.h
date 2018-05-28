@@ -114,7 +114,7 @@ public:
 	// enum standardFolderIds { sfNone = 0, sfCommonAppData, sfUsersTemp, sfUserData };
 
 public: // constructors
-    explicit cpccPathString(const cpcc_char * aPath=NULL) : cpcc_string( (aPath)? aPath: (cpcc_char *)"") 	{	}
+    explicit cpccPathString(const cpcc_char * aPath=NULL) noexcept: cpcc_string( (aPath)? aPath: (cpcc_char *)"") 	{	}
 	explicit cpccPathString(const cpcc_string & aPath) : cpcc_string(aPath) 	{	}
 	// explicit cpccPathString(const standardFolderIds aFolderID);
 
@@ -122,10 +122,13 @@ public: // functions
 	bool	pathExists(void)	const { return (cpccFileSystemL1::fileExists(c_str()) || cpccFileSystemL1::folderExists(c_str())); }
 	void	appendPathSegment(const cpcc_char* aPathSegment);
 
+	/* 
+	// this is already defined in the parent class
     inline const cpccPathString & operator =(const cpcc_string& aPath)
     {   assign(aPath);
         return *this;
     }
+	*/
     
 };
 

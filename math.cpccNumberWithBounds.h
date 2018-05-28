@@ -47,7 +47,7 @@ class cpccNumberWithBounds
 		const T set(const T a)		{ return m_value =  applyLimits(a); }
 
 	public:	// constructor
-        cpccNumberWithBounds<T, m_min, m_max, m_denominator>(const T a=0) { set(a); }
+        cpccNumberWithBounds<T, m_min, m_max, m_denominator>(const T a=0) noexcept: m_value(a) { /* set(a); */ }
 
 	public:	// functions
 		static const T applyLimits(const T a)	

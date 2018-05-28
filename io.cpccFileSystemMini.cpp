@@ -84,8 +84,10 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 #ifdef _WIN32
 cpcc_string cpccFileSystemMini::getFolder_Windows(void) 
 {
-	cpcc_char buffer[300];
-	GetWindowsDirectory(buffer, 300);
+	cpcc_char buffer[300+1];
+	UINT rc = GetWindowsDirectory(buffer, 300);
+	if (rc == 0 || rc > 300) 
+		return _T("c:\\error-no3852-getting-windows-dir");
 	return cpcc_string(buffer) + _T("\\");
 }
 #endif

@@ -38,12 +38,12 @@ SELFTEST_END
 	SELFTEST_END
 #endif
 
-
+/*
 #include "math.cpccFastFloat.h"
 SELFTEST_BEGIN(cpccFixedPointNumber_SelfTest)
     cpccFastFloat13::selfTest();
 SELFTEST_END
-
+*/
 
 #include "core.cpccStringUtil.h"
 SELFTEST_BEGIN(cpccStringUtil_SelfTest)

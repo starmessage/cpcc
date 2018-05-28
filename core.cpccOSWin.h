@@ -191,12 +191,12 @@ public:
 		subblock of the file version information.
 		*/
 	{
-
+		// https://stackoverflow.com/questions/13626295/how-to-use-the-getfileversioninfo-function
 		// https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
-		DWORD  verHandle = 0;
+		// DWORD  verHandle = 0;
 		UINT   size = 0;
 		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSize(aFilePath, &verHandle);
+		DWORD  verSize = GetFileVersionInfoSize(aFilePath, NULL);
 
 		cpcc_string result;
 		if (verSize == 0)
@@ -204,7 +204,7 @@ public:
 
 		LPSTR verData = new char[verSize];
 
-		if (GetFileVersionInfo(aFilePath, verHandle, verSize, verData))
+		if (GetFileVersionInfo(aFilePath, NULL, verSize, verData))
 		{
 			if (VerQueryValue(verData, _T("\\"), (VOID FAR* FAR*)&lpBuffer, &size))
 			{
