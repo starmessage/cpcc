@@ -15,6 +15,26 @@
  
  
  /*
+
+	recommendations:
+		If you need to work with UTF-8 in Windows - Save your source file in UTF-8 with BOM
+		Use the setlocale function to correctly configure the runtime. This configuration depends on your need, don't simply call setlocale(LC_ALL, "")
+		if you're using WinAPI, you shouldn't be using standard lib file I/O because the standard lib is not Unicode friendly.
+		if text is going in an output file, you should use a Unicode encoding, such as UTF-8 or UTF-16.
+
+		For writing new programs prefer to avoid using legacy codepages entirely and instead use char as UTF-8, 
+		and then on Windows to use the *W APIs unconditionally, converting between UTF-8 char strings and wchar_t at the API boundary.
+
+		wstring is available anywhere that has C++ because it's in the standard library, but it's useless on UNIX since UNIX is UTF-8.
+		Windows does not have native support for UTF-8. If you want proper Unicode support, you need to use the wchar_t version of 
+		the Windows API functions, not the char version.
+		Character encoding is rather painful when Windows doesn't support UTF-8 and Un*x doesn't support UTF-16.
+		Suggestion:  use UTF-8 as your main encoding and convert as necessary on Windows.
+
+		Convert UTF-8 (std::string for Mac/Unix) to UTF-18 (std::wstring, for Windows)
+		http://en.cppreference.com/w/cpp/locale/wstring_convert/from_bytes
+
+
 	On Windows, TCHAR is either wchar_t or plain char depending on your project settings.
 	Likewise, _tprintf is either wprintf of printf to match the choice of characters.
 	On OSX you will likely have to make this choice yourself, perhaps
@@ -86,7 +106,7 @@
 
 
 #ifdef __APPLE__	// define the _T() macro that is a MS VC macro
-	#ifdef UNICODE
+	#ifdef UNICODE  // UNICODE is a Windows only define. So the next code is not needed.
 		#define _T(s) L ## s
 		#define  TCHAR wchar_t
 	#else
@@ -178,14 +198,14 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 		{
 			if (!str)
 				return;
-				
+			
+			setlocale(LC_CTYPE, "");
 			size_t len = strlen(str);
 			// allocate memory
 			m_wstr.insert(0, len + 4, L'-');
 			#pragma warning(suppress : 4996)
 			mbstowcs(&m_wstr[0], str, len +2);
 			m_resultPtr = m_wstr.c_str();
-
 		}
 
 		inline  operator const wchar_t *(void) const { return m_resultPtr; }

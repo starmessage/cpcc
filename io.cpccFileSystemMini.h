@@ -122,13 +122,12 @@ public: // functions
 	bool	pathExists(void)	const { return (cpccFileSystemL1::fileExists(c_str()) || cpccFileSystemL1::folderExists(c_str())); }
 	void	appendPathSegment(const cpcc_char* aPathSegment);
 
-	/* 
 	// this is already defined in the parent class
     inline const cpccPathString & operator =(const cpcc_string& aPath)
     {   assign(aPath);
         return *this;
     }
-	*/
+	
     
 };
 
