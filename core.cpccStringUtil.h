@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		core.cpccStringUtil.h
  *	Purpose:	Portable (cross-platform), light-weight library
  *  			String utility functions
@@ -63,6 +63,12 @@ public:
 	}
 
 
+	static void removeFromCharacterToTheEnd(cpcc_string &str, const cpcc_char *aChar)
+	{
+		str.substr(0, str.find(aChar, 0));
+	}
+
+
 	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
 		size_t start = 0;
@@ -110,7 +116,7 @@ private:
 	}
 
 public:
-	// a pity the whole std library does not contain a ready function for this
+	// a pity the whole std library does not contain a ready function for this tasl
 	static void findAndReplaceAll(cpcc_string& source, const cpcc_char* find, const cpcc_char* replace)
 	{
 		if (!find || !replace)

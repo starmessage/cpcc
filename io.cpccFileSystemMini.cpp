@@ -627,13 +627,15 @@ void cpccFileSystemMini::selfTest(void)
 			
 	// std::cout << "cpccFileSystemMini::SelfTest point3.2\n";
 
-	const cpcc_char * fileContent= _T("kalimera sas");
+	const cpcc_char * fileContent= _T("kalimera sas, καλημέρα σας.");
 	appendTextFile(tmpFile.c_str(),fileContent);
 			
 	// std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
-	assert(getFileSize(tmpFile.c_str())==cpcc_strlen(fileContent) && _T("#5356h: cpccFileSystemMini::selfTest"));
+	long filesize1 = getFileSize(tmpFile.c_str()),
+		 filesize2 = cpcc_strlen(fileContent);
+	assert(filesize1 == filesize2 && _T("#5356h: cpccFileSystemMini::selfTest"));
 			
 	// fileExists or deleteFile
 	deleteFile(tmpFile.c_str());
