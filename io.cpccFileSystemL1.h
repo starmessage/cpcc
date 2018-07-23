@@ -34,7 +34,7 @@
 class cpccFileSystemL1
 {
 public:	 // types
-	typedef long		cpccType_FileSize;
+	typedef long long		cpccType_FileSize;
 	// typedef std::basic_string<cpccType_PChar>	cpccType_String;
 
 public:  // functions   

@@ -39,6 +39,22 @@ class stringUtils
 {
 
 public:
+    
+    template<typename aPCharType>
+    static bool stringEndsWith(const std::basic_string<aPCharType> &aStr, const aPCharType *aSuffix)
+    {
+        std::basic_string<aPCharType> suffixStr(aSuffix);
+        return stringEndsWith(aStr, suffixStr);
+    }
+    
+    
+    template<typename aPCharType>
+    static bool stringEndsWith(const std::basic_string<aPCharType> &aStr, const std::basic_string<aPCharType> &aSuffix)
+    {
+        if (aSuffix.size() > aStr.size()) return false;
+        return std::equal(aSuffix.rbegin(), aSuffix.rend(), aStr.rbegin());
+    }
+    
 	static bool stringStartsWith(const cpcc_char *aStr, const cpcc_char *aPrefix)
 	{
 #ifdef _WIN32
@@ -68,6 +84,22 @@ public:
 		str.substr(0, str.find(aChar, 0));
 	}
 
+	// a pity the whole std library does not contain a ready function for this tasl
+	static void findAndReplaceAll(cpcc_string& source, const cpcc_char* find, const cpcc_char* replace)
+	{
+		if (!find || !replace)
+			return;
+
+		size_t findLen = cpcc_strlen(find);
+		size_t replaceLen = cpcc_strlen(replace);
+		size_t pos = 0;
+
+		while ((pos = source.find(find, pos)) != std::string::npos)
+		{
+			source.replace(pos, findLen, replace);
+			pos += replaceLen;
+		}
+	}
 
 	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
@@ -116,27 +148,13 @@ private:
 	}
 
 public:
-	// a pity the whole std library does not contain a ready function for this tasl
-	static void findAndReplaceAll(cpcc_string& source, const cpcc_char* find, const cpcc_char* replace)
-	{
-		if (!find || !replace)
-			return;
 
-		size_t findLen = cpcc_strlen(find);
-		size_t replaceLen = cpcc_strlen(replace);
-		size_t pos = 0;
 
-		while ((pos = source.find(find, pos)) != std::string::npos)
-		{
-			source.replace(pos, findLen, replace);
-			pos += replaceLen;
-		}
-	}
 
 	static void    encodeStrForINI(cpcc_string &str)
 	{
 		for (int i = (sizeof(encondingsINI()) / sizeof(encondingsINI()[0]))-1; i>=0; --i)
-			findAndReplaceAll(str, encondingsINI()[i][0], encondingsINI()[i][1]);
+			stringUtils::findAndReplaceAll(str, encondingsINI()[i][0], encondingsINI()[i][1]);
 	}
 
 	static void    decodeStrFromINI(cpcc_string &str)
@@ -144,7 +162,7 @@ public:
 		//for (int i = 0; i< sizeof(encodedINIcharacterTable) / sizeof(encodedINIcharacterTable[0]); ++i)
 		//	findAndReplaceAll(str, encodedINIcharacterTable[i][1], encodedINIcharacterTable[i][0]);
 		for (unsigned int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
-			findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
+			stringUtils::findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
 	}
 
 

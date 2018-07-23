@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccTime.h
  *	Purpose:	Portable (cross-platform), simple time counter in milliseconds
  *	*****************************************
@@ -16,9 +16,14 @@
 
 #include <time.h>
 #include <atomic>
+#include <sstream>
+#include <math.h>       /* floor */
+
 #ifdef __APPLE__
     #include <unistd.h> // for usleep()
 #endif
+
+#include "cpccUnicodeSupport.h"
 
 /*	------------------	NOTES  ------------------------
 time.h in windows CE
@@ -167,7 +172,87 @@ public:
 		return allMonths[index_0to11];
 	}
 
+	static cpcc_string secondsToDDHHMMSSasString(const time_t seconds)
+	{
+		cpcc_ostringstream result;
+		cpcc_string glue;
 
+		time_t days = seconds / 86400;
+		if (days > 0)
+		{
+			result << days << _T(" days");
+			glue = _T(", ");
+		}
+
+		time_t hours = (seconds / 3600) - (days * 24);
+		if (hours > 0)
+		{
+			result << glue << hours << _T(" hours");
+			if (glue.length()==0)
+				glue = _T(", ");
+		}
+
+		time_t minutes = (seconds / 60) - (days * 1440) - (hours * 60);
+		if (minutes > 0)
+		{
+			result << glue << minutes << _T(" minutes");
+			if (glue.length() == 0)
+				glue = _T(", ");
+		}
+
+		time_t secondsRem = seconds % 60;
+		if (secondsRem > 0)
+		{
+			result << glue << secondsRem << _T(" seconds");
+		}
+
+		return result.str();
+	}
+
+
+	static cpcc_string secondsToHHMMSSasString(const double seconds)
+	{
+		long hours = (long) (seconds / 3600);
+		long minutes = (long) ((seconds / 60) - (hours * 60));
+		long secondsRem = (long) ((long) seconds % 60);
+		double secondsFloat = seconds - floor(seconds);
+		/*
+		#include <iomanip>
+		std::cout << std::setfill('0') << std::setw(2) << hour << ":"; 
+		std::cout << std::setfill('0') << std::setw(2) << min << ":" 
+		std::cout << std::setfill('0') << std::setw(2) << sec;
+		*/
+
+		cpcc_char buffer[300];
+		#pragma warning(suppress : 4996)
+		cpcc_sprintf(buffer, _T("%02ld:%02ld:%02ld.%i"), hours, minutes, secondsRem, (int) (10*(secondsFloat+0.05)));
+		return buffer;
+
+		/*
+		cpcc_ostringstream result;
+		cpcc_string glue;
+		
+		if (hours > 0)
+		{
+			result << hours;
+			glue = _T(":");
+		}
+
+		if (minutes > 0)
+		{
+			result << glue << minutes;
+			if (glue.length() == 0)
+				glue = _T(":");
+		}
+		
+		if (seconds > 0)
+		{
+			result << glue << seconds;
+		}
+
+		return result.str();
+		*/
+	}
 };
 
 

@@ -48,6 +48,7 @@ public: // functions
 	void		resetTimer(void)	{ gettimeofdayCrossPlatform( mStartTime);  }
 	double		getSecondsElapsed(void);
 	
+	
 };
 
 

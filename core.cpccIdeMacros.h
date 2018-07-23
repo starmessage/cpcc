@@ -38,6 +38,52 @@
     #endif
 #endif
 
+////////////////////////////////////
+// 32 vs 64 bits
+////////////////////////////////////
+
+// Check windows
+#if _WIN32 || _WIN64
+   #if _WIN64
+     #define COMPILED64BIT
+  #else
+    #define COMPILED32BIT
+  #endif
+#endif
+
+// This works for MSVC++ and g++ :
+// #if defined(_M_X64) || defined(__amd64__)
+
+// Check GCC
+#if __GNUC__
+  #if __x86_64__ || __ppc64__
+    #define COMPILED64BIT
+  #else
+    #define COMPILED32BIT
+  #endif
+#endif
+// http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
+// suggests __LP64__ and _LP64
+
+/* another way for all compilers
+
+// C
+#include <stdint.h>
+
+// C++
+#include <cstdint>
+
+#if INTPTR_MAX == INT64_MAX
+// 64-bit
+#elif INTPTR_MAX == INT32_MAX
+// 32-bit
+#else
+#error Unknown pointer size or missing size macros!
+#endif
+
+*/
+
+
 class cppcIDE
 {
 public:
@@ -64,6 +110,6 @@ public:
 	#ifdef  __STDC_VERSION__
 		return __STDC_VERSION__;
 	#endif
-		return "Undetected compliler version";
+		return "Undetected compiler version";
 	}
 };
