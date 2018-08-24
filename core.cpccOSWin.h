@@ -22,13 +22,67 @@
 #include <iostream>
 
 #pragma comment(lib, "Version.lib") // for GetFileVersionInfo
-
+#pragma comment(lib, "user32.lib") // for GetSystemInfo
 
 
 class cpccOSWin
 {
 
 public:
+
+	static cpcc_string GetLangStringFromLangId(DWORD dwLangID_i, bool returnShortCode)
+	{
+		// http://ntcoder.com/bab/2007/12/06/how-to-convert-language-ids-like-1033-to-english-united-states-form/
+		const int MAX_LANG_LEN = 81;
+
+		// Prepare LCID
+		const LCID lcidLang = MAKELCID(dwLangID_i, SORT_DEFAULT);
+
+		// Will hold language
+		TCHAR szLangBuffer[MAX_LANG_LEN] = { 0 };
+
+		LCTYPE resultFormat = (returnShortCode ? LOCALE_SISO639LANGNAME : LOCALE_SENGLANGUAGE);
+		// Get language
+		// https://docs.microsoft.com/en-us/windows/desktop/intl/locale-siso-constants
+		DWORD dwCount = GetLocaleInfo(lcidLang, resultFormat, szLangBuffer, MAX_LANG_LEN);
+		if (!dwCount)
+		{
+			// AfxTrace(_T("Failed to get locale language information"));
+			return _T("");
+		}
+
+		// Will hold country
+		TCHAR szCountryBuffer[MAX_LANG_LEN] = { 0 };
+		resultFormat = (returnShortCode ? LOCALE_SISO3166CTRYNAME : LOCALE_SENGCOUNTRY);
+
+		// Get country
+		dwCount = GetLocaleInfo(lcidLang, resultFormat, szCountryBuffer, MAX_LANG_LEN);
+
+		if (!dwCount)
+		{
+			// AfxTrace(_T("Failed to get locale country information"));
+			return szLangBuffer;
+		}// End if
+
+		cpcc_string combinedResult(szLangBuffer);
+		combinedResult += _T("-");
+		combinedResult += szCountryBuffer;
+		return combinedResult;
+	}	// End GetLangStringFromLangId
+
+
+
+	static const long getSystemMemory_inMb(void)
+	{
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa366589%28v=vs.85%29.aspx
+		MEMORYSTATUSEX statex;
+		statex.dwLength = sizeof(statex);
+		// If the function fails, the return value is zero. To get extended error information, call GetLastError.
+		if (GlobalMemoryStatusEx(&statex))
+			return (long) (statex.ullTotalPhys / (1024 *1024)); // ullTotalPhys: The amount of actual physical memory, in bytes.
+
+		return 0;
+	}
 
 	/// returns the full versoion and build number, e.g. for windows 10: "10.0.15063.296"
 	static const cpcc_string getWindowsFullVersionNumber(void)

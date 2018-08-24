@@ -34,13 +34,25 @@
 
 #ifdef _WIN32
 	#include "core.cpccOSWin.h"
-    #pragma comment(lib, "user32.lib") // for GetSystemInfo
+    
 	
 #elif __APPLE__
 	// #include <Cocoa/Cocoa.h>
     #include <AppKit/AppKit.h>
     
 #endif
+
+
+long cpccOS::getSystemMemory_inMb(void)
+{
+	#ifdef _WIN32
+		return cpccOSWin::getSystemMemory_inMb();
+
+	#elif __APPLE__
+	
+		return 0;
+	#endif
+}
 
 
 cpcc_string cpccOS::getOSNameAndVersion(void)
@@ -95,8 +107,12 @@ cpcc_string cpccOS::getPreferredLanguage(void)
      If you're asking about "Which language the OS menus and dialogs are dispalyed in" (i.e. which MUI - Multilingual User Interface kit - is installed), use the following:
      
      GetSystemDefaultUILanguage to get the original language of the system,
-     GetUserDefaultUILanguage to get the current user's selection,
-     This function returns only a language identifier. An application can retrieve the language name using the GetUserPreferredUILanguages function.
+
+     GetUserDefaultUILanguage 
+	 https://docs.microsoft.com/en-us/windows/desktop/api/winnls/nf-winnls-getuserdefaultuilanguage
+	 to get the current user's selection,
+     This function returns only a language identifier. 
+	 An application can retrieve the language name using the GetUserPreferredUILanguages function.
      EnumUILanguages to see which languages are available.
 
      GetUserPreferredUILanguages
@@ -105,6 +121,7 @@ cpcc_string cpccOS::getPreferredLanguage(void)
      GetUserPreferredUILanguages(MUI_LANGUAGE_NAME
      */
     
+
     // from https://msdn.microsoft.com/en-us/library/windows/apps/jj244362(v=vs.105).aspx
 	/*
     ULONG numLanguages = 0;
@@ -113,16 +130,17 @@ cpcc_string cpccOS::getPreferredLanguage(void)
     BOOL hr = GetUserPreferredUILanguages(MUI_LANGUAGE_NAME, &numLanguages, &pwszLanguagesBuffer, &cchLanguagesBuffer);
     if (hr)
         return std::string(pwszLanguagesBuffer);
-		*/
+	*/
 
-    return cpcc_string( _T("en-US"));
+	LANGID lang_id = GetUserDefaultUILanguage();
+    return cpccOSWin::GetLangStringFromLangId(lang_id, true);
     
 #elif __APPLE__
     NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
     return [language cStringUsingEncoding:NSASCIIStringEncoding];
 #endif
     
-}
+} // End getPreferredLanguage
 
 
 static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)

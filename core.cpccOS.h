@@ -56,7 +56,8 @@ public:
     static cpcc_string	getOSNameAndVersion(void);
     static cpcc_string	getOSNameVersionAndBuild(void);
 	static bool			is64bit(void);
-    
+	static long			getSystemMemory_inMb(void);
+
 #ifdef __APPLE__
     static std::string readProgramVersionByPrincipalClass(const char *aClassName);
     static std::string getBundleIDfromAppName(const char *aAppName);

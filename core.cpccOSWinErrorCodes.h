@@ -38,8 +38,11 @@ public:
 			// https://msdn.microsoft.com/en-us/library/aa385465(v=vs.85).aspx
 			case 12002: return  _T("The request has timed out.");
 			case 12004: return  _T("ERROR_INTERNET_INTERNAL_ERROR. An internal error has occurred.");
+			case 12007: return  _T("ERROR_INTERNET_NAME_NOT_RESOLVED. The server name could not be resolved.");
 			case 12017: return  _T("ERROR_INTERNET_OPERATION_CANCELLED. The operation was canceled, usually because the handle on which the request was operating was closed before the operation completed.");
 			case 12019: return  _T("ERROR_WINHTTP_INCORRECT_HANDLE_STATE. The requested operation cannot be carried out because the handle supplied is not in the correct state.");
+			case 12029: return  _T("ERROR_INTERNET_CANNOT_CONNECT. The attempt to connect to the server failed.");
+
 			// encoding help: https://msdn.microsoft.com/en-us/library/aa383955(v=vs.85).aspx
 			case 12175: return  _T("ERROR_INTERNET_DECODING_FAILED. WinINet failed to perform content decoding on the response.");
 			

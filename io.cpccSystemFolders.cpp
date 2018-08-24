@@ -13,6 +13,8 @@
  *	*****************************************
  */
 
+// ToDo: move the functions into the header file and delete the .cpp and .mm files
+
 // do not compile this if added in the xcode project files.
 // the .mm must be included as well
 #if defined(_WIN32) || defined (IMPORTED_BY_io_cpccSystemFolders_mm)

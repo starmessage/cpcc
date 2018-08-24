@@ -305,8 +305,9 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
     // std::ofstream outfile("thefile.txt", std::ios_base::app | std::ios_base::out);
     // ios::app = opens the file in append mode.
     // static std::ofstream _f; // with static is hangs in WinXP
-	std::ofstream _f;
-    
+	// std::ofstream _f;
+	cpcc_ofstream _f;
+
     _f.open(aFilename, std::ios_base::app | std::ios_base::out);
     if (!_f.good())
         return false;
@@ -627,13 +628,21 @@ void cpccFileSystemMini::selfTest(void)
 			
 	// std::cout << "cpccFileSystemMini::SelfTest point3.2\n";
 
-	const cpcc_char * fileContent= _T("kalimera sas, καλημέρα σας.");
+	
+	#ifdef UNICODE
+		// text to test UNICODE
+		// const cpcc_char * fileContent= _T("kalimera sas, καλημέρα σας.");
+		const cpcc_char * fileContent = _T("kalimera sas!!");
+	#else
+		const cpcc_char * fileContent = _T("kalimera sas!!");
+	#endif
+
 	appendTextFile(tmpFile.c_str(),fileContent);
 			
 	// std::cout << "cpccFileSystemMini::SelfTest point4\n";
 	
 	// getFileSize
-	long filesize1 = getFileSize(tmpFile.c_str()),
+	long long filesize1 = getFileSize(tmpFile.c_str()),
 		 filesize2 = cpcc_strlen(fileContent);
 	assert(filesize1 == filesize2 && _T("#5356h: cpccFileSystemMini::selfTest"));
 			
