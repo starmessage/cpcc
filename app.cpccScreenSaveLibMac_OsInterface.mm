@@ -2,10 +2,10 @@
 /*  *****************************************
  *  File:		app.cpccScreenSaveLibMac_OsInterface.mm
  *  Version:	see function getClassVersion()
- *	Purpose:	Portable (cross-platform), light-weight, library
+ *	Purpose:    Portable (cross-platform), light-weight, library
  *				screensaver interface with windows and OSX
  *	*****************************************
- *  Library:	Cross Platform C++ Classes (cpcc)
+ *  Library:    Cross Platform C++ Classes (cpcc)
  *  Copyright: 	2014 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license exists for closed source projects.
@@ -16,11 +16,11 @@
  *	*****************************************
  */
 
-#include	"io.cpccLog.h"
+#include    "io.cpccLog.h"
 #include    "app.cpccAppInfo.h"
 #include    "core.cpccTryAndCatch.h"
-#include	"app.cpccScreenSaverInterface.h"
-#import		<ScreenSaver/ScreenSaver.h>
+#include    "app.cpccScreenSaverInterface.h"
+#import     <ScreenSaver/ScreenSaver.h>
 
 
 ////////////////////////////////
@@ -34,9 +34,8 @@
 
 
 
-
 /*
- Screensavers need to be compiled 32/64-bit with garbage collection supported or required 
+ MacOS screensavers need to be compiled 32/64-bit with garbage collection supported or required 
  in the 64-bit architecture if they are to work on 64-bit systems. 
  
  apple documentation
@@ -46,21 +45,12 @@
 
 /* multiple displays
  http://www.cocoabuilder.com/archive/cocoa/124621-screensaverview-with-multiple-displays.html
- I'm creating a screensaver, and I would like to be able to draw
- something different on displays other than the primary. Through trial
- and error, I've learned that initWithFrame() gets called for each
- display, although it doesn't seem like any useful information is
- passed into initWithFrame() or animateOneFrame() to help the developer
- know which display is being used.
  
- By using a counter in my ScreenSaverView and incrementing it each time
- initWithFrame() is called (where isPreview is false) I am able to
- count how many displays there are, and it seems like animateOneFrame()
- is called in order of display: animateOneFrame() for display 1,
- animateOneFrame() for display 2, and then back to 1 again, etc. So by
- using another counter, I can [sort of] keep track of to which display
- I'm drawing, though it doesn't seem like that great a way of doing
- this, nor does it seem that foolproof.
+ initWithFrame() gets called for each display.
+ 
+ animateOneFrame() is called in order of display: animateOneFrame() for display 1,
+ animateOneFrame() for display 2, and then back to 1 again, etc.
+
 */
 
 // example
@@ -70,7 +60,7 @@
 
 
 /*
- Running a screensaver as your desktop background [permalink]
+ Running a screensaver as your desktop background 
  In a terminal, run
  
  % /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background &
@@ -123,7 +113,7 @@
  
  /* cpcc instructions:
     ------------------
-	creation of the screensaver object in MACOSX
+	Creation of the screensaver object in MACOSX
 	You have to declare your screensaver class as NSPrincipalClass in the project
 	so that OSX knows which class to instanciate when it starts the screensaver
 	The setting will be written like this in the info.plist file:
@@ -157,10 +147,6 @@
     cpccScreenSaverInterface *ssPtr,
                              *ssConfigurePtr;
     
-    // the following syntax is invalid for Obj-C so I created an intermediate class
-    // logObjectLife   m_objLife( "cpccScreenSaveLibMac_OsInterface" );
-    // logObjectLife4ScreenSaveLibMac m_objLife_ssView;
-
 }
 
 /*
@@ -556,16 +542,7 @@
 	[super dealloc];
 }
 
-/*
-- (BOOL)hasConfigureSheet_orig
-{
-	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
-    if (!ssPtr)
-        return false;
-    
-    return (ssPtr -> hasConfigureSheet());
-}
-*/
+
 
 - (BOOL)hasConfigureSheet
 {

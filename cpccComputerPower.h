@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		core.cpccOS.h
  *	Purpose:	Portable (cross-platform), light-weight, OS functions
@@ -20,6 +20,7 @@
 #endif
 #ifdef __APPLE__
     #import <IOKit/pwr_mgt/IOPMLib.h>
+    // you need to link the frameworks CoreFoundation, IOKit
 #endif
 
 class cpccComputerPower
@@ -37,6 +38,48 @@ public:
     { }
     
 
+	const bool preventIdleSystemSleep(const char *textualReason)
+	{
+#ifdef _WIN32
+		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373208%28v=vs.85%29.aspx
+		return SetThreadExecutionState(
+			// ES_AWAYMODE_REQUIRED |  // This value must be specified with ES_CONTINUOUS.
+
+			ES_CONTINUOUS | // Informs the system that the state being set should remain in effect 
+							// until the next call that uses ES_CONTINUOUS and one of the other state flags is cleared. 
+							// Calling SetThreadExecutionState without ES_CONTINUOUS simply resets the idle timer; 
+							// to keep the display or system in the working state, the thread must call SetThreadExecutionState periodically.
+
+			// ES_DISPLAY_REQUIRED | // Forces the display to be on by resetting the display idle timer. 
+
+			ES_SYSTEM_REQUIRED		// Forces the system to be in the working state by resetting the system idle timer. 
+		) != NULL;
+
+
+#elif __APPLE__
+		// IOPMAssertionCreateWithName is new API available in Mac OS X 10.6 Snow Leopard. 
+		// IOPMAssertionCreateWithName allows an application to return a return a brief string to the user explaining why that application is preventing sleep.
+		//  https://developer.apple.com/library/mac/qa/qa1340/_index.html
+		//  kIOPMAssertionTypePreventUserIdleDisplaySleep (only available on 10.7 or later)
+		//  kIOPMAssertionTypeNoDisplaySleep - prevents display sleep AND idle sleep,
+		//  kIOPMAssertionTypeNoIdleSleep - prevents idle sleep of the MAC (the screen can turn off)
+		//  NOTE: IOPMAssertionCreateWithName limits the string to 128 characters.
+		CFStringRef reasonForActivity;
+		reasonForActivity = CFStringCreateWithCString(NULL, textualReason, kCFStringEncodingASCII);
+		IOReturn success = IOPMAssertionCreateWithName(kIOPMAssertionTypeNoIdleSleep,
+			kIOPMAssertionLevelOn,
+			reasonForActivity,
+			&preventSleepAssertionID);
+
+		CFRelease(reasonForActivity);
+		return (success == kIOReturnSuccess);
+
+#else
+#error #8724: Unknown platform for cpccOS
+		return false;
+#endif
+	}
+
     
 
 	const bool preventMonitorSleep(const char *textualReason)
@@ -45,13 +88,21 @@ public:
 				// https://msdn.microsoft.com/en-us/library/windows/desktop/aa373208%28v=vs.85%29.aspx
 				return SetThreadExecutionState(
 					// ES_AWAYMODE_REQUIRED |  // This value must be specified with ES_CONTINUOUS.
-					ES_CONTINUOUS |
-					// ES_DISPLAY_REQUIRED |
-					ES_SYSTEM_REQUIRED) != NULL;
+
+					ES_CONTINUOUS | // Informs the system that the state being set should remain in effect 
+									// until the next call that uses ES_CONTINUOUS and one of the other state flags is cleared. 
+									// Calling SetThreadExecutionState without ES_CONTINUOUS simply resets the idle timer; 
+									// to keep the display or system in the working state, the thread must call SetThreadExecutionState periodically.
+					
+					ES_DISPLAY_REQUIRED | // Forces the display to be on by resetting the display idle timer. 
+
+					ES_SYSTEM_REQUIRED		// Forces the system to be in the working state by resetting the system idle timer. 
+					) != NULL;
 
 
 		#elif __APPLE__
-				// IOPMAssertionCreateWithName is new API available in Mac OS X 10.6 Snow Leopard. IOPMAssertionCreateWithName allows an application to return a return a brief string to the user explaining why that application is preventing sleep.
+				// IOPMAssertionCreateWithName is new API available in Mac OS X 10.6 Snow Leopard. 
+				// IOPMAssertionCreateWithName allows an application to return a return a brief string to the user explaining why that application is preventing sleep.
 				//  https://developer.apple.com/library/mac/qa/qa1340/_index.html
 				//  kIOPMAssertionTypePreventUserIdleDisplaySleep (only available on 10.7 or later)
 				//  kIOPMAssertionTypeNoDisplaySleep - prevents display sleep AND idle sleep,
@@ -75,11 +126,12 @@ public:
 
 
 	
-	const bool restoreMonitorSleep(void)
+	const bool restorePowerSettings(void)
 	{
 		#ifdef _WIN32
-			// ToDo:
-			return false;
+			SetThreadExecutionState(ES_CONTINUOUS);
+			return true;
+
 		#elif __APPLE__
 			if (preventSleepAssertionID == 0) return
 				false;

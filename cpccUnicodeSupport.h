@@ -107,8 +107,8 @@
 
 #ifdef __APPLE__	// define the _T() macro that is a MS VC macro
 	#ifdef UNICODE  // UNICODE is a Windows only define. So the next code is not needed.
-		#define _T(s) L ## s
-		#define  TCHAR wchar_t
+	//	#define _T(s) L ## s
+	//	#define  TCHAR wchar_t
 	#else
 		#define _T(s) s
 		#define  TCHAR char
@@ -119,6 +119,15 @@
 #define UTF16_BOM	"\xff\xfe"
 #define UTF8_BOM	"\xEF\xBB\xBF"
 
+/* reminder of how TCHAR is defined in Windows
+
+#ifdef _UNICODE
+	typedef wchar_t TCHAR;
+#else
+	typedef char TCHAR;
+#endif
+
+*/
 typedef 	TCHAR							cpcc_char;
 typedef		std::basic_string<TCHAR>		cpcc_string;
 typedef		std::basic_stringstream<TCHAR>	cpcc_stringstream;
@@ -152,6 +161,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strstr			wcsstr
 	#define		cpcc_strtol			wcstol
 	#define		cpcc_strtod			wcstold
+	#define		cpcc_tolower		towlower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
 	typedef		struct _stat		cpcc_struct_stat;
@@ -175,6 +185,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strstr			strstr
 	#define		cpcc_strtol			strtol
 	#define		cpcc_strtod			strtod
+	#define		cpcc_tolower		tolower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			stat
 	typedef		struct stat			cpcc_struct_stat;

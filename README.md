@@ -1,10 +1,8 @@
 ﻿**cpcc - Cross Platform C++ Classes**
 
 A set of cross platform classes and functions.
-These classes are used in the cross platform (Windows and MacOS) StarMessage screensaver.
-[http://www.StarMessageSoftware.com/moonscreensaver]
 
-Version: 0.56
+Version: 0.57
 
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
@@ -24,8 +22,9 @@ A small set of cross platform classes and functions that will allow the quick de
 **Operating system compatibility:**
 
 Already tested under:
-- Windows 32, 64 bit
-- OSX 10.6+
+- Windows XP and later, 32 and 64 bit
+- OSX 10.6+  
+
 Future compatibility: 
 - IOS
 
@@ -45,6 +44,6 @@ Classes in the current queue:
 - [  ] Cross platform getComputerID function
 - [  ] IOS compatibility
 
-Please come back to check every few weeks.
+
 
 
