@@ -116,7 +116,7 @@
 #endif
 
 // http://unicode.org/faq/utf_bom.html#BOM		
-#define UTF16_BOM	"\xff\xfe"
+#define UTF16_BOM	"\xFF\xFE"  // UTF-16, little-endian
 #define UTF8_BOM	"\xEF\xBB\xBF"
 
 /* reminder of how TCHAR is defined in Windows
@@ -139,6 +139,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 
 #ifdef UNICODE
 
+    #define		cpcc_cin			std::wcin 
 	#define		cpcc_cout			std::wcout 		
 	#define		cpcc_cerr			std::wcerr 	
 	#define		cpcc_thread			std::wthread
@@ -160,7 +161,8 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strcpy			_tcscpy
 	#define		cpcc_strstr			wcsstr
 	#define		cpcc_strtol			wcstol
-	#define		cpcc_strtod			wcstold
+	#define		cpcc_strtod			wcstod
+    
 	#define		cpcc_tolower		towlower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
@@ -168,6 +170,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	
  #else 
 
+    #define		cpcc_cin			std::cin
 	#define		cpcc_cout			std::cout 	
 	#define		cpcc_cerr			std::cerr
 	#define		cpcc_thread			std::thread
@@ -185,6 +188,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strstr			strstr
 	#define		cpcc_strtol			strtol
 	#define		cpcc_strtod			strtod
+    
 	#define		cpcc_tolower		tolower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			stat

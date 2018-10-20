@@ -68,9 +68,6 @@ void cpccLogFormatter::add(const cpcc_char* txt)
 	if (!m_enabled)
 		return;
 
-	//if (m_filename.length() == 0)
-	//	return;
-
 	cpcc_string _fn(cpccLogFileWriterWithBuffer::getInstance().getFilename());
 	
 	if ((_fn.length()>0) && !cpccFileSystemMini::fileExists(_fn.c_str()) && (!m_disableIfFileDoesNotExist))

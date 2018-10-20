@@ -25,13 +25,13 @@ class cpccAppWin: public cpccAppBase
 
 public:		// abstract functions to be implemented by Windows or OSX specific code
 
-	virtual cpcc_string getCommandLine(void)
+	virtual cpcc_string getCommandLine(void) override
 	{
 		return cpcc_string(::GetCommandLine());
 	}
 	
 	
-	virtual cpcc_string getAppDir(void)
+	virtual cpcc_string getAppDir(void) override
 	{
 		cpcc_char tempDir[MAX_PATH];
 

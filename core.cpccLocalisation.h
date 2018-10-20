@@ -21,9 +21,9 @@
 #include <fstream>
 
 #include "cpccUnicodeSupport.h"
-#include "core.cpccStringUtil.h"
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
+#include "io.cpccSettings.h"
 
 //////////////////////////////////////////////
 //
@@ -99,6 +99,11 @@ public:
 	{	
 		clear();
 		infoLog().addf(_T("loading translations from file:%s"), aFilename.c_str());
+        
+        cpccSettings translationFile(aFilename.c_str());
+        m_lookupTable = translationFile.m_map;
+
+        /*
 		cpcc_string line;
 		cpcc_ifstream translationFile(aFilename.c_str() );
 		if (!translationFile.good())
@@ -114,6 +119,7 @@ public:
 			stringConversions::decodeStrFromINI(value);
 			m_lookupTable[key] = value;;
 		}
+        */
 
 		infoLog().addf(_T("%i translations loaded"), m_lookupTable.size());
 		return true;

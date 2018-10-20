@@ -43,12 +43,27 @@
 //		cpccSettings
 ////////////////////////////////////////////////////////////////////////////////
 
-class cpccSettings
+class cpccSettings: public cpccKeyValue
 {
 private:
-	typedef std::map<cpcc_string, cpcc_string> tKeysAndValues;
-	tKeysAndValues	mSettings;
-	cpcc_string 	mFilename;
+    
+	// todo: replace this with the ready class cpccKeyValue
+	// typedef std::map<cpcc_string, cpcc_string> tKeysAndValues;
+	// tKeysAndValues	mSettings;
+    // cpccKeyValue    mSettings;
+    cpcc_string 	mFilename;
+
+    // These functions return the name of the application, the company name and the bundleID.
+    // These parameters will be used to compose the path of where to store the settings file.
+    // You must define these function in your main code.
+    // e.g. in one of you cpp files:
+    //      const cpcc_char *cpccSettings::config_getAppName(void) { return _T("CrcCheckCopy"); }
+    //       const cpcc_char *cpccSettings::config_getCompanyName(void) { return _T("StarMessage software"); }
+    const cpcc_char *config_getAppName(void);
+    const cpcc_char *config_getCompanyName(void);
+    #ifdef __APPLE__
+        const cpcc_char *config_getAppBundleID(void);
+    #endif
 
 public:	// class metadata and selftest
 	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
@@ -62,44 +77,40 @@ private: 	// data
 	bool instantSaving;
 
 public: 	// ctors	
-	cpccSettings(const cpcc_char *aCompanyName, const cpcc_char *aSoftwareName, const settingsScope aScope=scopeCurrentUser);
+	explicit cpccSettings(const settingsScope aScope=scopeCurrentUser);
+    explicit cpccSettings(const cpcc_char *aFilename);
 	~cpccSettings();
 	
+
 public:		// functions
+    // cpccKeyValue::tKeysAndValues &getRawKeyValuesMap(void) { return mSettings.m_map;  }
+
+    virtual void dataChanged(void) override
+    { 
+        if (instantSaving)
+            if (!save())
+                cpcc_cerr << _T("Error #1352p: saving cpccSettings to file:") << mFilename << std::endl;
+    }
+
 	cpcc_string getFilename(void) { return mFilename; }
 	
-	template <typename T>
-	const T read(const cpcc_char *aKey, const T aDefault)
-    {
-        return stringConversions::fromStr(read(aKey, _T("")).c_str(), aDefault);
-    }
-    
-	const cpcc_string read(const cpcc_char *aKey, const cpcc_char *aDefault)
-    {
-        return mSettings.count(aKey) ? mSettings[aKey] : aDefault;
-    }
-    
-	const cpcc_string read(const cpcc_char *aKey, const cpcc_string &aDefault)	{ return read(aKey, aDefault.c_str()); }
-    
-	void		write(const cpcc_char *aKey, const cpcc_char *aValue);
-    void        write(const cpcc_char *aKey, const cpcc_string &aValue) { write(aKey, aValue.c_str()); };
-    template <typename T>
-	void		write(const cpcc_char *aKey, const T aValue);
-    
+    bool saveStringToFile(const cpcc_char *aFn, const cpcc_char *aTxt, const bool inUTF8);
+
 #define BYPASS_RELEASE_ERROR
 #ifdef  BYPASS_RELEASE_ERROR
 
 #ifndef __APPLE__
 	// in OSX, time_t is defined as long, so there is a ready function for it
 	// in Windows time_t is _int64
-	void		write(const cpcc_char *aKey, const time_t aValue);
-#endif
-    void		write(const cpcc_char *aKey, const bool aValue);
-    void		write(const cpcc_char *aKey, const int aValue);
-    void		write(const cpcc_char *aKey, const long int aValue);
+	// void		write(const cpcc_char *aKey, const time_t aValue);
 #endif
     
-	void		clear(void);
+    // void		write(const cpcc_char *aKey, const bool aValue);
+    // void		write(const cpcc_char *aKey, const int aValue);
+    // void		write(const cpcc_char *aKey, const long int aValue);
+#endif
+    
+	
 	bool		load(void);
 	bool		save(void);
 
@@ -126,7 +137,7 @@ private:
 		s << mKey << index;
 		return cpcc_string(s.str());
 	}
-
+       
 public:
     explicit cpccPersistentVar(cpccSettings &aIniPtr, const cpcc_char *aKey, const T aDefaultValue):
             mIniPtr(aIniPtr),
@@ -135,17 +146,19 @@ public:
 	{ }
 
     // get value
-    inline const T getValue(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
-	inline  operator const T(void) const     { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
+    inline const T getValue(void) const     { return mIniPtr.get(mKey.c_str(), mDefaultValue); }
+	inline  operator const T(void) const     { return mIniPtr.get(mKey.c_str(), mDefaultValue); }
 	// T read(void) const { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
 	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
-	inline const T operator[](const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
+	inline const T operator[](const int index) const { return mIniPtr.get(createIndexedKey(index).c_str(), mDefaultValue); }
 
     // set value
+    inline void setValue(const T &aValue)	{ mIniPtr.set(mKey.c_str(), aValue); }
+
 	// void operator=(T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); } // try a non-const version
-	void operator=(const T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); }
+	void operator=(const T &aValue)	const { mIniPtr.set(mKey.c_str(), aValue); }
 	//void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }
-	void writeAtIndex(const int index, const T aValue) { mIniPtr.write(createIndexedKey(index).c_str(), aValue); }
+	void writeAtIndex(const int index, const T aValue) { mIniPtr.set(createIndexedKey(index).c_str(), aValue); }
 };
 
 

@@ -81,6 +81,8 @@ public:
 
 	static void removeFromCharacterToTheEnd(cpcc_string &str, const cpcc_char *aChar)
 	{
+		if (!aChar)
+			return;
 		str.substr(0, str.find(aChar, 0));
 	}
 
@@ -123,48 +125,73 @@ public:
 
 
 
+class strConvertionsV3
+{
+public:
+    static cpcc_string toString(const bool value) { return (value) ? _T("yes") : _T("no"); }
+    static cpcc_string toString(const cpcc_string &value) { return value; }
+    static cpcc_string toString(const cpcc_char *value) { return (value) ? value : _T(""); }
+
+    template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type >
+    static cpcc_string toString(const T value)
+    {
+        cpcc_stringstream ss;
+        ss.precision(14);
+        ss << value;
+        return ss.str();
+    }
+    
+    //////////////////////////////////////////////////////
+
+    static const cpcc_string fromString(const cpcc_string &aStr, const cpcc_string &defaultValue)     { return aStr;  }
+    static const cpcc_string fromString(const cpcc_string &aStr, const cpcc_char *defaultValue)       { return aStr; }
+    static const cpcc_string fromString(const cpcc_char   *aStr, const cpcc_char *defaultValue)       { return (aStr)?aStr:(defaultValue?defaultValue:_T("")); }
+    
+    static const bool fromString(const cpcc_char *aStr, const bool aDefaultValue)
+    {
+        cpcc_string strValue(aStr ? aStr : _T(""));
+
+        if (strValue.compare(_T("yes")) == 0 || strValue.compare(_T("true")) == 0 || strValue.compare(_T("1")) == 0 || strValue.compare(_T("on")) == 0)
+            return true;
+
+        if (strValue.compare(_T("no")) == 0 || strValue.compare(_T("false")) == 0 || strValue.compare(_T("0")) == 0 || strValue.compare(_T("off")) == 0)
+            return false;
+
+        return aDefaultValue;
+    }
+    
+    /*
+    template <typename T>
+    static T fromString(const cpcc_string &aStr, const T defaultValue)
+    {
+        cpcc_stringstream ss(aStr);
+        T result;
+        return (ss >> result) ? result : defaultValue;
+    }
+    */
+    
+    template <typename T>
+    static const T fromString(const cpcc_char *aStr, const T defaultValue)
+    {
+        if (!aStr)
+            return defaultValue;
+        
+        cpcc_stringstream ss(aStr);
+        T result(0);
+        return (ss >> result)? result : defaultValue;
+    }
+    
+};
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //		stringConversions
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Todo: maybe not needed anymore. To delete?
+/*
 class stringConversions
 {
-private:
-	typedef cpcc_char *tEncodingsTable[5][2];
-
-	static const tEncodingsTable& encondingsINI(void)
-	{
-		// encode characters to fit to the INI file (e.g. multiline text)
-		static const tEncodingsTable encodedINIcharacterTable =
-		{
-			//        normal     ->       encoded
-			{ (cpcc_char *)  _T("="),  (cpcc_char *) _T("\\=") },
-			{ (cpcc_char *)  _T("\n"), (cpcc_char *) _T("\\n") },
-			{ (cpcc_char *)  _T("\r"), (cpcc_char *) _T("\\r") },
-			{ (cpcc_char *)  _T("\t"), (cpcc_char *) _T("\\t") },
-			// this must be the last rule  for the decoding and first rule for the encoding
-			{ (cpcc_char *)  _T("\\"), (cpcc_char *) _T("\\\\") }
-		};
-		return encodedINIcharacterTable;
-	}
-
-public:
-
-
-
-	static void    encodeStrForINI(cpcc_string &str)
-	{
-		for (int i = (sizeof(encondingsINI()) / sizeof(encondingsINI()[0]))-1; i>=0; --i)
-			stringUtils::findAndReplaceAll(str, encondingsINI()[i][0], encondingsINI()[i][1]);
-	}
-
-	static void    decodeStrFromINI(cpcc_string &str)
-	{
-		//for (int i = 0; i< sizeof(encodedINIcharacterTable) / sizeof(encodedINIcharacterTable[0]); ++i)
-		//	findAndReplaceAll(str, encodedINIcharacterTable[i][1], encodedINIcharacterTable[i][0]);
-		for (unsigned int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
-			stringUtils::findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
-	}
-
 
 	// new way
 	static const bool fromStrNew(const cpcc_char*  strValue, cpcc_string& aValue)
@@ -183,8 +210,6 @@ public:
 
 		return false;
 	}
-
-
 
 
 	static const bool fromStrNew(const cpcc_char* strValue, double& aValue)
@@ -215,13 +240,25 @@ public:
 	}
 
 
+    static const float fromStr(const cpcc_string &strValue, const float aDefaultValue)
+    {
+        // http://www.cplusplus.com/reference/string/stod/
+        // http://www.cplusplus.com/reference/string/stof/
+        // http://www.cplusplus.com/forum/articles/9645/
 
+        cpcc_stringstream ss(strValue);
+        float result;
+        return (ss >> result) ? result : aDefaultValue;
+    }
 
+       
 	static const float fromStr(const cpcc_char* strValue, const float aDefaultValue)
 	{
-		cpcc_char* end;
-		float n = (float)cpcc_strtod(strValue, &end);
+        cpcc_char* end;
+		float n = (float) cpcc_strtod(strValue, &end);
 		return end > strValue ? n : aDefaultValue;
+        
+        // return fromStr(cpcc_string(strValue), aDefaultValue);
 	}
 
 
@@ -263,20 +300,7 @@ public:
 	}
 
 
-	static const bool fromStr(const cpcc_char*  strValue, const bool aDefaultValue)  { return fromStr(cpcc_string(strValue), aDefaultValue); }
-    
-	static const bool fromStr(const cpcc_string&  strValue, const bool aDefaultValue)
-	{
-		if (strValue.compare(_T("yes")) == 0 || strValue.compare(_T("true")) == 0 || strValue.compare(_T("1")) == 0 || strValue.compare(_T("on")) == 0)
-			return true;
 
-		if (strValue.compare(_T("no")) == 0 || strValue.compare(_T("false")) == 0 || strValue.compare(_T("0")) == 0 || strValue.compare(_T("off")) == 0)
-			return false;
-
-		return aDefaultValue;
-	}
-
-	static cpcc_string toStr(const bool value) { return cpcc_string(value ? _T("yes") : _T("no")); }
     //static cpcc_string toStr(bool value) { return cpcc_string(value ? "yes" : "no"); }
 
 #ifndef __APPLE__
@@ -291,18 +315,32 @@ public:
 
 	static cpcc_string toStr(const float value)
 	{
-		cpcc_char buf[100];
-        #pragma warning(disable : 4996)
-		cpcc_sprintf(buf, _T("%.12f"), value);
-		return cpcc_string(buf);
+        cpcc_ostringstream  ss; 
+        ss.precision(12);
+        ss << value; 
+        return ss.str();
+	//	cpcc_char buf[100];
+    //    #pragma warning(disable : 4996)
+	//	cpcc_sprintf(buf, _T("%.12f"), value);
+	//	return cpcc_string(buf);
+        
 	}
+
+
 
 	static cpcc_string toStr(const double value)
 	{
-		cpcc_char buf[200];
-        #pragma warning(disable : 4996)
-		cpcc_sprintf(buf, _T("%.12f"), value);
-		return cpcc_string(buf);
+        cpcc_ostringstream  ss;
+        ss.precision(15);
+        ss << value;
+        return ss.str();
+        
+		//cpcc_char buf[200];
+        //#pragma warning(disable : 4996)
+		//cpcc_sprintf(buf, _T("%.12f"), value);
+		//return cpcc_string(buf);
+        
 	}
 };
 
+*/

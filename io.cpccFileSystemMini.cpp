@@ -74,8 +74,7 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
 	report.append(_T("AppData path:")	+ cpccSystemFolders::getFolder_CommonAppData() + _T("\n"));
 	report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
-
-    
+        
 	report.append(_T("End of file system report\n----------------------\n"));
 	return report;
 }
@@ -517,6 +516,7 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	 */
 	char fullPathfileName[4096];
 	ProcessSerialNumber psn;
+    // needs the framework ApplicationServices.framework
 	GetCurrentProcess(&psn);
 	
 	pid_t pid;
