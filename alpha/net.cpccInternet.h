@@ -15,8 +15,13 @@
 
 #pragma once
 
+#include "../cpccUnicodeSupport.h"
+
 class cpccInternet
 {
 public:
 	static bool isConnectedToInternet(void);
+    static bool downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes);
+    static bool downloadToBuffer(const cpcc_char *aUrl, const char *aBuffer, const long bufferSize, long &downloadedBytes);
+
 };

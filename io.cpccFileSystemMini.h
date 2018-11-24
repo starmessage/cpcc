@@ -19,7 +19,7 @@
 
 #include "cpccUnicodeSupport.h"
 #include "io.cpccFileSystemL1.h"
-
+#include "core.cpccIdeMacros.h" 
 
 
 #define 	cpccFileSystemMini_DoSelfTest	true
@@ -85,6 +85,7 @@ public:
 	#endif
 	#endif
 
+    
 
 	static bool deleteFile(const cpcc_char * filename);
 	
@@ -99,10 +100,15 @@ public:
 	
 	
 	// Other functions --------------------------------
-	static cpcc_string getAppFullPath(void);
 	static cpcc_string getAppFullPathFilename(void);
+    #if !(cpccTARGET_IOS) 
+        static cpcc_string getAppFullPath(void);
+    
+    #endif
 	static cpcc_string getAppFilename(void);
 	static cpcc_string getFileSystemReport(void);
+
+    static cpcc_string getTempFilename(void);
 
 };
 

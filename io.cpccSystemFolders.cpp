@@ -20,10 +20,13 @@
 #if defined(_WIN32) || defined (IMPORTED_BY_io_cpccSystemFolders_mm)
 
 #include <iostream>	 // for std::cerr
+
 #include "io.cpccSystemFolders.h"
+#include "core.cpccIdeMacros.h"
 
 
 #ifdef _WIN32
+
 	#include	<io.h> // for _access on windows
 	#include	<Shlobj.h>
 	#include	<Shlwapi.h>
@@ -32,12 +35,22 @@
 	#include	<sys/types.h>
 	#include	<sys/stat.h>
 	#include	<direct.h>
+
 #elif defined(__APPLE__)
+
     #include <CoreFoundation/CoreFoundation.h>
-	#include <Carbon/Carbon.h> // for the DialogRef
-	#include <unistd.h>
+    #include <unistd.h>
+#endif
+
+#ifdef cpccTARGET_MACOS
+        #include <Cocoa/Cocoa.h>
+        #include <Carbon/Carbon.h> // for the DialogRef
+#else
+        // #include <Foundation/Foundation.h>
 
 #endif
+
+
 
 
 cpcc_string cpccSystemFolders::getFolder_CurrentDir(void)
@@ -149,7 +162,7 @@ cpcc_string  cpccSystemFolders::getFolder_CommonAppData(void)
 	return emptyResult;
 }
 
-
+#if !(TARGET_OS_IPHONE)
 cpcc_string cpccSystemFolders::getFolder_UserData(void) 
 {
 #ifdef _WIN32
@@ -185,7 +198,7 @@ cpcc_string cpccSystemFolders::getFolder_UserData(void)
 	cpcc_string emptyResult;
 	return emptyResult;
 }
-
+#endif // not TARGET_OS_IPHONE
 
 
 

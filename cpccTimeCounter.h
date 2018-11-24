@@ -30,6 +30,23 @@
 		  Has problems with VS2013. Ok in VS2015.
 */
 
+
+/*
+    #include <ctime>
+    
+    std::clock()
+    https://en.cppreference.com/w/cpp/chrono/c/clock 
+    The value returned by clock() may wrap around on some implementations. 
+    For example, on a machine with 32-bit std::clock_t, it wraps after 2147 seconds or 36 minutes. 
+
+    On POSIX-compatible systems, clock_gettime with clock id CLOCK_PROCESS_CPUTIME_ID offers better resolution.
+
+    See also
+    https://en.cppreference.com/w/cpp/chrono
+*/
+
+
+
 // PimplIdiom to move the inclusion of winsock2.h into the .cpp file
 struct timeval;
 
@@ -50,5 +67,4 @@ public: // functions
 	
 	
 };
-
 

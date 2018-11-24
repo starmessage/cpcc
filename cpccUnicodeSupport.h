@@ -159,10 +159,11 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
+    #define		cpcc_strchr         wcschr 
 	#define		cpcc_strstr			wcsstr
 	#define		cpcc_strtol			wcstol
 	#define		cpcc_strtod			wcstod
-    
+
 	#define		cpcc_tolower		towlower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
@@ -185,6 +186,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	
 	#define		cpcc_strtok			strtok
 	#define		cpcc_strcpy			strcpy
+    #define		cpcc_strchr         strchr 
 	#define		cpcc_strstr			strstr
 	#define		cpcc_strtol			strtol
 	#define		cpcc_strtod			strtod

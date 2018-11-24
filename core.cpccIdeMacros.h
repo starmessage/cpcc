@@ -32,6 +32,7 @@
     #define cpccDEBUG
 #else
     #ifdef __APPLE__
+        
 	    //#ifndef NDEBUG
 		//    #define cpccDEBUG
 	    //#endif
@@ -82,6 +83,63 @@
 #endif
 
 */
+
+/*
+ From TargetConditionals.h:
+ 
+ TARGET_OS_WIN32           - Generated code will run under 32-bit Windows
+ TARGET_OS_UNIX            - Generated code will run under some Unix (not OSX)
+ TARGET_OS_MAC             - Generated code will run under Mac OS X variant
+    TARGET_OS_IPHONE          - Generated code for firmware, devices, or simulator
+        TARGET_OS_IOS             - Generated code will run under iOS
+        TARGET_OS_TV              - Generated code will run under Apple TV OS
+        TARGET_OS_WATCH           - Generated code will run under Apple Watch OS
+    TARGET_OS_SIMULATOR      - Generated code will run under a simulator
+    TARGET_OS_EMBEDDED       - Generated code for firmware
+ 
+ TARGET_IPHONE_SIMULATOR   - DEPRECATED: Same as TARGET_OS_SIMULATOR
+ TARGET_OS_NANO            - DEPRECATED: Same as TARGET_OS_WATCH
+ 
+      +------------------------------------------------+
+      |                TARGET_OS_MAC                   |
+      | +---+  +-------------------------------------+ |
+      | |   |  |          TARGET_OS_IPHONE           | |
+      | |OSX|  | +-----+ +----+ +-------+ +--------+ | |
+      | |   |  | | IOS | | TV | | WATCH | | BRIDGE | | |
+      | |   |  | +-----+ +----+ +-------+ +--------+ | |
+      | +---+  +-------------------------------------+ |
+      +------------------------------------------------+
+
+ */
+
+// target platform
+
+#ifdef _WIN32  // covers 32-bit and 64-bit
+    #define cpccTARGET_WINDOWS
+    #ifdef _WIN64
+        #define cpccTARGET_WINDOWS64
+    #else
+        #define cpccTARGET_WINDOWS32
+    #endif
+#endif
+
+
+#if __APPLE__   // This macro is defined in any Apple computer.
+    #include "TargetConditionals.h"
+
+    #if TARGET_OS_IPHONE
+        #define cpccTARGET_IOS
+    #elif TARGET_OS_MAC
+        #define cpccTARGET_MACOS
+    #else
+        #error "cpccIdeMacros: Unknown Apple platform"
+    #endif
+#endif
+
+#if defined(ANDROID) || defined(__ANDROID__)  // both needed
+    #define cpccTARGET_ANDROID
+#endif
+
 
 
 class cppcIDE

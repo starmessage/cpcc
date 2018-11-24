@@ -15,13 +15,15 @@
 #pragma once
 
 #include <time.h>
+#include <ctime>
 #include <atomic>
 #include <sstream>
 #include <math.h>       /* floor */
 
-#ifdef __APPLE__
-    #include <unistd.h> // for usleep()
-#endif
+#include <chrono> // for sleep_for
+#include <thread> // for sleep_for
+
+
 
 #include "cpccUnicodeSupport.h"
 
@@ -69,14 +71,12 @@ tm_wday	days since Sunday	0-6
 tm_yday	days since January 1	0-365
 tm_isdst	Daylight Saving Time flag
 
-
 time_t
  time_t is always in UTC, by definition
  It is almost universally expected to be an integral value representing the
  number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC. This is due
  to historical reasons, since it corresponds to a unix timestamp, but is
  widely implemented in C libraries across all platforms.
-
 
 */
 
@@ -152,14 +152,8 @@ public:
 
 	static bool isSameDay(const struct tm a, const struct tm b) { return	(a.tm_year == b.tm_year) && (a.tm_yday == b.tm_yday); }
 
-	/*
-	static double long difference_inseconds(const struct tm a, const struct tm b)
-	{
 
-	}
-	*/
-
-	static const cpcc_char* intToMonth(const int index_0to11)
+    static const cpcc_char* intToMonth(const int index_0to11)
 	{
 		if ((index_0to11 < 0) || (index_0to11 >= 12))
 			return _T("intToMonth() called with index out of 0..11");
@@ -253,6 +247,46 @@ public:
 		return result.str();
 		*/
 	}
+
+    static void sleep(const time_t msec)
+    {
+        /* old code */
+        /*
+        #ifdef _WIN32
+	        Sleep(msec);
+        #elif __APPLE__
+	        usleep(1000* msec);
+        #endif
+        */
+        std::this_thread::sleep_for(std::chrono::milliseconds(msec));
+    }
+};
+
+///////////////////////////////////////////////////////////////////
+//		class cpccTimeCounter_lowRes
+///////////////////////////////////////////////////////////////////
+
+
+// fast time counter with low resolution of 1 sec
+// https://en.cppreference.com/w/cpp/chrono/c/difftime
+class cpccTimeCounter_lowRes
+{
+
+private:
+    std::time_t mStartTime;
+
+public: // ctor
+
+    explicit cpccTimeCounter_lowRes() : mStartTime(getTime()) {   };
+
+public: // functions
+
+    inline time_t  getTime(void) { return std::time(nullptr); }
+
+    inline void    reset(void) { mStartTime = getTime(); }
+
+    inline time_t  getSecondsElapsed(void) { return (time_t)std::difftime(getTime(), mStartTime); }
+
 };
 
 
@@ -277,11 +311,7 @@ public:
 		time_t t = 0;
 		while ((!m_interruptRequested) && (t < sleepFor_msec))
 		{
-#ifdef _WIN32
-			Sleep((DWORD)dt_msec);
-#elif __APPLE__
-			usleep((useconds_t) (1000 * dt_msec)); // usleep(microseconds)
-#endif
+            cpccTime::sleep(dt_msec);
 			t += dt_msec;
 		}
 	}

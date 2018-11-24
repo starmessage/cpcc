@@ -30,16 +30,21 @@
 #include <sstream>
 #include <mutex>
 #include "core.cpccOS.h"
+#include "core.cpccIdeMacros.h"
 
 
 #ifdef _WIN32
 	#include "core.cpccOSWin.h"
-    
-	
+
 #elif __APPLE__
-	// #include <Cocoa/Cocoa.h>
-    #include <AppKit/AppKit.h>
-    
+
+    #if cpccTARGET_IOS
+        #include <Foundation/Foundation.h>
+        #include <UIKit/UIKit.h>
+    #else 
+	    #include <AppKit/AppKit.h>
+    #endif
+
 #endif
 
 
@@ -63,6 +68,18 @@ cpcc_string cpccOS::getOSNameAndVersion(void)
 #elif __APPLE__
     std::string result = getOSNameVersionAndBuild();
     // e.g.: Mac OS X 10.12.6 (Build 16G29)
+    // 10.6 = Snow Leopard
+    // 10.7 = Lion
+    // 10.8 = Mountain Lion
+    // 10.9 = Mavericks
+    
+    // 10.10 = Yosemite
+    // 10.11 = El Capitan
+    // 10.12 = Sierra
+    // 10.13 = High Sierra
+    // 10.14 = Mojave
+    
+    
     
     std::size_t found = result.rfind(" ("); // remove build number
     if (found!=std::string::npos)
@@ -86,12 +103,24 @@ bool cpccOS::is64bit(void)
 cpcc_string cpccOS::getOSNameVersionAndBuild(void)
 {
 #ifdef __APPLE__
-	NSString * operatingSystemVersionString = [[NSProcessInfo processInfo] operatingSystemVersionString];
+	NSString * operatingSystemVersionString =
+        [[NSProcessInfo processInfo] operatingSystemVersionString];
+    //    @"Версія 10.10.5 (складення 14F2511)";
     // returns: Version 10.12.6 (Build 16G29)
-    std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
-    result.erase(0, 8);
+    // under ukrainian — 'uk_UA' locale it returns:
+    // Версія 10.10.5 (складення 14F2511)
+    if (!operatingSystemVersionString)
+        return "Mac OS X Version ?";
+    
+    //std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string result = [operatingSystemVersionString cStringUsingEncoding : NSUTF8StringEncoding];
+
+    size_t pos = result.find("10.");
+    if (pos!=std::string::npos)
+       result.erase(0, pos);
     result.insert(0,"Mac OS X ");
     return result; // returns: Mac OS X 10.12.6 (Build 16G29)
+    // todo: change the function to return just the version numbers. No build number ot other text
 #else
 	return cpccOSWin::getWindowsNameVersionAndBuild();
 #endif
@@ -137,7 +166,7 @@ cpcc_string cpccOS::getPreferredLanguage(void)
     
 #elif __APPLE__
     NSString* language = [[NSLocale preferredLanguages] objectAtIndex:0];
-    return [language cStringUsingEncoding:NSASCIIStringEncoding];
+    return [language cStringUsingEncoding:NSUTF8StringEncoding];
 #endif
     
 } // End getPreferredLanguage
@@ -185,7 +214,11 @@ void cpccOS::getMainMonitorResolution(int &width, int &height)
 	width = GetSystemMetrics(SM_CXSCREEN);
 	height = GetSystemMetrics(SM_CYSCREEN);
     
-#elif __APPLE__
+
+#elif TARGET_OS_IPHONE
+    width = [UIScreen mainScreen].bounds.size.width;
+    height = [UIScreen mainScreen].bounds.size.height;
+#elif TARGET_OS_MAC
     NSScreen *mainScreen = [NSScreen mainScreen];
     NSRect rect = [mainScreen frame];
     width = rect.size.width;
@@ -259,7 +292,15 @@ size_t cpccOS::getListOfMonitors(cpccMonitorList &list)
 	if (!EnumDisplayMonitors(NULL, NULL, util_MonitorEnumProc, (LPARAM) &list))
 		return 0;
 
-#elif __APPLE__
+#elif defined(cpccTARGET_IOS)
+    cpccMonitorInfoT info;
+    info.left = [UIScreen mainScreen].bounds.origin.x;
+    info.top = [UIScreen mainScreen].bounds.origin.y;
+    info.right = info.left + [UIScreen mainScreen].bounds.size.width;
+    info.bottom = info.top  + [UIScreen mainScreen].bounds.size.height;
+    list.push_back(info);
+    
+#elif defined(cpccTARGET_MACOS)
 	/*	sample code:
 		CGDisplayCount nDisplays;
 		CGGetActiveDisplayList(0,0, &nDisplays);
@@ -289,16 +330,7 @@ size_t cpccOS::getListOfMonitors(cpccMonitorList &list)
 
 
 
-void cpccOS::sleep(const unsigned int msec)
-{
-#ifdef _WIN32
-	Sleep(msec);
-#elif __APPLE__
-	usleep(1000* msec);
-#else
-	#error #8724: Unknown platform for cpccOS
-#endif
-}
+
     
 
 const cpcc_string cpccOS::getUserName(void)
@@ -363,7 +395,7 @@ std::string cpccOS::readProgramVersionByPrincipalClass(const char *aClassName)
     return ver;
 }
 
-
+#if !(TARGET_OS_IPHONE)
 std::string cpccOS::getBundleIDfromAppName(const char  *aAppName)
 {
     // [[NSBundle mainBundle] bundleIdentifier]
@@ -383,7 +415,7 @@ std::string cpccOS::getBundleIDfromAppName(const char  *aAppName)
         }
     return result;
 }
-
+#endif
 
 std::string cpccOS::getBundleID(void)
 {
@@ -418,8 +450,9 @@ cpcc_string& cpccOS::readProgramVersion(void)
     
     NSString *tmpVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
     ver = [tmpVersion UTF8String];
-    [tmpVersion release];
-    
+    #if !(__has_feature(objc_arc))
+        [tmpVersion release];
+    #endif
     
 #endif
     

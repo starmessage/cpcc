@@ -244,7 +244,9 @@ cpccLogManager::cpccLogManager(void):
     
     info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);
     info.add(_T("More info about the cpcc cross platform library at:\n     \twww.StarMessageSoftware.com/cpcclibrary"));
+#ifdef cpccDEBUG
     info.add(cpccFileSystemMini::getFileSystemReport());
+#endif
 }
 
 
@@ -279,7 +281,6 @@ void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *m
 		#endif 
 
 		info.addf("Compiler C/C++ standard:%s", cppcIDE::getCompilerVersion());
-		
 		cpcc_string fn = getAutoFullpathFilename(appNameStem, bundleID);
 		// check previous run
 		if ((checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))

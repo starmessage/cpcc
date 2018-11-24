@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		core.cpccOS.h
  *	Purpose:	Portable (cross-platform), light-weight, OS functions
   *	*****************************************
@@ -44,8 +44,7 @@ public:
     
     static void getMainMonitorResolution(int &width, int &height);
     static cpcc_string getMainMonitorResolutionAsText(void);
-    
-	static void sleep(const unsigned int msec);
+    	
     
     // portable / cross platform C function for Windows, OSX returns the computer name
 	static const cpcc_string getComputerName(void);
@@ -60,16 +59,18 @@ public:
 
 #ifdef __APPLE__
     static std::string readProgramVersionByPrincipalClass(const char *aClassName);
-    static std::string getBundleIDfromAppName(const char *aAppName);
     static std::string getBundleID(void);
+    #if !(TARGET_OS_IPHONE)
+        static std::string getBundleIDfromAppName(const char *aAppName);
+    #endif
+    
 #endif
 
     static cpcc_string getPreferredLanguage(void);
 
 #ifdef _WIN32
     static const HWND getWindowHandleOfProgram(const TCHAR *aClassName);
-    
-	
+    	
 	
 #endif
 

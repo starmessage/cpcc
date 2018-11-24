@@ -36,10 +36,14 @@
 	#include	<sys/stat.h>
 
 #elif defined(__APPLE__)
+    #include <TargetConditionals.h>
     #include "io.cpccFileSystemMiniOSX.h"
     #include <CoreFoundation/CoreFoundation.h>
-	#include <Carbon/Carbon.h> // for the DialogRef
-
+    #if TARGET_OS_IPHONE
+        #include <Foundation/Foundation.h>
+    #else
+        #include <Carbon/Carbon.h> // for the DialogRef
+    #endif
 #endif
 
 #include "core.cpccIdeMacros.h"
@@ -50,6 +54,18 @@
 	#include "cpcc_SelfTest.h"
 #endif
 
+cpcc_string cpccFileSystemMini::getTempFilename(void)
+{
+    cpcc_char name[L_tmpnam];
+#ifdef _WIN32
+    if (tmpnam_s(name, sizeof(name)))
+        return name;
+#else
+    if (std::tmpnam(name))
+        return name;
+#endif
+    return _T("");
+}
 
 // std::mutex _fileAppendMutex, _writeToFileMutex;
 // std::mutex cpccFileSystemMini::fileAppendMutex_;
@@ -61,11 +77,13 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
 
-    report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
+    #if !(TARGET_OS_IPHONE)
+        report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
+        report.append(_T("App path:")        + getAppFullPath() + _T("\n"));
     
-    report.append(_T("App filename:")	+ getAppFilename() + _T("\n"));
-	report.append(_T("App path:")		+ getAppFullPath() + _T("\n"));
- 
+    #endif
+    report.append(_T("App filename:")    + getAppFilename() + _T("\n"));
+    
 	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
 	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
     report.append(_T("Current dir:")	+ cpccSystemFolders::getFolder_CurrentDir() + _T("\n"));
@@ -73,8 +91,10 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
 	report.append(_T("AppData path:")	+ cpccSystemFolders::getFolder_CommonAppData() + _T("\n"));
-	report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
-        
+    #if !(TARGET_OS_IPHONE)
+        report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
+    #endif
+    
 	report.append(_T("End of file system report\n----------------------\n"));
 	return report;
 }
@@ -357,7 +377,12 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 	//mode_t p775 = S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH;
 	// full permissions for all
 	//mode_t p777 = S_IRWXU | S_IRWXG | S_IRWXO;
-	return fileSystemOSX_helper::createFolder_Linux(finalPath.c_str(), parentPermissions);
+    #if TARGET_OS_IPHONE
+        return fileSystemOSX_helper::createFolder(finalPath.c_str(), parentPermissions);
+    #elif TARGET_OS_MAC
+        return fileSystemOSX_helper::createFolder_Linux(finalPath.c_str(), parentPermissions);
+    #endif
+    
 #endif
 
     return(folderExists(aFoldername));
@@ -489,10 +514,12 @@ cpcc_string cpccFileSystemMini::getAppFilename(void)
 }
 
 
+#if !(cpccTARGET_IOS) 
 cpcc_string cpccFileSystemMini::getAppFullPath(void)
 {
 	return cpccPathHelper::getParentFolderOf(getAppFullPathFilename());
 }
+#endif
 
 
 cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
@@ -503,7 +530,11 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	if (GetModuleFileName(NULL,fullPathfileName, MAX_PATH))
 		return cpcc_string(fullPathfileName);
 	
-#elif defined(__APPLE__)
+#elif TARGET_OS_IPHONE
+    NSString *path = [NSBundle mainBundle].bundlePath;
+    return [path UTF8String];
+    
+#elif TARGET_OS_MAC
 	// see also:
 	// proc_pidpath()
 	// GetCurrentProcess
@@ -517,6 +548,7 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	char fullPathfileName[4096];
 	ProcessSerialNumber psn;
     // needs the framework ApplicationServices.framework
+    // it is deprecated
 	GetCurrentProcess(&psn);
 	
 	pid_t pid;
@@ -524,13 +556,12 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	
 	if (proc_pidpath(pid, fullPathfileName, sizeof(fullPathfileName)) > 0)
 		return std::string(fullPathfileName);
+    
 #else
-	#error Error #5453: unsupported platform for getModuleFilename()	
+	#error Error 5453: unsupported platform for getModuleFilename()
 #endif	
 	return cpcc_string( _T(""));
 }
-
-
 
 
 

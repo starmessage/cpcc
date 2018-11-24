@@ -29,7 +29,9 @@ class cpccSystemFolders
 
 public:
 	static cpcc_string getFolder_CommonAppData(void);
-	static cpcc_string getFolder_UserData(void);
+    #if !(TARGET_OS_IPHONE) // pending implementation for IOS
+        static cpcc_string getFolder_UserData(void);
+    #endif
     static cpcc_string getFolder_CurrentDir(void);
 
 };
