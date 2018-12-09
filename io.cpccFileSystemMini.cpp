@@ -58,7 +58,7 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
 {
     cpcc_char name[L_tmpnam];
 #ifdef _WIN32
-    if (tmpnam_s(name, sizeof(name)))
+    if (tmpnam_s(name, sizeof(name))==0)
         return name;
 #else
     if (std::tmpnam(name))
@@ -141,7 +141,7 @@ cpcc_string cpccFileSystemMini::getFolder_UserHome(void)
 cpcc_string cpccFileSystemMini::getFolder_UsersCache(void)
 {
 #ifdef _WIN32	
-	// todo: is there a cache folder in windows? Until then, return the user's temp
+	// is there a cache folder in windows? Until then, return the user's temp
 	return  getFolder_UsersTemp();
 
 #elif defined(__APPLE__)

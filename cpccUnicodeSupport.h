@@ -1,6 +1,6 @@
 /*  *****************************************
  *  File:		cpccUnicodeSupport.h
- *  Version:	1.0
+ *  Version:	1.1
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
@@ -91,6 +91,8 @@
 	That is because all file names and directory names are just bytes with the exception of the '/' and '\0' characters. 
 	You can use UTF-8 encoding with them but the filesystem itself does not care.
 
+    example of utf8 string constant:
+    char utf8String[] = u8“hello”; //UTF-8 encoding.
  */
 #pragma once
 

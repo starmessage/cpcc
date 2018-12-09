@@ -115,6 +115,37 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
 }
 
 
+cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID)
+{
+    cpccPathString fname(aScope==scopeAllUsers ? cpccSystemFolders::getFolder_CommonAppData() : cpccSystemFolders::getFolder_UserData());
+    assert(cpccFileSystemMini::folderExists(fname.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
+    
+    #ifdef __APPLE__
+        // fname("Preferences");
+        if (aScope==scopeAllUsers)
+            if (aBundleID)
+                if (cpcc_strlen(aBundleID)>0)
+                    fname.appendPathSegment(aBundleID);
+    
+    #else
+        if (aCompanyName)
+            if (cpcc_strlen(aCompanyName)>0)
+                fname.appendPathSegment(aCompanyName);
+    #endif
+    // now the fname contains the containing folder for the INI file.
+    
+    // add the appName as part of the filename
+    // operator && evaluates left operand first
+    if (aAppName && (cpcc_strlen(aAppName)>0))
+        fname.appendPathSegment(aAppName);
+    else
+        fname.appendPathSegment(_T("no AppName cpccSettings error no.7511"));
+    
+    fname.append(_T(".ini"));
+    return fname;
+}
+
+/*
 cpccSettings::cpccSettings(const settingsScope aScope):
 	instantSaving(true)
 {
@@ -140,18 +171,17 @@ cpccSettings::cpccSettings(const settingsScope aScope):
     
     assert((_settingsFilename.pathExists()) && _T("#7712i: folder for INI was not created"));
     
-    _settingsFilename.appendPathSegment(/* aSoftwareName */ config_getAppName());
+    _settingsFilename.appendPathSegment(config_getAppName());
 	_settingsFilename.append(_T(".ini"));
     
 	mFilename = _settingsFilename;
-	// todo: remove cout
-	cpcc_cout << _T("cpccSettings constructor: filename:") << mFilename << _T("\n");
 	
 	if (!load())
 		cpcc_cerr << _T("Error #1351: loading cpccSettings from file:") << mFilename << std::endl;
 	
 	//std::cout << "cpccSettings construction point 2\n";
 }
+*/
 
 	
 cpccSettings::~cpccSettings()
@@ -175,6 +205,7 @@ bool cpccSettings::load(void)
 		return false;
 	}
 	
+    // todo: is this needed for MacOS ?
     std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
     iniFile.imbue(my_utf8_locale);
 
@@ -323,16 +354,18 @@ bool cpccSettings::saveStringToFile(const cpcc_char *aFn, const cpcc_char *aTxt,
 
     if (inUTF8) // write the BOM of UTF-8 and set locale
     { 
+        // _file << UTF8_BOM;
+        //_file.write(BOM_UTF8, 3);
+
         // http://www.cplusplus.com/forum/beginner/107125/
         std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
         _file.imbue(my_utf8_locale);
-        // _file << UTF8_BOM;
-        //_file.write(BOM_UTF8, 3);
-        _file << aTxt;
+        
         // _file << helper_to_utf8(aTxt, cpcc_strlen(aTxt));
     }
-    else
-        _file << aTxt;
+    
+        
+    _file << aTxt;
 
     _file.close();
     return true;
@@ -439,7 +472,9 @@ void cpccSettings::selfTest(void)
 }
 #endif
 
+
 // lazy but early enough constructor for the application's settings objects
+/*
 cpccSettings &appUserSettings(void)
 {
 	static cpccSettings m_appUserSettings(cpccSettings::scopeCurrentUser);
@@ -465,6 +500,7 @@ cpccSettings &appSystemSettings(void)
 		
 	SELFTEST_END
 #endif
+*/
 
 
 ///////////////////////////////////////////////////////////////////////////

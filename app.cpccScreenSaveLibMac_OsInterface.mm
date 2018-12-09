@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		app.cpccScreenSaveLibMac_OsInterface.mm
  *  Version:	see function getClassVersion()
@@ -26,8 +26,11 @@
 ////////////////////////////////
 // configuration parameters
 ////////////////////////////////
-// this selects if drawing will be done inside the function drawInDrawRect
-// if not defined it is done inside the function animateOneFrame
+// this selects if drawing will be done inside the function drawInDrawRect.
+// If not defined it is done inside the function animateOneFrame
+//  Drawing in animateOneFrame doesn't seem to work under OS 10.14 Mojave
+// but drawing in drawRect: seems slow under erarlier versions of OS X
+
 #define     drawInDrawRect
 #define     config_FramesPerSec 25.0  // 25 frames/sec
 
@@ -48,7 +51,8 @@
  
  initWithFrame() gets called for each display.
  
- animateOneFrame() is called in order of display: animateOneFrame() for display 1,
+ animateOneFrame() is called in order of display:
+ animateOneFrame() for display 1,
  animateOneFrame() for display 2, and then back to 1 again, etc.
 
 */
@@ -237,8 +241,8 @@
     NSString *nsBundleID = [saverBundle bundleIdentifier];
     cpcc_string bundleID([nsBundleID UTF8String]);
     infoLog().addf("Resolved BundleID:%s", bundleID.c_str());
-    if (bundleID.compare(cpccAppInfo::BundleId) != 0)
-        errorLog().addf("Resolved bundleID different from expected (%s)", cpccAppInfo::BundleId);
+    if (bundleID.compare(cpccAppInfo::MacBundleId) != 0)
+        errorLog().addf("Resolved bundleID different from expected (%s)", cpccAppInfo::MacBundleId);
     
     // find the actual path of the screensaver
     NSString* pBundlePath = [saverBundle bundlePath];
@@ -248,7 +252,6 @@
     assert(windowHandle && "Error 2354b: could not get native window handle");
     int monitorID = [self isPreview]? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
-    
     
 }
 
@@ -408,67 +411,26 @@
 }
 
 
+
 - (void)drawRect:(NSRect)rect
 {
-	// infoLog().add( __PRETTY_FUNCTION__ );
-	
-    //static bool firstDrawRectCall = true;
-    
-    
-    //NSBezierPath * path;
-    //path = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:60 yRadius:60];
-    //[[NSColor colorWithCalibratedRed:0 green:0 blue:0.4 alpha:0.3] set];
-    //[path fill];
-    
-    
-    //[[NSColor clearColor] set];
-    //NSRectFillUsingOperation(rect, NSCompositeSourceOver);
-    
-    //NSRect bounds = [self bounds];
-    //[[NSColor clearColor] setFill];
-    //[NSBezierPath fillRect:rect];
-    //NSRectFill([self frame]);
     /*
-    [[self window] setBackgroundColor:[NSColor clearColor]];
-    //[[self window] setBackgroundColor:[NSColor orangeColor]];
-    [[self window] setOpaque:NO];
-    [[self window] setAlphaValue:1.0];
-    [[NSColor clearColor] set];
-    NSRectFill([self frame]);
-     
-     // NSRectFill treats the alpha in some odd way, [NSBezierPath fillRect:tRect]; is the solution..
-    */
-    //[[NSColor clearColor] setFill];
-    //NSRectFill(rect);
-    //[[self window] setBackgroundColor:[NSColor clearColor]];
-    
-    
-    //infoLog().add("drawRect()");
-    
-
-
-	/*
      ScreenSaverView implements drawRect: to draw a black background.
      Subclasses can do their drawing here or in animateOneFrame.
      
-	There are two main ways to do drawing in a screen saver. 
-	 You can either do your drawing in the normal NSView drawRect: method,
-	 or you can do your drawing in ScreenSaverView’s animateOneFrame method.
-	 If you do drawing in drawRect: , you should call setNeedsDisplay: with
-	 an argument of YES in animateOneFrame.
-	 
+     There are two main ways to do drawing in a screen saver.
+     You can either do your drawing in the normal NSView drawRect: method,
+     or you can do your drawing in ScreenSaverView’s animateOneFrame method.
+     If you do drawing in drawRect: , you should call setNeedsDisplay: with
+     an argument of YES in animateOneFrame.
+     
      By keeping all the drawing code in drawRect: you ensure it is always drawn when the Cocoa system needs it drawn.
      By keeping all of your computational logic out of the draw path, you ensure multiple-redraws don't cause unwanted side-effects in your animation.
      */
     
     
-    //if (!animationStarted)
-    //    return;
-    
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface drawRect");
-    //cpccOS::sleep(1000);
-    
-    // [super drawRect:rect];      // this call draws a black background
+	// infoLog().add( __PRETTY_FUNCTION__ );
+	// [super drawRect:rect];      // this call draws a black background
     /*          - (void) drawRect:(NSRect) rect
                 {
                     [[NSColor blackColor] set];
@@ -476,15 +438,18 @@
                 }
       */
     // without it, a gray background is shown as initial background
+
     
-    // std::cout << "drawRect. w:" << rect.size.width << " h:" << rect.size.height << "\n";
 #ifdef drawInDrawRect
-	if (ssPtr)
+	if (ssPtr)  // after stopAnimation is called, we might receive here a call with null ssPtr
 		{
         ssPtr->drawOneFrame();
 		ssPtr->flushOneFrame();
 		}
+    
 #endif
+    
+
 }
 
 
@@ -499,10 +464,10 @@
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
 	 */
-    //cpccOS::sleep(1000);
-
+    
 	// infoLog().add( __PRETTY_FUNCTION__ );
 		
+    
 	if (ssPtr)
 		{
 		//NSDisableScreenUpdates();
@@ -517,15 +482,23 @@
 #endif
 		//NSEnableScreenUpdates();
 		}
+    else
+        errorLog().add("screensaverview animateOneFrame with nil ssPtr");
+    
+    // MacOS Mojave check.
+    // Under Mojave, the [NSGraphicsContext currentContext] is nil.
+    // Drawing must be moved under drawFrame
+    // if ([NSGraphicsContext currentContext] == nil) .....
+       
 }
 
 
 -(void)dealloc 
 {
-    /* ATTENTION: badly designed by Apple:
-     -dealloc is called when the screen saver was instantiated by SSystem Preferences;
+    /* ATTENTION:
+     -dealloc is called ok when the screen saver gets instantiated by System Preferences;
      -dealloc is not called when ScreenSaverEngine runs the saver. (normal run by timeout or hotcorners)
-	 For these reasons I decided to move the allocation/deallocation of the screensaver to StartAnimation/StopAnimation
+	 For these reasons the allocation/deallocation of the screensaver was moved under StartAnimation/StopAnimation
      */
 	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
     

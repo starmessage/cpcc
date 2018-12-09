@@ -28,14 +28,11 @@
 	to save/load application settings from an INI-like file
 	The file is a variable=value text file.
 	No [sectionName] headings are used.
-	
-	Dependencies: cpcc_SelfTest.h
- 
-    ToDo: On MAC, settings should be saved in a directory with same name as bundle identifier.
+
 */
 
 #ifdef cpccDEBUG
-    #define cpccSettings_DoSelfTest		true
+    // #define cpccSettings_DoSelfTest		true
 #endif
 
 
@@ -59,11 +56,14 @@ private:
     // e.g. in one of you cpp files:
     //      const cpcc_char *cpccSettings::config_getAppName(void) { return _T("CrcCheckCopy"); }
     //       const cpcc_char *cpccSettings::config_getCompanyName(void) { return _T("StarMessage software"); }
-    const cpcc_char *config_getAppName(void);
-    const cpcc_char *config_getCompanyName(void);
+
+    /*
+    static const cpcc_char *config_getAppName(void);
+    static const cpcc_char *config_getCompanyName(void);
     #ifdef __APPLE__
-        const cpcc_char *config_getAppBundleID(void);
+        static const cpcc_char *config_getAppBundleID(void);
     #endif
+    */
 
 public:	// class metadata and selftest
 	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
@@ -74,16 +74,19 @@ public:	// class metadata and selftest
 #endif
 
 private: 	// data
-	bool instantSaving;
+    
+	bool instantSaving = true;
 
-public: 	// ctors	
-	explicit cpccSettings(const settingsScope aScope=scopeCurrentUser);
+public: 	// ctors
+    
+	// explicit cpccSettings(const settingsScope aScope=scopeCurrentUser);
     explicit cpccSettings(const cpcc_char *aFilename);
-	~cpccSettings();
+	virtual ~cpccSettings();
 	
 
 public:		// functions
-    // cpccKeyValue::tKeysAndValues &getRawKeyValuesMap(void) { return mSettings.m_map;  }
+
+    static cpcc_string getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID);
 
     virtual void dataChanged(void) override
     { 
@@ -95,20 +98,6 @@ public:		// functions
 	cpcc_string getFilename(void) { return mFilename; }
 	
     bool saveStringToFile(const cpcc_char *aFn, const cpcc_char *aTxt, const bool inUTF8);
-
-#define BYPASS_RELEASE_ERROR
-#ifdef  BYPASS_RELEASE_ERROR
-
-#ifndef __APPLE__
-	// in OSX, time_t is defined as long, so there is a ready function for it
-	// in Windows time_t is _int64
-	// void		write(const cpcc_char *aKey, const time_t aValue);
-#endif
-    
-    // void		write(const cpcc_char *aKey, const bool aValue);
-    // void		write(const cpcc_char *aKey, const int aValue);
-    // void		write(const cpcc_char *aKey, const long int aValue);
-#endif
     
 	
 	bool		load(void);

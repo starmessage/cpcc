@@ -52,12 +52,9 @@ public:
 				*CompanyName,
 				*ProgramName,
 				*Version,
-				*Build;
-#ifdef __APPLE__
-	const static cpcc_char
-				*BundleId;
-
-#endif
+				*Build,
+				*MacBundleId;   // ignored under Windows
+ 
 	const static char 
 				*VersionA,
 				*BuildA;

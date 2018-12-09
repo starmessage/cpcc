@@ -112,7 +112,6 @@ cpcc_string cpccOS::getOSNameVersionAndBuild(void)
     if (!operatingSystemVersionString)
         return "Mac OS X Version ?";
     
-    //std::string result = [operatingSystemVersionString cStringUsingEncoding:NSASCIIStringEncoding];
     std::string result = [operatingSystemVersionString cStringUsingEncoding : NSUTF8StringEncoding];
 
     size_t pos = result.find("10.");

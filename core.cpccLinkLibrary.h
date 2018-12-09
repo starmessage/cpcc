@@ -35,6 +35,13 @@
 	
 #endif
 
+#ifndef _WIN32
+    #ifndef TCHAR // for non Windows systems
+        #define  TCHAR char
+    #endif
+#endif
+
+
 #ifdef _WIN32
 	class cpccLinkedLibraryPortable_Win
 	{

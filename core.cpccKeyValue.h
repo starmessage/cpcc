@@ -91,14 +91,14 @@ public:		// get functions
 
 
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type >
-    const T    get(const cpcc_char *aKey, const T aValue)
+    const T    get(const cpcc_char *aKey, const T aDefaultValue)
     {
         cpcc_string valueStr(get(aKey, _T("not-fOunD-there")));
         if (valueStr.compare(_T("not-fOunD-there")) == 0)
-            return aValue;
+            return aDefaultValue;
         
         // if (!std::is_same<T, cpcc_char *>::value)
-        return fromString(valueStr.c_str(), aValue);
+        return fromString(valueStr.c_str(), aDefaultValue);
     }
     
 public:		// set functions
@@ -121,7 +121,7 @@ public:		// set functions
 	template <typename T>
 	void		set(const cpcc_char   *aKey, const T aValue)              	{ setRaw(aKey, toString(aValue).c_str()) ;  }
 	void        set(const cpcc_char   *aKey, const cpcc_string &aValue)		{ setRaw(aKey, aValue.c_str());  }
-    // void        set(const cpcc_string &aKey, const cpcc_string &aValue) { m_map[aKey] = aValue; }
+    // void        set(const cpcc_string &aKey, const cpcc_string &aDefaultValue) { m_map[aKey] = aDefaultValue; }
     void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ setRaw(aKey, aValue);  }
 
 
