@@ -79,10 +79,12 @@ public:
 	static bool createEmptyFile(const cpcc_char * aFilename);
 	// static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
+    static bool writeTextFile(const cpcc_char* aFilename, const cpcc_char *aTxt, const bool inUTF8);
+
 	#ifdef _WIN32
-	#ifdef UNICODE
-	static bool appendTextFile(const cpcc_char* aFilename, const char *txt) { wchar_from_char wtxt(txt); return appendTextFile(aFilename, wtxt.get()); }
-	#endif
+	    #ifdef UNICODE
+	        static bool appendTextFile(const cpcc_char* aFilename, const char *txt) { wchar_from_char wtxt(txt); return appendTextFile(aFilename, wtxt.get()); }
+	    #endif
 	#endif
 
     
@@ -101,9 +103,8 @@ public:
 	
 	// Other functions --------------------------------
 	static cpcc_string getAppFullPathFilename(void);
-    #if !(cpccTARGET_IOS) 
+    #if !defined(cpccTARGET_IOS)
         static cpcc_string getAppFullPath(void);
-    
     #endif
 	static cpcc_string getAppFilename(void);
 	static cpcc_string getFileSystemReport(void);
@@ -113,7 +114,7 @@ public:
 };
 
 
-
+// todo: merge this class with cpccPathHelper (some functions that do not require internal state will be static)
 class cpccPathString: public cpcc_string
 {
 public:
@@ -125,6 +126,7 @@ public: // constructors
 	// explicit cpccPathString(const standardFolderIds aFolderID);
 
 public: // functions
+    
 	bool	pathExists(void)	const { return (cpccFileSystemL1::fileExists(c_str()) || cpccFileSystemL1::folderExists(c_str())); }
 	void	appendPathSegment(const cpcc_char* aPathSegment);
 

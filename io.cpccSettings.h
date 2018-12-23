@@ -97,9 +97,6 @@ public:		// functions
 
 	cpcc_string getFilename(void) { return mFilename; }
 	
-    bool saveStringToFile(const cpcc_char *aFn, const cpcc_char *aTxt, const bool inUTF8);
-    
-	
 	bool		load(void);
 	bool		save(void);
 
@@ -152,6 +149,7 @@ public:
 
 
 
-
+/*
 cpccSettings &appUserSettings(void);
 cpccSettings &appSystemSettings(void);
+*/

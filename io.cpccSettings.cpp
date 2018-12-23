@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		cpccSettings.cpcc
+ *  File:		cpccSettings.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
  *				to save/load application settings from an INI-like file
@@ -61,10 +61,15 @@
  */
 
 
-class cINIcodec
+
+
+class cINI_utils
 {
-private:
+public:
     typedef cpcc_char *tEncodingsTable[5][2];
+
+private:
+    
     
     static const tEncodingsTable& encondingsINI(void)
     {
@@ -97,6 +102,67 @@ public:
         //    findAndReplaceAll(str, encodedINIcharacterTable[i][1], encodedINIcharacterTable[i][0]);
         for (unsigned int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
             stringUtils::findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
+    }
+
+
+    static bool     saveToFile(const cpcc_char *aFilename, const cpccKeyValue::tKeysAndValues& aMap)
+    {
+        cpcc_ostringstream ss;
+
+        for (cpccKeyValue::tKeysAndValues::const_iterator it = aMap.begin(); it != aMap.end(); ++it)
+        {
+            const cpcc_char *key = it->first.c_str();
+            cpcc_string    value = it->second; // todo: value( it->second);
+            cINI_utils::encodeStrForINI(value);
+            ss << key << _T("=") << value << std::endl;
+        }
+
+#ifdef UNICODE	// write the BOM if UTF-8
+        //const cpcc_string tmpTxt(ss.str());
+        //const cpcc_string tmpTxtAfterUTF8(helper_to_utf8(tmpTxt.c_str(), tmpTxt.length()));
+        //return saveStringToFile(mFilename.c_str(), tmpTxtAfterUTF8.c_str(), true);
+        return cpccFileSystemMini::writeTextFile(aFilename, ss.str().c_str(), true);
+#else
+        return cpccFileSystemMini::writeTextFile(aFilename, ss.str().c_str(), false);
+#endif
+    }
+
+
+    static bool loadFromFile(const cpcc_char *aFilename, cpccKeyValue::tKeysAndValues& aMap)
+    {
+        if (!cpccFileSystemMini::fileExists(aFilename))
+            return false;
+
+
+        cpcc_ifstream iniFile(aFilename);
+        if (!iniFile.is_open())
+        {
+            cpcc_cerr << _T("#8551: Could not open file:") << aFilename << _T("\n");
+            return false;
+        }
+
+        // todo: is this needed for MacOS ?
+        std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
+        iniFile.imbue(my_utf8_locale);
+
+        // directly manipulate the map so that the save-to-file is not triggered
+        aMap.clear();
+        cpcc_string key, value;
+
+        // http://forums.codeguru.com/showthread.php?511066-RESOLVED-Is-it-possible-to-use-getline-with-unicode
+        while (getline(iniFile, key, _T('=')))
+        {
+            if (key.compare(0, 3, _T(UTF8_BOM)) == 0)  // the file has a UTF-8 BOM
+                key.erase(0, 3);                  // Now get rid of the BOM.
+
+            getline(iniFile, value);
+            cINI_utils::decodeStrFromINI(value);
+            // set(key.c_str(), value);
+            // directly add into the map so that the save to file is not triggered
+            aMap[key] = value;
+        }
+
+        return true;
     }
 };
 
@@ -194,6 +260,14 @@ cpccSettings::~cpccSettings()
 
 bool cpccSettings::load(void)
 {
+    if (!cpccFileSystemMini::fileExists(mFilename.c_str()))
+    {
+        clear();
+        return true; // consider the INI loaded (empty file)
+    }
+    
+    return cINI_utils::loadFromFile(mFilename.c_str(), m_map);
+    /* moved
 	if (!cpccFileSystemMini::fileExists(mFilename.c_str()))
 		return true;
 	
@@ -220,13 +294,14 @@ bool cpccSettings::load(void)
             key.erase(0, 3);                  // Now get rid of the BOM.
 
 		getline(iniFile, value);
-		cINIcodec::decodeStrFromINI(value);
+		cINI_utils::decodeStrFromINI(value);
         // set(key.c_str(), value);
         // directly add into the map so that the save to file is not triggered
         m_map[key] = value;
     }
 	
 	return true;
+    */
 }
 
 
@@ -248,15 +323,16 @@ std::string helper_to_utf8(const wchar_t* buffer, int len)
 
 bool cpccSettings::save(void)
 {
-    // https://mariusbancila.ro/blog/2008/10/20/writing-utf-8-files-in-c/
+    return cINI_utils::saveToFile(mFilename.c_str(), m_map);
 
+    /* moved
     cpcc_ostringstream ss;
 
     for (cpccKeyValue::tKeysAndValues::iterator it = m_map.begin(); it != m_map.end(); ++it)
     {
         const cpcc_char *key = it->first.c_str();
         cpcc_string    value = it->second; // todo: value( it->second);
-        cINIcodec::encodeStrForINI(value);
+        cINI_utils::encodeStrForINI(value);
         ss << key << _T("=") << value << std::endl;
     }
     
@@ -268,7 +344,7 @@ bool cpccSettings::save(void)
     #else
         return saveStringToFile(mFilename.c_str(), ss.str().c_str(), false);
     #endif
-
+    */
     
 
     /*
@@ -337,39 +413,6 @@ bool cpccSettings::save(void)
     
 }
 
-
-
-bool cpccSettings::saveStringToFile(const cpcc_char *aFn, const cpcc_char *aTxt, const bool inUTF8)
-{
-    if (!aFn)
-        return false;
-
-    cpcc_ofstream _file(aFn);
-    if (!_file.good())
-    {
-        #pragma warning(suppress : 4996)
-        cpcc_cerr << _T("Error saving file ") << aFn << _T(" Error message:") << strerror(errno) << _T("\n");
-        return false;
-    }
-
-    if (inUTF8) // write the BOM of UTF-8 and set locale
-    { 
-        // _file << UTF8_BOM;
-        //_file.write(BOM_UTF8, 3);
-
-        // http://www.cplusplus.com/forum/beginner/107125/
-        std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-        _file.imbue(my_utf8_locale);
-        
-        // _file << helper_to_utf8(aTxt, cpcc_strlen(aTxt));
-    }
-    
-        
-    _file << aTxt;
-
-    _file.close();
-    return true;
-}
 
 
 

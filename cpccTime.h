@@ -290,6 +290,22 @@ public: // functions
 };
 
 
+class cpccTimeCounter_days
+{
+       
+public: // functions, data
+
+    std::time_t         mStartDate=0;
+
+    static inline std::time_t  getDaysSince1970(void) { return (std::time(nullptr) / 3600) / 24; }
+
+    inline void         reset(void) { mStartDate = getDaysSince1970(); }
+    
+    inline std::time_t  getDaysElapsed(void) { return getDaysSince1970() - mStartDate; }
+
+};
+
+
 ///////////////////////////////////////////////////////////////////
 //		class cpccInterruptableSleep
 ///////////////////////////////////////////////////////////////////

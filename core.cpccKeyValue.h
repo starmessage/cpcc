@@ -75,6 +75,7 @@ public:		// generic functions
 	// e.g. saving to a file
 	virtual void dataChanged(void) { }
 
+
 public:		// get functions
 
     virtual const cpcc_string	get(const cpcc_char *aKey, const cpcc_char *aDefaultValue)

@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccWindowMac.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -122,14 +122,18 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
     void setPixel_impl(const int x, const int y, const cpccColor &aColor)
 	{
         if (!m_windowHandle) return;
+        const bool config_lockFocus=false;
         
-        [m_windowHandle lockFocus];
+        if (config_lockFocus)
+            [m_windowHandle lockFocus];
         
         dtool.setPixel(x, y, aColor);
         //NSColor *drawColor = aColor.asNSColor();
         //[drawColor set];
         //NSRectFill(NSMakeRect(x, y, 1.0, 1.0));
-        [m_windowHandle unlockFocus];
+        
+        if (config_lockFocus)
+            [m_windowHandle unlockFocus];
 	}
     
 	
@@ -154,7 +158,8 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	void 		textOut_impl(const int x, const int y, const cpcc_char *text)
 	{
 #if (!DEBUGPARAM_DISABLE_TEXTDRAWING)
-
+        const bool useLockFocus = false;
+        
         cpccTextParams  params;
 
         params.fontName = fontName.getCurrent().c_str();
@@ -166,10 +171,13 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: NO];
 
-        [m_windowHandle lockFocus];
+        if (useLockFocus)
+            [m_windowHandle lockFocus];
         // You should only invoke this method when an NSView object has focus.
         dtool.drawText(x, y, text, params);
-        [m_windowHandle unlockFocus];
+        
+        if (useLockFocus)
+            [m_windowHandle unlockFocus];
 
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: YES];

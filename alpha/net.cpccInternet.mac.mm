@@ -96,7 +96,9 @@ bool cpccInternet::downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo
     NSData *data = [[NSData alloc] initWithContentsOfURL:url];
     
     [data writeToFile:[NSString stringWithUTF8String:saveTo] atomically:YES];
-    [data release];
+    #if !(__has_feature(objc_arc))
+        [data release];
+    #endif
     return true;
     
 	// https://stackoverflow.com/questions/26851121/using-nsurlsessiondownloadtask-to-display-an-image

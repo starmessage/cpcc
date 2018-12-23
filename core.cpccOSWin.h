@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "core.cpccOSversion.h"
 #include <windows.h>
 #include <tchar.h> 	// TCHAR is either char or wchar_t, so a typedef basic_string<TCHAR>   tstring;
 
@@ -84,42 +85,13 @@ public:
 		return 0;
 	}
 
-	/// returns the full versoion and build number, e.g. for windows 10: "10.0.15063.296"
-	static const cpcc_string getWindowsFullVersionNumber(void)
-	{
-		/*
-			TCHAR bufferSystemFolder[600];
-			int lenNeeded = GetSystemDirectory(bufferSystemFolder, sizeof(bufferSystemFolder));
-			if (lenNeeded >= sizeof(bufferSystemFolder))
-			bufferSystemFolder[0] = 0;
-
-			// there might be multiple versions of kernel32.dll in the system, so do not rely on windows to return the proper one by searching candidate folders.
-			TCHAR fullpathnameKernel32[sizeof(bufferSystemFolder) + 20];
-			sprintf_s(fullpathnameKernel32, "%s\\%s", bufferSystemFolder, "kernel32.dll");
-
-			// static std::mutex _mutex;
-			// std::lock_guard<std::mutex> autoMutex(_mutex);
-			// std::cout << "getWindowsFullVersionNumber point 4" << std::endl;
-
-			std::string result(GetFileVersion(fullpathnameKernel32));
-		*/
-
-			/* wrong results in XP PRO 64bit
-			std::string result(GetFileVersion( "kernel32.dll"));
-			std::cout << "Inside getWindowsFullVersionNumber(), OS: " << result << std::endl;
-			cached_result = result; // fails in XP Pro win64
-			*/
-
-		// std::cout << "Inside getWindowsFullVersionNumber(), cached_result: " << cached_result << std::endl;
-
-		return GetFileVersion(_T("kernel32.dll"));
-	}
 	
-
-	static const cpcc_string getWindowsShortVersionNumber(void) // returns something like: "6.1"
+	
+    /*
+	static const cpcc_string getWindowsVersionMajorMinor(void) // returns something like: "6.1"
 	{
 		cpcc_string  result = getWindowsFullVersionNumber();	// returns something like: "6.1.7601.23864"
-		// std::cout << "inside getWindowsShortVersionNumber(), point 1, result= " << result << std::endl;
+		// std::cout << "inside getWindowsVersionMajorMinor(), point 1, result= " << result << std::endl;
 
 		// remove the last two fragments
 		std::size_t found = result.rfind(_T(".")); // remove everything after the last .
@@ -130,11 +102,12 @@ public:
 		if (found != std::string::npos)
 			result.erase(found);
 
-		// std::cout << "inside getWindowsShortVersionNumber(), point 2, result= " << result << std::endl;
+		// std::cout << "inside getWindowsVersionMajorMinor(), point 2, result= " << result << std::endl;
 		return result;
 	}
+    */
 
-
+#ifdef NOT_NEEDED
 	static const cpcc_string getWindowsNameVersionAndBuild(void)
 	{
 
@@ -151,7 +124,11 @@ public:
 		// Note that a 32-bit application can detect whether it is running under WOW64 by calling the IsWow64Process function.
 		// It can obtain additional processor information by calling the GetNativeSystemInfo function.
 
-		cpcc_string result(cpccOSWin::getWindowsShortVersionNumber());
+        sOsVerComponents kernVer = cpccOSversion::getKernelVersionComponents();
+        cpcc_stringstream ssKernVer;
+        ssKernVer << kernVer.verMajor << _T(".") << kernVer.verMinor;
+
+		cpcc_string result(ssKernVer.str());
 		// std::cout << "getOSNameAndVersion() point 1, os=" << result << std::endl;
 		if (result.compare(_T("10.0")) == 0)
 			result = _T("Windows 10"); // or Windows Server 2016
@@ -224,85 +201,21 @@ public:
 		*/
 
 
-		if (is64bit())
+		if (cpccOSversion::is64bit())
 			result += _T(", 64bit");
 		else
 			result += _T(", 32bit");
 
-		result += _T(" (") + getWindowsFullVersionNumber() + _T(")");
+		result += _T(" (") + cpccOSversion::getMajorMinorPatchVersionStr() + _T(")");
 		// std::cout << "getOSNameAndVersion() point 2, os=" << result << std::endl;
 
 		return result;
 
 	}
 
-	static const cpcc_string GetFileVersion( const TCHAR* aFilePath)
-		/*
-		https://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx
-		To obtain the full version number for the operating system, call the GetFileVersionInfo function
-		on one of the system DLLs, such as Kernel32.dll, then call VerQueryValue to obtain the
-		\\StringFileInfo\\<lang><codepage>\\ProductVersion
-		subblock of the file version information.
-		*/
-	{
-		// https://stackoverflow.com/questions/13626295/how-to-use-the-getfileversioninfo-function
-		// https://stackoverflow.com/questions/940707/how-do-i-programmatically-get-the-version-of-a-dll-or-exe-file
-		// DWORD  verHandle = 0;
-		UINT   size = 0;
-		LPBYTE lpBuffer = NULL;
-		DWORD  verSize = GetFileVersionInfoSize(aFilePath, NULL);
-
-		cpcc_string result;
-		if (verSize == 0)
-			return result;
-
-		LPSTR verData = new char[verSize];
-
-		if (GetFileVersionInfo(aFilePath, NULL, verSize, verData))
-		{
-			if (VerQueryValue(verData, _T("\\"), (VOID FAR* FAR*)&lpBuffer, &size))
-			{
-				if (size)
-				{
-					VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
-					if (verInfo->dwSignature == 0xfeef04bd)
-					{
-
-						// Doesn't matter if you are on 32 bit or 64 bit,
-						// DWORD is always 32 bits, so first two revision numbers
-						// come from dwFileVersionMS, last two come from dwFileVersionLS
-						cpcc_stringstream ssresult;
-						ssresult << ((verInfo->dwFileVersionMS >> 16) & 0xffff);
-						ssresult << _T(".");
-						ssresult << ((verInfo->dwFileVersionMS) & 0xffff);
-						ssresult << _T(".");
-						ssresult << ((verInfo->dwFileVersionLS >> 16) & 0xffff);
-						ssresult << _T(".");
-						ssresult << ((verInfo->dwFileVersionLS) & 0xffff);
-						result = ssresult.str();
-					}
-				}
-			}
-		}
-		delete[] verData;
-		return result;
-	}
+#endif
 
 
-	static const bool is64bit(void)
-	{
-		// https://msdn.microsoft.com/en-us/library/windows/desktop/ms724423%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-		//  PROCESSOR_ARCHITECTURE_AMD64 -> x64 (AMD or Intel)
-
-		SYSTEM_INFO siSysInfo;
-		// To retrieve accurate information for an application running on WOW64, call the GetNativeSystemInfo function.
-		//GetSystemInfo(&siSysInfo);
-
-		// Copy the hardware information to the SYSTEM_INFO structure.
-		GetNativeSystemInfo(&siSysInfo);
-		// PROCESSOR_ARCHITECTURE_AMD64 means x64 (AMD or Intel)
-		return (siSysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64);
-	}
     
 
 };

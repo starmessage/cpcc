@@ -19,10 +19,13 @@
 
 #include <assert.h>
 #include <cstdio>
+// #include <stdio.h>  // for tempnam()
+// #include <stdlib.h> // for free()
 #include <iostream>
 #include <fstream>
 #include <errno.h>
-
+#include <locale>
+#include <codecvt>
 
 #ifdef _WIN32
 	#include	<io.h> // for _access on windows
@@ -54,6 +57,7 @@
 	#include "cpcc_SelfTest.h"
 #endif
 
+// todo: std::tmpfile() is considered better
 cpcc_string cpccFileSystemMini::getTempFilename(void)
 {
     cpcc_char name[L_tmpnam];
@@ -61,8 +65,24 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
     if (tmpnam_s(name, sizeof(name))==0)
         return name;
 #else
+    // see also tempnam()
+    // http://pubs.opengroup.org/onlinepubs/9699919799/functions/tempnam.html
+    // 'tempnam' is deprecated
+    /*
+    char * namePtr = tempnam(NULL, NULL);
+    std::string result(namePtr?namePtr:"");
+    if (namePtr)
+        free(namePtr);
+    
+    return result;
+    */
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+     // 'tmpnam' is deprecated:
     if (std::tmpnam(name))
         return name;
+    #pragma GCC diagnostic pop
+    
 #endif
     return _T("");
 }
@@ -299,7 +319,37 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 	return copyFileToaFile(sourceFile, destFileOrFolder);
 }
 
+bool cpccFileSystemMini::writeTextFile(const cpcc_char* aFilename, const cpcc_char *aTxt, const bool inUTF8)
+{
+    if (!aFilename)
+        return false;
 
+    cpcc_ofstream _file(aFilename);
+    if (!_file.good())
+    {
+#pragma warning(suppress : 4996)
+        cpcc_cerr << _T("Error saving file ") << aFilename << _T(" Error message:") << strerror(errno) << _T("\n");
+        return false;
+    }
+
+    if (inUTF8) // write the BOM of UTF-8 and set locale
+    {
+        // _file << UTF8_BOM;
+        //_file.write(BOM_UTF8, 3);
+
+        // http://www.cplusplus.com/forum/beginner/107125/
+        std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
+        _file.imbue(my_utf8_locale);
+
+        // _file << helper_to_utf8(aTxt, cpcc_strlen(aTxt));
+    }
+
+
+    _file << aTxt;
+
+    _file.close();
+    return true;
+}
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {
@@ -514,7 +564,7 @@ cpcc_string cpccFileSystemMini::getAppFilename(void)
 }
 
 
-#if !(cpccTARGET_IOS) 
+#ifndef cpccTARGET_IOS
 cpcc_string cpccFileSystemMini::getAppFullPath(void)
 {
 	return cpccPathHelper::getParentFolderOf(getAppFullPathFilename());

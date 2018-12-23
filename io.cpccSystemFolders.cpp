@@ -19,6 +19,33 @@
 // the .mm must be included as well
 #if defined(_WIN32) || defined (IMPORTED_BY_io_cpccSystemFolders_mm)
 
+
+/*
+    https://developer.apple.com/library/content/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html
+UNIX-specific directories.
+The directories in this category are inherited from traditional UNIX installations.
+They are an important part of the system’s BSD layer but are more useful to software developers than end users.
+Some of the more important directories that are hidden include:
+    /bin—Contains essential command-line binaries. Typically, you execute these binaries from command-line scripts.
+    /dev—Contains essential device files, such as mount points for attached hardware.
+    /etc—Contains host-specific configuration files.
+    /sbin—Contains essential system binaries.
+    /tmp—Contains temporary files created by apps and the system.
+    /usr—Contains non-essential command-line binaries, libraries, header files, and other data.
+    /var—Contains log files and other files whose content is variable. (Log files are typically viewed using the Console app.)
+
+
+MAC directories
+On the Mac, the correct location to store persistent user-related files for your application is in a directory
+with the same name as your application in the Application Support directory for the current user.
+/Users/person/Library/Application Support/ExampleApp/
+If you want to store user-related preferences, it is generally better to store them in the NSUserDefaults.
+The correct way to get the path to the Application Support directory is to use the
+NSSearchPathForDirectoriesInDomains function passing NSApplicationSupportDirectory for the search path
+and NSUserDomainMask for the domain.
+*/
+
+
 #include <iostream>	 // for std::cerr
 
 #include "io.cpccSystemFolders.h"
@@ -45,8 +72,8 @@
 #ifdef cpccTARGET_MACOS
         #include <Cocoa/Cocoa.h>
         #include <Carbon/Carbon.h> // for the DialogRef
-#else
-        // #include <Foundation/Foundation.h>
+#elif  defined(cpccTARGET_IOS)
+        #include <Foundation/Foundation.h> // for NSLibraryDirectory
 
 #endif
 
@@ -162,7 +189,7 @@ cpcc_string  cpccSystemFolders::getFolder_CommonAppData(void)
 	return emptyResult;
 }
 
-#if !(TARGET_OS_IPHONE)
+
 cpcc_string cpccSystemFolders::getFolder_UserData(void) 
 {
 #ifdef _WIN32
@@ -180,6 +207,9 @@ cpcc_string cpccSystemFolders::getFolder_UserData(void)
 #elif defined(__APPLE__)
     std::string ph;
     
+    // The directory returned by this method may not exist.
+    // This method simply gives you the appropriate location for the requested directory.
+    // Depending on the application’s needs, it may be up to the developer to create the appropriate directory and any in between.
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES);
     if ([paths count]>0)
     {
@@ -198,7 +228,7 @@ cpcc_string cpccSystemFolders::getFolder_UserData(void)
 	cpcc_string emptyResult;
 	return emptyResult;
 }
-#endif // not TARGET_OS_IPHONE
+
 
 
 

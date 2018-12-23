@@ -38,7 +38,7 @@
 
 #elif __APPLE__
 
-    #if cpccTARGET_IOS
+    #ifdef cpccTARGET_IOS
         #include <Foundation/Foundation.h>
         #include <UIKit/UIKit.h>
     #else 
@@ -60,52 +60,16 @@ long cpccOS::getSystemMemory_inMb(void)
 }
 
 
-cpcc_string cpccOS::getOSNameAndVersion(void)
-{
-#ifdef _WIN32
-	return cpccOSWin::getWindowsNameVersionAndBuild();
 
-#elif __APPLE__
-    std::string result = getOSNameVersionAndBuild();
-    // e.g.: Mac OS X 10.12.6 (Build 16G29)
-    // 10.6 = Snow Leopard
-    // 10.7 = Lion
-    // 10.8 = Mountain Lion
-    // 10.9 = Mavericks
-    
-    // 10.10 = Yosemite
-    // 10.11 = El Capitan
-    // 10.12 = Sierra
-    // 10.13 = High Sierra
-    // 10.14 = Mojave
-    
-    
-    
-    std::size_t found = result.rfind(" ("); // remove build number
-    if (found!=std::string::npos)
-        result.erase(found);
-    return result;
-#endif
-}
-
-
-bool cpccOS::is64bit(void)
-{
-#ifdef __APPLE__	
-	return true;
-#else
-	return cpccOSWin::is64bit();
-#endif
-
-}
-
-
+/*
 cpcc_string cpccOS::getOSNameVersionAndBuild(void)
 {
 #ifdef __APPLE__
-	NSString * operatingSystemVersionString =
+    
+    // In the documentation: "this string is not appropriate for parsing."
+	NSString * operatingSystemVersionString = //    @"Версія 10.10.5 (складення 14F2511)";
         [[NSProcessInfo processInfo] operatingSystemVersionString];
-    //    @"Версія 10.10.5 (складення 14F2511)";
+    
     // returns: Version 10.12.6 (Build 16G29)
     // under ukrainian — 'uk_UA' locale it returns:
     // Версія 10.10.5 (складення 14F2511)
@@ -124,7 +88,7 @@ cpcc_string cpccOS::getOSNameVersionAndBuild(void)
 	return cpccOSWin::getWindowsNameVersionAndBuild();
 #endif
 }
-
+*/
 
 
 cpcc_string cpccOS::getPreferredLanguage(void)
@@ -214,10 +178,10 @@ void cpccOS::getMainMonitorResolution(int &width, int &height)
 	height = GetSystemMetrics(SM_CYSCREEN);
     
 
-#elif TARGET_OS_IPHONE
+#elif defined(cpccTARGET_IOS)
     width = [UIScreen mainScreen].bounds.size.width;
     height = [UIScreen mainScreen].bounds.size.height;
-#elif TARGET_OS_MAC
+#elif defined(TARGET_OS_MAC)
     NSScreen *mainScreen = [NSScreen mainScreen];
     NSRect rect = [mainScreen frame];
     width = rect.size.width;
