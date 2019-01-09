@@ -30,6 +30,11 @@ bool cpccInternet::isConnectedToInternet(void)
 	// https://developer.apple.com/library/content/documentation/Networking/Conceptual/SystemConfigFrameworks/SC_ReachConnect/SC_ReachConnect.html
 	// linking on MacOS: needs SystemConfiguration.network
     //           on IOS: needs SystemConfiguration.framework
+
+    // see also:
+    // https://developer.apple.com/library/archive/samplecode/Reachability/Listings/Reachability_Reachability_h.html#//apple_ref/doc/uid/DTS40007324-Reachability_Reachability_h-DontLinkElementID_8
+	// https://cocoapods.org/pods/Reachability
+
 	#ifdef TARGET_OS_MAC
 
 		struct sockaddr zeroAddress;
@@ -41,13 +46,13 @@ bool cpccInternet::isConnectedToInternet(void)
 
 
 	#elif TARGET_OS_IPHONE
-
+		// todo: never compiled ?
 		struct sockaddr_in address;
 		size_t address_len = sizeof(address);
 		memset(&address, 0, address_len);
 		address.sin_len = address_len;
 		address.sin_family = AF_INET;
-
+		// todo: sockaddr_in instead of sockaddr ?
 		SCNetworkReachabilityRef reachabilityRef = SCNetworkReachabilityCreateWithAddress(NULL, (const struct sockaddr*)&address);
 
 	#endif
@@ -70,6 +75,8 @@ bool cpccInternet::isConnectedToInternet(void)
 }
 
 // e..g downloadSync("http://www.google.com/intl/en_ALL/images/srpr/logo1w.png", "c:\file.png");
+// todo: add referrer parameter
+// todo: add an async function. See example in comments below.
 bool cpccInternet::downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes)
 {
 	/* 

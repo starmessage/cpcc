@@ -57,14 +57,26 @@
 	#include "cpcc_SelfTest.h"
 #endif
 
+
 // todo: std::tmpfile() is considered better
 cpcc_string cpccFileSystemMini::getTempFilename(void)
 {
+#ifdef TARGET_OS_IPHONE // all IOS devices
+    // we must get a folder inside the application’s temporary directory
+    NSString *tempPath = NSTemporaryDirectory();
+    NSString *tempFile = [tempPath stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
+    return [tempFile UTF8String];
+    // std::string tmpFolder([NSTemporaryDirectory() UTF8String]);
+#endif
+
     cpcc_char name[L_tmpnam];
+    
 #ifdef _WIN32
     if (tmpnam_s(name, sizeof(name))==0)
         return name;
-#else
+
+#else    // UNIX and MacOS solution
+    
     // see also tempnam()
     // http://pubs.opengroup.org/onlinepubs/9699919799/functions/tempnam.html
     // 'tempnam' is deprecated
