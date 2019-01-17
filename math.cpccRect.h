@@ -36,7 +36,6 @@ class cpccRect
 {
 public:		// data
 	T	top, left, width, height;
-	// T   &x, &y;     // the same as left, top. ToDo: delete them
 
 public:		// constructors
 	cpccRect() : 

@@ -18,7 +18,7 @@
 #include <ctime>
 #include <atomic>
 #include <sstream>
-#include <math.h>       /* floor */
+#include <math.h>       /* for floor */
 
 #include <chrono> // for sleep_for
 #include <thread> // for sleep_for
@@ -331,4 +331,88 @@ public:
 			t += dt_msec;
 		}
 	}
+};
+
+
+///////////////////////////////////////////////////////////////////
+//      class cpccClockFormatted
+///////////////////////////////////////////////////////////////////
+
+
+class cpccClockFormatted
+{
+private:
+   cpcc_string  m_FmtFormat = _T("%H:%M:%S"),
+                m_renderedTimeStr;
+
+   time_t       m_lastRenderedTime=0;       // number of seconds elapsed since 00:00 hours, Jan 1, 1970 UTC
+   bool         m_in24h = true,
+                m_includeSeconds = true;
+public:
+
+    void setFmtFormat(const bool in24H, const bool includeSeconds) 
+    { 
+        m_in24h = in24H; // cache it for use in renderTime()
+        m_includeSeconds = includeSeconds;
+
+        // http://www.cplusplus.com/reference/ctime/strftime/
+        // %r   12-hour clock time *    02:55:02 pm
+        // %H   Hour in 24h format (00-23)  14
+        // %I   Hour in 12h format(01 - 12) 02
+        m_FmtFormat = in24H ? _T("%H:%M") : _T("%I:%M");
+        if (includeSeconds)
+            m_FmtFormat.append(_T(":%S"));
+
+        if (!in24H)
+            m_FmtFormat.append(_T(" %p")); // AM/PM
+
+        // so that a new time is rendered at the next call
+        m_lastRenderedTime=0;
+    }
+   
+
+    const bool timeHasChanged(void)
+    {
+        time_t t(time(0));   // get time now
+
+        if (t == m_lastRenderedTime) // save some CPU if the call is made in the same second or minute
+            return false;
+        
+        if (!m_includeSeconds && ((t % 60) == (m_lastRenderedTime % 60)))
+            return false;
+            
+        return true;
+    }
+
+
+    // sameAsPreviousCall is returned as true when the function is called too fast, and the time has not advanced
+    // to allow you save some CPU from further processing of the time
+    const cpcc_string &renderTime(void) 
+    {
+        time_t t = time(0);   // get time now
+        if (!timeHasChanged())
+            return m_renderedTimeStr;
+                
+        m_lastRenderedTime = t;
+
+        #pragma warning( disable : 4996 )
+        struct tm timeStruct = *localtime(&t);
+
+        cpcc_char buffer[100];
+
+        // More information about date/time format
+        // http://www.cplusplus.com/reference/clibrary/ctime/strftime/
+        // strftime(buffer, sizeof(buffer), fmt, &timeStruct);
+        cpcc_strftime(buffer, sizeof(buffer), m_FmtFormat.c_str(), &timeStruct);
+        m_renderedTimeStr = buffer;  // e.g. 13:44:04
+
+        // if in 12h format and starts with 0, take out the leading 0
+        if (!m_in24h) 
+            if (m_renderedTimeStr.find(_T("0")) == 0) // ksekinaei me 0
+                m_renderedTimeStr.erase(0, 1);
+
+        return m_renderedTimeStr;
+    }
+
+
 };
