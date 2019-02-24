@@ -215,7 +215,7 @@ public:
     virtual ~logBlockOfCode(void)
     {
         cpccLogFormatter::decreaseIdent();
-        infoLog().addf(_T("%s: %s"), endTag.c_str(), tag.c_str());
+        infoLog().addf(_T("%s: %s\n"), endTag.c_str(), tag.c_str());
     }
 };
 

@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsMacOnFocused.h
  *	Purpose:	Portable (cross-platform), light-weight, graphic drawing tools
@@ -54,6 +54,7 @@ public:		// functions
          Alternatively, you can lock focus on the view and then specify the pixel coordinate in the view’s coordinate system.
          */
         
+        // NSReadPixel pulls data out of the current focused graphics context,
         NSColor * pixelColor = NSReadPixel(NSMakePoint(x, y));
         
         cpccColor c;

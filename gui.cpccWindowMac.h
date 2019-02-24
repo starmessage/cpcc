@@ -145,10 +145,15 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 		// NSReadPixel() will tell you the color of the pixel nearest to the given location,
 		// in the current drawing context.
 		
-		[m_windowHandle lockFocus];
+        const bool config_lockFocus=false;
+        
+        if (config_lockFocus)
+            [m_windowHandle lockFocus];
 
         cpccColor c = dtool.getPixel(x +m_skewX, y + m_skewY);
-        [m_windowHandle unlockFocus];
+        
+        if (config_lockFocus)
+            [m_windowHandle unlockFocus];
         
 		// std::cout << "getPixel result:" << (int) c.getBrightness() << "\n";
 		return c;

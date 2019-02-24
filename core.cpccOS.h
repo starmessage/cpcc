@@ -21,25 +21,13 @@
 #include <string>
 #include "cpccUnicodeSupport.h"
 
-struct cpccMonitorInfoT
-{
-	int left, top, right, bottom;
-};
 
-
-typedef std::vector<cpccMonitorInfoT> cpccMonitorList;
 
 
 class cpccOS 
 {
 
 public:
-    
-	/*	cross platform (windows and MAC OSX) function that finds and enumerates the monitors and their coordinates
-		return value: number of monitors,
-		list parameter: details about the monitors
-	*/
-	static size_t getListOfMonitors(cpccMonitorList &list);
 
     
     static void getMainMonitorResolution(int &width, int &height);

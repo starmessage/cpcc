@@ -17,7 +17,8 @@
 #include <string>
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
-#include "core.cpccOS.h"
+// #include "core.cpccOS.h"
+#include "core.cpccHardware.h"
 #include "app.cpccAppInfo.h"
 
 
@@ -77,13 +78,13 @@ protected: // screensaver standard functions
 
 	void reportComputerMonitors(void)
 	{
-		cpccMonitorList		_monitorList;
-		unsigned long n = cpccOS::getListOfMonitors(_monitorList);
+		cpccMonitorList		list;
+		cpccHardware::getListOfMonitors(list);
 
 		// report on monitors found
-		infoLog().addf(_T("Number of monitors:%i"), n);
-		for (unsigned long i = 0; i < n; ++i)
-			infoLog().addf(_T("Monitor %i: Left %i, top %i, right %i, bottom %i"), i, _monitorList[i].left, _monitorList[i].top, _monitorList[i].right, _monitorList[i].bottom);
+		infoLog().addf(_T("Number of monitors:%i"), list.size());
+        for (const auto &monitor : list)
+            infoLog().addf(_T("Monitor: Left %i, top %i, right %i, bottom %i"),  monitor.left, monitor.top, monitor.right, monitor.bottom);
 	}
 
 

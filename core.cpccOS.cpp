@@ -150,6 +150,8 @@ static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
 }
 
 
+
+
 cpcc_string cpccOS::getMainMonitorResolutionAsText(void)
 {
 	cpcc_stringstream result;
@@ -193,34 +195,6 @@ void cpccOS::getMainMonitorResolution(int &width, int &height)
 
 #ifdef _WIN32
 
-static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
-{
-	//lprcMonitor holds the rectangle that describes the monitor position and resolution)
-	if (!lprcMonitor)
-		return false;
-
-	cpccMonitorList *listPtr = (cpccMonitorList *)dwData;
-	cpccMonitorInfoT info;
-
-	info.bottom = lprcMonitor->bottom;
-	info.top = lprcMonitor->top;
-	info.left = lprcMonitor->left;
-	info.right = lprcMonitor->right;
-	listPtr->push_back(info);
-
-	/*
-	LPMONITORINFO lpmi;	MONITORINFOEX info;
-	info.cbSize = sizeof(info);
-	if (!::GetMonitorInfo(hMonitor, (LPMONITORINFO)&info))
-	return FALSE;  // stop enumeration if error
-
-	((cpccMonitorList *)dwData).
-	monitors.Add(info);
-	return TRUE;
-	*/
-
-	return TRUE;
-}
 
 
 const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
@@ -235,61 +209,6 @@ const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
 #endif
 
 
-
-	/*	cross platform (windows and MAC OSX) function that finds and enumerates the monitors and their coordinates
-		return value: number of monitors,
-		list parameter: details about the monitors
-	*/
-size_t cpccOS::getListOfMonitors(cpccMonitorList &list)
-{
-	list.clear();
-
-#ifdef _WIN32
-	/*	Explaation of coordinates in multiple monitors under windows
-		http://www.flounder.com/virtual_screen_coordinates.htm
-
-		EnumDisplayMonitors()
-		https://msdn.microsoft.com/en-us/library/dd162610%28v=vs.85%29.aspx
-
-	*/
-	if (!EnumDisplayMonitors(NULL, NULL, util_MonitorEnumProc, (LPARAM) &list))
-		return 0;
-
-#elif defined(cpccTARGET_IOS)
-    cpccMonitorInfoT info;
-    info.left = [UIScreen mainScreen].bounds.origin.x;
-    info.top = [UIScreen mainScreen].bounds.origin.y;
-    info.right = info.left + [UIScreen mainScreen].bounds.size.width;
-    info.bottom = info.top  + [UIScreen mainScreen].bounds.size.height;
-    list.push_back(info);
-    
-#elif defined(cpccTARGET_MACOS)
-	/*	sample code:
-		CGDisplayCount nDisplays;
-		CGGetActiveDisplayList(0,0, &nDisplays);
-		log.printf("Displays connected: %d",(int)nDisplays);
-	*/
-
-	NSArray *screenArray = [NSScreen screens];
-		
-	unsigned long screenCount = [screenArray count];
-	for (unsigned int index=0; index < screenCount; index++)
-	{
-  		NSScreen *screen = [screenArray objectAtIndex: index];
-  		NSRect screenRect = [screen frame];
-  		cpccMonitorInfoT info;
-		
-        info.top	= (int) screenRect.origin.y;
-        info.bottom = (int) (screenRect.origin.y + screenRect.size.height);
-		info.left	= (int) screenRect.origin.x;
-		info.right	= (int) (screenRect.origin.x + screenRect.size.width);
-		list.push_back(info);
-	}
-
-#endif
-
-	return list.size();
-}
 
 
 

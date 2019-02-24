@@ -38,3 +38,20 @@ public:
 	}
 	
 };
+
+
+// global error collector, to replace all text written to std::out, std::err
+
+cpccErrorCollector &gblErrorCollector(void) 
+{
+	static cpccErrorCollector errPtr = NULL;
+	if (!errPtr)
+		errPtr = cpccErrorCollector();
+	
+	return *errPtr;
+}
+
+cpcc_stringstream &gblErrorDump(void) 
+{
+	return gblErrorCollector().m_errorDump;
+}

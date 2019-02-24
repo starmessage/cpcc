@@ -74,10 +74,8 @@ bool cpccInternet::isConnectedToInternet(void)
 		return result;
 }
 
-// e..g downloadSync("http://www.google.com/intl/en_ALL/images/srpr/logo1w.png", "c:\file.png");
-// todo: add referrer parameter
-// todo: add an async function. See example in comments below.
-bool cpccInternet::downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes)
+// todo: delete (duplicate)
+bool toDelete_downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes, const unsigned int timeout_sec, const cpcc_char *aUserAgent)
 {
 	/* 
 	https://developer.apple.com/documentation/foundation/url_loading_system?language=objc
@@ -144,7 +142,4 @@ bool cpccInternet::downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo
 }
 
 
-bool cpccInternet::downloadToBuffer(const cpcc_char *aUrl, const char *aBuffer, const long bufferSize, long &downloadedBytes)
-{
-    return false;
-}
+

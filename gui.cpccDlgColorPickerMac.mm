@@ -21,7 +21,7 @@
 
 @implementation colorPanelWrapper
 
-NSColorPanel *panel;
+
 
 
 - (BOOL)windowShouldClose:(NSWindow *)sender
@@ -47,17 +47,50 @@ NSColorPanel *panel;
 {
     logFunctionLife _fnShow("colorPanelWrapper: show");
     
+    /*
+     NSColorPanel is a singleton, that is loaded lazily.
+     Only one instance of NSColorPanel may be created.
+     Color panel is loaded to memory on first sharedColorPanel call.
+     If you will release this panel, application will crash next time you will
+     access it, because NSColorPanel class keeps reference to released instance.
+     Apple doesn't provide a way to clear resources after sharedColorPanel usage.
+     */
+    NSColorPanel *panel; // weak ref
     panel = [NSColorPanel sharedColorPanel];
-    [panel setDelegate:self];
     [panel setShowsAlpha:NO];
     [panel setColor: color ];
+    [panel setDelegate:self];
+    
+    // about the disabled close button under mojave:
+    
+    // override func viewDidAppear() {
+    //var button = view.window?.standardWindowButton(NSWindowButton.CloseButton)
+    //button?.enabled = true
+    //}
+    
+    // [[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
+    
+    
     //[panel setTarget:self]; // Sets the target of the receiver.
     //[panel setAction:@selector(colorUpdate:)]; // Sets the color panel's action message.
+    
+    // na dokimaso: [window makeKeyAndOrderFront:self];
+    // [[panel standardWindowButton:NSWindowCloseButton] setEnabled:YES];
+    // [[panel standardWindowButton:NSWindowCloseButton] setHidden:NO];
+    
+    // test gia na katalabo poio ta dexetai ayta ta events
+    // [[panel standardWindowButton:NSWindowZoomButton] setHidden:YES];
+    // [[panel standardWindowButton:NSWindowZoomButton] setEnabled:NO];
+    // [panel setTitle:@"test title"];
+    
+    // NSColorWell example / test
+    // https://github.com/gnustep/tests-examples/blob/master/gui/GSTest/NSColorWell-test/NSColorWell-test.m
     
     // show panel
     // [panel makeKeyAndOrderFront:self];
     // [panel orderFront: self];
     [NSApp runModalForWindow:panel]; // resets panel position
+    [panel setDelegate:nil];
     NSColor *result=panel.color;
     [panel close];
     return result;
@@ -73,8 +106,7 @@ bool showColorPicker(cpccColor &aColor)
     // http://www.ccp4.ac.uk/dist/checkout/wxPython-src-3.0.2.0/src/osx/carbon/colordlgosx.mm
     infoLog().add("showColorPicker");
     
-    colorPanelWrapper *cpw;
-    cpw = [[[colorPanelWrapper alloc] init] autorelease];
+    colorPanelWrapper *cpw = [[[colorPanelWrapper alloc] init] autorelease];
     NSColor *macColor = aColor.asNSColor();
     macColor = [cpw show:macColor];
     aColor.fromNSColor(macColor);

@@ -1,10 +1,10 @@
 ﻿/*  *****************************************
  *  File:		cpcc_SelfTest.h
- *  Version:	1.0
+ *  Version:	1.1
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
+ *  Copyright: 	2019 StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
@@ -17,6 +17,7 @@
 #pragma once
 #include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"
+#include <assert.h>
 
 /// Central switch to close all selfTests in your application
 #ifdef cpccDEBUG
@@ -26,7 +27,6 @@
 #endif
 
 
-#include "cpccUnicodeSupport.h"
 #ifdef _WIN32
 	#include <Windows.h>
 	#include <sstream>
@@ -101,7 +101,7 @@
 
 
 #define SELFTEST_END			\
-			std::cout << "\\ Ending   selftest:" << tmpSelfTestNameA << std::endl; \
+			std::cout << "\\ Ending   selftest:" << tmpSelfTestNameA << std::endl << std::endl; \
 		};						\
 	} SelftestVariableName; }
 

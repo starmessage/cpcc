@@ -17,11 +17,16 @@
 
 #include "../cpccUnicodeSupport.h"
 
+bool checkInternetConnectionIsOn_viaDefaultRoute(void);
+
 class cpccInternet
 {
 public:
 	static bool isConnectedToInternet(void);
-    static bool downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes);
-    static bool downloadToBuffer(const cpcc_char *aUrl, const char *aBuffer, const long bufferSize, long &downloadedBytes);
+    static bool wininet_downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, 
+                                long &downloadedBytes, const unsigned int timeout_sec, const cpcc_char *aUserAgent);
+    static bool wininet_downloadToBuffer(const cpcc_char *aUrl, const char *aBuffer, const long bufferSize, 
+                                long &downloadedBytes, const unsigned int timeout_sec, const cpcc_char *aUserAgent);
+
 
 };

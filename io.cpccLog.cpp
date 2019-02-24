@@ -86,9 +86,10 @@ void cpccLogFormatter::add(const cpcc_char* txt)
         std::cerr << "Error: #5613b: !(m_tag.length()>0) with text=" << txt << std::endl;
     
     m_outputBuffer.append(m_tag);
-    
+
 	for (int i = 0; i<m_IdentLevel; ++i)
 		m_outputBuffer.append(m_IdentText);
+    
 
 	m_outputBuffer.append(txt);
 	m_outputBuffer.append(_T("\n"));
