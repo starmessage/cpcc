@@ -34,7 +34,6 @@ bool checkInternetConnectionIsOn_viaDefaultRoute(void)
     check for the presence of the default route in the IP forwarding table that is maintained by windows. This can be checked by using GetIPForwardTable function found in the iphlpapi.dll library. The default route is present if one of the entries in the table has a forwarding destination of 0.0.0.0.
     */
 
-
         bool bIsInternetAvailable = false;
         // Get the required buffer size
         DWORD dwBufferSize = 0;
@@ -66,12 +65,12 @@ bool checkInternetConnectionIsOn_viaDefaultRoute(void)
 }
 
 
-bool cpccInternet::isConnectedToInternet(void)
+bool checkInternetConnectionIsOn_viaASampleUrl(void)
 {
-   	/*
-	InternetCheckConnection function
-		https://msdn.microsoft.com/en-us/library/windows/desktop/aa384346.aspx
-		https://msdn.microsoft.com/en-us/library/windows/desktop/aa370773%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
+    /*
+    InternetCheckConnection function
+        https://msdn.microsoft.com/en-us/library/windows/desktop/aa384346.aspx
+        https://msdn.microsoft.com/en-us/library/windows/desktop/aa370773%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
 
     InternetGetConnectedState (wininet.dll)
     BOOL bIsConnected = InternetGetConnectedState(&dwState, 0);
@@ -79,22 +78,28 @@ bool cpccInternet::isConnectedToInternet(void)
         Returns TRUE if there is an active modem or a LAN Internet connection, or FALSE if there is no Internet connection,
         or if all possible Internet connections are not currently active.
 
-        
 
-	*/
+
+    */
 
     // for InternetCheckConnection. WinINET, uses the IE settings for accessing the internet. Security, firewall, proxy, etc.
-    
-	// The function was never successful if I didn't specify a URL to use.
-    // Todo: It fails if behind a proxy
-	return InternetCheckConnection( _T("http://www.google.com"), FLAG_ICC_FORCE_CONNECTION, 0) !=0 ;
 
-	/* e.g. with COM objects
-	VARIANT_BOOL *pbIsConnected;
-	INetworkListManager NLM;
-	INetworkConnection::get_IsConnectedToInternet(pbIsConnected);
-	return ((*pbIsConnected)==true)
-	*/
+    // The function was never successful if I didn't specify a URL to use.
+    // Todo: It fails if behind a proxy
+    return InternetCheckConnection(_T("http://www.github.com"), FLAG_ICC_FORCE_CONNECTION, 0) != 0;
+
+    /* e.g. with COM objects
+    VARIANT_BOOL *pbIsConnected;
+    INetworkListManager NLM;
+    INetworkConnection::get_IsConnectedToInternet(pbIsConnected);
+    return ((*pbIsConnected)==true)
+    */
+}
+
+
+bool cpccInternet::isConnectedToInternet(void)
+{
+    return checkInternetConnectionIsOn_viaDefaultRoute();
 }
 
 // todo: tha to do argotera

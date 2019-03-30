@@ -86,7 +86,7 @@ namespace cpccScreenSaverFactory
 	cpccScreenSaverInterface* createScreenSaver(void);
 }
 
-// Example: in your mySsClass.cpp file, put:
+// Example: in your myScreenSaverClass.cpp file, put:
 // cpccScreenSaverInterface* createScreenSaver(void) { return new mySsClass; };
 //      OR
 // You can use the following macro to do the same job

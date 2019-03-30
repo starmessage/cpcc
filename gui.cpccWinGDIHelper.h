@@ -21,10 +21,10 @@
 
 
 //////////////////////////////////////////////
-//		cpccWinGDIObject
+//		cpccWinGDISelectedObject
 //		Windows GDI 32 drawing parameters
 //////////////////////////////////////////////
-class cpccWinGDIObject
+class cpccWinGDISelectedObject
 {
 protected:
 	HDC		m_dc;
@@ -33,13 +33,13 @@ protected:
 	bool	m_sizeNotValid;
 
 public:
-	cpccWinGDIObject(const HDC hdc, const HGDIOBJ aNewObj): m_dc(hdc), m_object(aNewObj), m_sizeNotValid(true)
+	cpccWinGDISelectedObject(const HDC hdc, const HGDIOBJ aNewObj): m_dc(hdc), m_object(aNewObj), m_sizeNotValid(true)
 	{
 		// change the drawing parameters
 		m_OldObject = SelectObject(m_dc, m_object);
 	}
 
-	~cpccWinGDIObject()
+	~cpccWinGDISelectedObject()
 	{
 		// restore the drawing parameters
 		SelectObject(m_dc, m_OldObject);
@@ -47,7 +47,7 @@ public:
 	}
 	
 	// rename to replaceSelectedObject
-	// and check why it is not equivalent to delete the old cpccWinGDIObject object and create a new
+	// and check why it is not equivalent to delete the old cpccWinGDISelectedObject object and create a new
 	void deleteCurrentAndSelectAnother(const HGDIOBJ aNewObj)
 	{
 		DeleteObject( SelectObject(m_dc, aNewObj));
@@ -62,11 +62,11 @@ public:
 //		cpccWinGDIBrush
 //		Windows GDI 32 brush construction, destruction
 //////////////////////////////////////////////
-class cpccWinGDIBrush: public cpccWinGDIObject
+class cpccWinGDIBrush: public cpccWinGDISelectedObject
 {
 
 public:
-	cpccWinGDIBrush(const HDC hdc, const COLORREF c): cpccWinGDIObject(hdc, (HGDIOBJ) CreateSolidBrush(c))
+	cpccWinGDIBrush(const HDC hdc, const COLORREF c): cpccWinGDISelectedObject(hdc, (HGDIOBJ) CreateSolidBrush(c))
 	{ }
 
 	/// convert to HBRUSH
@@ -94,11 +94,11 @@ public:
 	SelectObject(hdc, hPenOld);
 	DeleteObject(hLinePen);
 */
-class cpccWinGDIPen : public cpccWinGDIObject
+class cpccWinGDIPen : public cpccWinGDISelectedObject
 {
 
 public:
-	cpccWinGDIPen(const HDC hdc, const int width, const COLORREF c) : cpccWinGDIObject(hdc, CreatePen(PS_SOLID, width, c))
+	cpccWinGDIPen(const HDC hdc, const int width, const COLORREF c) : cpccWinGDISelectedObject(hdc, CreatePen(PS_SOLID, width, c))
 	{ }
 
 	/// convert to HBRUSH
@@ -111,7 +111,7 @@ public:
 //		cpccWinGDIBitmap
 //		Windows GDI 32 HBITMAP construction, destruction
 //////////////////////////////////////////////
-class cpccWinGDIBitmap: public cpccWinGDIObject
+class cpccWinGDIBitmap: public cpccWinGDISelectedObject
 {
 protected:
 	void	recalculateSize(void)
@@ -126,12 +126,12 @@ protected:
 public:
 	// constructor by a ready HBITMAP
 	cpccWinGDIBitmap(const HDC hdc, const HBITMAP aHBitmap): 
-			cpccWinGDIObject(hdc, (HGDIOBJ) aHBitmap)
+			cpccWinGDISelectedObject(hdc, (HGDIOBJ) aHBitmap)
 	{ }
 
 	// constructor by width and height
 	cpccWinGDIBitmap(const HDC hdc, const HDC hCompatDC, const int width, const int height): 
-			cpccWinGDIObject(hdc, (HGDIOBJ) CreateCompatibleBitmap(hCompatDC, width, height))
+			cpccWinGDISelectedObject(hdc, (HGDIOBJ) CreateCompatibleBitmap(hCompatDC, width, height))
 	{ }
 
 	/// convert to HBITMAP
@@ -162,7 +162,7 @@ public:
 class cpccWinGDIFont
 {
 private:
-	cpccWinGDIObject	*m_GDIObjectPtr;
+	cpccWinGDISelectedObject	*m_GDIObjectPtr;
 
 public:
 	// todo: remove depedencies to eFontWeight, eFontQuality
@@ -193,7 +193,7 @@ public:
 							FF_DONTCARE,
 							fontname);
 
-		m_GDIObjectPtr = new cpccWinGDIObject(ahDC, hFont);
+		m_GDIObjectPtr = new cpccWinGDISelectedObject(ahDC, hFont);
 	}
 
 
@@ -226,7 +226,6 @@ public:
 	cpccWinGDIMemoryDC(const HDC hDC, const int aWidth, const int aHeight, const bool copyContents=false): 
 			w(aWidth), h(aHeight), 
 			m_hDCmemoryBuffer(CreateCompatibleDC(hDC)),
-			//m_GDIObjectPtr(NULL),
 			m_bitmapPtr(NULL)
 	{	
 		SetBkMode(m_hDCmemoryBuffer, TRANSPARENT);

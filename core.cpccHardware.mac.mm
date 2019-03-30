@@ -12,6 +12,7 @@
  *	*****************************************
  */
 
+#include "core.cpccIdeMacros.h"
 #ifdef cpccTARGET_IOS
     #include <Foundation/Foundation.h>
     #include <UIKit/UIKit.h>
@@ -27,15 +28,11 @@
 bool cpccHardware::hasRetinaDisplay(void)
 {
 
-    /* IOS
-     
-     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && [[UIScreen mainScreen] scale] == 3.0)
-        NSLog(@"Retina HD");
-     else
-        NSLog(@"Non Retina HD");
-     
-     */
-
+#ifdef cpccTARGET_IOS
+    return ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && [[UIScreen mainScreen] scale] == 3.0);
+#endif
+    
+#ifdef cpccTARGET_MACOS
         float displayScale = 1;
         if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) 
         {
@@ -48,7 +45,8 @@ bool cpccHardware::hasRetinaDisplay(void)
         }
 
         return (displayScale>1);
-
+#endif
+    
 }
 
 
@@ -66,6 +64,7 @@ size_t cpccHardware::getListOfMonitors(cpccMonitorList &list)
     info.top = [UIScreen mainScreen].bounds.origin.y;
     info.right = info.left + [UIScreen mainScreen].bounds.size.width;
     info.bottom = info.top + [UIScreen mainScreen].bounds.size.height;
+    info.isRetina = ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] && [[UIScreen mainScreen] scale] == 3.0);
     list.push_back(info);
 
 #elif defined(cpccTARGET_MACOS)
@@ -80,19 +79,15 @@ size_t cpccHardware::getListOfMonitors(cpccMonitorList &list)
             NSRect screenRect = [aScreen frame];
             cpccMonitorInfoT info;
             
-
             info.top = (int)screenRect.origin.y;
             info.bottom = (int)(screenRect.origin.y + screenRect.size.height);
             info.left = (int)screenRect.origin.x;
             info.right = (int)(screenRect.origin.x + screenRect.size.width);
             info.isRetina = false;
             if ([aScreen respondsToSelector:@selector(backingScaleFactor)]) 
-            {
-                float s = [aScreen backingScaleFactor];
-                if (s > 1)
+                if ([aScreen backingScaleFactor] > 1)
                     info.isRetina = true;
-            }
-
+        
             list.push_back(info);
     }
 

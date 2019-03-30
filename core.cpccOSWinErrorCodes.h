@@ -34,6 +34,11 @@ public:
 		switch(anErrorCode) 
 		{
 			case 0: return  _T("No error text for error code 0");
+
+			// System Error Codes (4000-5999)
+			// https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
+			case 4317: return  _T("ERROR_INVALID_OPERATION. The operation identifier is not valid.");
+
 			//  WinINet errors
 			// https://msdn.microsoft.com/en-us/library/aa385465(v=vs.85).aspx
 			case 12002: return  _T("The request has timed out.");
@@ -48,11 +53,9 @@ public:
 			
 			// winHttpErrors
 			// https://msdn.microsoft.com/en-us/library/windows/desktop/aa383770(v=vs.85).aspx
-
-
-			// System Error Codes (4000-5999)
-			// https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
-			case 4317: return  _T("ERROR_INVALID_OPERATION. The operation identifier is not valid.");
+			case 12178: return  _T("ERROR_WINHTTP_AUTO_PROXY_SERVICE_ERROR. Returned by WinHttpGetProxyForUrl when a proxy for the specified URL cannot be located.");
+			case 12180: return  _T("ERROR_WINHTTP_AUTODETECTION_FAILED. WinHttpDetectAutoProxyConfigUrl was unable to discover the URL of the Proxy Auto-Configuration (PAC) file.");
+			
 		}
 		
 

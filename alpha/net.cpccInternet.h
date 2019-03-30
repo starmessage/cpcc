@@ -5,7 +5,7 @@
  *				wininet.h: warning C4005: 'BOOLAPI': macro redefinition
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2017 StarMessage software.
+ *  Copyright: 	StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com
@@ -18,6 +18,11 @@
 #include "../cpccUnicodeSupport.h"
 
 bool checkInternetConnectionIsOn_viaDefaultRoute(void);
+
+#ifdef _WIN32
+    bool checkInternetConnectionIsOn_viaASampleUrl(void);
+#endif
+
 
 class cpccInternet
 {

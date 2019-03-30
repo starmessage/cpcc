@@ -105,7 +105,24 @@
 		};						\
 	} SelftestVariableName; }
 
+/*
+
+#define SELFTEST_ATEXIT_BEGIN(SelfTestUniqueName)	\
+	namespace SelfTestUniqueName {			\
+	class cpccSelfTest					\
+	{										\
+	public:									\
+		~cpccSelfTest()					\
+		{	std::cout << "/ Starting selftest at exit:" << selfTest_MAKESTRING(SelfTestUniqueName) << std::endl; \
+			const char* tmpSelfTestNameA = selfTest_MAKESTRING(SelfTestUniqueName);
 
 
+
+#define SELFTEST_ATEXIT_END			\
+			std::cout << "\\ Ending   selftest at exit:" << tmpSelfTestNameA << std::endl << std::endl; \
+		};						\
+	} SelftestVariableName; }
+
+ */
 
 

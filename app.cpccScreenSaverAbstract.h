@@ -17,7 +17,6 @@
 #include <string>
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
-// #include "core.cpccOS.h"
 #include "core.cpccHardware.h"
 #include "app.cpccAppInfo.h"
 

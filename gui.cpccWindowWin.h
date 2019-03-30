@@ -47,7 +47,7 @@ protected:		// ctors.
 		m_DrawDC = m_WindowDC = GetDC(m_windowHandle);
 		SetBkMode(m_WindowDC, TRANSPARENT);
 		GetWindowRect(m_windowHandle, &m_rect);
-		infoLog().addf(_T("cpccWindowWin() with hWND:%X, rect top:%lu, left:%lu, bottom:%lu, right:%lu"), m_windowHandle, m_rect.top, m_rect.left, m_rect.bottom, m_rect.right );
+		infoLog().addf(_T("cpccWindowWin() with hWND:%X, rect top:%li, left:%li, bottom:%li, right:%li"), m_windowHandle, m_rect.top, m_rect.left, m_rect.bottom, m_rect.right );
 
 		if (config_HasDoubleBuffer)
 		{
