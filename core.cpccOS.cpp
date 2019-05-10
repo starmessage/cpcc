@@ -311,6 +311,7 @@ std::string cpccOS::getBundleID(void)
 
 cpcc_string& cpccOS::readProgramVersion(void)
 {
+    // static variable
     static cpcc_string ver(_T("Version N/A"));
     if (ver!= _T("Version N/A"))
         return ver;

@@ -73,6 +73,7 @@ private:
     
     static const tEncodingsTable& encondingsINI(void)
     {
+        // static variable
         // encode characters to fit to the INI file (e.g. multiline text)
         static const tEncodingsTable encodedINIcharacterTable =
         {

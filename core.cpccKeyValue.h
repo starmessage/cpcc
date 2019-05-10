@@ -24,7 +24,7 @@
 
 
 /** A small and portable (cross platform) C++ class 
-	providing a std:map that can store any value type (primitive data only)
+	provides a std:map that can store any value type (primitive data only)
 		
 	Dependencies: cpcc_SelfTest.h
 */
@@ -42,6 +42,39 @@ public:
     tKeysAndValues	m_map;
 	
 public:		// generic functions
+    
+    void loadFromString(const cpcc_char *aKeyValueList)
+    {
+
+        // see also:
+        // https://stackoverflow.com/questions/27006958/parsing-key-value-pairs-from-a-string-in-caz
+        clear();
+        if (!aKeyValueList)
+            return;
+            
+        cpcc_string key, val;
+        cpcc_istringstream iss(aKeyValueList);
+
+        while (std::getline(std::getline(iss, key, '=') >> std::ws, val))
+            m_map[key] = val;
+        dataChanged();
+    }
+
+    /*
+    void loadFromString2(const cpcc_char *aKeyValueList, const cpcc_char aNextPairSeparator)
+    {
+        clear();
+        if (!aKeyValueList)
+            return;
+        
+        for (const cpcc_string& tag : std::split(aKeyValueList, aRecordSeparator))
+        {
+            auto key_val = split(aKeyValueList, _T('='));
+            m_map.insert(std::make_pair(key_val[0], key_val[1]));
+        }
+        dataChanged();
+    }
+    */
 
     void        removeKey(const cpcc_char *aKey) 
     {   

@@ -165,6 +165,7 @@ void cpccSettingsAppObject::selfTest(void)
 // lazy but early enough constructor for the application's settings objects
 cpccSettings &appUserSettings(void)
 {
+    // static variable
 	static cpccSettingsAppObject m_appUserSettings(cpccSettings::scopeCurrentUser);
 	return m_appUserSettings;
 }
@@ -173,6 +174,7 @@ cpccSettings &appUserSettings(void)
 cpccSettings &appSystemSettings(void)
 {
 #ifndef OSX_SANDBOXED
+    // static variable
     static cpccSettingsAppObject m_appSystemSettings( cpccSettings::scopeAllUsers);
     return m_appSystemSettings;
 #else

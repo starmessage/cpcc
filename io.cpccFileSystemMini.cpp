@@ -368,6 +368,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 // when mutex is used, an exception "mutex lock failed: Invalid argument" occurs when the log add() function is called on program termination
 // #define USE_MUTEX_F
 #ifdef USE_MUTEX_F
+    // static variable
 	static std::mutex fileAppendMutex_;
     std::lock_guard<std::mutex> autoMutex(fileAppendMutex_);
 #endif
@@ -655,11 +656,9 @@ time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename)
 
 	// todo: _stat does not work on XP
 	cpcc_struct_stat attrib;         // create a file attribute structure
-	cpcc_stat(aFilename, &attrib);     // get the attributes of afile.txt
+	cpcc_stat(aFilename, &attrib);     // get the attributes
 	return attrib.st_mtime; 
 }
-
-
 
 
 /////////////////////////////////////////////

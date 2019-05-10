@@ -113,7 +113,7 @@ template <typename T>
 class cpccPersistentVar
 {
 private:
-	 cpccSettings &	mIniPtr;
+	 cpccSettings &	mIniRef;
 	 cpcc_string	mKey;
      const T		mDefaultValue;
 
@@ -126,25 +126,25 @@ private:
        
 public:
     explicit cpccPersistentVar(cpccSettings &aIniPtr, const cpcc_char *aKey, const T aDefaultValue):
-            mIniPtr(aIniPtr),
+            mIniRef(aIniPtr),
             mKey(aKey),
             mDefaultValue(aDefaultValue)
 	{ }
 
     // get value
-    inline const T getValue(void) const     { return mIniPtr.get(mKey.c_str(), mDefaultValue); }
-	inline  operator const T(void) const     { return mIniPtr.get(mKey.c_str(), mDefaultValue); }
-	// T read(void) const { return mIniPtr.read(mKey.c_str(), mDefaultValue); }
-	// T readAtIndex(const int index) const { return mIniPtr.read(createIndexedKey(index).c_str(), mDefaultValue); }
-	inline const T operator[](const int index) const { return mIniPtr.get(createIndexedKey(index).c_str(), mDefaultValue); }
+    inline const T getValue(void) const     { return mIniRef.get(mKey.c_str(), mDefaultValue); }
+	inline  operator const T(void) const     { return mIniRef.get(mKey.c_str(), mDefaultValue); }
+	// T read(void) const { return mIniRef.read(mKey.c_str(), mDefaultValue); }
+	// T readAtIndex(const int index) const { return mIniRef.read(createIndexedKey(index).c_str(), mDefaultValue); }
+	inline const T operator[](const int index) const { return mIniRef.get(createIndexedKey(index).c_str(), mDefaultValue); }
 
     // set value
-    inline void setValue(const T &aValue)	{ mIniPtr.set(mKey.c_str(), aValue); }
+    inline void setValue(const T &aValue)	{ mIniRef.set(mKey.c_str(), aValue); }
 
-	// void operator=(T &aValue)	const { mIniPtr.write(mKey.c_str(), aValue); } // try a non-const version
-	void operator=(const T &aValue)	const { mIniPtr.set(mKey.c_str(), aValue); }
-	//void write(const T aValue) const { mIniPtr.write(mKey.c_str(), aValue); }
-	void writeAtIndex(const int index, const T aValue) { mIniPtr.set(createIndexedKey(index).c_str(), aValue); }
+	// void operator=(T &aValue)	const { mIniRef.write(mKey.c_str(), aValue); } // try a non-const version
+	void operator=(const T &aValue)	const { mIniRef.set(mKey.c_str(), aValue); }
+	//void write(const T aValue) const { mIniRef.write(mKey.c_str(), aValue); }
+	void writeAtIndex(const int index, const T aValue) { mIniRef.set(createIndexedKey(index).c_str(), aValue); }
 };
 
 
