@@ -55,7 +55,7 @@ public:
         #elif defined(cpccTARGET_IOS)
             cpcc_string result("IOS ");
         #elif defined(cpccTARGET_WINDOWS)
-            cpcc_string result("Windows ");
+            cpcc_string result(_T("Windows "));
         #endif
         result.append(getMajorMinorPatchVersionStr());
         return result;

@@ -153,6 +153,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_fprintf		fwprintf	// _ftprintf
 	#define		cpcc_fscanf			fwscanf
 	#define		cpcc_fopen			_wfopen
+	#define		cpcc_tmpnam_s		_wtmpnam_s
 	#define		cpcc_strlen			_tcslen
 	//  stricmp, wcsicmp: These POSIX functions are deprecated. Use the ISO C++ conformant _stricmp, _wcsicmp,
 	#define		cpcc_stricmp		_wcsicmp
@@ -166,6 +167,8 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strtol			wcstol
 	#define		cpcc_strtod			wcstod
 
+	#define		cpcc_atoi			_wtoi
+	#define		cpcc_to_string		std::to_wstring
 	#define		cpcc_tolower		towlower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			_wstat
@@ -181,6 +184,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_fprintf		fprintf
 	#define		cpcc_fscanf			fscanf
 	#define		cpcc_fopen			fopen
+	#define		cpcc_tmpnam_s		tmpnam_s
 	#define		cpcc_strlen			strlen
 	#define		cpcc_stricmp		_stricmp
 	#define		cpcc_strnicmp		_strnicmp
@@ -193,6 +197,8 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_strtol			strtol
 	#define		cpcc_strtod			strtod
     
+	#define		cpcc_atoi			atoi
+	#define		cpcc_to_string		std::to_string
 	#define		cpcc_tolower		tolower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			stat

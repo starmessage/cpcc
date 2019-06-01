@@ -44,7 +44,7 @@ cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
     getListOfMonitors(list);
     for (const auto &monitor : list)
     {
-        result += separatorText + std::to_string(monitor.right - monitor.left) + _T("x") + std::to_string(monitor.bottom - monitor.top);
+        result += separatorText + cpcc_to_string(monitor.right - monitor.left) + _T("x") + cpcc_to_string(monitor.bottom - monitor.top);
         if (monitor.isRetina)
             result += _T(" HiDPI");
         

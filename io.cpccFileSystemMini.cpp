@@ -72,7 +72,7 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
     cpcc_char name[L_tmpnam];
     
 #ifdef _WIN32
-    if (tmpnam_s(name, sizeof(name))==0)
+    if (cpcc_tmpnam_s(name, sizeof(name))==0)
         return name;
 
 #else    // UNIX and MacOS solution

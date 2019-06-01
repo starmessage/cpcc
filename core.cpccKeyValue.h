@@ -18,6 +18,7 @@
 #include <map>
 #include <assert.h>
 #include <sstream>
+#include <algorithm>
 #include "core.cpccIdeMacros.h"
 #include "core.cpccStringUtil.h"
 #include "cpccUnicodeSupport.h"
@@ -43,6 +44,7 @@ public:
 	
 public:		// generic functions
     
+	// aKeyValueList is a key=value string. Pairs are separated by new lines
     void loadFromString(const cpcc_char *aKeyValueList)
     {
 
@@ -52,25 +54,54 @@ public:		// generic functions
         if (!aKeyValueList)
             return;
             
-        cpcc_string key, val;
-        cpcc_istringstream iss(aKeyValueList);
+        
+        
 
-        while (std::getline(std::getline(iss, key, '=') >> std::ws, val))
-            m_map[key] = val;
+        // this works only on non-unicode programs
+		/* 
+			cpcc_string key, val;
+			cpcc_istringstream iss(aKeyValueList);
+			while (std::getline(std::getline(iss, key, '=') >> std::ws, val))
+				m_map[key] = val;
+		*/
+
+			cpcc_string s(aKeyValueList);
+			cpcc_string::size_type key_pos = 0;
+			cpcc_string::size_type key_end;
+			cpcc_string::size_type val_pos;
+			cpcc_string::size_type val_end;
+
+			s.erase(std::remove(s.begin(), s.end(), _T('\r')), s.end());
+
+			while ((key_end = s.find(_T('='), key_pos)) != cpcc_string::npos)
+			{
+				if ((val_pos = s.find_first_not_of(_T("="), key_end)) == cpcc_string::npos)
+					break;
+
+				// todo: na balo kai to \r eite na to sbiso eksarxis
+				val_end = s.find(_T('\n'), val_pos);
+				m_map[s.substr(key_pos, key_end - key_pos)] = s.substr(val_pos, val_end - val_pos);
+
+				key_pos = val_end;
+				if (key_pos != cpcc_string::npos)
+					++key_pos;
+			}
+
         dataChanged();
     }
 
-    /*
+   /*
     void loadFromString2(const cpcc_char *aKeyValueList, const cpcc_char aNextPairSeparator)
     {
         clear();
         if (!aKeyValueList)
             return;
         
-        for (const cpcc_string& tag : std::split(aKeyValueList, aRecordSeparator))
+		const cpcc_char *recordSeparator = _T('\n');
+        for (const cpcc_string& tag : std::split(aKeyValueList, recordSeparator))
         {
-            auto key_val = split(aKeyValueList, _T('='));
-            m_map.insert(std::make_pair(key_val[0], key_val[1]));
+            auto key_val = std::split(aKeyValueList, _T('='));
+            m_map[key_val[0]] = key_val[1];
         }
         dataChanged();
     }
@@ -138,7 +169,7 @@ public:		// get functions
 public:		// set functions
 
 	// does the final set() of the pair, implementing also write caching and signaling to descendant classes
-	inline void setRaw(const cpcc_char   *aKey, const cpcc_char *aValue) 
+	inline void set_impl(const cpcc_char   *aKey, const cpcc_char *aValue) 
 	{
 		if (!aValue || !aKey) return;
 		
@@ -153,10 +184,10 @@ public:		// set functions
 	}
 	
 	template <typename T>
-	void		set(const cpcc_char   *aKey, const T aValue)              	{ setRaw(aKey, toString(aValue).c_str()) ;  }
-	void        set(const cpcc_char   *aKey, const cpcc_string &aValue)		{ setRaw(aKey, aValue.c_str());  }
+	void		set(const cpcc_char   *aKey, const T aValue)              	{ set_impl(aKey, toString(aValue).c_str()) ;  }
+	void        set(const cpcc_char   *aKey, const cpcc_string &aValue)		{ set_impl(aKey, aValue.c_str());  }
     // void        set(const cpcc_string &aKey, const cpcc_string &aDefaultValue) { m_map[aKey] = aDefaultValue; }
-    void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ setRaw(aKey, aValue);  }
+    void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ set_impl(aKey, aValue);  }
 
 
 public:	// class metadata and selftest
@@ -193,7 +224,12 @@ public:	// class metadata and selftest
         tmp_s = testSubject.get(_T("GreekTextWithLineBreaks"), _T("iiii"));
         assert((tmp_s.compare(grText) == 0) && _T("SelfTest #8622g: string write/read failed"));
 
-        
+        // test loadFromString
+		testSubject.loadFromString(_T("key1=ena\n\rkey2=dyo\nkey3=tria"));
+		assert((testSubject.get(_T("key1"), _T("null")).compare(_T("ena")) == 0) && _T("SelfTest #8622f1: loadFromString failed"));
+		assert((testSubject.get(_T("key2"), _T("null")).compare(_T("dyo")) == 0) && _T("SelfTest #8622f2: loadFromString failed"));
+		assert((testSubject.get(_T("key3"), _T("null")).compare(_T("tria")) == 0) && _T("SelfTest #8622f3: loadFromString failed"));
+
 
     #endif
 	}
