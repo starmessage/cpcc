@@ -20,6 +20,7 @@
     #include <cocoa/cocoa.h>
 #endif
 
+// you must also link the framework SystemConfiguration
 #include <SystemConfiguration/SystemConfiguration.h> // for internet connectivity check SCNetworkReachabilityRef
 
 

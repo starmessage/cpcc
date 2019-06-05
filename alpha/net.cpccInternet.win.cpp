@@ -275,7 +275,7 @@ bool cpccInternet::wininet_downloadToFile(const cpcc_char *aUrl, const cpcc_char
     */
 
     #pragma warning( suppress : 4996 )
-    FILE *fp = fopen(saveTo, "wb");
+    FILE *fp = cpcc_fopen(saveTo, _T("wb"));
     if (fp == NULL)
         return false;
     

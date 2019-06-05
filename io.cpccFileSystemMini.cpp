@@ -67,12 +67,11 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
     NSString *tempFile = [tempPath stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
     return [tempFile UTF8String];
     // std::string tmpFolder([NSTemporaryDirectory() UTF8String]);
-#endif
-
-    cpcc_char name[L_tmpnam];
     
-#ifdef _WIN32
-    if (cpcc_tmpnam_s(name, sizeof(name))==0)
+#elif _WIN32
+    
+    cpcc_char name[L_tmpnam_s];
+    if (cpcc_tmpnam_s(name, L_tmpnam_s)==0)
         return name;
 
 #else    // UNIX and MacOS solution
@@ -91,6 +90,7 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
     #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
      // 'tmpnam' is deprecated:
+    char name[L_tmpnam];
     if (std::tmpnam(name))
         return name;
     #pragma GCC diagnostic pop

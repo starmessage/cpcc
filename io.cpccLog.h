@@ -118,19 +118,6 @@ class cpccLogManager
 	
 
 private: // configuation
-	/*
-	enum {
-		config_CheckIfLogHasErrors = true,
-		config_CreateFileOnInfo = true,  // you might want to set this to false when compiling for release
-		config_CreateFileOnWarning = true,
-		config_CreateFileOnError = true,
-		#ifndef cpccDEBUG
-			config_EchoToCOUT = false
-		#else
-			config_EchoToCOUT = true
-		#endif
-		};
-	*/
 
 	const bool	config_CheckIfLogHasErrors = true,
 				config_CreateFileOnInfo = true,  // you might want to set this to false when compiling for release

@@ -90,7 +90,6 @@ void cpccLogFormatter::add(const cpcc_char* txt)
 	for (int i = 0; i<m_IdentLevel; ++i)
 		m_outputBuffer.append(m_IdentText);
     
-
 	m_outputBuffer.append(txt);
 	m_outputBuffer.append(_T("\n"));
 	
@@ -234,13 +233,13 @@ cpccLogManager::cpccLogManager(void):
         info(_T("Info>\t"),  !config_CreateFileOnInfo, config_EchoToCOUT)
 {
 #ifdef cpccDEBUG
-	std::cout << "cpccLogManager constructor" << std::endl;
+	cpcc_cout << _T("cpccLogManager constructor\n");
 #endif
     info.add(cpccLogOpeningStamp);
 #ifdef cpccDEBUG
-    info.add("Compiled in DEBUG mode");
+    info.add(_T("Compiled in DEBUG mode"));
 #else
-    info.add("Compiled in Release mode");
+    info.add(_T("Compiled in Release mode"));
 #endif
     
     info.add(_T( "Application build timestamp:" ) __DATE__ _T("  ")  __TIME__);

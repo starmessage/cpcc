@@ -23,6 +23,7 @@
  // NDEBUG if you want to be consistent with assert().
 
 // xcode: In iOS, in debug mode, the DEBUG preprocessor directive is defined
+//        In MacOS, DEBUG=1
 
 #ifdef _DEBUG
 	#define cpccDEBUG
