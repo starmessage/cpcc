@@ -73,7 +73,7 @@ public:	// class metadata and selftest
 	static void selfTest(void);
 #endif
 
-private: 	// data
+public: 	// data
     
 	bool instantSaving = true;
 
@@ -149,7 +149,3 @@ public:
 
 
 
-/*
-cpccSettings &appUserSettings(void);
-cpccSettings &appSystemSettings(void);
-*/

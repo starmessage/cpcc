@@ -12,7 +12,7 @@
  *				e.g. typedef cpccFileSystemL1<wchar_t>		cpccFS;
  *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2017 StarMessage software.
+ *  Copyright: 	StarMessage software.
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
@@ -23,11 +23,42 @@
 
 #pragma once
 
-#include <fstream>
+
 #include <string>
-#ifdef __APPLE__
-    #include <sys/stat.h>
-#endif
+#include <sys/types.h>
+#include <sys/stat.h>
+
+
+struct sFileInformation
+{
+	typedef long long	cpccType_FileSize;
+
+	cpccType_FileSize	size = 0;
+
+	// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/stat-functions?view=vs-2019
+	// you must include TYPES.H before STAT.H
+	// _stat structure:
+	// st_ctime 	Time of creation of file. Valid on NTFS but not on FAT formatted disk drives.
+	// st_mtime 	Time of last modification of file.
+	time_t				dateModified = 0;
+	bool				isFile = false;
+	bool				isFolder = false;
+	bool				itemExists = false;
+	bool				errorOccured = false;
+
+	bool	getStat(char *fn)
+	{
+		return !errorOccured;
+	}
+
+	bool	getStat(wchar_t *fn)
+	{
+		return !errorOccured;
+	}
+
+};
+
+
 
 
 // template<typename cpccType_PChar>
@@ -41,24 +72,40 @@ public:  // functions
 	template<typename aPCharType>
 	static cpccType_FileSize getFileSize(const aPCharType *aFilename)
 	{
+	//  long is 4 byte in Visual Studio, so you have to use long long to get correct file size for big files on Windows
+
+	/*
 	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
 	if (!f.good())
 		return -1L;
+	
+	// you need to seek before getting the result: myfile.seekg(0, ios::end);
+
 	return static_cast<cpccType_FileSize>(f.tellg());
-	/*
+	*/
+
+	
 	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(),
 	// on linux this is implemented as a lstat64(), and
 	// on the Macintosh it uses the Mac specific call getattrlist().
 
+		// large files:
+		// __int42 is equivalent to long long
+		// https://docs.microsoft.com/en-us/cpp/cpp/data-type-ranges?view=vs-2019
+
 	#ifdef _WIN32
-	struct _tstat stat_buf;
-	int rc = _tstat(aFilename, &stat_buf);
+		struct _stat64 stat_buf;
+		#ifdef UNICODE
+			int rc = _wstat64(aFilename, &stat_buf);
+		#else
+			int rc = _stat64(aFilename, &stat_buf);
+		#endif
 	#else
-	struct stat stat_buf;
-	int rc = stat(aFilename, &stat_buf);
+		struct stat stat_buf;
+		int rc = stat(aFilename, &stat_buf);
 	#endif
 	return (rc == 0) ? stat_buf.st_size : -1;
-	*/
+	
 	
 	}
 
