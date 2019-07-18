@@ -253,8 +253,9 @@ cpccSettings::cpccSettings(const settingsScope aScope):
 	
 cpccSettings::~cpccSettings()
 {
-	if (!save())
-		cpcc_cerr << _T("Error #1352: saving cpccSettings to file:") << mFilename << std::endl;
+	if (m_needsSaving)
+		if (!save())
+			cpcc_cerr << _T("Error #1352: saving cpccSettings to file:") << mFilename << std::endl;
 }
 
 

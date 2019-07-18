@@ -37,7 +37,9 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
+//
 //		cpccSettings
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 class cpccSettings: public cpccKeyValue
@@ -50,6 +52,7 @@ private:
     // cpccKeyValue    mSettings;
     cpcc_string 	mFilename;
 
+	
     // These functions return the name of the application, the company name and the bundleID.
     // These parameters will be used to compose the path of where to store the settings file.
     // You must define these function in your main code.
@@ -76,6 +79,7 @@ public:	// class metadata and selftest
 public: 	// data
     
 	bool instantSaving = true;
+	bool m_needsSaving = false;
 
 public: 	// ctors
     
@@ -90,19 +94,25 @@ public:		// functions
 
     virtual void dataChanged(void) override
     { 
-        if (instantSaving)
-            if (!save())
-                cpcc_cerr << _T("Error #1352p: saving cpccSettings to file:") << mFilename << std::endl;
+
+		m_needsSaving = true;
+		if (!instantSaving)
+			return;
+		
+		if (!save())
+			cpcc_cerr << _T("Error #1352p: saving cpccSettings to file:") << mFilename << std::endl;
+		else
+			m_needsSaving = false;
     }
 
-	cpcc_string getFilename(void) { return mFilename; }
+	cpcc_string getFilename(void) const { return mFilename; }
 	
 	bool		load(void);
 	bool		save(void);
 
 	void		pauseInstantSaving(void) { instantSaving = false; }
 	void		resumeInstantSaving(void);
-		  
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

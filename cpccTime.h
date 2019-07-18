@@ -144,7 +144,7 @@ public:
 		timeinfo = localtime(&a); // The returned value points to an internal object whose validity or value may be altered by any subsequent call to gmtime or localtime.
 
 		//printf("Current local time and date: %s", asctime(timeinfo));
-		struct tm result;
+		struct tm result = { 0 };
 		if (timeinfo!=NULL) 
 			result = *timeinfo;
 		return result;
@@ -297,6 +297,8 @@ public: // functions, data
 
     std::time_t         mStartDate=0;
 
+	// cpccTimeCounter_days(const std::time_t aStartDate): mStartDate(aStartDate) { }
+
     static inline std::time_t  getDaysSince1970(void) { return (std::time(nullptr) / 3600) / 24; }
 
     inline void         reset(void) { mStartDate = getDaysSince1970(); }
@@ -407,10 +409,13 @@ public:
         m_renderedTimeStr = buffer;  // e.g. 13:44:04
 
         // if in 12h format and starts with 0, take out the leading 0
-        if (!m_in24h) 
-            if (m_renderedTimeStr.find(_T("0")) == 0) // ksekinaei me 0
-                m_renderedTimeStr.erase(0, 1);
-
+		if (!m_in24h)
+		{
+			if (m_renderedTimeStr.find(_T("0")) == 0) // ksekinaei me 0
+				m_renderedTimeStr.erase(0, 1);
+			// in C++ v20, we can do
+			// if (m_renderedTimeStr.startsWith)
+		}
         return m_renderedTimeStr;
     }
 

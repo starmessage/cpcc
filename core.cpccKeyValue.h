@@ -142,21 +142,32 @@ public:		// generic functions
 
 public:		// get functions
 
-    virtual const cpcc_string	get(const cpcc_char *aKey, const cpcc_char *aDefaultValue)
+    virtual  cpcc_string	get(const cpcc_char *aKey, const cpcc_char *aDefaultValue) const
     {
         if (aKey)
+        {
+            /*
             if (keyExists(aKey))
-                return m_map[aKey];
+            {
+                cpcc_string result();
+                return m_map[aKey]; // non-const
+            }
+             */
+            auto searchIterator = m_map.find(aKey);
+            if (searchIterator != m_map.end())
+                return searchIterator->second;
+        }
+        
         return aDefaultValue ? aDefaultValue : _T("");
     }
 
 
-    const cpcc_string    get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  
+    const cpcc_string    get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  const
 	{   return get(aKey, aDefaultValue.c_str());    }
 
 
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type >
-    const T    get(const cpcc_char *aKey, const T aDefaultValue)
+    T    get(const cpcc_char *aKey, const T aDefaultValue) const
     {
         cpcc_string valueStr(get(aKey, _T("not-fOunD-there")));
         if (valueStr.compare(_T("not-fOunD-there")) == 0)

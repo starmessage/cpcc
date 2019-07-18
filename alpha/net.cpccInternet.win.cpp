@@ -104,34 +104,34 @@ bool cpccInternet::isConnectedToInternet(void)
 
 // todo: tha to do argotera
 template<typename Thandle>
-class cAutoReleasedHandle
+class cAutoReleasedHandle_vAlpha
 {
 public:
     
     Thandle m_handle;
 
-    cAutoReleasedHandle() : m_handle(0) { }
-    virtual ~cAutoReleasedHandle() { repleaseHandle(); }
+    cAutoReleasedHandle_vAlpha() : m_handle(0) { }
+    virtual ~cAutoReleasedHandle_vAlpha() {  }
 
     inline const Thandle operator =(const Thandle aHandle)  { return m_handle = aHandle; }
 
     bool isGood(void) const { return m_handle != 0; }
 
-    virtual void repleaseHandle(void) = 0;
 
 };
 
-class cAutoReleasedHINTERNET: public cAutoReleasedHandle<HINTERNET>
+class cAutoReleasedHINTERNET_vAlpha: public cAutoReleasedHandle_vAlpha<HINTERNET>
 {
 public:
 
-    virtual void repleaseHandle(void) override
+    virtual void releaseHandle(void)
     {
         if (m_handle)
             InternetCloseHandle(m_handle);
         m_handle = NULL;
     }
 
+	virtual ~cAutoReleasedHINTERNET_vAlpha(void) { releaseHandle(); }
 };
 
 
