@@ -29,7 +29,7 @@ class cpccOS
 
 public:
 
-    
+    // todo: move it to core.cpccHardware.h
     static void getMainMonitorResolution(int &width, int &height);
     static cpcc_string getMainMonitorResolutionAsText(void);
     	
@@ -41,6 +41,7 @@ public:
     static cpcc_string& readProgramVersion(void);
     
 
+    // todo: move it to core.cpccHardware.h
 	static long			getSystemMemory_inMb(void);
 
 #ifdef __APPLE__

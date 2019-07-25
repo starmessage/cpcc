@@ -92,7 +92,7 @@ public:		// functions
 
     static cpcc_string getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID);
 
-    virtual void dataChanged(void) override
+    virtual void dataHasChanged(void) override
     { 
 
 		m_needsSaving = true;

@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		cpccWindow.h
  *  Version:	see function getClassVersion()
@@ -131,7 +131,7 @@ public:		// functions
 	}
     
 	
-	cpccColor	getPixel(const int x, const int y) override
+	cpccColor	getPixel(const int x, const int y) const override
 	{
 		if (x<0 || x>= (int) getWidth()) 
 			return cpccBlack;

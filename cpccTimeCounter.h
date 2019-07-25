@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccTimeCounter.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), simple time counter in milliseconds
@@ -45,26 +45,39 @@
     https://en.cppreference.com/w/cpp/chrono
 */
 
+#if defined(__APPLE__)
+	#include <sys/time.h>
+typedef struct timeval	  cpccStructTimeval;
 
+#elif defined(_WIN32)
+
+	struct cpccStructTimeval 
+	{
+		long tv_sec;
+		long tv_usec;
+	};
+
+#endif
 
 // PimplIdiom to move the inclusion of winsock2.h into the .cpp file
-struct timeval;
+// struct timeval;
 
 class cpccTimeCounter
 {
 private:
-	struct timeval *mStartTime;
-	void		gettimeofdayCrossPlatform(struct timeval *currentTime);
+	
+    cpccStructTimeval mStartTime;
+    cpccStructTimeval gettimeofdayCrossPlatform(void) const;
 
 public: // ctor
+
 	explicit cpccTimeCounter(); 		
-	~cpccTimeCounter();
+	
 	
 public: // functions
 
-	void		resetTimer(void)	{ gettimeofdayCrossPlatform( mStartTime);  }
-	double		getSecondsElapsed(void);
-	
+	void		resetTimer(void)	{ mStartTime = gettimeofdayCrossPlatform();  }
+	double		getSecondsElapsed(void) const;
 	
 };
 

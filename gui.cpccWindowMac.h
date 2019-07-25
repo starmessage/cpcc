@@ -137,7 +137,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	}
     
 	
-    cpccColor	getPixel_impl(const int x, const int y)
+    cpccColor	getPixel_impl(const int x, const int y) const
 	{
 		if (!m_windowHandle) return cpccGreen;
 		
@@ -145,7 +145,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 		// NSReadPixel() will tell you the color of the pixel nearest to the given location,
 		// in the current drawing context.
 		
-        const bool config_lockFocus=false;
+        constexpr bool config_lockFocus=false;
         
         if (config_lockFocus)
             [m_windowHandle lockFocus];

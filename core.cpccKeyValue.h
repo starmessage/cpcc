@@ -87,7 +87,7 @@ public:		// generic functions
 					++key_pos;
 			}
 
-        dataChanged();
+        dataHasChanged();
     }
 
    /*
@@ -112,7 +112,7 @@ public:		// generic functions
         if (!aKey)
             return;
         m_map.erase(aKey);
-        dataChanged();
+        dataHasChanged();
     }
     
     
@@ -122,7 +122,7 @@ public:		// generic functions
             return;
 
         m_map.clear(); 
-        dataChanged();
+        dataHasChanged();
     }
 
 
@@ -134,10 +134,11 @@ public:		// generic functions
 		return (m_map.find(aKey) != m_map.end()); 
     }
     
+protected:
 	// called when set() functions are called. 
 	// A descendant of this class can override this function to implement further actions,
 	// e.g. saving to a file
-	virtual void dataChanged(void) { }
+	virtual void dataHasChanged(void) { }
 
 
 public:		// get functions
@@ -191,7 +192,7 @@ public:		// set functions
 				
 		// set
 		m_map[aKey] = aValue;
-		dataChanged(); // let descendant classes know that the data has changes so they need to save it somewhere
+		dataHasChanged(); // let descendant classes know that the data has changes so they need to save it somewhere
 	}
 	
 	template <typename T>

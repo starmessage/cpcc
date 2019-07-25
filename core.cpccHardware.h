@@ -26,6 +26,11 @@ struct cpccMonitorInfoT { int left, top, right, bottom; bool isRetina=false;  };
 
 typedef std::vector<cpccMonitorInfoT> cpccMonitorList;
 
+///////////////////////////////////////////
+//
+//  cpccHardware
+//
+///////////////////////////////////////////
 
 class cpccHardware
 {
@@ -33,11 +38,16 @@ public:
 
     static bool hasRetinaDisplay(void);
     static size_t getListOfMonitors(cpccMonitorList &list);
-    inline static cpcc_string getAllMonitorResolutionAsText(void);
+    static cpcc_string getAllMonitorResolutionAsText(void);
 };
 
+///////////////////////////////////////////
+//
+//  cpccHardware implementation
+//
+///////////////////////////////////////////
 
-cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
+inline cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
 {
     cpcc_string result, separatorText;
     cpccMonitorList list;
@@ -50,9 +60,7 @@ cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
         
         separatorText = _T(", ");
     }
-    // test
-    // return "800x500, retina";
-    // return "800x400";
+
     return result;
 }
 

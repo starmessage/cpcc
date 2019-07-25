@@ -102,7 +102,8 @@ bool cpccInternet::isConnectedToInternet(void)
     return checkInternetConnectionIsOn_viaDefaultRoute();
 }
 
-// todo: tha to do argotera
+// todo: idea for later
+/*
 template<typename Thandle>
 class cAutoReleasedHandle_vAlpha
 {
@@ -133,7 +134,7 @@ public:
 
 	virtual ~cAutoReleasedHINTERNET_vAlpha(void) { releaseHandle(); }
 };
-
+*/
 
 class cWininet_ConnectToServer
 {
@@ -187,7 +188,7 @@ public:
         return true;
     }
 
-
+	// todo: rule of three
     ~cWininet_ConnectToServer(void)
     {
         if (hURL)

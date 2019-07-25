@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccWindowBase.h
  *  Version:	
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -165,7 +165,7 @@ public:  // abstract functions
 
     virtual void			pushCss(cpccCSS *aCssPtr)=0;
 	virtual void			popCss(cpccCSS* aCssPtr)=0;
-    virtual cpccColor		getPixel(const int x, const int y)=0;
+    virtual cpccColor		getPixel(const int x, const int y) const =0;
     virtual void 			setPixel(int x, int y, const cpccColor &c)=0;
     virtual int				getWidth(void)	const =0;
     virtual int             getHeight(void)	const =0;

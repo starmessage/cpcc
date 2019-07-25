@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccTimeCounter.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	(see header file)
@@ -15,8 +15,10 @@
 
 #include "cpccTimeCounter.h"
 
+
+
 #if defined(__APPLE__)
-	#include <sys/time.h>
+	// #include <sys/time.h>
 #elif defined(_WIN32)
 	/*
 	If you get " 'AF_IPX' : macro redefinition"
@@ -30,9 +32,10 @@
 	#include "MyClass.h"    // Which includes <winsock2.h>
 	*/
 
-	#include <winsock2.h> //  timeval under Windows is part of winsock2.h
+	#include <winsock2.h> //  struct timeval under Windows is part of winsock2.h
 
 #endif
+
 
 #include <math.h>	// for floor()
 
@@ -62,34 +65,28 @@
 
 cpccTimeCounter::cpccTimeCounter()
 {	
-	mStartTime = new struct timeval;
 	resetTimer(); 
 }
 
 
-cpccTimeCounter::~cpccTimeCounter()
-{
-	delete mStartTime;
-
-}
-
-double cpccTimeCounter::getSecondsElapsed(void)
-{	struct timeval mEndTime;
-
-	gettimeofdayCrossPlatform(&mEndTime);
+double cpccTimeCounter::getSecondsElapsed(void) const
+{	
+	const cpccStructTimeval mEndTime = gettimeofdayCrossPlatform();
 	// return difftime( time(0), mStartTime);
 	//return mEndTime.tv_sec + mEndTime.tv_usec/1e6 - mStartTime.tv_sec - mStartTime.tv_usec/1e6;
-	return mEndTime.tv_sec + mEndTime.tv_usec / 1e6 - mStartTime->tv_sec - mStartTime->tv_usec / 1e6;
+	return mEndTime.tv_sec + mEndTime.tv_usec / 1e6 - mStartTime.tv_sec - mStartTime.tv_usec / 1e6;
 }
 
 
-void cpccTimeCounter::gettimeofdayCrossPlatform(struct timeval *currentTime)
+cpccStructTimeval cpccTimeCounter::gettimeofdayCrossPlatform(void) const
 {
-	if (!currentTime)
-		return;
+    cpccStructTimeval result;
 
+	
 #if defined(__APPLE__)
-	gettimeofday(currentTime, NULL);
+	
+	gettimeofday(&result, NULL);
+
 #elif defined(_WIN32)
 	FILETIME ft;
 	ULARGE_INTEGER ui;
@@ -106,11 +103,13 @@ void cpccTimeCounter::gettimeofdayCrossPlatform(struct timeval *currentTime)
 	// ui.QuadPart contains 100ns units
 	// To convert to the Unix epoch, add 116444736000000000LL to reach Jan 1, 1970.
 	double time_in_sec = (ui.QuadPart -116444736000000000LL)/1e7;
-	currentTime->tv_sec = (long) floor(time_in_sec);
-	currentTime->tv_usec = (long) (1e6* (time_in_sec - currentTime->tv_sec));
+	result.tv_sec = (long) floor(time_in_sec);
+	result.tv_usec = (long) (1e6* (time_in_sec - result.tv_sec));
 #else
 	#error #9523: Unsupported platform
 #endif
+
+	return result;
 }
 
 

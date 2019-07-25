@@ -139,14 +139,20 @@ public:
 
 	static struct tm getLocalTimeFromUTCtime(const time_t a)
 	{
-		struct tm * timeinfo;
-		#pragma warning(suppress : 4996)
-		timeinfo = localtime(&a); // The returned value points to an internal object whose validity or value may be altered by any subsequent call to gmtime or localtime.
-
+        #pragma warning(suppress : 4996)
+		struct tm * timeinfo = localtime(&a); // The returned value points to an internal object whose validity or value may be altered by any subsequent call to gmtime or localtime.
+        if (timeinfo)
+            return *timeinfo;
+        
 		//printf("Current local time and date: %s", asctime(timeinfo));
-		struct tm result = { 0 };
-		if (timeinfo!=NULL) 
-			result = *timeinfo;
+		#ifndef _WIN32
+				#pragma clang diagnostic push
+				#pragma clang diagnostic ignored "-Wmissing-field-initializers"
+		#endif
+        struct tm result = { 0 };
+		#ifndef _WIN32
+			#pragma clang diagnostic pop
+		#endif        
 		return result;
 	}
 

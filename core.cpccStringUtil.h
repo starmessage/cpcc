@@ -103,21 +103,22 @@ public:
 		}
 	}
 
+
 	static void stringSplit(const cpcc_string &inputStr, const cpcc_char delimiter, cpcc_stringList &outputList)
 	{
-		size_t start = 0;
-		size_t end = inputStr.find_first_of(delimiter);
+		size_t startPos = 0;
+		size_t endPos = inputStr.find_first_of(delimiter);
 		outputList.clear();
 	
-		while (end <= cpcc_string::npos)
+		while (endPos <= cpcc_string::npos)
 		{
-			outputList.push_back(inputStr.substr(start, end - start));
+			outputList.push_back(inputStr.substr(startPos, endPos - startPos));
 
-			if (end == cpcc_string::npos)
+			if (endPos == cpcc_string::npos)
 				break;
 
-			start = end + 1;
-			end = inputStr.find_first_of(delimiter, start);
+			startPos = endPos + 1;
+			endPos = inputStr.find_first_of(delimiter, startPos);
 		}
 	}
 
