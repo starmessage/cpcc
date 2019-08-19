@@ -32,7 +32,7 @@
 */
 
 #ifdef cpccDEBUG
-    // #define cpccSettings_DoSelfTest		true
+    #define cpccSettings_DoSelfTest		true
 #endif
 
 

@@ -285,7 +285,7 @@ void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *m
 		// check previous run
 		if ((checkForIncompleteLog && logfileIsIncomplete(fn.c_str()))
 			||
-			(config_CheckIfLogHasErrors && fileContainsText(fn.c_str(), _T("ERROR>\t")))
+            (config_CheckIfLogHasErrors && cpccFileSystemMini::fileContainsText(fn.c_str(), _T("ERROR>\t")))
 			)
 			copyToDesktop();
 		
@@ -337,33 +337,12 @@ cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, 
         return result;
 }
 	
-    
-bool    cpccLogManager::fileContainsText(const cpcc_char *fn, const cpcc_char *txt)
-    {
-        if (!cpccFileSystemMini::fileExists(fn))
-            return false;
-        
-        cpcc_ifstream thefile( fn);
-        if (!thefile.good())
-            return false;
-        
-        cpcc_string line;
-        while (std::getline(thefile, line ))  // same as: while (getline( myfile, line ).good())
-        {
-            if (line.find(txt) != std::string::npos)
-            {
-                thefile.close();
-                return true;
-            }
-        }
-        thefile.close();
-        return false;
-    }
+
     
     
 bool    cpccLogManager::logfileIsIncomplete(const cpcc_char *fn)
 {
-        return (fileContainsText(fn, cpccLogOpeningStamp) && !fileContainsText(fn, cpccLogClosingStamp));
+    return (cpccFileSystemMini::fileContainsText(fn, cpccLogOpeningStamp) && !cpccFileSystemMini::fileContainsText(fn, cpccLogClosingStamp));
 }
     
     

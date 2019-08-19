@@ -63,6 +63,7 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
 {
 #ifdef TARGET_OS_IPHONE // all IOS devices
     // we must get a folder inside the application’s temporary directory
+    // ToDo: NSTemporaryDirectory() can return nil
     NSString *tempPath = NSTemporaryDirectory();
     NSString *tempFile = [tempPath stringByAppendingPathComponent:[[NSProcessInfo processInfo] globallyUniqueString]];
     return [tempFile UTF8String];
@@ -109,21 +110,40 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 {
 	cpcc_string report( _T("File System Report by cpccFileSystemMini\n----------------------\n"));
 
+    
     #if !(TARGET_OS_IPHONE)
+        // std::cout << "leak:Will call getAppFullPathFilename()\n";
         report.append(_T("App full path filename:")	+ getAppFullPathFilename() + _T("\n"));
+        // std::cout << "leak:Will call getAppFullPath()\n";
+    
         report.append(_T("App path:")        + getAppFullPath() + _T("\n"));
     
     #endif
+        // std::cout << "leak:Will call getAppFilename()\n";
+    
     report.append(_T("App filename:")    + getAppFilename() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_SystemsTemp()\n";
     
 	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_UsersTemp()\n";
+    
 	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_CurrentDir()\n";
+    
     report.append(_T("Current dir:")	+ cpccSystemFolders::getFolder_CurrentDir() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_UserHome()\n";
+    
 	report.append(_T("User's home folder:")	+ getFolder_UserHome() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_Desktop()\n";
+    
 	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_Fonts()\n";
+    
 	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
+        // std::cout << "leak:Will call getFolder_CommonAppData()\n";
 	report.append(_T("AppData path:")	+ cpccSystemFolders::getFolder_CommonAppData() + _T("\n"));
     #if !(TARGET_OS_IPHONE)
+        // std::cout << "leak:Will call getFolder_UserData()\n";
         report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
     #endif
     
@@ -220,11 +240,19 @@ cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void)
          see also:
          http://www.cocoawithlove.com/2009/07/temporary-files-and-folders-in-cocoa.html
          */
-		
-    // std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/temp-cpcc"));
-    // std::string userTempFolder( fileSystemOSX_helper::expandTilde_OSX("~/Library/Caches/com.StarMessageSoftware.StarMessage"));
-        NSString *tmpDirectory = NSTemporaryDirectory();
-        std::string userTempFolder = [tmpDirectory UTF8String];
+    
+        /*
+         ToDo:
+         under macos 10.7 the NSTemporaryDirectory() gives a message in the terminal:
+         objc[277]: Object 0x103129120 of class __NSCFString autoreleased with no pool in place - just leaking - break on objc_autoreleaseNoPool() to debug
+         objc[277]: Object 0x1031186f0 of class __NSCFData autoreleased with no pool in place - just leaking - break on objc_autoreleaseNoPool() to debug
+         */
+        // std::cout << "leak:before NSTemporaryDirectory()\n";
+        NSString *tempDir = NSTemporaryDirectory();
+        // std::cout << "leak:after NSTemporaryDirectory()\n";
+        if (tempDir == nil) // NSTemporaryDirectory() can return nil
+            tempDir = @"/tmp";
+        std::string userTempFolder([tempDir UTF8String]);
     
 		if (!folderExists(userTempFolder.c_str()))
 			createFolder(userTempFolder.c_str());
@@ -245,16 +273,6 @@ cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
     // TMPDIR is what Posix recommends, I think.
 	
-	/* for OSX:
-		Don't use tmpnam() or tempnam(). They are insecure. 
-		Don't assume /tmp. 
-		Use NSTemporaryDirectory() in conjunction with mkdtemp(). 
-		NSTemporaryDirectory() will give you a better directory to use, however it can return nil. 
-		NSString * tempDir = NSTemporaryDirectory();
-		if (tempDir == nil)
-			tempDir = @"/tmp";
-	*/
-	
 	#ifdef _WIN32
 		cpcc_char buffer[MAX_PATH+1]; 
 		GetTempPath(MAX_PATH, buffer); // this is the user's temp
@@ -271,7 +289,7 @@ cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
 		#pragma unused(pointer)
     
     
-				// it returns the SYSTEM's temp
+        // it returns the SYSTEM's temp
         #pragma GCC diagnostic pop
 		assert(pointer && "#6753b: tmpnam() failed");
 		cpccPathHelper ph;

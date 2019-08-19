@@ -151,6 +151,8 @@ public: // functions
 
 	void initialize(const cpcc_char *appNameStem, const cpcc_char *macBundleId, const bool checkForIncompleteLog);
 
+    // static bool    fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
+
 	
 private:
 	// find the appropriate folder and create it if it does not exist
@@ -158,8 +160,7 @@ private:
 
 	static cpcc_string getAutoFullpathFilename(const cpcc_char *aFilename, const cpcc_char *aBundleID);
 
-	static bool    fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
-
+	
 	static bool    logfileIsIncomplete(const cpcc_char *fn);
 
 	void    copyToDesktop(void);

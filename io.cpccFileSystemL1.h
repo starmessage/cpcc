@@ -27,6 +27,15 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef __APPLE__
+    #include <unistd.h> // for rmdir()
+#endif
+
+#ifdef _WIN32
+    #include <direct.h> // for rmdir()
+#endif
+
+
 
 
 struct sFileInformation
@@ -106,9 +115,9 @@ public:  // functions
 	#endif
 	return (rc == 0) ? stat_buf.st_size : -1;
 	
-	
 	}
 
+    
 	template<typename aPCharType>
 	static bool fileExists(const aPCharType *aFilename)
 	{
@@ -147,34 +156,59 @@ public:  // functions
 
     
     template<typename aPCharType>
-    static bool folderExists(const aPCharType * aFoldername)
-    {
-        if (!aFoldername)
-            return false;
-#ifdef _WIN32
-        DWORD attrib = GetFileAttributes(aFoldername);
-        return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
-        // Other way:
-        // return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
-        
-#elif defined(__APPLE__)
-        struct stat fileinfo;
-        if (stat(aFoldername, &fileinfo) == -1)
-        {	// On success, zero is returned.
-            // On error, -1 is returned, and errno is set appropriately.
-            return false;
-        }
-        else
-            return (S_ISDIR(fileinfo.st_mode));
-        
-#else
-    #error 	Error #5414: unsupported platform for folderExists()
-#endif
-    return false;
-    }
+    inline static bool deleteFolder(const aPCharType * aFoldername);
     
+    
+    template<typename aPCharType>
+    inline static bool folderExists(const aPCharType * aFoldername);
 
 };
 
 
+///////////////////////////////
+//
+//  cpccFileSystemL1 implementation
+//
+///////////////////////////////
 
+template<typename aPCharType>
+bool cpccFileSystemL1::deleteFolder(const aPCharType * aFoldername)
+{
+    if (!aFoldername)
+        return false;
+    
+    // Windows: To recursively delete the files in a directory, use the SHFileOperation function.
+	#ifdef UNICODE // for Unicode Windows 
+		return _wrmdir(aFoldername) == 0;
+	#else
+		return rmdir(aFoldername) == 0;
+	#endif
+}
+
+
+template<typename aPCharType>
+bool cpccFileSystemL1::folderExists(const aPCharType * aFoldername)
+{
+    if (!aFoldername)
+        return false;
+#ifdef _WIN32
+    DWORD attrib = GetFileAttributes(aFoldername);
+    return (! ( attrib == 0xFFFFFFFF || !(attrib & FILE_ATTRIBUTE_DIRECTORY) ) );
+    // Other way:
+    // return (PathIsDirectory( aFilename ) == FILE_ATTRIBUTE_DIRECTORY);
+    
+#elif defined(__APPLE__)
+    struct stat fileinfo;
+    if (stat(aFoldername, &fileinfo) == -1)
+    {    // On success, zero is returned.
+        // On error, -1 is returned, and errno is set appropriately.
+        return false;
+    }
+    else
+        return (S_ISDIR(fileinfo.st_mode));
+    
+#else
+    #error     Error #5414: unsupported platform for folderExists()
+#endif
+    return false;
+}

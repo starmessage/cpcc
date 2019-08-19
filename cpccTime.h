@@ -291,7 +291,12 @@ public: // functions
 
     inline void    reset(void) { mStartTime = getTime(); }
 
-    inline time_t  getSecondsElapsed(void) { return (time_t)std::difftime(getTime(), mStartTime); }
+    inline double  getSecondsElapsed(void)
+    {
+        // Computes difference between two calendar times as std::time_t objects
+        // (time_end - time_beg) in seconds.
+        return std::difftime(getTime(), mStartTime);
+    }
 
 };
 

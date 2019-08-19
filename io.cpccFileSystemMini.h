@@ -80,6 +80,7 @@ public:
 	// static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
     static bool writeTextFile(const cpcc_char* aFilename, const cpcc_char *aTxt, const bool inUTF8);
+    inline static bool fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
 
 	#ifdef _WIN32
 	    #ifdef UNICODE
@@ -139,4 +140,33 @@ public: // functions
     
 };
 
+//////////////////////////////////////////////////////
+//
+//  cpccFileSystemMini implementation
+//
+///////////////////////////
 
+bool    cpccFileSystemMini::fileContainsText(const cpcc_char *fn, const cpcc_char *txt)
+{
+    if (!fn)
+        return false;
+    
+    if (!cpccFileSystemMini::fileExists(fn))
+        return false;
+    
+    cpcc_ifstream thefile( fn);
+    if (!thefile.good())
+        return false;
+    
+    cpcc_string line;
+    while (std::getline(thefile, line ))  // same as: while (getline( myfile, line ).good())
+    {
+        if (line.find(txt) != std::string::npos)
+        {
+            thefile.close();
+            return true;
+        }
+    }
+    thefile.close();
+    return false;
+    }

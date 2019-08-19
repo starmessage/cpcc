@@ -100,6 +100,8 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
+#include <fstream>
+#include <sstream>
 
 #ifdef	_WIN32
 	#include <tchar.h>
@@ -153,6 +155,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_fprintf		fwprintf	// _ftprintf
 	#define		cpcc_fscanf			fwscanf
 	#define		cpcc_fopen			_wfopen
+	#define		cpcc_rmdir			_wrmdir
 	#define		cpcc_tmpnam_s		_wtmpnam_s
 	#define		cpcc_strlen			_tcslen
 	//  stricmp, wcsicmp: These POSIX functions are deprecated. Use the ISO C++ conformant _stricmp, _wcsicmp,
@@ -184,6 +187,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_fprintf		fprintf
 	#define		cpcc_fscanf			fscanf
 	#define		cpcc_fopen			fopen
+	#define		cpcc_rmdir			rmdir
 	#define		cpcc_tmpnam_s		tmpnam_s
 	#define		cpcc_strlen			strlen
 	#define		cpcc_stricmp		_stricmp

@@ -44,19 +44,22 @@ public:
 	
 public:		// generic functions
     
-	// aKeyValueList is a key=value string. Pairs are separated by new lines
+    
     void loadFromString(const cpcc_char *aKeyValueList)
     {
-
+        clear();
+        dataHasChanged();
+        addFromString(aKeyValueList);
+    }
+    
+	// aKeyValueList is a key=value string. Pairs are separated by new lines
+    void addFromString(const cpcc_char *aKeyValueList)
+    {
         // see also:
         // https://stackoverflow.com/questions/27006958/parsing-key-value-pairs-from-a-string-in-caz
-        clear();
         if (!aKeyValueList)
             return;
             
-        
-        
-
         // this works only on non-unicode programs
 		/* 
 			cpcc_string key, val;

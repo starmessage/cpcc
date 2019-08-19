@@ -177,6 +177,17 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
         return;
     
     mFilename = aFilename;
+    
+    cpccPathString folder(cpccPathHelper::getParentFolderOf(aFilename));
+    
+    // make sure the folder for the INI file exists
+    if (! folder.pathExists())
+        if (!cpccFileSystemMini::createFolder(folder.c_str()))
+            cpcc_cerr << _T("#5813: During cpccSettings constructor could not create folder:") << folder << std::endl;
+    
+    assert((folder.pathExists()) && _T("#7712i: folder for INI was not created"));
+
+    
     if (!load())
         cpcc_cerr << _T("Error #1351: loading cpccSettings from file:") << mFilename << std::endl;
 }
@@ -188,18 +199,27 @@ cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc
     assert(cpccFileSystemMini::folderExists(fname.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
     
     #ifdef __APPLE__
+        /*
+         at this point, fname contains:
+         - "/users/shared" for scopeAllUsers,
+         - "~/Library/Preferences" for scopeCurrentUser
+         
+         For the scopeAllUsers, we need to create a subfolder with the bundleID
+         */
+    
         // fname("Preferences");
         if (aScope==scopeAllUsers)
             if (aBundleID)
                 if (cpcc_strlen(aBundleID)>0)
                     fname.appendPathSegment(aBundleID);
-    
     #else
         if (aCompanyName)
             if (cpcc_strlen(aCompanyName)>0)
                 fname.appendPathSegment(aCompanyName);
     #endif
     // now the fname contains the containing folder for the INI file.
+    
+    
     
     // add the appName as part of the filename
     // operator && evaluates left operand first
@@ -231,6 +251,7 @@ cpccSettings::cpccSettings(const settingsScope aScope):
 #else
     _settingsFilename.appendPathSegment(config_getCompanyName());
 #endif
+
     // make sure the folder for the INI file exists
     if (! _settingsFilename.pathExists())
         if (!cpccFileSystemMini::createFolder(_settingsFilename.c_str()))
@@ -416,8 +437,6 @@ bool cpccSettings::save(void)
 
 
 
-
-
 void cpccSettings::resumeInstantSaving(void)
 {
 	instantSaving = true;
@@ -432,20 +451,43 @@ void cpccSettings::selfTest(void)
 {
 	cpcc_cout << _T("cpccSettings::SelfTest starting\n");
 	
-	double pi = 3.14159265359;
-    float  bigFloat = 13456798.43e9f;
+	const double pi = 3.14159265359;
+    const float  bigFloat = 13456798.43e9f;
 	const cpcc_char * tmpTestString = _T("abc-καλημέρα=good\n\rmorning to all.");
+    
+    cpcc_string fnameCurrentUser( getAutoFilename(scopeCurrentUser, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    cpcc_string folderCurrentUser = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
+    
+    cpcc_string fnameAllUsers( getAutoFilename(scopeAllUsers, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    cpcc_string folderAlltUsers = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
+    
+    cpcc_cout << _T("ini file for current user:") << fnameCurrentUser << std::endl;
+    cpcc_cout << _T("ini file for all users:") << fnameAllUsers << std::endl;
+    
+    // clean up
+    if (cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()))
+        cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
+    if (cpccFileSystemMini::fileExists(fnameAllUsers.c_str()))
+        cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
+    
+    if (cpccFileSystemMini::folderExists(folderCurrentUser.c_str()))
+        cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
+    if (cpccFileSystemMini::folderExists(folderAlltUsers.c_str()))
+        cpccFileSystemMini::deleteFolder(folderAlltUsers.c_str());
+    
 	{
-		// writing 
-		cpccSettings settingsUser( scopeCurrentUser);
+		// writing
+        
+        
+		cpccSettings settingsUser( fnameCurrentUser.c_str());
 #ifndef OSX_SANDBOXED   // define this is your app is Sandboxed for the OSX apple store
-		cpccSettings settingsApp( scopeAllUsers);
+		cpccSettings settingsApp( fnameAllUsers.c_str());
 #else
         cpccSettings &settingsApp = settingsUser;
 #endif
         
 		settingsUser.set(_T("testStringKeyA"), _T("testStringValueA"));
-		assert(cpccFileSystemMini::fileExists(settingsUser.getFilename().c_str()) && _T("SelfTest #7711a: file does not exist"));
+		
 
 		settingsUser.set(_T("testStringKeyB"), _T("tmpValue"));
 		settingsUser.set(_T("testStringKeyB"), _T("B"));
@@ -464,13 +506,16 @@ void cpccSettings::selfTest(void)
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
+    assert(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
+    assert(cpccFileSystemMini::fileExists(fnameAllUsers.c_str()) && _T("SelfTest #7712b: file does not exist"));
+    
     if (true) // turn ON/OFF the reading tests
 	{
 		// separate reading
-		cpccSettings settingsUser(scopeCurrentUser);
+		cpccSettings settingsUser(fnameCurrentUser.c_str());
         
 #ifndef OSX_SANDBOXED
-		cpccSettings settingsSystem( scopeAllUsers);
+		cpccSettings settingsSystem( fnameAllUsers.c_str());
 #else
         cpccSettings &settingsSystem = settingsUser;
 #endif
@@ -511,11 +556,26 @@ void cpccSettings::selfTest(void)
 		assert((tmp.compare(tmpTestString) == 0) && _T("SelfTest #7711w: readString error"));
 		}
 		
+    // clean up
+    cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
+    cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
+    
+    cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
+    cpccFileSystemMini::deleteFolder(folderAlltUsers.c_str());
+    
 	cpcc_cout << _T("cpccSettings::SelfTest ended\n");
 
 }
 #endif
 
+
+#if defined(cpccSettings_DoSelfTest)
+    SELFTEST_BEGIN(cpccSettings_SelfTest)
+        cpccKeyValue::selfTest();
+        cpccSettings::selfTest();
+
+    SELFTEST_END
+#endif
 
 // lazy but early enough constructor for the application's settings objects
 /*
@@ -537,13 +597,7 @@ cpccSettings &appSystemSettings(void)
 }
 
 
-#if defined(cpccSettings_DoSelfTest)
-	SELFTEST_BEGIN(cpccSettings_SelfTest)
-        cpccKeyValue::selfTest();
-        cpccSettings::selfTest();
-		
-	SELFTEST_END
-#endif
+
 */
 
 
