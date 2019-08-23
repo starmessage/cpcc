@@ -126,7 +126,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	}
 
 
-	cpccColor	getPixel_impl(const int x, const int y)						{ return m_dtool.getPixel(x,y); }
+	cpccColor	getPixel_impl(const int x, const int y)	const					{ return m_dtool.getPixel(x,y); }
 	void		setPixel_impl(const int x, const int y, const cpccColor &c) { m_dtool.setPixel(x,y,c); }
 		
 	void 		textOut_impl(const int x, const int y, const cpcc_char *txt) 
