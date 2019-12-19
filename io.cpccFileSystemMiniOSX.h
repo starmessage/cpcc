@@ -28,24 +28,17 @@
         #include <libproc.h>
         #include <Cocoa/Cocoa.h>
     #endif
-
 #endif
 
-
 #include "cpccUnicodeSupport.h"
+#include "fs.cpccSystemFolders.h"
 
 class fileSystemOSX_helper
 {
     
 public:
 
-static const cpcc_string getUserFolder_OSX(void)
-{
-    struct passwd* pwd = getpwuid(getuid());
-    if (pwd)
-        return std::string(pwd->pw_dir);
-    return  std::string("~");
-}
+
 
 static const bool createFolder(const cpcc_char *aFilename, const mode_t permissions)
 {
@@ -101,7 +94,7 @@ static const std::string  expandTilde_OSX(const char *aPath)
     std::string result(aPath);
     if (result.length()>0)
         if (result.at(0)=='~')
-            result.replace(0,1, getUserFolder_OSX());
+            result.replace(0,1, cpccSystemFolders::getUserHomeDir());
     return result;
 }
 

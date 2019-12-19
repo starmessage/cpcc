@@ -188,7 +188,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	#define		cpcc_fscanf			fscanf
 	#define		cpcc_fopen			fopen
 	#define		cpcc_rmdir			rmdir
-	#define		cpcc_tmpnam_s		tmpnam_s
+	#define		cpcc_tmpnam_s		tmpnam_s        // todo: never use tmpnam
 	#define		cpcc_strlen			strlen
 	#define		cpcc_stricmp		_stricmp
 	#define		cpcc_strnicmp		_strnicmp

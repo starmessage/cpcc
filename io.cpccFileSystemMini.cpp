@@ -49,10 +49,12 @@
     #endif
 #endif
 
-#include "core.cpccIdeMacros.h"
+
+
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
-#include "io.cpccSystemFolders.h"
+#include "fs.cpccSystemFolders.h"
+#include "fs.cpccUserFolders.h"
 #if defined(cpccFileSystemMini_DoSelfTest)
 	#include "cpcc_SelfTest.h"
 #endif
@@ -70,7 +72,7 @@ cpcc_string cpccFileSystemMini::getTempFilename(void)
     // std::string tmpFolder([NSTemporaryDirectory() UTF8String]);
     
 #elif _WIN32
-    
+    // todo: never use tmpnam
     cpcc_char name[L_tmpnam_s];
     if (cpcc_tmpnam_s(name, L_tmpnam_s)==0)
         return name;
@@ -124,27 +126,28 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
     report.append(_T("App filename:")    + getAppFilename() + _T("\n"));
         // std::cout << "leak:Will call getFolder_SystemsTemp()\n";
     
-	report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
+	// report.append(_T("System's Temp folder:")	+ getFolder_SystemsTemp() + _T("\n"));
         // std::cout << "leak:Will call getFolder_UsersTemp()\n";
     
-	report.append(_T("User's Temp folder:")	+ getFolder_UsersTemp() + _T("\n"));
+	report.append(_T("User's Temp folder:")	+ cpccUserFolders::getUsersTempDir() + _T("\n"));
         // std::cout << "leak:Will call getFolder_CurrentDir()\n";
     
-    report.append(_T("Current dir:")	+ cpccSystemFolders::getFolder_CurrentDir() + _T("\n"));
+    report.append(_T("Current dir:")	+ cpccUserFolders::getCurrentDir() + _T("\n"));
         // std::cout << "leak:Will call getFolder_UserHome()\n";
     
-	report.append(_T("User's home folder:")	+ getFolder_UserHome() + _T("\n"));
+	report.append(_T("User's home folder:")	+ cpccUserFolders::getUserHomeDir() + _T("\n"));
         // std::cout << "leak:Will call getFolder_Desktop()\n";
     
-	report.append(_T("Desktop folder:") + getFolder_Desktop() + _T("\n"));
+	report.append(_T("Desktop folder:") + cpccUserFolders::getDesktop() + _T("\n"));
         // std::cout << "leak:Will call getFolder_Fonts()\n";
     
-	report.append(_T("Fonts folder:")   + getFolder_Fonts() + _T("\n"));
+	report.append(_T("Fonts folder:")   + cpccSystemFolders::getFontsDir() + _T("\n"));
         // std::cout << "leak:Will call getFolder_CommonAppData()\n";
-	report.append(_T("AppData path:")	+ cpccSystemFolders::getFolder_CommonAppData() + _T("\n"));
+	report.append(_T("AppData path:")	+ cpccSystemFolders::getCommonAppData() + _T("\n"));
+
     #if !(TARGET_OS_IPHONE)
         // std::cout << "leak:Will call getFolder_UserData()\n";
-        report.append(_T("UserData path:")	+ cpccSystemFolders::getFolder_UserData() + _T("\n"));
+        report.append(_T("UserData path:")	+ cpccUserFolders::getUserData() + _T("\n"));
     #endif
     
 	report.append(_T("End of file system report\n----------------------\n"));
@@ -152,132 +155,26 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 }
 
 
-#ifdef _WIN32
-cpcc_string cpccFileSystemMini::getFolder_Windows(void) 
-{
-	cpcc_char buffer[300+1];
-	UINT rc = GetWindowsDirectory(buffer, 300);
-	if (rc == 0 || rc > 300) 
-		return _T("c:\\error-no3852-getting-windows-dir");
-	return cpcc_string(buffer) + _T("\\");
-}
-#endif
-
-
-cpcc_string cpccFileSystemMini::getFolder_UserHome(void) 
-{
-#ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
-	
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
-	// e.g. C:\ProgramData
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, 0, szPath))) 
-	{
-		cpcc_string result(szPath);
-		cpccPathHelper::addTrailingPathDelimiter(result);
-		return result;
-	}
-	std::cerr << "Error #6531 in getFolder_UserHome\n";
-	
-#elif defined(__APPLE__)
-    return fileSystemOSX_helper::getUserFolder_OSX();
-	
-#else
-	assert(false && "Error #5735: unsupported platform for getFolder_UserHome()");	
-#endif	
-	return cpcc_string( _T("") );
-}
 
 
 
-cpcc_string cpccFileSystemMini::getFolder_UsersCache(void)
-{
-#ifdef _WIN32	
-	// is there a cache folder in windows? Until then, return the user's temp
-	return  getFolder_UsersTemp();
-
-#elif defined(__APPLE__)
-	std::string ph;
-    
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    /*
-     The directory returned by this method may not exist. 
-     This method simply gives you the appropriate location for the requested directory. 
-     Depending on the application’s needs, it may be up to the developer to create the 
-     appropriate directory and any in between.
-     */
-    if ([paths count]>0)
-        ph = [[paths objectAtIndex:0] UTF8String];
-    
-	return ph;
-
-#else
-	assert(false && "Error #6753y: unsupported platform for getFolder_UsersCache()");
-
-#endif
-	return  cpcc_string(_T(""));
-}
 
 
-cpcc_string cpccFileSystemMini::getFolder_UsersTemp(void) 
-{
-	// getenv("TEMP"); // does not work on mac
-	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
-    // TMPDIR is what Posix recommends, I think.
-	
-	#ifdef _WIN32	
-		cpcc_char buffer[MAX_PATH+1]; 
-		GetTempPath(MAX_PATH, buffer);	// this is the user's temp
-		assert(buffer && _T("#6753a: GetTempPath() failed"));
-		return  cpcc_string(buffer);
-	
-	#elif defined(__APPLE__)
-        /*
-         Objective-C:
-         NSString * NSTemporaryDirectory ( void );
-         Returns the path of the temporary directory for the current user.
-         
-         see also:
-         http://www.cocoawithlove.com/2009/07/temporary-files-and-folders-in-cocoa.html
-         */
-    
-        /*
-         ToDo:
-         under macos 10.7 the NSTemporaryDirectory() gives a message in the terminal:
-         objc[277]: Object 0x103129120 of class __NSCFString autoreleased with no pool in place - just leaking - break on objc_autoreleaseNoPool() to debug
-         objc[277]: Object 0x1031186f0 of class __NSCFData autoreleased with no pool in place - just leaking - break on objc_autoreleaseNoPool() to debug
-         */
-        // std::cout << "leak:before NSTemporaryDirectory()\n";
-        NSString *tempDir = NSTemporaryDirectory();
-        // std::cout << "leak:after NSTemporaryDirectory()\n";
-        if (tempDir == nil) // NSTemporaryDirectory() can return nil
-            tempDir = @"/tmp";
-        std::string userTempFolder([tempDir UTF8String]);
-    
-		if (!folderExists(userTempFolder.c_str()))
-			createFolder(userTempFolder.c_str());
-		
-		return userTempFolder;
-	
-	#else
-		assert(false && "Error #6753c: unsupported platform for getFolder_UsersTemp()");	
-		
-	#endif
-	return  cpcc_string( _T("") );
-}
-
-
+/* 
 cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) 
 {
 	// getenv("TEMP"); // does not work on mac
 	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
     // TMPDIR is what Posix recommends, I think.
 	
+    // see mkstemp()mkstemp() which gives you both a name and a file descriptor 
+    // tmpnam says: "Never use this function. Use mkstemp or tmpfile"
+    // std::filesystem::temp_directory_path (C++17):  fs::temp_directory_path()
+
 	#ifdef _WIN32
-		cpcc_char buffer[MAX_PATH+1]; 
+		TCHAR buffer[MAX_PATH+1]; 
 		GetTempPath(MAX_PATH, buffer); // this is the user's temp
-		assert(buffer && _T("#6753a: GetTempPath() failed"));
-		return  cpcc_string(buffer);
+		return buffer;
 	
 	#elif defined(__APPLE__)
 		char buffer[L_tmpnam +1];
@@ -295,36 +192,13 @@ cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
 		cpccPathHelper ph;
 		return ph.getParentFolderOf(std::string(buffer));
 	
-	#else
-		assert(false && "Error #6753c: unsupported platform for getFolder_SystemsTemp()");	
-		
+
 	#endif
-	return  cpcc_string( _T("") );
+
 }
 
+*/
 
-cpcc_string cpccFileSystemMini::getFolder_Fonts(void) 
-{
-#ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
-	
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_FONTS, NULL, 0, szPath))) 
-		{
-		cpcc_string result(szPath);
-		cpccPathHelper::addTrailingPathDelimiter(result);
-		return result;
-		}
-	cpcc_cerr << _T("Error #4824 in cpccFileSystemMini::getFolder_Fonts\n");
-	
-#elif defined(__APPLE__)
-	return  std::string("/library/fonts/");
-	
-#else
-	assert(false && "Error #5735: unsupported platform for getFolder_Fonts()");	
-#endif	
-	return cpcc_string( _T("") );
-}
 
 
 
@@ -646,24 +520,6 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 
 
 
-cpcc_string cpccFileSystemMini::getFolder_Desktop(void) 
-{
-#ifdef _WIN32
-	TCHAR szPath[MAX_PATH];
-	
-	// http://msdn.microsoft.com/en-us/library/windows/desktop/bb762181%28v=vs.85%29.aspx
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL, 0, szPath))) 
-		return cpcc_string(szPath);
-	std::cerr << "Error #5414 in cpccFileSystemMini::getFolder_Desktop\n";
-		
-#elif defined(__APPLE__)
-	return  fileSystemOSX_helper::expandTilde_OSX(_T("~/Desktop"));
-	
-#else
-	assert(false && "Error #5493: unsupported platform for getFolder_Desktop()");	
-#endif	
-	return cpcc_string(_T(""));
-}
 
 
 time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename) 
@@ -707,7 +563,7 @@ void cpccFileSystemMini::selfTest(void)
 	//std::cout << "cpccFileSystemMini::SelfTest point1\n";
 
 	// temp path is empty string
-	cpcc_string tmpFolder = getFolder_UsersTemp();
+	cpcc_string tmpFolder = cpccUserFolders::getUsersTempDir();
 	assert(tmpFolder.length()>1 && "#5356a: cpccFileSystemMini::selfTest");
 	
 	//std::cout << "cpccFileSystemMini::SelfTest point2\n";

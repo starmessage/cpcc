@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		cpccSettings.cpcc
+ *  File:		cpccSettingsAppObject.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
  *				to save/load application settings from an INI-like file
@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <cmath>
 
+#include "cpccUnicodeSupport.h"
 #include "app.cpccAppInfo.h"
 #include "io.cpccSettingsAppObject.h"
 #include "io.cpccFileSystemMini.h"
@@ -87,7 +88,7 @@ void cpccSettingsAppObject::selfTest(void)
 #ifndef OSX_SANDBOXED   // define this is your app is Sandboxed for the OSX apple store
 		cpccSettingsAppObject settingsApp( scopeAllUsers);
 #else
-        cpccSettings &settingsApp = settingsUser;
+        cpccSettingsAppObject &settingsApp = settingsUser;
 #endif
         
 		settingsUser.set(_T("testStringKeyA"), _T("testStringValueA"));
@@ -116,7 +117,7 @@ void cpccSettingsAppObject::selfTest(void)
 		cpccSettingsAppObject settingsUser(scopeCurrentUser);
         
 #ifndef OSX_SANDBOXED
-		cpccSettings settingsSystem( scopeAllUsers);
+		cpccSettingsAppObject settingsSystem( scopeAllUsers);
 #else
         cpccSettings &settingsSystem = settingsUser;
 #endif

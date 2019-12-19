@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccScreenSaverInterface.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, library
@@ -49,8 +49,6 @@ class cpccScreenSaverInterface
 {
 public:	// data
 
-	int		m_framesPerSec = 25;
-
 public: // screensaver interface functions: calls that the operating system dispatches to the screensaver
     
     virtual ~cpccScreenSaverInterface() { }
@@ -81,16 +79,28 @@ public: // screensaver interface functions: calls that the operating system disp
 
 // Assuming the your custom class for the screensaver is 'mySsClass', 
 // the following function 'createScreenSaver()' must be implemeted in your source code 
+/* 
+class cpccScreenSaverFactory
+{
+public:
+	static cpccScreenSaverInterface* createScreenSaver(void);
+}
+*/
+
 namespace cpccScreenSaverFactory
 {
 	cpccScreenSaverInterface* createScreenSaver(void);
 }
 
+
 // Example: in your myScreenSaverClass.cpp file, put:
 // cpccScreenSaverInterface* createScreenSaver(void) { return new mySsClass; };
 //      OR
 // You can use the following macro to do the same job
+
+// #define DECLARE_SCREENSAVER_CLASS(T) cpccScreenSaverInterface* cpccScreenSaverFactory::createScreenSaver(void) { return new T; }
 #define DECLARE_SCREENSAVER_CLASS(T) namespace cpccScreenSaverFactory { cpccScreenSaverInterface* createScreenSaver(void) { return new T; }; }
+
 // Example:
 // DECLARE_SCREENSAVER_CLASS(mySsClass)
 

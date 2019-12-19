@@ -39,7 +39,15 @@ class stringUtils
 {
 
 public:
+    static inline void selfTest(void);
     
+    static inline void stringTrimL(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
+    static inline void stringTrimR(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
+    static inline void stringTrim(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
+    
+	static inline void removeFromStringToTheEnd(cpcc_string& str, const cpcc_char* aChar);
+
+
     template<typename aPCharType>
     static bool stringEndsWith(const std::basic_string<aPCharType> &aStr, const aPCharType *aSuffix)
     {
@@ -55,36 +63,34 @@ public:
         return std::equal(aSuffix.rbegin(), aSuffix.rend(), aStr.rbegin());
     }
     
+    
 	static bool stringStartsWith(const cpcc_char *aStr, const cpcc_char *aPrefix)
 	{
-#ifdef _WIN32
+    #ifdef _WIN32
 		#pragma warning( suppress : 4996 )
 		return (cpcc_strnicmp(aStr, aPrefix, cpcc_strlen(aPrefix)) == 0);
-#else
+    #else
         // Unix libraries use strcasecmp, from <strings.h>.
         return (strncasecmp(aStr, aPrefix, strlen(aPrefix)) == 0);
-#endif
+    #endif
 	}
 
-	// todo: to delete. Na do an xreiazetai gia to mac #define stricmp strcasecmp
+    
+	// todo: to delete. Check if needed for the mac #define stricmp strcasecmp
 	static bool stringsAreEqual(const cpcc_char *aStr1, const cpcc_char *aStr2)
 	{
-#ifdef _WIN32
+    #ifdef _WIN32
         #pragma warning( suppress : 4996 )
         return (cpcc_stricmp(aStr1, aStr2) == 0);
-#else
+    #else
         // Unix libraries use strcasecmp, from <strings.h>.
         return (strcasecmp(aStr1, aStr2) == 0);
-#endif
+    #endif
 	}
 
 
-	static void removeFromCharacterToTheEnd(cpcc_string &str, const cpcc_char *aChar)
-	{
-		if (!aChar)
-			return;
-		str.substr(0, str.find(aChar, 0));
-	}
+	
+    
 
 	// a pity the whole std library does not contain a ready function for this tasl
 	static void findAndReplaceAll(cpcc_string& source, const cpcc_char* find, const cpcc_char* replace)
@@ -125,6 +131,109 @@ public:
 };
 
 
+
+/// --------------------------------------
+/// Implementation of stringUtils
+/// --------------------------------------
+
+
+inline void stringUtils::selfTest(void)
+{
+    // logObjectLife logThis("stringUtils::selfTest()");
+    cpcc_string s(_T(" hello  "));
+    
+    stringTrimL(s);
+    assert((s.compare(_T("hello  ")) == 0) && "#2381a: stringTrimL");
+    
+    stringTrimR(s);
+    assert((s.compare(_T("hello")) == 0) && "#2381b: stringTrimR");
+ 
+    s = _T("   ");
+    
+    stringTrim(s);
+    assert((s.compare(_T("")) == 0) && "#2381c: stringTrim");
+    
+    stringTrim(s);
+    assert((s.compare(_T("")) == 0) && "#2381d: stringTrim");
+
+	s = _T("word1.word2   ");
+	removeFromStringToTheEnd(s, _T("."));
+	assert((s.compare(_T("word1")) == 0) && "#2381e: removeFromStringToTheEnd");
+
+	removeFromStringToTheEnd(s, _T("2"));
+	assert((s.compare(_T("word1")) == 0) && "#2381f: removeFromStringToTheEnd");
+
+	removeFromStringToTheEnd(s, _T("ord1"));
+	assert((s.compare(_T("w")) == 0) && "#2381h: removeFromStringToTheEnd");
+
+	s = _T("w");
+	removeFromStringToTheEnd(s, _T(""));
+	assert((s.compare(_T("w")) == 0) && "#2381g: removeFromStringToTheEnd");
+
+	s = _T("");
+	removeFromStringToTheEnd(s, _T("xxx"));
+	assert((s.compare(_T("")) == 0) && "#2381k: removeFromStringToTheEnd");
+
+}
+
+
+// trim from start (in place)
+inline void stringUtils::stringTrimL(cpcc_string &s, const cpcc_string &charsToRemove)
+{
+    // 1st Way
+    // s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+    //    std::not1(std::ptr_fun<int, int>(std::isspace))));
+    
+    // 2nd way
+    // s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch) { return !std::isspace(ch); } ));
+    
+    // 3rd way
+    s.erase(0, s.find_first_not_of(charsToRemove));
+}
+
+
+// trim from end (in place)
+inline void stringUtils::stringTrimR(cpcc_string &s, const cpcc_string &charsToRemove)
+{
+    // 1st Way
+    //s.erase(std::find_if(s.rbegin(), s.rend(),
+    //    std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    
+    // 2nd way
+    //  s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch);} ).base(), s.end());
+    
+    // 3rd way
+    s.erase(s.find_last_not_of(charsToRemove) + 1);
+}
+
+
+// trim from both ends (in place)
+inline void stringUtils::stringTrim(cpcc_string &s, const cpcc_string &charsToRemove)
+{
+    stringTrimL(s, charsToRemove);
+    stringTrimR(s, charsToRemove);
+}
+
+
+inline void stringUtils::removeFromStringToTheEnd(cpcc_string& str, const cpcc_char* aSubString)
+{
+	if (!aSubString)
+		return;
+
+	if (cpcc_strlen(aSubString) == 0)
+		return;
+
+	size_t pos = str.find(aSubString);
+	if (pos == std::string::npos)
+		return;
+
+	str.erase(pos);
+}
+
+
+// --------------------------------------
+//  class strConvertionsV3
+// --------------------------------------
 
 class strConvertionsV3
 {

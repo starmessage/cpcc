@@ -150,6 +150,7 @@
     // instance variables
     cpccScreenSaverInterface *ssPtr,
                              *ssConfigurePtr;
+    bool                    m_isPreview;
     
 }
 
@@ -229,7 +230,8 @@
 
 - (void)util_createAndInitScreensaverWithWindowHandle
 {
-    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    logFunctionLife   m_objLife( "util_createAndInitScreensaverWithWindowHandle" );
+    
 	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
 	
     ssPtr = cpccScreenSaverFactory::createScreenSaver();
@@ -247,10 +249,10 @@
     // find the actual path of the screensaver
     NSString* pBundlePath = [saverBundle bundlePath];
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
-    ssPtr->m_framesPerSec = config_FramesPerSec;
-	NSView * windowHandle = self;
+    
+    NSView * windowHandle = self;
     assert(windowHandle && "Error 2354b: could not get native window handle");
-    int monitorID = [self isPreview]? -1 : 0;
+    int monitorID = (m_isPreview)? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
     
 }
@@ -271,6 +273,10 @@
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
+    // Under MacOS Catalina, isPreview is always TRUE. Therefore we ignore it.
+    m_isPreview = (frame.size.width <= 400) && (frame.size.height <= 300);
+    
+    
     // see displayRectIgnoringOpacity
     // at
     // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
@@ -288,10 +294,9 @@
     //  https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSProcessInfo_Class/#//apple_ref/doc/uid/20000316-SW3
     [[NSProcessInfo processInfo] disableSuddenTermination];
     
-    self = [super initWithFrame:frame isPreview:isPreview];
+    self = [super initWithFrame:frame isPreview:m_isPreview];
     assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
     
-		
     /*
     NSRect windowframe = frame;
     
@@ -334,11 +339,8 @@
     // cpccOS::sleep(3000);
     //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
     
-    // 05-01-2016: moved into startAnimation()
-    // [self util_createAndInitScreensaverWithWindowHandle];
     [self util_createAndInitScreensaverWithWindowHandle];
 
-    
     return self;
 }
 
@@ -349,7 +351,7 @@
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
 	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
-    if (!ssPtr) // if it was deleted from a previous stopAnimation
+    if (!ssPtr) // if it was deleted from a previous stopAnimation, then re-create the screensaver
         [self util_createAndInitScreensaverWithWindowHandle];
 
     

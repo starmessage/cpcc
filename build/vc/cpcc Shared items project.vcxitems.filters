@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.win.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccKeyValue-selfTest.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOS.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.Win.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\cpcc_SelfTest.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\cpccTimeCounter.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet.win.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet-tests.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccStringUtil-selfTest.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaveLibWin_OsInterface.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettingsAppObject.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccKeyValue.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOS.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSWin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccStringUtil.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpcc_SelfTest.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTimeCounter.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccUnicodeSupport.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\alpha\cpccTesting.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccApp.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccAppInfo.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccAppWin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettingsAppObject.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccSystemFolders.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaverAbstract.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaverInterface.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
+  </ItemGroup>
+</Project>

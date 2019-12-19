@@ -181,7 +181,12 @@ bool cpccFileSystemL1::deleteFolder(const aPCharType * aFoldername)
 	#ifdef UNICODE // for Unicode Windows 
 		return _wrmdir(aFoldername) == 0;
 	#else
-		return rmdir(aFoldername) == 0;
+        #ifdef _WIN32
+            // 'rmdir': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _rmdir.
+            return _rmdir(aFoldername) == 0;
+        #else
+            return rmdir(aFoldername) == 0;
+        #endif
 	#endif
 }
 

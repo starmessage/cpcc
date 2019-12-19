@@ -134,7 +134,10 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			if (screensaverPtr)
 			{
 				static bool		screensaverWindowInitialised = false;
-				screensaverPtr->m_framesPerSec = FramesPerSec;
+
+				// 2019-10-28: deleted as it was not needed by anyone
+				// screensaverPtr->m_framesPerSec = FramesPerSec;
+
 				if (!screensaverWindowInitialised)
 				{
 					int	monitorID = 0;

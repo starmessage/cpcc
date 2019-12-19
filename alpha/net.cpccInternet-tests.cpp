@@ -21,7 +21,7 @@ SELFTEST_BEGIN(cpccInternet_SelfTest)
 
 
 {
-    logFunctionLife tmplog("cpccInternet_SelfTest");
+    logFunctionLife tmplog(_T("cpccInternet_SelfTest"));
 
     std::cout << "Is Connected to the internet? " << (cpccInternet::isConnectedToInternet() ? "Yes" : "No") << std::endl;
     /*

@@ -46,16 +46,6 @@ SELFTEST_BEGIN(cpccFixedPointNumber_SelfTest)
 SELFTEST_END
 */
 
-#include "core.cpccStringUtil.h"
-SELFTEST_BEGIN(cpccStringUtil_SelfTest)
-{
-    logFunctionLife tmplog("cpccStringUtil_SelfTest");
-	time_t aTime = time(NULL);
-	cpcc_string str(strConvertionsV3::toString(aTime));
-	time_t bTime = strConvertionsV3::fromString(str.c_str(), (time_t)1000);
-	assert((aTime == bTime) && "#9687: stringConversions problem with time_t");
-}
-SELFTEST_END
 
 
 

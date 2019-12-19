@@ -27,7 +27,8 @@
 #include "io.cpccSettings.h"
 #include "io.cpccFileSystemMini.h"
 #include "io.cpccPathHelper.h"
-#include "io.cpccSystemFolders.h"
+#include "fs.cpccSystemFolders.h"   // todo: remove the system (and user folders) The INI class does not have somemthing to do with them.
+#include "fs.cpccUserFolders.h" 
 #if defined(cpccSettings_DoSelfTest)
 	#include "cpcc_SelfTest.h"
 #endif
@@ -195,7 +196,7 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
 
 cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID)
 {
-    cpccPathString fname(aScope==scopeAllUsers ? cpccSystemFolders::getFolder_CommonAppData() : cpccSystemFolders::getFolder_UserData());
+    cpccPathString fname(aScope==scopeAllUsers ? cpccSystemFolders::getCommonAppData() : cpccUserFolders::getUserData());
     assert(cpccFileSystemMini::folderExists(fname.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
     
     #ifdef __APPLE__
@@ -229,7 +230,7 @@ cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc
         fname.appendPathSegment(_T("no AppName cpccSettings error no.7511"));
     
     fname.append(_T(".ini"));
-    return fname;
+    return std::move(fname);
 }
 
 /*
@@ -506,8 +507,14 @@ void cpccSettings::selfTest(void)
 		tmpPersistentInt.writeAtIndex(3, 678);
 	}
 
-    assert(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
-    assert(cpccFileSystemMini::fileExists(fnameAllUsers.c_str()) && _T("SelfTest #7712b: file does not exist"));
+    //assert(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
+    
+    assert(cpccFileSystemMini::fileExists( fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
+    
+    #ifndef OSX_SANDBOXED
+        // the following fails under Catalina
+        assert(cpccFileSystemMini::fileExists( fnameAllUsers.c_str()) && _T("SelfTest #7712b: file does not exist"));
+    #endif
     
     if (true) // turn ON/OFF the reading tests
 	{

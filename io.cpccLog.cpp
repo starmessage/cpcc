@@ -25,6 +25,7 @@
 #include "core.cpccIdeMacros.h"
 #include "core.cpccTryAndCatch.h"
 #include "io.cpccLogFileWriterWithBuffer.h"
+#include "fs.cpccUserFolders.h"
 
 #define cpccLogOpeningStamp		_T("cpccLog starting")
 #define cpccLogClosingStamp		_T("cpccLog closing. Bye bye...")
@@ -204,7 +205,7 @@ This function is used to create the timestamp field of the logRecord
 cpcc_string cpccLogFormatter::getCurrentTime(const cpcc_char * fmt)
 {
 	time_t t = time(0);   // get time now
-#pragma warning( disable : 4996 )
+	#pragma warning( disable : 4996 )
 	struct tm timeStruct = *localtime(&t);
 
 	cpcc_char buffer[100];
@@ -309,7 +310,7 @@ void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *m
 
 cpcc_string cpccLogManager::getFolderForTheLogFile(const cpcc_char *aBundleID)
 {
-	cpccPathString result(cpccFileSystemMini::getFolder_UsersCache());
+	cpccPathString result(cpccUserFolders::getUsersCacheDir());
 	if (aBundleID)
 		if (cpcc_strlen( aBundleID)>1)
 			result.appendPathSegment(aBundleID);
@@ -321,7 +322,7 @@ cpcc_string cpccLogManager::getFolderForTheLogFile(const cpcc_char *aBundleID)
 		if (!folderCreated)
 			cpcc_cerr << _T("#8672: getFolderForTheLogFile() could not create folder:") << result << _T("\n");
 	}
-	return result;
+	return std::move(result);
 }
 
 
@@ -334,11 +335,10 @@ cpcc_string cpccLogManager::getAutoFullpathFilename(const cpcc_char *aFilename, 
 			result.appendPathSegment(cpccFileSystemMini::getAppFilename().c_str());
 
         result.append(_T(".cpccLog.txt"));
-        return result;
+        return std::move(result);
 }
 	
 
-    
     
 bool    cpccLogManager::logfileIsIncomplete(const cpcc_char *fn)
 {
@@ -352,7 +352,7 @@ void    cpccLogManager::copyToDesktop(void)
     if (!cpccFileSystemMini::fileExists(fn))
         return;
 
-    cpccFileSystemMini::copyFile(fn, cpccFileSystemMini::getFolder_Desktop().c_str());
+    cpccFileSystemMini::copyFile(fn, cpccUserFolders::getDesktop().c_str());
 }
     
 

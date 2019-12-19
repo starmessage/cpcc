@@ -53,16 +53,10 @@ public:
 	static bool createFolder(const cpcc_char *  aFoldername);
 	static bool	createFolder(const cpcc_string& aFoldername) { return createFolder(aFoldername.c_str()); }
 	
-	static cpcc_string getFolder_Desktop(void);
-	static cpcc_string getFolder_SystemsTemp(void);
-	static cpcc_string getFolder_UsersTemp(void);
-	static cpcc_string getFolder_UsersCache(void);
-	static cpcc_string getFolder_Fonts(void);
+	// todo: move them to fs.cpccSystemFolders
+	// static cpcc_string getFolder_SystemsTemp(void);
 	
-	static cpcc_string getFolder_UserHome(void);
-#ifdef _WIN32
-	static cpcc_string getFolder_Windows(void);
-#endif
+
 
     // file functions --------------------------------
 

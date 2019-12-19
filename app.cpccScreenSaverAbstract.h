@@ -25,12 +25,13 @@ class cpccScreenSaverAbstract: public cpccScreenSaverInterface
 {
 private:
     logObjectLife       objLog;
-	
+	cpcc_string			m_containerFolder;
+
 protected:	// data
 	
 	cpccWindowBase*		DesktopWindowPtr;
 	// bool				m_PreserveDeskopContents;
-    cpcc_string			m_containerFolder;
+    
 	
 protected: // constructor/destructor
 
@@ -70,9 +71,23 @@ protected: // screensaver standard functions
     
     virtual void setContainerFolder(const cpcc_char *aFolder) override
     {
-        m_containerFolder = aFolder;
-        infoLog().addf("screensaver's container folder:%s", aFolder);
+		if (!aFolder)
+		{
+			m_containerFolder = _T("");
+			errorLog().add("screensaver's container folder:NULL");
+			return;
+		}
+			
+		m_containerFolder = aFolder;
+		infoLog().addf("screensaver's container folder:%s", aFolder);
     }
+
+
+	const cpcc_char* getContainerFolder(void) const
+	{
+		return m_containerFolder.c_str();
+	}
+
     
 
 	void reportComputerMonitors(void)
@@ -95,7 +110,7 @@ protected: // screensaver standard functions
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
 		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
-		infoLog().addf(_T("Screensaver container folder:%s"), m_containerFolder.c_str());
+		infoLog().addf(_T("Screensaver container folder:%s"), getContainerFolder());
 	}
 
     virtual void shutDown(void) override   {  }
