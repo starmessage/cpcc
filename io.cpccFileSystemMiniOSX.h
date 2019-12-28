@@ -31,7 +31,7 @@
 #endif
 
 #include "cpccUnicodeSupport.h"
-#include "fs.cpccSystemFolders.h"
+#include "fs.cpccUserFolders.h"
 
 class fileSystemOSX_helper
 {
@@ -94,7 +94,7 @@ static const std::string  expandTilde_OSX(const char *aPath)
     std::string result(aPath);
     if (result.length()>0)
         if (result.at(0)=='~')
-            result.replace(0,1, cpccSystemFolders::getUserHomeDir());
+            result.replace(0,1, cpccUserFolders::getUserHomeDir());
     return result;
 }
 
