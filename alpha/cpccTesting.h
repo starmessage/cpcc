@@ -46,6 +46,8 @@
         #define ENABLE_cpccTESTING    0
 	#elif _WIN32
 		#define ENABLE_cpccTESTING    0
+    #else
+        #define ENABLE_cpccTESTING    1
     #endif
 #endif
 
@@ -84,7 +86,7 @@
         class cpccSelfTest          			    \
         {										    \
         public:									    \
-            inline static void runTest(std::basic_ostream<TCHAR> &aStream);     \
+            static void runTest(std::basic_ostream<TCHAR> &aStream);     \
             cpccSelfTest()						                                \
             {   const char* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);     \
                 aSTREAM.get() << "/ Starting test:" << tmpNameA << std::endl;   \
@@ -94,7 +96,7 @@
         } TestingVariableName;                      \
     }                                               \
                                                     \
-    void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
+    inline void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
 
 
 namespace cpccTesting
@@ -102,9 +104,9 @@ namespace cpccTesting
     
     
     
-    /////////////////////////////////////
+    // ///////////////////////////////////
     // class util util
-    /////////////////////////////////////
+    // ///////////////////////////////////
     
 	class util
 	{
@@ -114,9 +116,9 @@ namespace cpccTesting
 
     
     
-    /////////////////////////////////////
+    // ///////////////////////////////////
     // class util implementation
-    /////////////////////////////////////
+    // ///////////////////////////////////
     
     inline std::basic_string<TCHAR> util::getTimeStamp(void)
     {
@@ -193,14 +195,16 @@ namespace cpccTesting
         ~cOutputStreamDesktopFile()
         {
             get() << _T("Closing the file.") << std::endl;
+            if (m_stream.good())
+                m_stream.close();
         }
     };
     
     
     
-    /////////////////////////////////////
+    // ///////////////////////////////////
     // class singleton
-    /////////////////////////////////////
+    // ///////////////////////////////////
     
     class singleton
     {

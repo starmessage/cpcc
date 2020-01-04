@@ -14,6 +14,18 @@
 #include "fs.cpccUserFolders.h"
 #include <Foundation/Foundation.h>
 
+/*  user's home directory, even on sandboxed applications
+ 
+    #include <sys/types.h>
+    #include <pwd.h>
+
+    const char *home = getpwuid(getuid())->pw_dir;
+    NSString *path = [[NSFileManager defaultManager]
+                      stringWithFileSystemRepresentation:home
+                      length:strlen(home)];
+    NSString *realHomeDirectory = [[NSURL fileURLWithPath:path isDirectory:YES] path];
+ */
+
 
 std::string cpccUserFolders::getUsersTempDir(std::string* err)
 {
@@ -62,9 +74,12 @@ std::string cpccUserFolders::getUsersCacheDir(std::string* err)
 
 
 std::string cpccUserFolders::getDesktop(std::string *err)
-{
+{   // 1.
     // There's no guarantee that the user's desktop is at $HOME/Desktop
     // The proper way to get it is via NSSearchPathForDirectoriesInDomains
+    // 2.
+    // For sandboxed applications this folder is returned
+    // ~/Library/Container/com.yourcompany.yourappname/data/desktop
     NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES );
     if ([paths count]>0)
         return [[paths objectAtIndex:0] UTF8String];
