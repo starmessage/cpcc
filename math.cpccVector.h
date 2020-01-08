@@ -20,7 +20,9 @@
 #include <math.h>
 #include <assert.h>
 #include <iostream>
+
 #include "math.cpccRandom.h"
+#include "cpccTesting.h"
 
  
 // This class-template has 2 arguments <T,Number>.
@@ -281,55 +283,70 @@ public: // Public functions
 
 	static void selfTest(void)
 	{
-		cpccVector<int,3> a3d;
-				
-		if (!a3d.isZero())
-			assert(false && "#4231a: cpccVector::selfTest isZero");
-			
-		a3d.data[0] = 10;
-		if (a3d.isZero())
-			assert(false && "#4231b: cpccVector::selfTest isZero");
-			
-		a3d.data[1] = 15;
 		
-		cpccVector<int,3> b3d( 20,30,0 );
-		if (a3d == b3d)
-			assert(false && "#4231c: cpccVector::selfTest equal");
-
-		a3d *=2;	
-		if (a3d != b3d)
-			assert(false && "#4231d: cpccVector::selfTest not equal");
-			
-		cpccVector<int,3> c3d(a3d);
-		if (a3d != c3d)
-			assert(false && "#4231e: cpccVector::selfTest not equal");
-			
-		c3d.data[2] = 4;
-		if (a3d == c3d)
-			assert(false && "#4231f: cpccVector::selfTest equal");
-			
-		a3d.x()=3; a3d.y()=4; a3d.z()=0; 
-		assert(a3d.getMagnitude() == 5 && "#4231g: cpccVector::selfTest magnitude problem");
-
-		a3d.x()=4; a3d.y()=4; a3d.z()=2; 
-		assert(a3d.getMagnitude() == 6 && "#4231f: cpccVector::selfTest magnitude problem");
-
-		b3d = a3d;
-		assert(a3d.distanceFrom(b3d) == 0 && "#4231h: cpccVector::selfTest distanceFrom() problem");
-
-		c3d = cpccVector<int,3>(5,6,7);
-		b3d -= c3d;
-		assert(a3d.distanceSquaredFrom(b3d) == 110 && "#4231j: cpccVector::selfTest distanceSquaredFrom() problem");
-
-		c3d = cpccVector<int,3>(9,6,3);
-		a3d = c3d/3.0f;
-		assert(a3d.x() == 3 && a3d.y() == 2 && a3d.z() == 1   && "#4231k: cpccVector::selfTest division problem");
 
 	}
  
  };		// end of class cpccVector
 
 
+ // /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccKeyValue testing
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+TEST_RUN(cpccVector_test, cpccTesting::singleton::getOutput())
+{
+    const bool skipThisTest = false;
+
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+
+    // cpccVector<int, 3>::selfTest();
+    cpccVector<int, 3> a3d;
+
+    TEST_EXPECT(a3d.isZero(), _T("#4231a: cpccVector::selfTest isZero"));
+
+    a3d.x() = 10;
+
+    TEST_EXPECT(!a3d.isZero(), _T("#4231b: cpccVector::selfTest isZero"));
+
+    a3d.y() = 15;
+
+    cpccVector<int, 3> b3d(20, 30, 0);
+    TEST_EXPECT(a3d != b3d, _T("#4231c: cpccVector::selfTest equal"));
+
+    a3d *= 2;
+    TEST_EXPECT(a3d == b3d, _T("#4231d: cpccVector::selfTest not equal"));
+
+    cpccVector<int, 3> c3d(a3d);
+    TEST_EXPECT(a3d == c3d, _T("#4231e: cpccVector::selfTest not equal"));
+
+    c3d.z() = 4;
+    TEST_EXPECT(a3d != c3d, _T("#4231f: cpccVector::selfTest equal"));
+
+    a3d.x() = 3; a3d.y() = 4; a3d.z() = 0;
+    TEST_EXPECT(a3d.getMagnitude() == 5, _T("#4231g: cpccVector::selfTest magnitude problem"));
+
+    a3d.x() = 4; a3d.y() = 4; a3d.z() = 2;
+    TEST_EXPECT(a3d.getMagnitude() == 6, _T("#4231f: cpccVector::selfTest magnitude problem"));
+
+    b3d = a3d;
+    TEST_EXPECT(a3d.distanceFrom(b3d) == 0, _T("#4231h: cpccVector::selfTest distanceFrom() problem"));
+
+    c3d = cpccVector<int, 3>(5, 6, 7);
+    b3d -= c3d;
+    TEST_EXPECT(a3d.distanceSquaredFrom(b3d) == 110, _T("#4231j: cpccVector::selfTest distanceSquaredFrom() problem"));
+
+    c3d = cpccVector<int, 3>(9, 6, 3);
+    a3d = c3d / 3.0f;
+    TEST_EXPECT((a3d.x() == 3 && a3d.y() == 2 && a3d.z() == 1), _T("#4231k: cpccVector::selfTest division problem"));
+
+}
 
 

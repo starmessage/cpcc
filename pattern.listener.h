@@ -1,5 +1,5 @@
 ﻿ /*  *****************************************
- *  File:		cpccListenerPattern.h
+ *  File:		pattern.listener.h
  *  Version:	see function getClassVersion()
  *	Purpose:	a template Listener pattern
  *	*****************************************
@@ -27,8 +27,6 @@
 template<typename Tobject> 
 class cpccListener
 {
-public:	// class metadata
-	static const cpcc_char * getClassVersion(void) { return _T("1.01"); };
 	
 private:
 	int _nSubscriptions;

@@ -18,7 +18,7 @@
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
 #include "core.cpccHardware.h"
-#include "app.cpccAppInfo.h"
+
 
 
 class cpccScreenSaverAbstract: public cpccScreenSaverInterface
@@ -40,7 +40,7 @@ protected: // constructor/destructor
 			// m_PreserveDeskopContents(false),  // opaque by default
             objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
-        infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
+        // infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
 		reportComputerMonitors();
 	}
 

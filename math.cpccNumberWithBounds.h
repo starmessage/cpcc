@@ -17,13 +17,13 @@
 #define cpccNumberWithBounds_h
 #define NOMINMAX
 
-#define cpccNumberWithBounds_DoSelfTest
+
 
 #include <algorithm>
 #include <iostream>
-#include <assert.h>
 
-#include "core.cpccIdeMacros.h"
+#include "cpccTesting.h"
+
 
 /*
 	The current C++ standard does not allow float (i.e. real number) or 
@@ -75,49 +75,56 @@ class cpccNumberWithBounds
 		const T operator()(void) 		{ return m_value; }
 		inline operator T(void) const   { return m_value; } // convert to T
 
-
-	#if defined(cpccNumberWithBounds_DoSelfTest)
-		static void  selfTest(void)
-		{
-        #ifdef cpccDEBUG
-			
-			cpccNumberWithBounds<float, 0, 1, 1>		f;
-			f = 2.0f;
-			// std::cout << "f:" << f();
-			
-			assert( (f == 1.0f) && "#9621a1: cpccNumberWithBounds");
-    
-			f = 1.33f;
-			assert( (f() == 1.0f) && "#9621a2: cpccNumberWithBounds");
-			assert( (f == 1.0f) && "#9621a3: cpccNumberWithBounds");
-    
-			float tmpFloat = 1.01f;
-			f = tmpFloat;
-			assert( (f() == 1.0f) && "#9621a4: cpccNumberWithBounds");
-    
-    
-			f = 0.5f;
-			assert( f == 0.5f && "#9621b: cpccNumberWithBounds");
-			f -= 1.0f;
-			assert( f == 0.0f && "#9621c: cpccNumberWithBounds");
-			
-			f=0.1f;
-			f*=2.0f;
-
-			float newf = f();
-			assert( newf == 0.2f && "#9621d: cpccNumberWithBounds");
-
-        #endif 
-            
-		}
-	#endif
 		
 };
-
 
 typedef cpccNumberWithBounds<float, 0, 1, 1>			cpccFloat0_1;
 typedef cpccNumberWithBounds<unsigned char, 0, 255, 1>	cpccByte0_255;
 
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccNumberWithBounds testing
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+TEST_RUN(cpccNumberWithBounds_test, cpccTesting::singleton::getOutput())
+{
+    const bool skipThisTest = false;
+
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+
+    cpccNumberWithBounds<float, 0, 1, 1>		f;
+    f = 2.0f;
+    // std::cout << "f:" << f();
+
+    TEST_EXPECT((f == 1.0f) , "#9621a1: cpccNumberWithBounds");
+
+    f = 1.33f;
+    TEST_EXPECT((f() == 1.0f) , "#9621a2: cpccNumberWithBounds");
+    TEST_EXPECT((f == 1.0f) , "#9621a3: cpccNumberWithBounds");
+
+    float tmpFloat = 1.01f;
+    f = tmpFloat;
+    TEST_EXPECT((f() == 1.0f) , "#9621a4: cpccNumberWithBounds");
+
+
+    f = 0.5f;
+    TEST_EXPECT(f == 0.5f , "#9621b: cpccNumberWithBounds");
+    f -= 1.0f;
+    TEST_EXPECT(f == 0.0f , "#9621c: cpccNumberWithBounds");
+
+    f = 0.1f;
+    f *= 2.0f;
+
+    float newf = f();
+    TEST_EXPECT(newf == 0.2f , "#9621d: cpccNumberWithBounds");
+}
 
 
 #endif // cpccNumberWithBounds

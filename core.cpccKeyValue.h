@@ -19,123 +19,37 @@
 #include <assert.h>
 #include <sstream>
 #include <algorithm>
-#include "core.cpccIdeMacros.h"
+// #include "core.cpccIdeMacros.h"
 #include "core.cpccStringUtil.h"
 #include "cpccUnicodeSupport.h"
+#include "cpccTesting.h"
 
-
-/** A small and portable (cross platform) C++ class 
-	provides a std:map that can store any value type (primitive data only)
+/** 
+    A small and portable (cross platform) C++ class 
+	provides a std:map that can store any (primitive type) value
 		
-	Dependencies: cpcc_SelfTest.h
 */
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//		cpccKeyValue
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccKeyValue declaration
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 
 class cpccKeyValue: private strConvertionsV3
 {
+
 public:
     typedef std::map<cpcc_string, cpcc_string> tKeysAndValues;
     tKeysAndValues	m_map;
 	
-public:		// generic functions
+public:		
     
-    
-    void loadFromString(const cpcc_char *aKeyValueList)
-    {
-        clear();
-        dataHasChanged();
-        addFromString(aKeyValueList);
-    }
-    
-	// aKeyValueList is a key=value string. Pairs are separated by new lines
-    void addFromString(const cpcc_char *aKeyValueList)
-    {
-        // see also:
-        // https://stackoverflow.com/questions/27006958/parsing-key-value-pairs-from-a-string-in-caz
-        if (!aKeyValueList)
-            return;
-            
-        // this works only on non-unicode programs
-		/* 
-			cpcc_string key, val;
-			cpcc_istringstream iss(aKeyValueList);
-			while (std::getline(std::getline(iss, key, '=') >> std::ws, val))
-				m_map[key] = val;
-		*/
-
-			cpcc_string s(aKeyValueList);
-			cpcc_string::size_type key_pos = 0;
-			cpcc_string::size_type key_end;
-			cpcc_string::size_type val_pos;
-			cpcc_string::size_type val_end;
-
-			s.erase(std::remove(s.begin(), s.end(), _T('\r')), s.end());
-
-			while ((key_end = s.find(_T('='), key_pos)) != cpcc_string::npos)
-			{
-				if ((val_pos = s.find_first_not_of(_T("="), key_end)) == cpcc_string::npos)
-					break;
-
-				// todo: na balo kai to \r eite na to sbiso eksarxis
-				val_end = s.find(_T('\n'), val_pos);
-				m_map[s.substr(key_pos, key_end - key_pos)] = s.substr(val_pos, val_end - val_pos);
-
-				key_pos = val_end;
-				if (key_pos != cpcc_string::npos)
-					++key_pos;
-			}
-
-        dataHasChanged();
-    }
-
-   /*
-    void loadFromString2(const cpcc_char *aKeyValueList, const cpcc_char aNextPairSeparator)
-    {
-        clear();
-        if (!aKeyValueList)
-            return;
-        
-		const cpcc_char *recordSeparator = _T('\n');
-        for (const cpcc_string& tag : std::split(aKeyValueList, recordSeparator))
-        {
-            auto key_val = std::split(aKeyValueList, _T('='));
-            m_map[key_val[0]] = key_val[1];
-        }
-        dataChanged();
-    }
-    */
-
-    void        removeKey(const cpcc_char *aKey) 
-    {   
-        if (!aKey)
-            return;
-        m_map.erase(aKey);
-        dataHasChanged();
-    }
-    
-    
-    void		clear(void) 
-    { 
-        if (m_map.size()==0)
-            return;
-
-        m_map.clear(); 
-        dataHasChanged();
-    }
-
-
-    const bool	keyExists(const cpcc_char *aKey) const 
-    {
-		if (!aKey) return false;
-        //const cpcc_string keyStr(aKey);
-        // return (m_map.find(keyStr) != m_map.end()); 
-		return (m_map.find(aKey) != m_map.end()); 
-    }
+	void        removeKey(const cpcc_char* aKey);
+    void		clear(void);
+    const bool	keyExists(const cpcc_char* aKey) const;
     
 protected:
 	// called when set() functions are called. 
@@ -143,32 +57,10 @@ protected:
 	// e.g. saving to a file
 	virtual void dataHasChanged(void) { }
 
-
 public:		// get functions
 
-    virtual  cpcc_string	get(const cpcc_char *aKey, const cpcc_char *aDefaultValue) const
-    {
-        if (aKey)
-        {
-            /*
-            if (keyExists(aKey))
-            {
-                cpcc_string result();
-                return m_map[aKey]; // non-const
-            }
-             */
-            auto searchIterator = m_map.find(aKey);
-            if (searchIterator != m_map.end())
-                return searchIterator->second;
-        }
-        
-        return aDefaultValue ? aDefaultValue : _T("");
-    }
-
-
-    const cpcc_string    get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  const
-	{   return get(aKey, aDefaultValue.c_str());    }
-
+    const cpcc_string	get(const cpcc_char* aKey, const cpcc_char* aDefaultValue) const;
+    const cpcc_string   get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  const  {   return get(aKey, aDefaultValue.c_str());    }
 
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type >
     T    get(const cpcc_char *aKey, const T aDefaultValue) const
@@ -184,19 +76,7 @@ public:		// get functions
 public:		// set functions
 
 	// does the final set() of the pair, implementing also write caching and signaling to descendant classes
-	inline void set_impl(const cpcc_char   *aKey, const cpcc_char *aValue) 
-	{
-		if (!aValue || !aKey) return;
-		
-		// caching here 
-		if (keyExists(aKey))
-			if (m_map[aKey].compare(aValue)==0)
-				return;	// the value is already there.
-				
-		// set
-		m_map[aKey] = aValue;
-		dataHasChanged(); // let descendant classes know that the data has changes so they need to save it somewhere
-	}
+    inline void set_impl(const cpcc_char* aKey, const cpcc_char* aValue);
 	
 	template <typename T>
 	void		set(const cpcc_char   *aKey, const T aValue)              	{ set_impl(aKey, toString(aValue).c_str()) ;  }
@@ -204,49 +84,203 @@ public:		// set functions
     // void        set(const cpcc_string &aKey, const cpcc_string &aDefaultValue) { m_map[aKey] = aDefaultValue; }
     void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ set_impl(aKey, aValue);  }
 
+public: // load from string functions
 
-public:	// class metadata and selftest
+    // aKeyValueList is a key=value string. Pairs are separated by new lines
+    // returns the number of pairs processed.
+    const int   addFromSimpleString(const cpcc_char* aKeyValueList);
 
-	static void selfTest(void)
-	{
-    #ifdef cpccDEBUG
-		cpccKeyValue testSubject;
+    // clears the list and adds a new
+    const int   loadFromSimpleString(const cpcc_char* aKeyValueList);
 
-        testSubject.set(_T("bool-value-true"), true);
-
-		testSubject.set(_T("value123"), 123);
-		testSubject.set(_T("keyMike"), _T("Mike Value"));
-		testSubject.set(_T("value1.23456789"), 1.23456789f);
-        const cpcc_char *grText = _T("ΜιαΕβδομαδα\n\rΠροσπαθώ");
-        testSubject.set(_T("GreekTextWithLineBreaks"), grText);
-        time_t aTimeStamp = time(NULL);
-        testSubject.set(_T("time_t_test"), aTimeStamp);
-        
-        assert((testSubject.get(_T("bool-value-true"), false) == true) && _T("SelfTest #8622v: bool failed"));
-
-		assert((testSubject.keyExists(_T("eeerrrooor")) == false) && _T("SelfTest #8622: non-existing key found"));
-        assert((testSubject.get(_T("time_t_test"), (time_t) 40000) == aTimeStamp) && _T("SelfTest #8622a: time_t failed"));
-
-        int tmp_i = testSubject.get(_T("value123"), 45);
-		assert((tmp_i == 123) && _T("SelfTest #8622b: key not found"));
-		
-		float tmp_f = testSubject.get(_T("value1.23456789"), 1.333f);
-		assert((tmp_f == 1.23456789f) && _T("SelfTest #8622d: float write/read failed"));
-
-		cpcc_string tmp_s(testSubject.get(_T("keyMike"), _T("ha he hi")));
-		assert((tmp_s.compare(_T("Mike Value"))==0) && _T("SelfTest #8622f: string write/read failed"));
-
-        tmp_s = testSubject.get(_T("GreekTextWithLineBreaks"), _T("iiii"));
-        assert((tmp_s.compare(grText) == 0) && _T("SelfTest #8622g: string write/read failed"));
-
-        // test loadFromString
-		testSubject.loadFromString(_T("key1=ena\n\rkey2=dyo\nkey3=tria"));
-		assert((testSubject.get(_T("key1"), _T("null")).compare(_T("ena")) == 0) && _T("SelfTest #8622f1: loadFromString failed"));
-		assert((testSubject.get(_T("key2"), _T("null")).compare(_T("dyo")) == 0) && _T("SelfTest #8622f2: loadFromString failed"));
-		assert((testSubject.get(_T("key3"), _T("null")).compare(_T("tria")) == 0) && _T("SelfTest #8622f3: loadFromString failed"));
-
-
-    #endif
-	}
 };
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccKeyValue implementation
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+inline void cpccKeyValue::removeKey(const cpcc_char* aKey)
+{
+    if (!aKey)
+        return;
+    m_map.erase(aKey);
+    dataHasChanged();
+}
+
+
+inline void	cpccKeyValue::clear(void)
+{
+    if (m_map.size() == 0)
+        return;
+
+    m_map.clear();
+    dataHasChanged();
+}
+
+
+inline const bool	cpccKeyValue::keyExists(const cpcc_char* aKey) const
+{
+    if (!aKey) return false;
+    //const cpcc_string keyStr(aKey);
+    // return (m_map.find(keyStr) != m_map.end()); 
+    return (m_map.find(aKey) != m_map.end());
+}
+
+
+inline void cpccKeyValue::set_impl(const cpcc_char* aKey, const cpcc_char* aValue)
+{
+    if (!aValue || !aKey) return;
+
+    // caching here 
+    if (keyExists(aKey))
+        if (m_map[aKey].compare(aValue) == 0)
+            return;	// the value is already there.
+
+    // set
+    m_map[aKey] = aValue;
+    dataHasChanged(); // let descendant classes know that the data has changes so they need to save it somewhere
+}
+
+
+inline const cpcc_string	cpccKeyValue::get(const cpcc_char* aKey, const cpcc_char* aDefaultValue) const
+{
+    if (aKey)
+    {
+        /*
+        if (keyExists(aKey))
+        {
+            cpcc_string result();
+            return m_map[aKey]; // non-const
+        }
+         */
+        auto searchIterator = m_map.find(aKey);
+        if (searchIterator != m_map.end())
+            return searchIterator->second;
+    }
+
+    return aDefaultValue ? aDefaultValue : _T("");
+}
+
+
+inline const int cpccKeyValue::loadFromSimpleString(const cpcc_char* aKeyValueList)
+{
+    clear();
+    dataHasChanged();
+    return addFromSimpleString(aKeyValueList);
+}
+
+
+inline const int cpccKeyValue::addFromSimpleString(const cpcc_char* aKeyValueList)
+{
+    // see also:
+    // https://stackoverflow.com/questions/27006958/parsing-key-value-pairs-from-a-string-in-caz
+    if (!aKeyValueList)
+        return 0;
+
+    int nPairs = 0;
+    // this works only on non-unicode programs
+    /*
+        cpcc_string key, val;
+        cpcc_istringstream iss(aKeyValueList);
+        while (std::getline(std::getline(iss, key, '=') >> std::ws, val))
+            m_map[key] = val;
+    */
+
+    cpcc_string s(aKeyValueList);
+    cpcc_string::size_type key_pos = 0;
+    cpcc_string::size_type key_end;
+    cpcc_string::size_type val_pos;
+    cpcc_string::size_type val_end;
+
+    s.erase(std::remove(s.begin(), s.end(), _T('\r')), s.end());
+
+    while ((key_end = s.find(_T('='), key_pos)) != cpcc_string::npos)
+    {
+        if ((val_pos = s.find_first_not_of(_T("="), key_end)) == cpcc_string::npos)
+            break;
+
+        // todo: na balo kai to \r eite na to sbiso eksarxis
+        val_end = s.find(_T('\n'), val_pos);
+        m_map[s.substr(key_pos, key_end - key_pos)] = s.substr(val_pos, val_end - val_pos);
+        ++nPairs;
+
+        key_pos = val_end;
+        if (key_pos != cpcc_string::npos)
+            ++key_pos;
+    }
+
+    dataHasChanged();
+    return nPairs;
+
+    /*
+    other way:
+    const cpcc_char *recordSeparator = _T('\n');
+     for (const cpcc_string& tag : std::split(aKeyValueList, recordSeparator))
+     {
+         auto key_val = std::split(aKeyValueList, _T('='));
+         m_map[key_val[0]] = key_val[1];
+     }
+    */
+}
+
+
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccKeyValue testing
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+TEST_RUN(cpccKeyValue_test, cpccTesting::singleton::getOutput())
+{
+    const bool skipThisTest = false;
+
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+
+    cpccKeyValue testSubject;
+
+    testSubject.set(_T("bool-value-true"), true);
+    testSubject.set(_T("value123"), 123);
+    testSubject.set(_T("keyMike"), _T("Mike Value"));
+    testSubject.set(_T("value1.23456789"), 1.23456789f);
+    const cpcc_char* grText = _T("ΜιαΕβδομαδα\n\rΠροσπαθώ");
+    testSubject.set(_T("GreekTextWithLineBreaks"), grText);
+    time_t aTimeStamp = time(NULL);
+    testSubject.set(_T("time_t_test"), aTimeStamp);
+
+    TEST_EXPECT((testSubject.get(_T("bool-value-true"), false) == true) , _T("SelfTest #8622v: bool failed"));
+
+    TEST_EXPECT((testSubject.keyExists(_T("eeerrrooor")) == false) , _T("SelfTest #8622: non-existing key found"));
+    TEST_EXPECT((testSubject.get(_T("time_t_test"), (time_t)40000) == aTimeStamp) , _T("SelfTest #8622a: time_t failed"));
+
+    int tmp_i = testSubject.get(_T("value123"), 45);
+    TEST_EXPECT((tmp_i == 123) , _T("SelfTest #8622b: key not found"));
+
+    float tmp_f = testSubject.get(_T("value1.23456789"), 1.333f);
+    TEST_EXPECT((tmp_f == 1.23456789f) , _T("SelfTest #8622d: float write/read failed"));
+
+    cpcc_string tmp_s(testSubject.get(_T("keyMike"), _T("ha he hi")));
+    TEST_EXPECT((tmp_s.compare(_T("Mike Value")) == 0) , _T("SelfTest #8622f: string write/read failed"));
+
+    tmp_s = testSubject.get(_T("GreekTextWithLineBreaks"), _T("iiii"));
+    TEST_EXPECT((tmp_s.compare(grText) == 0) , _T("SelfTest #8622g: string write/read failed"));
+    
+    // test loadFromSimpleString
+    int n = testSubject.loadFromSimpleString(_T("key1=ena\n\rkey2=dyo\nkey3=tria"));
+    TEST_EXPECT( n==3, _T("SelfTest #8622f4: number of entries"));
+    TEST_EXPECT((testSubject.get(_T("key1"), _T("null")).compare(_T("ena")) == 0) , _T("SelfTest #8622f1: loadFromSimpleString failed"));
+    TEST_EXPECT((testSubject.get(_T("key2"), _T("null")).compare(_T("dyo")) == 0) , _T("SelfTest #8622f2: loadFromSimpleString failed"));
+    TEST_EXPECT((testSubject.get(_T("key3"), _T("null")).compare(_T("tria")) == 0) , _T("SelfTest #8622f3: loadFromSimpleString failed"));
+
+}
+
 

@@ -56,8 +56,6 @@ MAC directories
     
 #endif
 
-// #include "alpha/cpccTesting.h" // circular reference
-
     
 ////////////////////////////////////////////////
 // class cpccUserFolders

@@ -17,7 +17,7 @@
  */
 
 #include    "io.cpccLog.h"
-#include    "app.cpccAppInfo.h"
+// #include    "app.cpccAppInfo.h"
 #include    "core.cpccTryAndCatch.h"
 #include    "app.cpccScreenSaverInterface.h"
 #import     <ScreenSaver/ScreenSaver.h>
@@ -243,8 +243,8 @@
     NSString *nsBundleID = [saverBundle bundleIdentifier];
     cpcc_string bundleID([nsBundleID UTF8String]);
     infoLog().addf("Resolved BundleID:%s", bundleID.c_str());
-    if (bundleID.compare(cpccAppInfo::MacBundleId) != 0)
-        errorLog().addf("Resolved bundleID different from expected (%s)", cpccAppInfo::MacBundleId);
+    // if (bundleID.compare(cpccAppInfo::MacBundleId) != 0)
+    //    errorLog().addf("Resolved bundleID different from expected (%s)", cpccAppInfo::MacBundleId);
     
     // find the actual path of the screensaver
     NSString* pBundlePath = [saverBundle bundlePath];

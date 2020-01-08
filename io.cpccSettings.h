@@ -20,9 +20,13 @@
 #include <map>
 #include <assert.h>
 #include <sstream>
+#include <cmath>
 #include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"
 #include "core.cpccKeyValue.h"
+#include "cpccTesting.h"
+#include "io.cpccPathHelper.h"
+#include "io.cpccFileSystemMini.h"
 
 /** A small and portable (cross platform) C++ class 
 	to save/load application settings from an INI-like file
@@ -31,47 +35,54 @@
 
 */
 
+
 #ifdef cpccDEBUG
     #define cpccSettings_DoSelfTest		true
 #endif
 
 
-////////////////////////////////////////////////////////////////////////////////
+/*
+ ini file location tests:
+
+
+ MAC OS X
+    info: The User Domain values accessed by NSUserDefaults are serialized to a file ~/Library/Preferences/application.plist.
+
+    user settings:
+        non-sandboxed:
+            /Users/cto/Library/Preferences/com.StarMessageSoftware.StarMessage.ini (ok)
+            /Users/cto/Library/Preferences/com.StarMessageSoftware.StarMessage/com.StarMessageSoftware.StarMessage.ini (ok)
+
+        sandboxed:
+
+    system settings (app-wide, like common APPDATA):
+        non-sandboxed:
+            /users/shared/com.StarMessageSoftware.StarMessage.ini (ok)
+            /Library/Preferences/com.StarMessageSoftware.StarMessage.ini (failed)
+            /Library/Preferences/com.StarMessageSoftware.StarMessage/ (failed to create folder)
+
+            If you need to create a directory in /Library/Application Support for your application to use then you need to do privilege elevation.
+            Applications in the App Store cannot use privilege elevation
+
+        sandboxed:
+
+ */
+
+
+// //////////////////////////////////////////////////////////////////////////////
 //
-//		cpccSettings
+//		class cpccSettings declaration
 //
-////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
 
 class cpccSettings: public cpccKeyValue
 {
 private:
-    
-	// todo: replace this with the ready class cpccKeyValue
-	// typedef std::map<cpcc_string, cpcc_string> tKeysAndValues;
-	// tKeysAndValues	mSettings;
-    // cpccKeyValue    mSettings;
     cpcc_string 	mFilename;
-
-	
-    // These functions return the name of the application, the company name and the bundleID.
-    // These parameters will be used to compose the path of where to store the settings file.
-    // You must define these function in your main code.
-    // e.g. in one of you cpp files:
-    //      const cpcc_char *cpccSettings::config_getAppName(void) { return _T("CrcCheckCopy"); }
-    //       const cpcc_char *cpccSettings::config_getCompanyName(void) { return _T("StarMessage software"); }
-
-    /*
-    static const cpcc_char *config_getAppName(void);
-    static const cpcc_char *config_getCompanyName(void);
-    #ifdef __APPLE__
-        static const cpcc_char *config_getAppBundleID(void);
-    #endif
-    */
 
 public:	// class metadata and selftest
 	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
 	
-
 #if defined(cpccSettings_DoSelfTest)
 	static void selfTest(void);
 #endif
@@ -87,23 +98,11 @@ public: 	// ctors
     explicit cpccSettings(const cpcc_char *aFilename);
 	virtual ~cpccSettings();
 	
-
 public:		// functions
 
     static cpcc_string getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID);
 
-    virtual void dataHasChanged(void) override
-    { 
-
-		m_needsSaving = true;
-		if (!instantSaving)
-			return;
-		
-		if (!save())
-			cpcc_cerr << _T("Error #1352p: saving cpccSettings to file:") << mFilename << std::endl;
-		else
-			m_needsSaving = false;
-    }
+    virtual void dataHasChanged(void) override;
 
 	cpcc_string getFilename(void) const { return mFilename; }
 	
@@ -115,9 +114,33 @@ public:		// functions
 
 };
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-//		cpccPersistentVar
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccSettings implementation
+//
+// //////////////////////////////////////////////////////////////////////////////
+
+
+inline void cpccSettings::dataHasChanged(void)
+{
+    m_needsSaving = true;
+    if (!instantSaving)
+        return;
+
+    if (!save())
+        cpcc_cerr << _T("Error #1352p: saving cpccSettings to file:") << mFilename << std::endl;
+    else
+        m_needsSaving = false;
+}
+
+
+
+
+// /////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccPersistentVar
+//
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 class cpccPersistentVar
@@ -159,3 +182,140 @@ public:
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+//		class cpccSettings testing
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+TEST_RUN(cpccSettings_testNew, cpccTesting::singleton::getOutput())
+{
+    const bool skipThisTest = false;
+
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+
+    const double piFloat = 3.14159265359;
+    const float  bigFloat = 13456798.43e9f;
+    const cpcc_char* tmpTestString = _T("abc-καλημέρα=good\n\rmorning to all.");
+
+    cpcc_string fnameCurrentUser(cpccSettings::getAutoFilename(cpccSettings::scopeCurrentUser, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    cpcc_string fnameAllUsers(cpccSettings::getAutoFilename(cpccSettings::scopeAllUsers, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    
+    TEST_ADDNOTE(_T("ini file for current user: ") << fnameCurrentUser);
+    TEST_ADDNOTE(_T("ini file for all users: ") << fnameAllUsers);
+
+    // clean up
+    if (cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()))
+        cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
+    if (cpccFileSystemMini::fileExists(fnameAllUsers.c_str()))
+        cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
+
+    /*
+    cpcc_string folderCurrentUser = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
+    if (cpccFileSystemMini::folderExists(folderCurrentUser.c_str()))
+        cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
+    
+    cpcc_string folderAllUsers = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
+    if (cpccFileSystemMini::folderExists(folderAllUsers.c_str()))
+        cpccFileSystemMini::deleteFolder(folderAllUsers.c_str());
+    */
+
+    {
+        // writing
+
+
+        cpccSettings settingsUser(fnameCurrentUser.c_str());
+#ifndef OSX_SANDBOXED   // define this is your app is Sandboxed for the OSX apple store
+        cpccSettings settingsApp(fnameAllUsers.c_str());
+#else
+        cpccSettings& settingsApp = settingsUser;
+#endif
+
+        settingsUser.set(_T("testStringKeyA"), _T("testStringValueA"));
+
+
+        settingsUser.set(_T("testStringKeyB"), _T("tmpValue"));
+        settingsUser.set(_T("testStringKeyB"), _T("B"));
+
+        settingsUser.set(_T("testTrueKey"), true);
+        settingsUser.set(_T("testFalseKey"), false);
+        settingsUser.set(_T("pi"), piFloat);
+        settingsUser.set(_T("twentythree"), 23);
+
+        settingsUser.set(_T("bigFloat"), bigFloat);
+
+        settingsApp.set(_T("AppSettingsOfSoftware"), _T("testSoftwareName"));
+        settingsApp.set(_T("extremeString"), tmpTestString);
+        cpccPersistentVar<int> tmpPersistentInt(settingsApp, _T("tmpPersInt"), 98);
+        tmpPersistentInt = 456;
+        tmpPersistentInt.writeAtIndex(3, 678);
+    }
+
+    //assert(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
+
+    TEST_EXPECT(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) , _T("SelfTest #7712a: file does not exist"));
+
+#ifndef OSX_SANDBOXED
+    // the following fails under Catalina
+    TEST_EXPECT(cpccFileSystemMini::fileExists(fnameAllUsers.c_str()) , _T("SelfTest #7712b: file does not exist"));
+#endif
+
+    if (true) // turn ON/OFF the reading tests
+    {
+        // separate reading
+        cpccSettings settingsUser(fnameCurrentUser.c_str());
+
+#ifndef OSX_SANDBOXED
+        cpccSettings settingsSystem(fnameAllUsers.c_str());
+#else
+        cpccSettings& settingsSystem = settingsUser;
+#endif
+
+        cpcc_string tmp = settingsUser.get(_T("testStringKeyA"), _T("default"));
+        TEST_EXPECT(tmp.compare(_T("testStringValueA")) == 0 , _T("SelfTest #7711b: readString error"));
+
+        tmp = settingsUser.get(_T("NonExistingKey"), _T("default"));
+        TEST_EXPECT(tmp.compare(_T("default")) == 0 , _T("SelfTest #7711c: readString error on default value"));
+
+        tmp = settingsUser.get(_T("testStringKeyB"), _T("default"));
+        TEST_EXPECT(tmp.compare(_T("B")) == 0 , _T("SelfTest #7711d: writeString error: does not update values"));
+
+        TEST_EXPECT(settingsUser.get(_T("testTrueKey"), false) , _T("SelfTest #7711e: readBool error 1"));
+        TEST_EXPECT(!settingsUser.get(_T("testFalseKey"), true) , _T("SelfTest #7711e: readBool error 2"));
+        TEST_EXPECT(settingsUser.get(_T("testMissingKey1"), true) , _T("SelfTest #7711e: readBool error 3"));
+        TEST_EXPECT(!settingsUser.get(_T("testMissingKey2"), false) , _T("SelfTest #7711e: readBool error 4"));
+
+        TEST_EXPECT(settingsUser.get(_T("pi"), 1.0) == piFloat , _T("SelfTest #7711f: readReal"));
+
+        // todo: this has problems to solve
+        float aFloat = settingsUser.get(_T("bigFloat"), 2.0f);
+        aFloat -= bigFloat;
+        if (bigFloat != 0)
+            aFloat /= bigFloat;
+
+        //cpcc_cout << _T("aFloat read=") << aFloat << std::endl;
+        TEST_EXPECT((std::fabs(aFloat) < 0.000001f) , _T("SelfTest #7711k: readReal bigFloat"));
+
+        TEST_EXPECT(settingsUser.get(_T("twentythree"), 2) == 23 , _T("SelfTest #7711g: readLongint"));
+
+        cpccPersistentVar<int> tmpPersistentInt(settingsSystem, _T("tmpPersInt"), 92);
+        TEST_EXPECT((tmpPersistentInt == 456) , _T("SelfTest #7711r: tmpPersistentInt error 1"));
+        // assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
+        TEST_EXPECT((tmpPersistentInt[3] == 678) , _T("SelfTest #7711j: tmpPersistentInt error 2"));
+
+        tmp = settingsSystem.get(_T("extremeString"), _T("----"));
+        TEST_EXPECT((tmp.compare(tmpTestString) == 0) , _T("SelfTest #7711w: readString error"));
+    }
+
+    // clean up
+    cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
+    cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
+
+    // cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
+    // cpccFileSystemMini::deleteFolder(folderAllUsers.c_str());
+}

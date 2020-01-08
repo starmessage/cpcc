@@ -14,12 +14,21 @@
 #ifndef cpccTesting_h
 #define cpccTesting_h
 
+/* 
+    
+    Saves a file on the desktop containing the test results.
+    No dependencies on other libraries and frameworks.
+    On MacOS sandboxed applications the desktop folder is redirected by the OS under the App folders.
+
+*/
+
+
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <ctime>
 
-#include "../fs.cpccUserFolders.h"
+#include "fs.cpccUserFolders.h"
 
 #ifdef    _WIN32
     #include <tchar.h>
@@ -55,17 +64,55 @@
     #error Not defined ENABLE_cpccTESTING. It must be 0 or 1.
 #endif
 
+#define TEST_STR(value) #value
+#define TEST_TSTR(value) _T( TEST_STR(value) )
+#define TEST_MAKESTRING(value) TEST_TSTR(value)
+
+
+// #define TEST_MACRO_CONCAT_IMPL( x, y )    x##y
+// #define TEST_MACRO_CONCAT( x, y )         TEST_MACRO_CONCAT_IMPL( x, y )
+
+// note: __COUNTER__ gets reset for each cpp file
+
 #if (ENABLE_cpccTESTING==1)
     #define TestingVariableName aSelfTestObject
 #else
     #define TestingVariableName
 #endif
 
-// #define MACRO_CONCAT_IMPL( x, y )    x##y
-// #define MACRO_CONCAT( x, y )         MACRO_CONCAT_IMPL( x, y )
 
-#define TEST_STR(value) #value
-#define TEST_MAKESTRING(value) TEST_STR(value)
+namespace cpccTesting
+{
+
+    //=============================================================================
+    // class cTestRegister
+    // used to avoid runing the same test again
+    //=============================================================================
+
+    class cTestRegister
+    {
+    public:
+        static int  &getNErrors(void)
+        {
+            static int nErrors = 0;
+            return nErrors;
+        }
+
+        static bool testHasAlreadyRan(const TCHAR* aTestName)
+        {
+            if (!aTestName)
+                return false;
+
+            static std::vector<std::basic_string<TCHAR>> list;
+            if (std::find(list.begin(), list.end(), aTestName) != list.end())
+                return true;
+
+            list.push_back(aTestName);
+            return false;
+        }
+    };
+} // end of namespace (the same namespace continues below)
+
 
 
 #define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
@@ -75,12 +122,15 @@
     aStream << TEST_MAKESTRING(aCONDITION);         \
     aStream << _T(")")  << std::endl;               \
     aStream << aMESSAGE << std::endl;               \
+    cpccTesting::cTestRegister::getNErrors() = cpccTesting::cTestRegister::getNErrors()+1; \
     }
 
 
 #define TEST_ADDNOTE(aMESSAGE)   aStream << aMESSAGE << std::endl;
 
-
+// Notes: use a unnamed namespace so that the variable TestingVariableName is not redefined multiple times
+// Alternative to the unnamed namespaces is the the 'static' declaration of the variable.
+// Here, it helps to avoid the multiple symbols definition when the header is included (compiled) from many cpp files.
 #define TEST_RUN(SelfTestUniqueName, aSTREAM)	    \
 	namespace SelfTestUniqueName {			        \
         class cpccSelfTest          			    \
@@ -88,53 +138,52 @@
         public:									    \
             static void runTest(std::basic_ostream<TCHAR> &aStream);     \
             cpccSelfTest()						                                \
-            {   const char* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);     \
-                aSTREAM.get() << "/ Starting test:" << tmpNameA << std::endl;   \
+            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);     \
+                if (cpccTesting::cTestRegister::testHasAlreadyRan(tmpNameA))    \
+                    return;                                                     \
+                aSTREAM.get() << _T("/ Starting test:") << tmpNameA << std::endl;   \
                 runTest(aSTREAM.get());                                         \
-                aSTREAM.get() << "\\ Ending  test:" << tmpNameA << std::endl << std::endl; \
-            };						                \
-        } TestingVariableName;                      \
-    }                                               \
-                                                    \
+                aSTREAM.get() << _T("\\ Ending   test:") << tmpNameA << std::endl << std::endl; \
+                int errors = cpccTesting::cTestRegister::getNErrors();          \
+                if (errors > 0)                                                 \
+                    aSTREAM.get() << errors << _T(" errors so far.") << std::endl;  \
+            };						                                            \
+        }; static cpccSelfTest  TestingVariableName;                            \
+    }                                                                           \
+                                                                                \
     inline void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
+
 
 
 namespace cpccTesting
 {
     
-    
-    
     // ///////////////////////////////////
-    // class util util
+    // class util
     // ///////////////////////////////////
     
 	class util
 	{
 	public:
-        static std::basic_string<TCHAR> getTimeStamp(void);
+        static std::basic_string<TCHAR> getTimeStamp(void)
+        {
+            std::time_t secondsSinceTheEpoch = std::time(nullptr);
+            
+            #ifdef UNICODE
+                #pragma warning( suppress : 4996 )
+                return _wasctime(std::localtime(&secondsSinceTheEpoch));
+            #else
+                #pragma warning( suppress : 4996 )
+                return std::asctime(std::localtime(&secondsSinceTheEpoch));
+            #endif
+        }
 	};
 
-    
+        
     
     // ///////////////////////////////////
-    // class util implementation
-    // ///////////////////////////////////
-    
-    inline std::basic_string<TCHAR> util::getTimeStamp(void)
-    {
-        std::time_t secondsSinceTheEpoch = std::time(nullptr);
-		#pragma warning( suppress : 4996 )
-        return std::asctime(std::localtime(&secondsSinceTheEpoch));
-    }
-
-
-    
-    //=============================================================================
-    
-    
-    /////////////////////////////////////
     // classes cOutputStreamAbstract
-    /////////////////////////////////////
+    // ///////////////////////////////////
     
     class cOutputStreamAbstract
     {
@@ -160,10 +209,12 @@ namespace cpccTesting
     class cOutputStreamDesktopFile: public cOutputStreamAbstract
     {
     private:
+
         std::basic_ofstream<TCHAR>  m_stream;
         std::basic_string<TCHAR>    m_fn;
         
     public:
+
         cOutputStreamDesktopFile()
         {
             m_fn = cpccUserFolders::getDesktop();
@@ -172,6 +223,7 @@ namespace cpccTesting
             m_stream.open(m_fn, 0);
             if (m_stream.good())
             {
+                m_stream << _T("Unit testing by the cpcc library.") << std::endl;
                 m_stream << util::getTimeStamp() << std::endl;
                 m_stream.flush();
             }
@@ -195,13 +247,20 @@ namespace cpccTesting
         ~cOutputStreamDesktopFile()
         {
             get() << _T("Closing the file.") << std::endl;
+            int errors = cpccTesting::cTestRegister::getNErrors();
+            
+            if (errors>0)
+                get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
+            else
+                get() << _T("All tests were passed OK.") << std::endl;
+
             if (m_stream.good())
                 m_stream.close();
         }
     };
     
     
-    
+
     // ///////////////////////////////////
     // class singleton
     // ///////////////////////////////////
@@ -216,47 +275,17 @@ namespace cpccTesting
         }
     };
     
-    
-    template <typename T>
-    class cSingleton
-    {
-
-    public:
-        static T& getInstance()
-        {
-            static T theinstance{};
-            return theinstance;
-        }
-
-    protected:
-        cSingleton() {}
-        ~cSingleton() {}
-
-    private:
-        cSingleton(cSingleton const&);
-        void operator=(cSingleton const&);
-    };
-
-
 
     //=======================================================================
     
+    /*
     struct sTestResult
     {
         bool pass;
         std::basic_string<TCHAR> message;
     };
+    */
 
-
-    
-    //=============================================================================
-    
-    
-    class cTestRegister
-    {
-        public:
-            bool runAllTests(std::basic_ostream<TCHAR> &os);
-    };
     
     
 } // end of namespace cpccTesting

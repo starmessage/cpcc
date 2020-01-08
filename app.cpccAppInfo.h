@@ -31,10 +31,39 @@
 
 */
 
-class cpccAppInfo
+struct sAppInfo
+{
+
+	enum licenseType { eltFree, eltFreeInAppleStore, eltPaidInAppleStore, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
+
+	const cpcc_char
+		* CompanyName,
+		* ProgramName,
+		* Version,
+		* Build,
+		* MacBundleId;   // ignored under Windows
+
+	const char
+		* VersionA,
+		* BuildA;
+	const cpcc_char
+		* WebSiteNoHttp,
+		* WebSite,
+		* WebPrivacyPolicy,
+		* BuyURL,
+		* DonateURL,
+		* CheckForUpdatesURL,
+		* Email;
+	int licenseType;
+
+};
+
+
+
+class cpccAppInfo: public sAppInfo
 {
 private:
-	static cpcc_string createLink(const cpcc_char *label, const cpcc_char *url)
+	static cpcc_string createHtmlLink(const cpcc_char *label, const cpcc_char *url)
 	{
 		cpcc_string result(_T("<a href=\""));
 		result.append(url);
@@ -45,31 +74,12 @@ private:
 	}
 
 public:
-	enum xtraInfo { includeEmail=1, includeWebsite=4, useHtmlLinks=8 };
-    enum licenseType { eltFree, eltFreeInAppleStore, eltPaidInAppleStore, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
 
-	const static cpcc_char
-				*CompanyName,
-				*ProgramName,
-				*Version,
-				*Build,
-				*MacBundleId;   // ignored under Windows
- 
-	const static char 
-				*VersionA,
-				*BuildA;
-	const static cpcc_char
-				*WebSiteNoHttp,
-				*WebSite,
-                *WebPrivacyPolicy,
-				*BuyURL,
-				*DonateURL,
-				*CheckForUpdatesURL,
-				*Email;
-    const static int licenseType;
+	enum xtraInfo { includeEmail=1, includeWebsite=4, useHtmlLinks=8 };
+
 
     
-	static cpcc_string getText_pleaseBuyTheFullVersion_html(const cpcc_char *aProgramName)
+	cpcc_string getText_pleaseBuyTheFullVersion_html(const cpcc_char *aProgramName)
 	{
 		cpcc_string tmp_callToAction = _T("If you like ");
 		tmp_callToAction.append(aProgramName);
@@ -80,7 +90,7 @@ public:
 	}
 
     
-	static cpcc_string getText_AboutThisSoftware(const int xi, const cpcc_char *aLineBreak, const cpcc_char *aLicenseInfo, const cpcc_char *aCallToAction)
+	cpcc_string getText_AboutThisSoftware(const int xi, const cpcc_char *aLineBreak, const cpcc_char *aLicenseInfo, const cpcc_char *aCallToAction)
 	{
 		cpcc_string infoText(cpccAppInfo::ProgramName);
         infoText += _T(" ");
@@ -116,10 +126,9 @@ public:
 			infoText.append(aLineBreak);
 			infoText.append(_T("Website: "));
 			if (htmlLinks)
-				infoText.append(createLink(WebSiteNoHttp, WebSite));
+				infoText.append(createHtmlLink(WebSiteNoHttp, WebSite));
 			else
 				infoText.append(WebSiteNoHttp);
-									
 		}
 		
 		if ((cpcc_strlen(Email) > 0) && (xi & includeEmail))
@@ -127,7 +136,7 @@ public:
 			infoText.append(aLineBreak);
 			infoText.append(_T("Email: "));
 			if (htmlLinks)
-				infoText.append(createLink(Email, (cpcc_string(_T("mailto:")) + Email).c_str()));
+				infoText.append(createHtmlLink(Email, (cpcc_string(_T("mailto:")) + Email).c_str()));
 			else
 				infoText.append(Email);
 			

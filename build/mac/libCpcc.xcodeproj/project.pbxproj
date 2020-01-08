@@ -1,0 +1,125 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXFileReference section */
+		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
+		58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccLog.cpp; path = ../../io.cpccLog.cpp; sourceTree = "<group>"; };
+		58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccPathHelper.h; path = ../../io.cpccPathHelper.h; sourceTree = "<group>"; };
+		58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTimeCounter.h; path = ../../cpccTimeCounter.h; sourceTree = "<group>"; };
+		58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpcc_SelfTest.h; path = ../../cpcc_SelfTest.h; sourceTree = "<group>"; };
+		58BAE83B23C34AB700FDACC4 /* core.cpccHardware.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccHardware.h; path = ../../core.cpccHardware.h; sourceTree = "<group>"; };
+		58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccPathHelper.cpp; path = ../../io.cpccPathHelper.cpp; sourceTree = "<group>"; };
+		58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccSettings.cpp; path = ../../io.cpccSettings.cpp; sourceTree = "<group>"; };
+		58BAE83E23C34AB700FDACC4 /* cpcc_SelfTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cpcc_SelfTest.cpp; path = ../../cpcc_SelfTest.cpp; sourceTree = "<group>"; };
+		58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccOSversion.h; path = ../../core.cpccOSversion.h; sourceTree = "<group>"; };
+		58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = net.cpccInternet.h; path = ../../alpha/net.cpccInternet.h; sourceTree = "<group>"; };
+		58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = net.cpccInternet.mac.mm; path = ../../alpha/net.cpccInternet.mac.mm; sourceTree = "<group>"; };
+		58BAE84223C34AB800FDACC4 /* core.cpccHardware.mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccHardware.mac.mm; path = ../../core.cpccHardware.mac.mm; sourceTree = "<group>"; };
+		58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccSettings.h; path = ../../io.cpccSettings.h; sourceTree = "<group>"; };
+		58BAE84423C34AB800FDACC4 /* core.cpccIdeMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccIdeMacros.h; path = ../../core.cpccIdeMacros.h; sourceTree = "<group>"; };
+		58BAE84523C34AB800FDACC4 /* core.cpccOS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = core.cpccOS.cpp; path = ../../core.cpccOS.cpp; sourceTree = "<group>"; };
+		58BAE84623C34AB800FDACC4 /* io.cpccFileSystemMini.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = io.cpccFileSystemMini.mm; path = ../../io.cpccFileSystemMini.mm; sourceTree = "<group>"; };
+		58BAE84723C34AB800FDACC4 /* io.cpccLog.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccLog.h; path = ../../io.cpccLog.h; sourceTree = "<group>"; };
+		58BAE84823C34AB800FDACC4 /* io.cpccFileSystemMini.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccFileSystemMini.h; path = ../../io.cpccFileSystemMini.h; sourceTree = "<group>"; };
+		58BAE84923C34AB900FDACC4 /* core.cpccOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccOS.h; path = ../../core.cpccOS.h; sourceTree = "<group>"; };
+		58BAE84A23C34AB900FDACC4 /* fs.cpccUserFolders.cocoa.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = fs.cpccUserFolders.cocoa.mm; path = ../../fs.cpccUserFolders.cocoa.mm; sourceTree = "<group>"; };
+		58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccSystemFolders.h; path = ../../fs.cpccSystemFolders.h; sourceTree = "<group>"; };
+		58BAE84C23C34AB900FDACC4 /* io.cpccFileSystemMiniOSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccFileSystemMiniOSX.h; path = ../../io.cpccFileSystemMiniOSX.h; sourceTree = "<group>"; };
+		58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOSversion.Mac.mm; path = ../../core.cpccOSversion.Mac.mm; sourceTree = "<group>"; };
+		58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccUserFolders.h; path = ../../fs.cpccUserFolders.h; sourceTree = "<group>"; };
+		58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOS.mm; path = ../../core.cpccOS.mm; sourceTree = "<group>"; };
+		58BAE85023C34AB900FDACC4 /* cpccTimeCounter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cpccTimeCounter.cpp; path = ../../cpccTimeCounter.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		58BAE82C23C34A6D00FDACC4 = {
+			isa = PBXGroup;
+			children = (
+				58BAE83B23C34AB700FDACC4 /* core.cpccHardware.h */,
+				58BAE84223C34AB800FDACC4 /* core.cpccHardware.mac.mm */,
+				58BAE84423C34AB800FDACC4 /* core.cpccIdeMacros.h */,
+				58BAE84523C34AB800FDACC4 /* core.cpccOS.cpp */,
+				58BAE84923C34AB900FDACC4 /* core.cpccOS.h */,
+				58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */,
+				58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */,
+				58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */,
+				58BAE83E23C34AB700FDACC4 /* cpcc_SelfTest.cpp */,
+				58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */,
+				58BAE85023C34AB900FDACC4 /* cpccTimeCounter.cpp */,
+				58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */,
+				58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */,
+				58BAE84A23C34AB900FDACC4 /* fs.cpccUserFolders.cocoa.mm */,
+				58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */,
+				58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */,
+				58BAE84823C34AB800FDACC4 /* io.cpccFileSystemMini.h */,
+				58BAE84623C34AB800FDACC4 /* io.cpccFileSystemMini.mm */,
+				58BAE84C23C34AB900FDACC4 /* io.cpccFileSystemMiniOSX.h */,
+				58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */,
+				58BAE84723C34AB800FDACC4 /* io.cpccLog.h */,
+				58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */,
+				58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */,
+				58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */,
+				58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */,
+				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
+				58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		58BAE82D23C34A6D00FDACC4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1130;
+			};
+			buildConfigurationList = 58BAE83023C34A6D00FDACC4 /* Build configuration list for PBXProject "libCpcc" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 58BAE82C23C34A6D00FDACC4;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		58BAE83123C34A6D00FDACC4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		58BAE83223C34A6D00FDACC4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58BAE83023C34A6D00FDACC4 /* Build configuration list for PBXProject "libCpcc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58BAE83123C34A6D00FDACC4 /* Debug */,
+				58BAE83223C34A6D00FDACC4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 58BAE82D23C34A6D00FDACC4 /* Project object */;
+}

@@ -1,5 +1,5 @@
 /*  *****************************************
- *  File:		core.cpccUncopyable.h
+ *  File:		pattern.cpccUncopyable.h
  *	Purpose:	Portable (cross-platform), light-weight functions
   *	*****************************************
  *  Library:	Cross Platform C++ Classes (cpcc)

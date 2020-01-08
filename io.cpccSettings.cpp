@@ -22,11 +22,11 @@
 #include <errno.h>
 #include <locale>
 #include <codecvt>
-#include <cmath>
+
 #include "core.cpccStringUtil.h"
 #include "io.cpccSettings.h"
-#include "io.cpccFileSystemMini.h"
-#include "io.cpccPathHelper.h"
+
+
 #include "fs.cpccSystemFolders.h"   // todo: remove the system (and user folders) The INI class does not have somemthing to do with them.
 #include "fs.cpccUserFolders.h" 
 #if defined(cpccSettings_DoSelfTest)
@@ -62,111 +62,70 @@
  */
 
 
+ // /////////////////////////////////////////////////////////////////////////////////////////////////
+ //
+ //		class cSerialCodec declaration
+ //
+ // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-class cINI_utils
+class cSerialCodec
 {
-public:
-    typedef cpcc_char *tEncodingsTable[5][2];
-
 private:
-    
-    
-    static const tEncodingsTable& encondingsINI(void)
-    {
-        // static variable
-        // encode characters to fit to the INI file (e.g. multiline text)
-        static const tEncodingsTable encodedINIcharacterTable =
-        {
-            //        normal     ->       encoded
-            { (cpcc_char *)  _T("="),  (cpcc_char *) _T("\\=") },
-            { (cpcc_char *)  _T("\n"), (cpcc_char *) _T("\\n") },
-            { (cpcc_char *)  _T("\r"), (cpcc_char *) _T("\\r") },
-            { (cpcc_char *)  _T("\t"), (cpcc_char *) _T("\\t") },
-            // this must be the last rule  for the decoding and first rule for the encoding
-            { (cpcc_char *)  _T("\\"), (cpcc_char *) _T("\\\\") }
-        };
-        return encodedINIcharacterTable;
-    }
-    
+
+    typedef cpcc_char* tEncodingsTable[5][2];
+    static const tEncodingsTable& encondingTable(void);
+
 public:
-    
-    static void    encodeStrForINI(cpcc_string &str)
-    {
-        for (int i = (sizeof(encondingsINI()) / sizeof(encondingsINI()[0]))-1; i>=0; --i)
-            stringUtils::findAndReplaceAll(str, encondingsINI()[i][0], encondingsINI()[i][1]);
-    }
-    
-    
-    static void    decodeStrFromINI(cpcc_string &str)
-    {
-        //for (int i = 0; i< sizeof(encodedINIcharacterTable) / sizeof(encodedINIcharacterTable[0]); ++i)
-        //    findAndReplaceAll(str, encodedINIcharacterTable[i][1], encodedINIcharacterTable[i][0]);
-        for (unsigned int i = 0; i< sizeof(encondingsINI()) / sizeof(encondingsINI()[0]); ++i)
-            stringUtils::findAndReplaceAll(str, encondingsINI()[i][1], encondingsINI()[i][0]);
-    }
 
+    static void    encode(cpcc_string& str);
+    static void    decode(cpcc_string& str);
 
-    static bool     saveToFile(const cpcc_char *aFilename, const cpccKeyValue::tKeysAndValues& aMap)
-    {
-        cpcc_ostringstream ss;
-
-        for (cpccKeyValue::tKeysAndValues::const_iterator it = aMap.begin(); it != aMap.end(); ++it)
-        {
-            const cpcc_char *key = it->first.c_str();
-            cpcc_string    value = it->second; // todo: value( it->second);
-            cINI_utils::encodeStrForINI(value);
-            ss << key << _T("=") << value << std::endl;
-        }
-
-#ifdef UNICODE	// write the BOM if UTF-8
-        //const cpcc_string tmpTxt(ss.str());
-        //const cpcc_string tmpTxtAfterUTF8(helper_to_utf8(tmpTxt.c_str(), tmpTxt.length()));
-        //return saveStringToFile(mFilename.c_str(), tmpTxtAfterUTF8.c_str(), true);
-        return cpccFileSystemMini::writeTextFile(aFilename, ss.str().c_str(), true);
-#else
-        return cpccFileSystemMini::writeTextFile(aFilename, ss.str().c_str(), false);
-#endif
-    }
-
-
-    static bool loadFromFile(const cpcc_char *aFilename, cpccKeyValue::tKeysAndValues& aMap)
-    {
-        if (!cpccFileSystemMini::fileExists(aFilename))
-            return false;
-
-
-        cpcc_ifstream iniFile(aFilename);
-        if (!iniFile.is_open())
-        {
-            cpcc_cerr << _T("#8551: Could not open file:") << aFilename << _T("\n");
-            return false;
-        }
-
-        // todo: is this needed for MacOS ?
-        std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-        iniFile.imbue(my_utf8_locale);
-
-        // directly manipulate the map so that the save-to-file is not triggered
-        aMap.clear();
-        cpcc_string key, value;
-
-        // http://forums.codeguru.com/showthread.php?511066-RESOLVED-Is-it-possible-to-use-getline-with-unicode
-        while (getline(iniFile, key, _T('=')))
-        {
-            if (key.compare(0, 3, _T(UTF8_BOM)) == 0)  // the file has a UTF-8 BOM
-                key.erase(0, 3);                  // Now get rid of the BOM.
-
-            getline(iniFile, value);
-            cINI_utils::decodeStrFromINI(value);
-            // set(key.c_str(), value);
-            // directly add into the map so that the save to file is not triggered
-            aMap[key] = value;
-        }
-
-        return true;
-    }
 };
+
+
+ // /////////////////////////////////////////////////////////////////////////////////////////////////
+ //
+ //		class cSerialCodec implementation
+ //
+ // /////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline const cSerialCodec::tEncodingsTable& cSerialCodec::encondingTable(void)
+{
+    // static variable
+    // encode characters to fit to the INI file (e.g. multiline text)
+    static const tEncodingsTable encodedINIcharacterTable =
+    {
+        //        normal     ->       encoded
+        { (cpcc_char*)_T("="),  (cpcc_char*)_T("\\=") },
+        { (cpcc_char*)_T("\n"), (cpcc_char*)_T("\\n") },
+        { (cpcc_char*)_T("\r"), (cpcc_char*)_T("\\r") },
+        { (cpcc_char*)_T("\t"), (cpcc_char*)_T("\\t") },
+        // this must be the last rule  for the decoding and first rule for the encoding
+        { (cpcc_char*)_T("\\"), (cpcc_char*)_T("\\\\") }
+    };
+    return encodedINIcharacterTable;
+}
+
+
+inline void cSerialCodec::encode(cpcc_string& str)
+{
+    const tEncodingsTable& table = encondingTable();
+    // traver backwards
+    for (int i = (sizeof(table) / sizeof(table[0])) - 1; i >= 0; --i)
+        stringUtils::findAndReplaceAll(str, table[i][0], table[i][1]);
+}
+
+
+inline void cSerialCodec::decode(cpcc_string& str)
+{
+    const tEncodingsTable& table = encondingTable();
+
+    for (unsigned int i = 0; i < sizeof(table) / sizeof(table[0]); ++i)
+        stringUtils::findAndReplaceAll(str, table[i][1], table[i][0]);
+}
+
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +147,6 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
     
     assert((folder.pathExists()) && _T("#7712i: folder for INI was not created"));
 
-    
     if (!load())
         cpcc_cerr << _T("Error #1351: loading cpccSettings from file:") << mFilename << std::endl;
 }
@@ -288,43 +246,37 @@ bool cpccSettings::load(void)
         clear();
         return true; // consider the INI loaded (empty file)
     }
-    
-    return cINI_utils::loadFromFile(mFilename.c_str(), m_map);
-    /* moved
-	if (!cpccFileSystemMini::fileExists(mFilename.c_str()))
-		return true;
-	
-	
-	cpcc_ifstream iniFile(mFilename.c_str());
-	if (!iniFile.is_open())
-	{
-		cpcc_cerr << _T("#8551: Could not open file:") << mFilename << _T("\n");
-		return false;
-	}
-	
+        
+    cpcc_ifstream iniFile(mFilename);
+    if (!iniFile.is_open())
+    {
+        cpcc_cerr << _T("#8551: Could not open file:") << mFilename << _T("\n");
+        return false;
+    }
+
     // todo: is this needed for MacOS ?
     std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
     iniFile.imbue(my_utf8_locale);
 
     // directly manipulate the map so that the save-to-file is not triggered
-    m_map.clear();
-	cpcc_string key, value;
-    
-	// http://forums.codeguru.com/showthread.php?511066-RESOLVED-Is-it-possible-to-use-getline-with-unicode
-	while(getline(iniFile, key, _T('=')))
+    clear();
+    cpcc_string key, value;
+
+    // http://forums.codeguru.com/showthread.php?511066-RESOLVED-Is-it-possible-to-use-getline-with-unicode
+    while (getline(iniFile, key, _T('=')))
     {
         if (key.compare(0, 3, _T(UTF8_BOM)) == 0)  // the file has a UTF-8 BOM
             key.erase(0, 3);                  // Now get rid of the BOM.
 
-		getline(iniFile, value);
-		cINI_utils::decodeStrFromINI(value);
+        getline(iniFile, value);
+        cSerialCodec::decode(value);
         // set(key.c_str(), value);
         // directly add into the map so that the save to file is not triggered
         m_map[key] = value;
     }
-	
-	return true;
-    */
+
+    return true;
+
 }
 
 
@@ -346,93 +298,24 @@ std::string helper_to_utf8(const wchar_t* buffer, int len)
 
 bool cpccSettings::save(void)
 {
-    return cINI_utils::saveToFile(mFilename.c_str(), m_map);
-
-    /* moved
     cpcc_ostringstream ss;
 
-    for (cpccKeyValue::tKeysAndValues::iterator it = m_map.begin(); it != m_map.end(); ++it)
+    for (cpccKeyValue::tKeysAndValues::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
     {
-        const cpcc_char *key = it->first.c_str();
+        const cpcc_char* key = it->first.c_str();
         cpcc_string    value = it->second; // todo: value( it->second);
-        cINI_utils::encodeStrForINI(value);
+        cSerialCodec::encode(value);
         ss << key << _T("=") << value << std::endl;
     }
-    
-    #ifdef UNICODE	// write the BOM if UTF-8
-        //const cpcc_string tmpTxt(ss.str());
-        //const cpcc_string tmpTxtAfterUTF8(helper_to_utf8(tmpTxt.c_str(), tmpTxt.length()));
-        //return saveStringToFile(mFilename.c_str(), tmpTxtAfterUTF8.c_str(), true);
-        return saveStringToFile(mFilename.c_str(), ss.str().c_str(), true);
-    #else
-        return saveStringToFile(mFilename.c_str(), ss.str().c_str(), false);
-    #endif
-    */
-    
 
-    /*
-#define WRITE_WITH_STREAM
-
-#ifdef WRITE_WITH_STREAM
-	
-	//	write with streams
-	cpcc_ofstream _file(mFilename.c_str());
-	if (! _file.good())
-	{ 
-		#pragma warning(suppress : 4996)
-		cpcc_cerr << _T("Error saving file ") << mFilename << _T(" Error message:") << strerror(errno) << _T("\n");
-		return false;
-	}
-	
-	// write the BOM if UTF-8
-	#ifdef UNICODE
-		_file << "\xEF\xBB\xBF";
-        // _file.write(_T("\xEF\xBB\xBF"), 3);
-	#endif
-	
-	for (tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
-	{
-		const cpcc_char *key = it->first.c_str();
-		cpcc_string    value = it->second; // todo: value( it->second);
-		stringConversions::encodeStrForINI(value);
-		_file << key << _T("=") << value << std::endl;
-	}
-	
-	_file.close();
-	return true;
+#ifdef UNICODE	// write the BOM if UTF-8
+    //const cpcc_string tmpTxt(ss.str());
+    //const cpcc_string tmpTxtAfterUTF8(helper_to_utf8(tmpTxt.c_str(), tmpTxt.length()));
+    //return saveStringToFile(mFilename.c_str(), tmpTxtAfterUTF8.c_str(), true);
+    return cpccFileSystemMini::writeTextFile(mFilename.c_str(), ss.str().c_str(), true);
 #else
-
-    //	http://www.stev.org/post/2012/03/19/C++-Read-Write-stdmap-to-a-file.aspx
-    //	examples with greek text
-	//	http://blog.cppcms.com/post/105
-	//  http://www.cplusplus.com/forum/general/7142/
-    
-    // FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w, ccs=UTF-8")); // me ayto grafei sosta to elliniko keimeno alla stamataei pio kato
-    #pragma warning(suppress : 4996)
-    FILE *fp = cpcc_fopen(mFilename.c_str(), _T("w"));
-    if (!fp)
-    {
-        #pragma warning(suppress : 4996)
-		cpcc_cerr << _T("Error saving file ") << mFilename << _T(" Error message:") << strerror(errno) << _T("\n");
-        return false;
-    }
-	
-	#ifdef UNICODE	// write the BOM if UTF-8
-		fprintf(fp, "\xEF\xBB\xBF");
-	#endif
-
-    for(tKeysAndValues::iterator it = mSettings.begin(); it != mSettings.end(); ++it)
-    {
-		const cpcc_char *key = it->first.c_str();	// key = it->first;   
-		cpcc_string    value = it->second;
-		stringConversions::encodeStrForINI(value);
-        cpcc_fprintf(fp, _T("%s=%s\n"), key, value.c_str());
-    }
-    fclose(fp);
-    return true;
+    return cpccFileSystemMini::writeTextFile(mFilename.c_str(), ss.str().c_str(), false);
 #endif
-    
-    */
     
 }
 
@@ -451,124 +334,8 @@ void cpccSettings::resumeInstantSaving(void)
 void cpccSettings::selfTest(void) 
 {
 	cpcc_cout << _T("cpccSettings::SelfTest starting\n");
+
 	
-	const double pi = 3.14159265359;
-    const float  bigFloat = 13456798.43e9f;
-	const cpcc_char * tmpTestString = _T("abc-καλημέρα=good\n\rmorning to all.");
-    
-    cpcc_string fnameCurrentUser( getAutoFilename(scopeCurrentUser, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
-    cpcc_string folderCurrentUser = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
-    
-    cpcc_string fnameAllUsers( getAutoFilename(scopeAllUsers, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
-    cpcc_string folderAlltUsers = cpccPathHelper::getParentFolderOf(fnameCurrentUser);
-    
-    cpcc_cout << _T("ini file for current user:") << fnameCurrentUser << std::endl;
-    cpcc_cout << _T("ini file for all users:") << fnameAllUsers << std::endl;
-    
-    // clean up
-    if (cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()))
-        cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
-    if (cpccFileSystemMini::fileExists(fnameAllUsers.c_str()))
-        cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
-    
-    if (cpccFileSystemMini::folderExists(folderCurrentUser.c_str()))
-        cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
-    if (cpccFileSystemMini::folderExists(folderAlltUsers.c_str()))
-        cpccFileSystemMini::deleteFolder(folderAlltUsers.c_str());
-    
-	{
-		// writing
-        
-        
-		cpccSettings settingsUser( fnameCurrentUser.c_str());
-#ifndef OSX_SANDBOXED   // define this is your app is Sandboxed for the OSX apple store
-		cpccSettings settingsApp( fnameAllUsers.c_str());
-#else
-        cpccSettings &settingsApp = settingsUser;
-#endif
-        
-		settingsUser.set(_T("testStringKeyA"), _T("testStringValueA"));
-		
-
-		settingsUser.set(_T("testStringKeyB"), _T("tmpValue"));
-		settingsUser.set(_T("testStringKeyB"), _T("B"));
-
-		settingsUser.set(_T("testTrueKey"), true);
-		settingsUser.set(_T("testFalseKey"), false);
-		settingsUser.set(_T("pi"), pi);
-        settingsUser.set(_T("twentythree"), 23);
-        
-        settingsUser.set(_T("bigFloat"), bigFloat);
-
-		settingsApp.set(_T("AppSettingsOfSoftware"), _T("testSoftwareName"));
-		settingsApp.set(_T("extremeString"), tmpTestString);
-		cpccPersistentVar<int> tmpPersistentInt(settingsApp, _T("tmpPersInt"), 98);
-		tmpPersistentInt = 456;
-		tmpPersistentInt.writeAtIndex(3, 678);
-	}
-
-    //assert(cpccFileSystemMini::fileExists(fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
-    
-    assert(cpccFileSystemMini::fileExists( fnameCurrentUser.c_str()) && _T("SelfTest #7712a: file does not exist"));
-    
-    #ifndef OSX_SANDBOXED
-        // the following fails under Catalina
-        assert(cpccFileSystemMini::fileExists( fnameAllUsers.c_str()) && _T("SelfTest #7712b: file does not exist"));
-    #endif
-    
-    if (true) // turn ON/OFF the reading tests
-	{
-		// separate reading
-		cpccSettings settingsUser(fnameCurrentUser.c_str());
-        
-#ifndef OSX_SANDBOXED
-		cpccSettings settingsSystem( fnameAllUsers.c_str());
-#else
-        cpccSettings &settingsSystem = settingsUser;
-#endif
-
-		cpcc_string tmp = settingsUser.get(_T("testStringKeyA"), _T("default"));
-		assert(tmp.compare(_T("testStringValueA"))==0 && _T("SelfTest #7711b: readString error"));
-
-		tmp = settingsUser.get(_T("NonExistingKey"), _T("default"));
-		assert(tmp.compare(_T("default"))==0 && _T("SelfTest #7711c: readString error on default value"));
-
-		tmp = settingsUser.get(_T("testStringKeyB"), _T("default"));
-		assert(tmp.compare(_T("B"))==0 && _T("SelfTest #7711d: writeString error: does not update values"));
-
-		assert(settingsUser.get(_T("testTrueKey"),false)		&& _T("SelfTest #7711e: readBool error 1"));
-		assert(!settingsUser.get(_T("testFalseKey"),true)		&& _T("SelfTest #7711e: readBool error 2"));
-		assert(settingsUser.get(_T("testMissingKey1"),true)	&& _T("SelfTest #7711e: readBool error 3"));
-		assert(!settingsUser.get(_T("testMissingKey2"),false)	&& _T("SelfTest #7711e: readBool error 4"));
-
-		assert(settingsUser.get(_T("pi"),1.0)==pi	&& _T("SelfTest #7711f: readReal"));
-
-        // todo: this has problems to solve
-        float aFloat=settingsUser.get(_T("bigFloat"), 2.0f);
-        aFloat -= bigFloat;
-        if (bigFloat!=0)
-            aFloat /= bigFloat;
-
-        //cpcc_cout << _T("aFloat read=") << aFloat << std::endl;
-        assert((std::fabs(aFloat) < 0.000001f)	&& _T("SelfTest #7711k: readReal bigFloat"));
-        
-		assert(settingsUser.get(_T("twentythree"),2)==23	&& _T("SelfTest #7711g: readLongint"));
-
-		cpccPersistentVar<int> tmpPersistentInt(settingsSystem, _T("tmpPersInt"), 92);
-		assert((tmpPersistentInt == 456) && _T("SelfTest #7711r: tmpPersistentInt error 1"));
-		// assert((tmpPersistentInt.readAtIndex(3) == 678) && "SelfTest #7711j: tmpPersistentInt error 2");
-		assert((tmpPersistentInt[3] == 678) && _T("SelfTest #7711j: tmpPersistentInt error 2"));
-
-		tmp = settingsSystem.get(_T("extremeString"), _T("----"));
-		assert((tmp.compare(tmpTestString) == 0) && _T("SelfTest #7711w: readString error"));
-		}
-		
-    // clean up
-    cpccFileSystemMini::deleteFile(fnameCurrentUser.c_str());
-    cpccFileSystemMini::deleteFile(fnameAllUsers.c_str());
-    
-    cpccFileSystemMini::deleteFolder(folderCurrentUser.c_str());
-    cpccFileSystemMini::deleteFolder(folderAlltUsers.c_str());
     
 	cpcc_cout << _T("cpccSettings::SelfTest ended\n");
 
@@ -578,7 +345,7 @@ void cpccSettings::selfTest(void)
 
 #if defined(cpccSettings_DoSelfTest)
     SELFTEST_BEGIN(cpccSettings_SelfTest)
-        cpccKeyValue::selfTest();
+        
         cpccSettings::selfTest();
 
     SELFTEST_END

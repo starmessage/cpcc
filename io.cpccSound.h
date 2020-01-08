@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include "cpccUnicodeSupport.h"
 
 #ifdef _WIN32
 	//typedef		int		cpccSoundIdType;
@@ -55,7 +56,7 @@ public:
     
     #endif
     
-    void    playSoundFile(const char *aFilename, const bool loop);
+    void    playSoundFile(const cpcc_char *aFilename, const bool loop);
 	void	stop(void);
     
     static void beep(void)
