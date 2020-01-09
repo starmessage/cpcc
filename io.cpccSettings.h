@@ -36,11 +36,6 @@
 */
 
 
-#ifdef cpccDEBUG
-    #define cpccSettings_DoSelfTest		true
-#endif
-
-
 /*
  ini file location tests:
 
@@ -82,10 +77,7 @@ private:
 
 public:	// class metadata and selftest
 	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
-	
-#if defined(cpccSettings_DoSelfTest)
-	static void selfTest(void);
-#endif
+
 
 public: 	// data
     

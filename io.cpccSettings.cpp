@@ -26,12 +26,9 @@
 #include "core.cpccStringUtil.h"
 #include "io.cpccSettings.h"
 
-
 #include "fs.cpccSystemFolders.h"   // todo: remove the system (and user folders) The INI class does not have somemthing to do with them.
 #include "fs.cpccUserFolders.h" 
-#if defined(cpccSettings_DoSelfTest)
-	#include "cpcc_SelfTest.h"
-#endif
+
 
 
 /*
@@ -327,54 +324,4 @@ void cpccSettings::resumeInstantSaving(void)
 	if (!save())
 		cpcc_cerr << _T("Error #1353: saving cpccSettings to file:") << mFilename << std::endl;
 }
-
-
-
-#if defined(cpccSettings_DoSelfTest)
-void cpccSettings::selfTest(void) 
-{
-	cpcc_cout << _T("cpccSettings::SelfTest starting\n");
-
-	
-    
-	cpcc_cout << _T("cpccSettings::SelfTest ended\n");
-
-}
-#endif
-
-
-#if defined(cpccSettings_DoSelfTest)
-    SELFTEST_BEGIN(cpccSettings_SelfTest)
-        
-        cpccSettings::selfTest();
-
-    SELFTEST_END
-#endif
-
-// lazy but early enough constructor for the application's settings objects
-/*
-cpccSettings &appUserSettings(void)
-{
-	static cpccSettings m_appUserSettings(cpccSettings::scopeCurrentUser);
-	return m_appUserSettings;
-}
-
-
-cpccSettings &appSystemSettings(void)
-{
-#ifndef OSX_SANDBOXED
-    static cpccSettings m_appSystemSettings( cpccSettings::scopeAllUsers);
-    return m_appSystemSettings;
-#else
-    return appUserSettings();
-#endif
-}
-
-
-
-*/
-
-
-///////////////////////////////////////////////////////////////////////////
-
 

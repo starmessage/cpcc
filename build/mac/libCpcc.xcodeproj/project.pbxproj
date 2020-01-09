@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.cpccWideCharSupport.h; path = ../../types.cpccWideCharSupport.h; sourceTree = "<group>"; };
+		58BAE7CE23C7CA2700A84127 /* cpccTesting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTesting.h; path = ../../cpccTesting.h; sourceTree = "<group>"; };
 		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
 		58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccLog.cpp; path = ../../io.cpccLog.cpp; sourceTree = "<group>"; };
 		58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccPathHelper.h; path = ../../io.cpccPathHelper.h; sourceTree = "<group>"; };
@@ -15,7 +17,6 @@
 		58BAE83B23C34AB700FDACC4 /* core.cpccHardware.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccHardware.h; path = ../../core.cpccHardware.h; sourceTree = "<group>"; };
 		58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccPathHelper.cpp; path = ../../io.cpccPathHelper.cpp; sourceTree = "<group>"; };
 		58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccSettings.cpp; path = ../../io.cpccSettings.cpp; sourceTree = "<group>"; };
-		58BAE83E23C34AB700FDACC4 /* cpcc_SelfTest.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cpcc_SelfTest.cpp; path = ../../cpcc_SelfTest.cpp; sourceTree = "<group>"; };
 		58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccOSversion.h; path = ../../core.cpccOSversion.h; sourceTree = "<group>"; };
 		58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = net.cpccInternet.h; path = ../../alpha/net.cpccInternet.h; sourceTree = "<group>"; };
 		58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = net.cpccInternet.mac.mm; path = ../../alpha/net.cpccInternet.mac.mm; sourceTree = "<group>"; };
@@ -48,8 +49,8 @@
 				58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */,
 				58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */,
 				58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */,
-				58BAE83E23C34AB700FDACC4 /* cpcc_SelfTest.cpp */,
 				58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */,
+				58BAE7CE23C7CA2700A84127 /* cpccTesting.h */,
 				58BAE85023C34AB900FDACC4 /* cpccTimeCounter.cpp */,
 				58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */,
 				58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */,
@@ -67,6 +68,7 @@
 				58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */,
 				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
 				58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */,
+				58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */,
 			);
 			sourceTree = "<group>";
 		};

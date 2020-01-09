@@ -28,23 +28,14 @@
 #include <fstream>
 #include <ctime>
 
+#include "types.cpccWideCharSupport.h"
+
 #include "fs.cpccUserFolders.h"
 
 #ifdef    _WIN32
-    #include <tchar.h>
     #include <windows.h>
-	#include <Shlobj.h> // for SHGetFolderPath()
-	#pragma comment(lib,"Shell32.lib") // instruct visual studio to link the library
-#endif
-
-
-#ifdef __APPLE__    // define the _T() macro that is a MS VC macro
-    #ifndef _T
-        #define _T(s) s
-    #endif
-    #ifndef TCHAR
-        #define  TCHAR char
-    #endif
+	// #include <Shlobj.h> // for SHGetFolderPath()
+	// #pragma comment(lib,"Shell32.lib") // instruct visual studio to link the library
 #endif
 
 
@@ -252,7 +243,7 @@ namespace cpccTesting
             if (errors>0)
                 get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
             else
-                get() << _T("All tests were passed OK.") << std::endl;
+                get() << _T("All tests passed OK.") << std::endl;
 
             if (m_stream.good())
                 m_stream.close();

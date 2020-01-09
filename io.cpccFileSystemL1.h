@@ -27,6 +27,8 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <ctime>
+
 #ifdef __APPLE__
     #include <unistd.h> // for rmdir()
 #endif
@@ -165,11 +167,11 @@ public:  // functions
 };
 
 
-///////////////////////////////
+// /////////////////////////////////
 //
 //  cpccFileSystemL1 implementation
 //
-///////////////////////////////
+// /////////////////////////////////
 
 template<typename aPCharType>
 bool cpccFileSystemL1::deleteFolder(const aPCharType * aFoldername)

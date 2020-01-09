@@ -8,7 +8,6 @@
  *  License: 	Free for opensource projects.
  *  			Commercial license for closed source projects.
  *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
  *	email:		sales -at- starmessage.info
  *	*****************************************
  */
@@ -92,7 +91,7 @@
 	You can use UTF-8 encoding with them but the filesystem itself does not care.
 
     example of utf8 string constant:
-    char utf8String[] = u8“hello”; //UTF-8 encoding.
+    char utf8String[] = u8ï¿½helloï¿½; //UTF-8 encoding.
  */
 #pragma once
 
