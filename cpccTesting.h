@@ -11,8 +11,7 @@
  *  *****************************************
  */
 
-#ifndef cpccTesting_h
-#define cpccTesting_h
+#pragma once
 
 /* 
     
@@ -28,6 +27,7 @@
 #include <fstream>
 #include <ctime>
 #include <thread>
+#include <chrono>
 #include <vector>
 #include "types.cpccWideCharSupport.h"
 
@@ -281,13 +281,17 @@ namespace cpccTesting
             m_stream.close();
     }
 
-
+    // todo:this class is unused
     class cTestRunner
     {
     private:
         const std::basic_string<TCHAR> testName;
         std::basic_ostream<TCHAR> &reportStream;
         std::thread *threadPtr = NULL;
+        
+        // typedef pointer to a class member function: you need the class type
+        // As of C++11, you could write this typedef as a more legible using statement:
+        // using MyTypedef = int (MyClass::*)(int);
         
     public:
         cTestRunner(const TCHAR *aTestName, std::basic_ostream<TCHAR> &aReportStream, const bool runAsync):
@@ -334,19 +338,20 @@ namespace cpccTesting
 
 } // end of namespace (the same namespace continues below)
 
+#define OUTPUT_STREAM           cpccTesting::sharedObjects::outputStream().get()
 
 
 #define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
   if (!(aCONDITION))							    \
     {                                               \
-    aStream << _T("Test failed! (");                \
-    aStream << TEST_MAKESTRING(aCONDITION);         \
-    aStream << _T(")")  << std::endl;               \
-    aStream << aMESSAGE << std::endl;               \
+    OUTPUT_STREAM << _T("Test failed! (");                \
+    OUTPUT_STREAM << TEST_MAKESTRING(aCONDITION);         \
+    OUTPUT_STREAM << _T(")")  << std::endl;               \
+    OUTPUT_STREAM << aMESSAGE << std::endl;               \
     cpccTesting::sharedTestRegister::getNErrors() = cpccTesting::sharedTestRegister::getNErrors()+1; \
     }
 
-#define OUTPUT_STREAM           cpccTesting::sharedObjects::outputStream().get()
+
 
 #define TEST_ADDNOTE(aMESSAGE)   OUTPUT_STREAM << aMESSAGE << std::endl;
 
@@ -358,12 +363,14 @@ namespace cpccTesting
         class cpccSelfTest          			    \
         {										    \
         public:									    \
-            void runTest(std::basic_ostream<TCHAR> &aStream);     \
+            void runTest(void);                     \
                                                                             \
             void runFunctionWrapper(void)                                   \
             {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+                if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
+                    return;                                                         \
                 OUTPUT_STREAM << _T("/ Starting test:") << tmpNameA << std::endl;   \
-                runTest(OUTPUT_STREAM);                                         \
+                runTest();                                         \
                 OUTPUT_STREAM << _T("\\ Ending   test:") << tmpNameA << std::endl << std::endl; \
                 int errors = cpccTesting::sharedTestRegister::getNErrors();          \
                 if (errors > 0)                                                 \
@@ -371,50 +378,57 @@ namespace cpccTesting
             }                                                                       \
                                                                                     \
             cpccSelfTest()						                                    \
-            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
-                if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
-                    return;                                                         \
-                runFunctionWrapper();                                               \
+            {   runFunctionWrapper();                                              \
             }						                                                \
                                                                                     \
         }; static cpccSelfTest  TestingVariableName;                            \
     }                                                                           \
                                                                                 \
-    inline void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
+    inline void SelfTestUniqueName::cpccSelfTest::runTest(void)
 
 
 /* the async version of the test that runs it on a separate thread
    after a few msec to give time to the app to launch all modules */
-#define TEST_RUN_ASYNC(SelfTestUniqueName, aSTREAM)        \
-        TEST_RUN_IMPL(SelfTestUniqueName, aSTREAM, true)
-
-
-
-#define TEST_RUN_WITHCLASS(SelfTestUniqueName, aSTREAM)        \
-namespace SelfTestUniqueName {                    \
-    static cpccTesting::cTestRunner  TestingVariableName( TEST_MAKESTRING(SelfTestUniqueName), aSTREAM.get(), false);   \
-}                                                                           \
-                                                                            \
-inline void SelfTestUniqueName::cTestRunner::runTest(std::basic_ostream<TCHAR> &aStream)
-
-
-
-
-#define TEST_RUN_xxxx(SelfTestUniqueName, aSTREAM)        \
-    namespace SelfTestUniqueName {                    \
-        class cTestRunnerImpl: protected cpccTesting::cTestRunner            \
-        {                                            \
-        public:                                        \
-            cTestRunnerImpl(void): \
-                cTestRunner( TEST_MAKESTRING(SelfTestUniqueName), aSTREAM.get(), false)    \
-            { }                                         \
-            void runTest(std::basic_ostream<TCHAR> &aStream) override;     \
-        }; static cTestRunnerImpl  TestingVariableName;   \
-    }                                                                           \
+#define TEST_RUN_ASYNC(SelfTestUniqueName)        \
+        namespace SelfTestUniqueName {                    \
+            class cpccSelfTest                          \
+            {                                            \
+            private:                                        \
+                std::thread *threadPtr = NULL;                                    \
+            public:                                        \
+                void runTest(void);                     \
                                                                                 \
-    inline void SelfTestUniqueName::cTestRunnerImpl::runTest(std::basic_ostream<TCHAR> &aStream)
+                void runFunctionWrapper(void)                                   \
+                {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+                    if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
+                        return;                                                         \
+                    std::this_thread::sleep_for(std::chrono::seconds(2));               \
+                    OUTPUT_STREAM << _T("/ Starting test (in thread):") << tmpNameA << std::endl;   \
+                    runTest();                                         \
+                    OUTPUT_STREAM << _T("\\ Ending   test (in thread):") << tmpNameA << std::endl << std::endl; \
+                    int errors = cpccTesting::sharedTestRegister::getNErrors();          \
+                    if (errors > 0)                                                 \
+                        OUTPUT_STREAM << errors << _T(" errors so far.") << std::endl;  \
+                }                                                                       \
+                                                                                        \
+                cpccSelfTest()                                                            \
+                {  threadPtr = new std::thread(&cpccSelfTest::runFunctionWrapper, *this );   \
+                }                                                                        \
+                                                                                        \
+                ~cpccSelfTest()                                                            \
+                {    if (threadPtr)                                                         \
+                    {                                                                   \
+                    if (threadPtr->joinable())                                          \
+                        threadPtr->join();                                              \
+                    else                                                                \
+                        OUTPUT_STREAM << _T("#8261f: ~cTestRunner() found a non-joinable thread\n");    \
+                    }                                                                   \
+                }                                                                        \
+                                                                                        \
+            }; static cpccSelfTest  TestingVariableName;                            \
+        }                                                                           \
+                                                                                    \
+        inline void SelfTestUniqueName::cpccSelfTest::runTest(void)
 
 
 
-
-#endif /* cpccTesting_h */

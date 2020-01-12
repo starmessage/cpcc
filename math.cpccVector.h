@@ -297,7 +297,7 @@ public: // Public functions
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-TEST_RUN(cpccVector_test, cpccTesting::sharedObjects::outputStream())
+TEST_RUN(cpccVector_test)
 {
     const bool skipThisTest = false;
 
