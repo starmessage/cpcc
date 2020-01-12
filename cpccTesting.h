@@ -27,7 +27,8 @@
 #include <iostream>
 #include <fstream>
 #include <ctime>
-
+#include <thread>
+#include <vector>
 #include "types.cpccWideCharSupport.h"
 
 #include "fs.cpccUserFolders.h"
@@ -75,12 +76,65 @@
 namespace cpccTesting
 {
 
+    /*
+    struct sTestResult
+    {
+        bool pass;
+        std::basic_string<TCHAR> message;
+    };
+    */
+
+
     //=============================================================================
-    // class cTestRegister
+    // class cThreadRegister
+    // used to join all (if any) running threads
+    //=============================================================================
+    class cThreadRegister
+    {
+    public:
+        typedef std::vector<std::thread *> tListOfThreads;
+        
+        static tListOfThreads &getListOfThreads(void)
+        {
+            static tListOfThreads list;
+            return list;
+        }
+        
+        
+        static bool addThread(std::thread *aThread)
+        {
+            if (!aThread)
+                return false;
+            
+            static std::mutex mu;
+            std::lock_guard<std::mutex> lock(mu);
+            getListOfThreads().push_back(aThread);
+            return true;
+        }
+        
+        static void joinAllThreads(std::basic_ostream<TCHAR> &errStream)
+        {
+            for (auto &th : getListOfThreads())
+            {
+                if (th)
+                {
+                    if (th->joinable())
+                        th->join();
+                    else
+                        errStream << _T("#8261a: joinAllThreads found a non-joinable thread\n");
+                }
+                else
+                    errStream << _T("#8261b: joinAllThreads found a null thread ptr\n");
+            }
+        }
+    };
+
+    //=============================================================================
+    // class sharedTestRegister
     // used to avoid runing the same test again
     //=============================================================================
 
-    class cTestRegister
+    class sharedTestRegister
     {
     public:
         static int  &getNErrors(void)
@@ -102,60 +156,18 @@ namespace cpccTesting
             return false;
         }
     };
-} // end of namespace (the same namespace continues below)
 
 
 
-#define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
-  if (!(aCONDITION))							    \
-    {                                               \
-    aStream << _T("Test failed! (");                \
-    aStream << TEST_MAKESTRING(aCONDITION);         \
-    aStream << _T(")")  << std::endl;               \
-    aStream << aMESSAGE << std::endl;               \
-    cpccTesting::cTestRegister::getNErrors() = cpccTesting::cTestRegister::getNErrors()+1; \
-    }
 
 
-#define TEST_ADDNOTE(aMESSAGE)   aStream << aMESSAGE << std::endl;
-
-// Notes: use a unnamed namespace so that the variable TestingVariableName is not redefined multiple times
-// Alternative to the unnamed namespaces is the the 'static' declaration of the variable.
-// Here, it helps to avoid the multiple symbols definition when the header is included (compiled) from many cpp files.
-#define TEST_RUN(SelfTestUniqueName, aSTREAM)	    \
-	namespace SelfTestUniqueName {			        \
-        class cpccSelfTest          			    \
-        {										    \
-        public:									    \
-            static void runTest(std::basic_ostream<TCHAR> &aStream);     \
-            cpccSelfTest()						                                \
-            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);     \
-                if (cpccTesting::cTestRegister::testHasAlreadyRan(tmpNameA))    \
-                    return;                                                     \
-                aSTREAM.get() << _T("/ Starting test:") << tmpNameA << std::endl;   \
-                runTest(aSTREAM.get());                                         \
-                aSTREAM.get() << _T("\\ Ending   test:") << tmpNameA << std::endl << std::endl; \
-                int errors = cpccTesting::cTestRegister::getNErrors();          \
-                if (errors > 0)                                                 \
-                    aSTREAM.get() << errors << _T(" errors so far.") << std::endl;  \
-            };						                                            \
-        }; static cpccSelfTest  TestingVariableName;                            \
-    }                                                                           \
-                                                                                \
-    inline void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
-
-
-
-namespace cpccTesting
-{
-    
     // ///////////////////////////////////
     // class util
     // ///////////////////////////////////
-    
-	class util
-	{
-	public:
+
+    class util
+    {
+    public:
         static std::basic_string<TCHAR> getTimeStamp(void)
         {
             std::time_t secondsSinceTheEpoch = std::time(nullptr);
@@ -168,21 +180,21 @@ namespace cpccTesting
                 return std::asctime(std::localtime(&secondsSinceTheEpoch));
             #endif
         }
-	};
+    };
 
         
-    
+
     // ///////////////////////////////////
     // classes cOutputStreamAbstract
     // ///////////////////////////////////
-    
+
     class cOutputStreamAbstract
     {
     public:
         virtual std::basic_ostream<TCHAR> &get(void) = 0;
     };
-    
-    
+
+
     class cOutputStreamStdErr: public cOutputStreamAbstract
     {
     public:
@@ -195,8 +207,8 @@ namespace cpccTesting
         #endif
         }
     };
-    
-    
+
+
     class cOutputStreamDesktopFile: public cOutputStreamAbstract
     {
     private:
@@ -235,52 +247,172 @@ namespace cpccTesting
             #endif
         }
         
-        ~cOutputStreamDesktopFile()
-        {
-            get() << _T("Closing the file.") << std::endl;
-            int errors = cpccTesting::cTestRegister::getNErrors();
-            
-            if (errors>0)
-                get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
-            else
-                get() << _T("All tests passed OK.") << std::endl;
-
-            if (m_stream.good())
-                m_stream.close();
-        }
+        ~cOutputStreamDesktopFile();
     };
-    
-    
 
     // ///////////////////////////////////
-    // class singleton
+    // class sharedObjects has singletons
+    // of the needed objects
     // ///////////////////////////////////
-    
-    class singleton
+
+    class sharedObjects
     {
     public:
-        static cOutputStreamAbstract &getOutput(void)
+        static cOutputStreamAbstract &outputStream(void)
         {
             static cOutputStreamDesktopFile inst_;
             return inst_;
         }
     };
-    
 
-    //=======================================================================
-    
-    /*
-    struct sTestResult
+
+
+    inline cOutputStreamDesktopFile::~cOutputStreamDesktopFile()
     {
-        bool pass;
-        std::basic_string<TCHAR> message;
+        get() << _T("Closing the file.") << std::endl;
+        int errors = cpccTesting::sharedTestRegister::getNErrors();
+        
+        if (errors>0)
+            get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
+        else
+            get() << _T("All tests passed OK.") << std::endl;
+
+        if (m_stream.good())
+            m_stream.close();
+    }
+
+
+    class cTestRunner
+    {
+    private:
+        const std::basic_string<TCHAR> testName;
+        std::basic_ostream<TCHAR> &reportStream;
+        std::thread *threadPtr = NULL;
+        
+    public:
+        cTestRunner(const TCHAR *aTestName, std::basic_ostream<TCHAR> &aReportStream, const bool runAsync):
+            testName(aTestName?aTestName:_T("#5231: NULL test name")),
+            reportStream(aReportStream)
+        {
+            if (cpccTesting::sharedTestRegister::testHasAlreadyRan(testName.c_str()))
+                return;
+            if (!runAsync)
+                runFunctionWrapper();
+            else
+            {
+                reportStream << _T("Will run async (not implemented)\n");
+                // threadPtr = new std::thread(&cTestRunner::runFunctionWrapper, *this );
+            }
+        }
+        
+        ~cTestRunner()
+        {
+            if (threadPtr)
+            {
+                if (threadPtr->joinable())
+                    threadPtr->join();
+                else
+                    reportStream << _T("#8261b: ~cTestRunner() found a non-joinable thread\n");
+            }
+        }
+        
+        // this will be defined by the macro, in a derived class
+        void runTest(std::basic_ostream<TCHAR> &aStream);
+        
+        void runFunctionWrapper(void)
+        {
+            reportStream << _T("/ Starting test:") << testName << std::endl;
+            runTest(reportStream);
+            reportStream << _T("\\ Ending   test:") << testName << std::endl << std::endl;
+            int errors = cpccTesting::sharedTestRegister::getNErrors();
+            if (errors > 0)
+                reportStream << errors << _T(" errors so far.") << std::endl;
+        }
+
     };
-    */
 
-    
-    
-} // end of namespace cpccTesting
 
+} // end of namespace (the same namespace continues below)
+
+
+
+#define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
+  if (!(aCONDITION))							    \
+    {                                               \
+    aStream << _T("Test failed! (");                \
+    aStream << TEST_MAKESTRING(aCONDITION);         \
+    aStream << _T(")")  << std::endl;               \
+    aStream << aMESSAGE << std::endl;               \
+    cpccTesting::sharedTestRegister::getNErrors() = cpccTesting::sharedTestRegister::getNErrors()+1; \
+    }
+
+#define OUTPUT_STREAM           cpccTesting::sharedObjects::outputStream().get()
+
+#define TEST_ADDNOTE(aMESSAGE)   OUTPUT_STREAM << aMESSAGE << std::endl;
+
+// Notes: use a unnamed namespace so that the variable TestingVariableName is not redefined multiple times
+// Alternative to the unnamed namespaces is the the 'static' declaration of the variable.
+// Here, it helps to avoid the multiple symbols definition when the header is included (compiled) from many cpp files.
+#define TEST_RUN(SelfTestUniqueName)	            \
+	namespace SelfTestUniqueName {			        \
+        class cpccSelfTest          			    \
+        {										    \
+        public:									    \
+            void runTest(std::basic_ostream<TCHAR> &aStream);     \
+                                                                            \
+            void runFunctionWrapper(void)                                   \
+            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+                OUTPUT_STREAM << _T("/ Starting test:") << tmpNameA << std::endl;   \
+                runTest(OUTPUT_STREAM);                                         \
+                OUTPUT_STREAM << _T("\\ Ending   test:") << tmpNameA << std::endl << std::endl; \
+                int errors = cpccTesting::sharedTestRegister::getNErrors();          \
+                if (errors > 0)                                                 \
+                    OUTPUT_STREAM << errors << _T(" errors so far.") << std::endl;  \
+            }                                                                       \
+                                                                                    \
+            cpccSelfTest()						                                    \
+            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+                if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
+                    return;                                                         \
+                runFunctionWrapper();                                               \
+            }						                                                \
+                                                                                    \
+        }; static cpccSelfTest  TestingVariableName;                            \
+    }                                                                           \
+                                                                                \
+    inline void SelfTestUniqueName::cpccSelfTest::runTest(std::basic_ostream<TCHAR> &aStream)
+
+
+/* the async version of the test that runs it on a separate thread
+   after a few msec to give time to the app to launch all modules */
+#define TEST_RUN_ASYNC(SelfTestUniqueName, aSTREAM)        \
+        TEST_RUN_IMPL(SelfTestUniqueName, aSTREAM, true)
+
+
+
+#define TEST_RUN_WITHCLASS(SelfTestUniqueName, aSTREAM)        \
+namespace SelfTestUniqueName {                    \
+    static cpccTesting::cTestRunner  TestingVariableName( TEST_MAKESTRING(SelfTestUniqueName), aSTREAM.get(), false);   \
+}                                                                           \
+                                                                            \
+inline void SelfTestUniqueName::cTestRunner::runTest(std::basic_ostream<TCHAR> &aStream)
+
+
+
+
+#define TEST_RUN_xxxx(SelfTestUniqueName, aSTREAM)        \
+    namespace SelfTestUniqueName {                    \
+        class cTestRunnerImpl: protected cpccTesting::cTestRunner            \
+        {                                            \
+        public:                                        \
+            cTestRunnerImpl(void): \
+                cTestRunner( TEST_MAKESTRING(SelfTestUniqueName), aSTREAM.get(), false)    \
+            { }                                         \
+            void runTest(std::basic_ostream<TCHAR> &aStream) override;     \
+        }; static cTestRunnerImpl  TestingVariableName;   \
+    }                                                                           \
+                                                                                \
+    inline void SelfTestUniqueName::cTestRunnerImpl::runTest(std::basic_ostream<TCHAR> &aStream)
 
 
 

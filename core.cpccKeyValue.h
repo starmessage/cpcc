@@ -236,7 +236,7 @@ inline const int cpccKeyValue::addFromSimpleString(const cpcc_char* aKeyValueLis
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-TEST_RUN(cpccKeyValue_test, cpccTesting::singleton::getOutput())
+TEST_RUN(cpccKeyValue_test)
 {
     const bool skipThisTest = false;
 

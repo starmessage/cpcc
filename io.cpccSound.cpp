@@ -70,8 +70,10 @@ void	cpccSound::stop(void)
     if (nsSoundPtr)
     {
         [nsSoundPtr stop];
-        [nsSoundPtr release];
-        nsSoundPtr=NULL;
+         #if !(__has_feature(objc_arc))
+            [nsSoundPtr release];
+            nsSoundPtr=NULL;
+        #endif
     }
 #endif
 
@@ -97,8 +99,9 @@ void 	cpccSound::playResourceSound(NSString *aBundleClass, NSString *aResourceFi
 
     NSBundle *pBundle = [NSBundle bundleForClass:aBundleClass];
     NSString *resourcePath = [pBundle pathForResource: aResourceFile ofType:@"wav"];
-    [pBundle release];
-    
+     #if !(__has_feature(objc_arc))
+        [pBundle release];
+    #endif
     //infoLog().addf("path of sound:%s", [resourcePath UTF8String]);
     playSoundFile(resourcePath, loop);
 }

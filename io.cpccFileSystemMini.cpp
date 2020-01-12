@@ -403,7 +403,7 @@ size_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer
 
 
 
-
+// todo: move the L1 as inline function
 bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
 {
 	/*

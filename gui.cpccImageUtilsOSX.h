@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccImageUtilsOSX.h
  *	Purpose:	Portable (cross-platform), light-weight library
  *	*****************************************
@@ -145,8 +145,14 @@ public:
 	{
 		if	(!aImagePtr) 
 			return nil;
-			
+        
+        if (!aImagePtr.TIFFRepresentation)
+            return nil;
+        
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
 		NSBitmapImageRep *bitmapImageRep = [[NSBitmapImageRep alloc] initWithData: [aImagePtr TIFFRepresentation]];
+        #pragma clang diagnostic pop
 		return [bitmapImageRep autorelease];
 	}
 	
@@ -248,8 +254,14 @@ public:
         if (tmpImg==NULL)
             return NULL;
         
+        if (!tmpImg.TIFFRepresentation)
+            return NULL;
+        
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
         // you have to retain tmpImg to retain the result
         return [NSBitmapImageRep imageRepWithData:[tmpImg TIFFRepresentation] ];
+        #pragma clang diagnostic pop
     }
     
     

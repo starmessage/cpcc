@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccImageMac.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -291,10 +291,24 @@ protected: // functions
         
 		bmpPtr = NULL;
 		NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:finalFilename.c_str()] autorelease];
+        if    (! tmpFilename)
+        {
+            errorLog().addf("#2834q: initWithFile_impl() failed:%s", finalFilename.c_str());
+            return NULL;
+        }
         
-        CPCC_TRY_AND_CATCH(bmpPtr = [[NSBitmapImageRep alloc] initWithData:[NSData dataWithContentsOfFile:tmpFilename]]
+        NSData *fileContents = [NSData dataWithContentsOfFile:tmpFilename];
+        if    (! fileContents)
+        {
+            errorLog().addf("#2834r: initWithFile_impl() failed:%s", finalFilename.c_str());
+            return NULL;
+        }
+        
+        CPCC_TRY_AND_CATCH(bmpPtr = [[NSBitmapImageRep alloc] initWithData:fileContents]
                            , "#8672: Loading image")
-        
+        #if !(__has_feature(objc_arc))
+            [fileContents release];
+        #endif
 		
         if	(! bmpPtr)
 		{

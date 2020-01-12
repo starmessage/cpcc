@@ -181,7 +181,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-TEST_RUN(cpccSettings_testNew, cpccTesting::singleton::getOutput())
+TEST_RUN(cpccSettings_testNew)
 {
     const bool skipThisTest = false;
 

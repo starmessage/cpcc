@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccNumberWithBounds.h
   *	Purpose:	Portable (cross-platform), light-weight, library
  *	*****************************************
@@ -89,7 +89,7 @@ typedef cpccNumberWithBounds<unsigned char, 0, 255, 1>	cpccByte0_255;
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-TEST_RUN(cpccNumberWithBounds_test, cpccTesting::singleton::getOutput())
+TEST_RUN(cpccNumberWithBounds_test, cpccTesting::sharedObjects::outputStream())
 {
     const bool skipThisTest = false;
 

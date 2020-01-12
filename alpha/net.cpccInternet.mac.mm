@@ -75,6 +75,7 @@ bool cpccInternet::isConnectedToInternet(void)
 		return result;
 }
 
+
 // todo: delete (duplicate)
 bool toDelete_downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, const long maxSize, long &downloadedBytes, const unsigned int timeout_sec, const cpcc_char *aUserAgent)
 {
@@ -88,8 +89,14 @@ bool toDelete_downloadToFile(const cpcc_char *aUrl, const cpcc_char *saveTo, con
 	A data task is ideal for uses like calling a web service endpoint.
 	*/
 
-
-	NSURL *url = [NSURL URLWithString:[NSString stringWithUTF8String:aUrl]];
+    NSString *urlAsString = [NSString stringWithUTF8String:aUrl];
+    if (!urlAsString)
+        return false;
+	NSURL *url = [NSURL URLWithString:urlAsString];
+    #if !(__has_feature(objc_arc))
+        [urlAsString release];
+    #endif
+    
     /*
      Don't use this synchronous method to request network-based URLs. For network-based URLs,
      this method can block the current thread for tens of seconds on a slow network,

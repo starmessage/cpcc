@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		math.cpccVector.h
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, multidimentional number
@@ -297,7 +297,7 @@ public: // Public functions
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-TEST_RUN(cpccVector_test, cpccTesting::singleton::getOutput())
+TEST_RUN(cpccVector_test, cpccTesting::sharedObjects::outputStream())
 {
     const bool skipThisTest = false;
 
