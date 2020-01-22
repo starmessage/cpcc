@@ -16,6 +16,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <mutex>
 
 #include "cpccUnicodeSupport.h"
 #include "io.cpccFileSystemMini.h"
@@ -90,8 +91,29 @@ public:
 	const cpcc_string &getFilename(void) const { return m_filename; }
 
 
+    // this crashes
+    /*
+	std::mutex &getMutex(void)
+	{
+		static std::mutex file_write_mutex;
+		return file_write_mutex;
+	}
+     */
+    
 	void add(const cpcc_char* txt) 
 	{
+		// experimental: lock
+		// this crashes
+		// static std::mutex file_write_mutex;
+		// const std::lock_guard<std::mutex> lock(file_write_mutex);
+		
+        // this crashes
+		// const std::lock_guard<std::mutex> lock(getMutex());
+
+		// this crashes
+		// static std::mutex *file_write_mutex = new std::mutex;
+		// std::lock_guard<std::mutex> lock(*file_write_mutex);
+
 		if (m_filename.length() > 0)
 		{
 			if (cpccFileSystemMini::fileExists(m_filename.c_str()))

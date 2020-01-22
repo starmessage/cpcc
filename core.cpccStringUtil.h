@@ -25,7 +25,7 @@
 #include <algorithm>
 
 #include "cpccUnicodeSupport.h"
-
+#include "cpccTesting.h"
  
 typedef std::vector<cpcc_string> cpcc_stringList;
 
@@ -39,7 +39,6 @@ class stringUtils
 {
 
 public:
-    static inline void selfTest(void);
     
     static inline void stringTrimL(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
     static inline void stringTrimR(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
@@ -137,44 +136,6 @@ public:
 /// --------------------------------------
 
 
-inline void stringUtils::selfTest(void)
-{
-    // logObjectLife logThis("stringUtils::selfTest()");
-    cpcc_string s(_T(" hello  "));
-    
-    stringTrimL(s);
-    assert((s.compare(_T("hello  ")) == 0) && "#2381a: stringTrimL");
-    
-    stringTrimR(s);
-    assert((s.compare(_T("hello")) == 0) && "#2381b: stringTrimR");
- 
-    s = _T("   ");
-    
-    stringTrim(s);
-    assert((s.compare(_T("")) == 0) && "#2381c: stringTrim");
-    
-    stringTrim(s);
-    assert((s.compare(_T("")) == 0) && "#2381d: stringTrim");
-
-	s = _T("word1.word2   ");
-	removeFromStringToTheEnd(s, _T("."));
-	assert((s.compare(_T("word1")) == 0) && "#2381e: removeFromStringToTheEnd");
-
-	removeFromStringToTheEnd(s, _T("2"));
-	assert((s.compare(_T("word1")) == 0) && "#2381f: removeFromStringToTheEnd");
-
-	removeFromStringToTheEnd(s, _T("ord1"));
-	assert((s.compare(_T("w")) == 0) && "#2381h: removeFromStringToTheEnd");
-
-	s = _T("w");
-	removeFromStringToTheEnd(s, _T(""));
-	assert((s.compare(_T("w")) == 0) && "#2381g: removeFromStringToTheEnd");
-
-	s = _T("");
-	removeFromStringToTheEnd(s, _T("xxx"));
-	assert((s.compare(_T("")) == 0) && "#2381k: removeFromStringToTheEnd");
-
-}
 
 
 // trim from start (in place)
@@ -454,3 +415,50 @@ class stringConversions
 };
 
 */
+
+
+TEST_RUN(stringUtils_test)
+{
+    cpcc_string s(_T(" hello  "));
+
+    stringUtils::stringTrimL(s);
+    TEST_EXPECT((s.compare(_T("hello  ")) == 0) , _T("#2381a: stringTrimL"));
+
+    stringUtils::stringTrimR(s);
+    TEST_EXPECT((s.compare(_T("hello")) == 0), _T("#2381b: stringTrimR"));
+
+    s = _T("   ");
+
+    stringUtils::stringTrim(s);
+    TEST_EXPECT((s.compare(_T("")) == 0), _T("#2381c: stringTrim"));
+
+    stringUtils::stringTrim(s);
+    TEST_EXPECT((s.compare(_T("")) == 0), _T("#2381d: stringTrim"));
+
+    s = _T("word1.word2   ");
+    stringUtils::removeFromStringToTheEnd(s, _T("."));
+    TEST_EXPECT((s.compare(_T("word1")) == 0), _T("#2381e: removeFromStringToTheEnd"));
+
+    stringUtils::removeFromStringToTheEnd(s, _T("2"));
+    TEST_EXPECT((s.compare(_T("word1")) == 0), _T("#2381f: removeFromStringToTheEnd"));
+
+    stringUtils::removeFromStringToTheEnd(s, _T("ord1"));
+    TEST_EXPECT((s.compare(_T("w")) == 0), _T("#2381h: removeFromStringToTheEnd"));
+
+    s = _T("w");
+    stringUtils::removeFromStringToTheEnd(s, _T(""));
+    TEST_EXPECT((s.compare(_T("w")) == 0), _T("#2381g: removeFromStringToTheEnd"));
+
+    s = _T("");
+    stringUtils::removeFromStringToTheEnd(s, _T("xxx"));
+    TEST_EXPECT((s.compare(_T("")) == 0), _T("#2381k: removeFromStringToTheEnd"));
+}
+
+
+TEST_RUN(strConvertionsV3_test)
+{
+    time_t aTime = time(NULL);
+    cpcc_string str(strConvertionsV3::toString(aTime));
+    time_t bTime = strConvertionsV3::fromString(str.c_str(), (time_t)1000);
+    TEST_EXPECT(aTime == bTime , _T("#9687: stringConversions problem with time_t"));
+}

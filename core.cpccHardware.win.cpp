@@ -49,7 +49,7 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
 }
 
 
-bool cpccHardware::hasRetinaDisplay(void) { return false; }
+
 
 
 size_t cpccHardware::getListOfMonitors(cpccMonitorList &list)

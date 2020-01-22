@@ -47,6 +47,8 @@ public:
 //
 ///////////////////////////////////////////
 
+
+
 inline cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
 {
     cpcc_string result, separatorText;
@@ -64,5 +66,7 @@ inline cpcc_string cpccHardware::getAllMonitorResolutionAsText(void)
     return result;
 }
 
-
+#ifdef _WIN32
+    inline bool cpccHardware::hasRetinaDisplay(void) { return false; }
+#endif
 

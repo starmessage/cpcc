@@ -4,14 +4,12 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOS.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.Win.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\cpccTimeCounter.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet.win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet-tests.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccStringUtil-selfTest.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -36,5 +34,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaverInterface.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTesting.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.h" />
   </ItemGroup>
 </Project>

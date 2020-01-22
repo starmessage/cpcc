@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		5848DFD323D8CD69000AE754 /* io.cpccLogFileWriterWithBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccLogFileWriterWithBuffer.h; path = ../../io.cpccLogFileWriterWithBuffer.h; sourceTree = "<group>"; };
 		587B106A23C9D42400D82B3E /* gui.cpccImageBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageBase.h; path = ../../gui.cpccImageBase.h; sourceTree = "<group>"; };
 		587B106B23C9D42400D82B3E /* gui.cpccDrawingToolsCGContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsCGContext.h; path = ../../gui.cpccDrawingToolsCGContext.h; sourceTree = "<group>"; };
 		587B106C23C9D42500D82B3E /* gui.cpccDlgColorPicker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDlgColorPicker.h; path = ../../gui.cpccDlgColorPicker.h; sourceTree = "<group>"; };
@@ -52,7 +53,6 @@
 		58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOSversion.Mac.mm; path = ../../core.cpccOSversion.Mac.mm; sourceTree = "<group>"; };
 		58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccUserFolders.h; path = ../../fs.cpccUserFolders.h; sourceTree = "<group>"; };
 		58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOS.mm; path = ../../core.cpccOS.mm; sourceTree = "<group>"; };
-		58BAE85023C34AB900FDACC4 /* cpccTimeCounter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cpccTimeCounter.cpp; path = ../../cpccTimeCounter.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -69,7 +69,6 @@
 				58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */,
 				58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */,
 				58BAE7CE23C7CA2700A84127 /* cpccTesting.h */,
-				58BAE85023C34AB900FDACC4 /* cpccTimeCounter.cpp */,
 				58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */,
 				58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */,
 				58BAE84A23C34AB900FDACC4 /* fs.cpccUserFolders.cocoa.mm */,
@@ -98,6 +97,7 @@
 				58BAE84C23C34AB900FDACC4 /* io.cpccFileSystemMiniOSX.h */,
 				58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */,
 				58BAE84723C34AB800FDACC4 /* io.cpccLog.h */,
+				5848DFD323D8CD69000AE754 /* io.cpccLogFileWriterWithBuffer.h */,
 				58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */,
 				58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */,
 				58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */,

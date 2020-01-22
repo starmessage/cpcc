@@ -67,9 +67,12 @@
 // note: __COUNTER__ gets reset for each cpp file
 
 #if (ENABLE_cpccTESTING==1)
-    #define TestingVariableName aSelfTestObject
+    #define INSTANTIATE_TEST_OBJECT     static cpccSelfTest  aSelfTestObject
+    // #define TestingVariableName aSelfTestObject
 #else
-    #define TestingVariableName
+    
+    #define INSTANTIATE_TEST_OBJECT
+    // #define TestingVariableName
 #endif
 
 
@@ -89,6 +92,7 @@ namespace cpccTesting
     // class cThreadRegister
     // used to join all (if any) running threads
     //=============================================================================
+    /* unused class 
     class cThreadRegister
     {
     public:
@@ -128,6 +132,9 @@ namespace cpccTesting
             }
         }
     };
+
+    */
+
 
     //=============================================================================
     // class sharedTestRegister
@@ -282,6 +289,7 @@ namespace cpccTesting
     }
 
     // todo:this class is unused
+    /*
     class cTestRunner
     {
     private:
@@ -334,6 +342,7 @@ namespace cpccTesting
         }
 
     };
+    */
 
 
 } // end of namespace (the same namespace continues below)
@@ -381,7 +390,7 @@ namespace cpccTesting
             {   runFunctionWrapper();                                              \
             }						                                                \
                                                                                     \
-        }; static cpccSelfTest  TestingVariableName;                            \
+        }; INSTANTIATE_TEST_OBJECT;                                                 \
     }                                                                           \
                                                                                 \
     inline void SelfTestUniqueName::cpccSelfTest::runTest(void)
@@ -425,7 +434,7 @@ namespace cpccTesting
                     }                                                                   \
                 }                                                                        \
                                                                                         \
-            }; static cpccSelfTest  TestingVariableName;                            \
+            }; INSTANTIATE_TEST_OBJECT;                                        \
         }                                                                           \
                                                                                     \
         inline void SelfTestUniqueName::cpccSelfTest::runTest(void)

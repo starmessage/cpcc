@@ -204,14 +204,6 @@ cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void)
 
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
 {
-	/*
-#ifdef __APPLE__
-    cpcc_string destFile=fileSystemOSX_helper::expandTilde_OSX(destFileOrFolder);
-#else
-    cpcc_string destFile=destFileOrFolder;
-#endif
-    */
-
 	if (folderExists(destFileOrFolder))	// if the destination is a folder, copy the file inside the folder
 		{
 		cpcc_string destFile = destFileOrFolder;
@@ -222,6 +214,7 @@ bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char 
 
 	return copyFileToaFile(sourceFile, destFileOrFolder);
 }
+
 
 bool cpccFileSystemMini::writeTextFile(const cpcc_char* aFilename, const cpcc_char *aTxt, const bool inUTF8)
 {
@@ -254,6 +247,7 @@ bool cpccFileSystemMini::writeTextFile(const cpcc_char* aFilename, const cpcc_ch
     _file.close();
     return true;
 }
+
 
 bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt)
 {

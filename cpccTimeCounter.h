@@ -15,6 +15,12 @@
  */
 
 #pragma once
+
+#include <chrono>
+#include <thread>
+
+#include "cpccTesting.h"
+
 /*
 	windows solutions:
 	• High performance timer on Windows https://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29.aspx 
@@ -45,6 +51,7 @@
     https://en.cppreference.com/w/cpp/chrono
 */
 
+/*
 #if defined(__APPLE__)
 	#include <sys/time.h>
 typedef struct timeval	  cpccStructTimeval;
@@ -59,25 +66,45 @@ typedef struct timeval	  cpccStructTimeval;
 
 #endif
 
-// PimplIdiom to move the inclusion of winsock2.h into the .cpp file
-// struct timeval;
+*/
+
+
 
 class cpccTimeCounter
 {
 private:
-	
-    cpccStructTimeval mStartTime;
-    cpccStructTimeval gettimeofdayCrossPlatform(void) const;
+    std::chrono::time_point<std::chrono::steady_clock>  mStartTime;
 
 public: // ctor
 
-	explicit cpccTimeCounter(); 		
-	
+	explicit cpccTimeCounter()
+    {
+        resetTimer();
+    }
+
 	
 public: // functions
 
-	void		resetTimer(void)	{ mStartTime = gettimeofdayCrossPlatform();  }
-	double		getSecondsElapsed(void) const;
+	void		resetTimer(void)	
+    { 
+        // mStartTime = gettimeofdayCrossPlatform();  
+        mStartTime = std::chrono::steady_clock::now();
+    }
+
+    double		getSecondsElapsed(void) const
+    {
+        auto mEndTime = std::chrono::steady_clock::now();
+        return (std::chrono::duration_cast<std::chrono::milliseconds>(mEndTime - mStartTime).count() / 1000.0 );
+    }
 	
 };
 
+
+TEST_RUN_ASYNC(cpccTimeCounter_test)
+{
+    cpccTimeCounter myCounter;
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    double timePassed = myCounter.getSecondsElapsed();
+    TEST_EXPECT(timePassed > 1 && timePassed < 2, _T("#7361: cpccTimeCounter"));
+}

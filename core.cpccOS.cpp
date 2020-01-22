@@ -135,102 +135,22 @@ cpcc_string cpccOS::getPreferredLanguage(void)
 } // End getPreferredLanguage
 
 
-static void util_RemoveSuffixFromString(std::string &str, char* suffixToRemove)
-{
-    // std::cout << "to remove " << suffixToRemove << " from " << str << std::endl;
-    const size_t pos = str.rfind(suffixToRemove);
-    if (pos == std::string::npos)
-        return; // not found
-    // std::cout << "Found " << suffixToRemove << " in " << str << std::endl;
-    
-    if (pos != str.length() - strlen(suffixToRemove) )
-        return; // text found but not at the end of the string
-    
-    str.erase(pos , std::string::npos );
-}
-
-
-
-
-cpcc_string cpccOS::getMainMonitorResolutionAsText(void)
-{
-	cpcc_stringstream result;
-    int mw,mh;
-    getMainMonitorResolution(mw, mh);
-    result << mw;
-    result << "x";
-    result << mh;
-    return result.str();
-}
-
-
-void cpccOS::getMainMonitorResolution(int &width, int &height)
-{
-#ifdef _WIN32
-    /*
-     Size of the primary monitor: GetSystemMetrics SM_CXSCREEN / SM_CYSCREEN (GetDeviceCaps can also be used)
-     Size of all monitors (combined): GetSystemMetrics SM_CX/YVIRTUALSCREEN
-     Size of work area (screen excluding taskbar and other docked bars) on primary monitor: SystemParametersInfo SPI_GETWORKAREA
-     Size of a specific monitor (work area and "screen"): GetMonitorInfo
-     
-     Remember that a monitor does not always "begin" at 0x0. 
-     MonitorFromWindow to find the monitor your window is on and then call GetMonitorInfo.
-     */
-	width = GetSystemMetrics(SM_CXSCREEN);
-	height = GetSystemMetrics(SM_CYSCREEN);
-    
-
-#elif defined(cpccTARGET_IOS)
-    width = [UIScreen mainScreen].bounds.size.width;
-    height = [UIScreen mainScreen].bounds.size.height;
-#elif defined(TARGET_OS_MAC)
-    NSScreen *mainScreen = [NSScreen mainScreen];
-    NSRect rect = [mainScreen frame];
-    width = rect.size.width;
-    height = rect.size.height;
-#endif
-}
-
-
-
-#ifdef _WIN32
-
-
-
-const HWND cpccOS::getWindowHandleOfProgram(const TCHAR *aClassName)
-{
-    // e.g. FindWindow("Notepad", "Untitled - Notepad");
-    return FindWindow(aClassName, NULL);
-}
-
-
-
-
-#endif
-
-
-
-
-
-
-    
-
 const cpcc_string cpccOS::getUserName(void)
 {
 #ifdef _WIN32
     cpcc_char username[200];
-    DWORD username_len = sizeof(username)-1;
+    DWORD username_len = sizeof(username) - 1;
     GetUserName(username, &username_len);
     return username;
 #elif __APPLE__
-    NSString *un = NSUserName();
-    return [un UTF8String];
+    NSString* un = NSUserName();
+    return[un UTF8String];
 #endif
 }
 
 
 // portable / cross platform C function for Windows, OSX
-// returns the computer name 
+// returns the computer name
 const cpcc_string cpccOS::getComputerName(void)
 {
 #ifdef _WIN32
@@ -241,28 +161,57 @@ const cpcc_string cpccOS::getComputerName(void)
 #endif
 #ifdef __APPLE__
     char name[_POSIX_HOST_NAME_MAX + 1];
-    if (gethostname(name, sizeof name) == -1 )
+    if (gethostname(name, sizeof name) == -1)
         return std::string("getComputerName failed.");
-        
+
     // remove the .local or .lan from the computer name as reported by OSX
     std::string ComputerNameTrimmed(name);
-        
-    util_RemoveSuffixFromString(ComputerNameTrimmed, (char *)".lan");
-    util_RemoveSuffixFromString(ComputerNameTrimmed, (char *)".local");
+
+    util_RemoveSuffixFromString(ComputerNameTrimmed, (char*)".lan");
+    util_RemoveSuffixFromString(ComputerNameTrimmed, (char*)".local");
     return ComputerNameTrimmed;
-        
+
     /*
         [[NSDictionary
         dictionaryWithContentsOfFile:@"/var/db/SystemConfiguration/preferences.xml"
         ] valueForKeyPath:@"System.System.ComputerName"];
-        */
-        
+    */
+
     /*
         [[NSProcessInfo processInfo] hostName]
-        */
+    */
 #endif
-        
+
 }
+
+void cpccOS::getMainMonitorResolution(int& width, int& height)
+{
+#ifdef _WIN32
+    /*
+     Size of the primary monitor: GetSystemMetrics SM_CXSCREEN / SM_CYSCREEN (GetDeviceCaps can also be used)
+     Size of all monitors (combined): GetSystemMetrics SM_CX/YVIRTUALSCREEN
+     Size of work area (screen excluding taskbar and other docked bars) on primary monitor: SystemParametersInfo SPI_GETWORKAREA
+     Size of a specific monitor (work area and "screen"): GetMonitorInfo
+
+     Remember that a monitor does not always "begin" at 0x0.
+     MonitorFromWindow to find the monitor your window is on and then call GetMonitorInfo.
+     */
+    width = GetSystemMetrics(SM_CXSCREEN);
+    height = GetSystemMetrics(SM_CYSCREEN);
+
+
+#elif defined(cpccTARGET_IOS)
+    width = [UIScreen mainScreen].bounds.size.width;
+    height = [UIScreen mainScreen].bounds.size.height;
+#elif defined(TARGET_OS_MAC)
+    NSScreen* mainScreen = [NSScreen mainScreen];
+    NSRect rect = [mainScreen frame];
+    width = rect.size.width;
+    height = rect.size.height;
+#endif
+}
+
+
 
 
 #ifdef __APPLE__

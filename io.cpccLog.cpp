@@ -70,10 +70,10 @@ void cpccLogFormatter::add(const cpcc_char* txt)
 		return;
 
 	cpcc_string _fn(cpccLogFileWriterWithBuffer::getInstance().getFilename());
-	
+
+
 	if ((_fn.length()>0) && !cpccFileSystemMini::fileExists(_fn.c_str()) && (!m_disableIfFileDoesNotExist))
 		cpccFileSystemMini::createEmptyFile(_fn.c_str());	// create a file so that the log can continue wrting on it.
-
 
 	cpcc_string m_outputBuffer;
 	if (moreThanOneSecondPassed())

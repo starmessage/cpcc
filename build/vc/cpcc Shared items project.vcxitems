@@ -19,8 +19,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOS.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.Win.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccStringUtil-selfTest.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\cpccTimeCounter.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.cpp" />
@@ -33,6 +31,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccAppInfo.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaverAbstract.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccScreenSaverInterface.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccKeyValue.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOS.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.h" />
