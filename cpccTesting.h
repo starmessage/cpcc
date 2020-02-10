@@ -29,6 +29,8 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <mutex>
+#include <cstdlib>
 #include "types.cpccWideCharSupport.h"
 
 #include "fs.cpccUserFolders.h"
@@ -135,6 +137,20 @@ namespace cpccTesting
 
     */
 
+    //=============================================================================
+    // class testVariable
+    // used to avoid runing the same test again
+    //=============================================================================
+    template <typename T>
+    class testVariable
+    {
+    private:
+        T value;
+    public:
+        testVariable(const T aDefaultValue): value(aDefaultValue) { }
+        T get(void) { return value; }
+        void set(const T aValue) { value = aValue; }
+    };
 
     //=============================================================================
     // class sharedTestRegister
@@ -152,10 +168,15 @@ namespace cpccTesting
 
         static bool testHasAlreadyRan(const TCHAR* aTestName)
         {
+            static std::vector<std::basic_string<TCHAR>> list;
+            static std::mutex mu;
+
             if (!aTestName)
                 return false;
 
-            static std::vector<std::basic_string<TCHAR>> list;
+            // mutex here
+            std::lock_guard<std::mutex> lock(mu);
+
             if (std::find(list.begin(), list.end(), aTestName) != list.end())
                 return true;
 
@@ -361,6 +382,22 @@ namespace cpccTesting
     }
 
 
+#define TEST_EXPECT_EQUAL(aVal1, aVal2, aMESSAGE)       \
+if ((aVal1) != (aVal2))                                 \
+    {                                                    \
+    OUTPUT_STREAM << _T("Test failed! (");                \
+    OUTPUT_STREAM << TEST_MAKESTRING(aVal1);              \
+    OUTPUT_STREAM << _T(",");                               \
+    OUTPUT_STREAM << TEST_MAKESTRING(aVal2);              \
+    OUTPUT_STREAM << _T(")")  << std::endl;               \
+    OUTPUT_STREAM << aMESSAGE << std::endl;               \
+    OUTPUT_STREAM << aVal1;                               \
+    OUTPUT_STREAM << _T(" NOT EQUAL TO ");                 \
+    OUTPUT_STREAM << aVal2 << std::endl;                   \
+    cpccTesting::sharedTestRegister::getNErrors() = cpccTesting::sharedTestRegister::getNErrors()+1; \
+    }
+
+
 
 #define TEST_ADDNOTE(aMESSAGE)   OUTPUT_STREAM << aMESSAGE << std::endl;
 
@@ -411,7 +448,8 @@ namespace cpccTesting
                 {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
                     if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
                         return;                                                         \
-                    std::this_thread::sleep_for(std::chrono::seconds(2));               \
+                    const int msec = 800 + (std::rand() % 1200);                 \
+                    std::this_thread::sleep_for(std::chrono::milliseconds(msec));               \
                     OUTPUT_STREAM << _T("/ Starting test (in thread):") << tmpNameA << std::endl;   \
                     runTest();                                         \
                     OUTPUT_STREAM << _T("\\ Ending   test (in thread):") << tmpNameA << std::endl << std::endl; \

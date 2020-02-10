@@ -35,5 +35,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTesting.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLogFileWriterWithBuffer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTime.h" />
   </ItemGroup>
 </Project>

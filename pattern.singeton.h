@@ -15,6 +15,7 @@
 #pragma once
 
 
+// template <typename T, T aDefault>
 template <typename T>
 class cSingleton
 {
@@ -23,7 +24,7 @@ public:
 
     static T& getInstance()
     {
-        static T theinstance{};
+        static T theinstance{} /* = aDefault */;
         return theinstance;
     }
 

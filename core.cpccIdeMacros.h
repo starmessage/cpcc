@@ -31,14 +31,13 @@
 
 #ifdef DEBUG
     #define cpccDEBUG
-#else
-    #ifdef __APPLE__
-        // in xcode, add NDEBUG in the preprocessor macros, under Release
-	    #ifndef NDEBUG
-		    #define cpccDEBUG
-	    #endif
-    #endif
 #endif
+
+#ifdef NDEBUG
+    #undef cpccDEBUG
+#endif
+
+
 
 ////////////////////////////////////
 // 32 vs 64 bits

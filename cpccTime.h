@@ -268,55 +268,6 @@ public:
     }
 };
 
-///////////////////////////////////////////////////////////////////
-//		class cpccTimeCounter_lowRes
-///////////////////////////////////////////////////////////////////
-
-
-// fast time counter with low resolution of 1 sec
-// https://en.cppreference.com/w/cpp/chrono/c/difftime
-class cpccTimeCounter_lowRes
-{
-
-private:
-    std::time_t mStartTime;
-
-public: // ctor
-
-    explicit cpccTimeCounter_lowRes() : mStartTime(getTime()) {   };
-
-public: // functions
-
-    inline time_t  getTime(void) { return std::time(nullptr); }
-
-    inline void    reset(void) { mStartTime = getTime(); }
-
-    inline double  getSecondsElapsed(void)
-    {
-        // Computes difference between two calendar times as std::time_t objects
-        // (time_end - time_beg) in seconds.
-        return std::difftime(getTime(), mStartTime);
-    }
-
-};
-
-
-class cpccTimeCounter_days
-{
-       
-public: // functions, data
-
-    std::time_t         mStartDate=0;
-
-	// cpccTimeCounter_days(const std::time_t aStartDate): mStartDate(aStartDate) { }
-
-    static inline std::time_t  getDaysSince1970(void) { return (std::time(nullptr) / 3600) / 24; }
-
-    inline void         reset(void) { mStartDate = getDaysSince1970(); }
-    
-    inline std::time_t  getDaysElapsed(void) { return getDaysSince1970() - mStartDate; }
-
-};
 
 
 ///////////////////////////////////////////////////////////////////

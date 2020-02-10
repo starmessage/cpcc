@@ -46,14 +46,14 @@ private:
 	cpcc_string m_filename;
 	cpcc_stringstream m_buffer;
 	int maxBufferedLines;
-	
+	std::mutex file_write_mutex;
+
 private:
 	/* 
 	Always declare a copy constructor and assignment operator
 	Many classes shouldn't be copied or assigned. Then, to enforce your policy declare a deleted copy constructor as private and 
 	not supply a definition. 
 	Do the same for the assignment operator.
-
 	*/
 	cpccLogFileWriterWithBuffer(const cpccLogFileWriterWithBuffer& x) = delete;
 	cpccLogFileWriterWithBuffer& operator=(const cpccLogFileWriterWithBuffer& x) = delete;
@@ -89,30 +89,16 @@ public:
 	}
 
 	const cpcc_string &getFilename(void) const { return m_filename; }
-
-
-    // this crashes
-    /*
-	std::mutex &getMutex(void)
-	{
-		static std::mutex file_write_mutex;
-		return file_write_mutex;
-	}
-     */
+		
     
 	void add(const cpcc_char* txt) 
 	{
 		// experimental: lock
-		// this crashes
+		// creating here the static variable crashes, probably because add() is called during the constructor.
+		// I moved the variable as a class member
 		// static std::mutex file_write_mutex;
-		// const std::lock_guard<std::mutex> lock(file_write_mutex);
-		
-        // this crashes
-		// const std::lock_guard<std::mutex> lock(getMutex());
+		const std::lock_guard<std::mutex> lock(file_write_mutex);
 
-		// this crashes
-		// static std::mutex *file_write_mutex = new std::mutex;
-		// std::lock_guard<std::mutex> lock(*file_write_mutex);
 
 		if (m_filename.length() > 0)
 		{

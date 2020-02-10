@@ -38,6 +38,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSWin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccStringUtil.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTesting.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTime.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTimeCounter.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccUnicodeSupport.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpcc_SelfTest.h" />
@@ -45,6 +46,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLogFileWriterWithBuffer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.h" />

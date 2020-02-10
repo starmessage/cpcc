@@ -26,6 +26,7 @@
 		587B107923C9D42700D82B3E /* gui.cpccText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccText.h; path = ../../gui.cpccText.h; sourceTree = "<group>"; };
 		587B107A23C9D42700D82B3E /* gui.cpccImageUtilsOSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageUtilsOSX.h; path = ../../gui.cpccImageUtilsOSX.h; sourceTree = "<group>"; };
 		587B107B23C9D42700D82B3E /* gui.cpccTextStylesMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccTextStylesMac.h; path = ../../gui.cpccTextStylesMac.h; sourceTree = "<group>"; };
+		5899FEA423EFE308002294C4 /* pattern.singeton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pattern.singeton.h; path = ../../pattern.singeton.h; sourceTree = "<group>"; };
 		58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.cpccWideCharSupport.h; path = ../../types.cpccWideCharSupport.h; sourceTree = "<group>"; };
 		58BAE7CE23C7CA2700A84127 /* cpccTesting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTesting.h; path = ../../cpccTesting.h; sourceTree = "<group>"; };
 		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
@@ -104,6 +105,7 @@
 				58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */,
 				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
 				58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */,
+				5899FEA423EFE308002294C4 /* pattern.singeton.h */,
 				58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */,
 			);
 			sourceTree = "<group>";

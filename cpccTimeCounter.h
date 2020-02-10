@@ -77,19 +77,12 @@ private:
 
 public: // ctor
 
-	explicit cpccTimeCounter()
-    {
-        resetTimer();
-    }
+	explicit cpccTimeCounter() { resetTimer(); }
 
 	
 public: // functions
 
-	void		resetTimer(void)	
-    { 
-        // mStartTime = gettimeofdayCrossPlatform();  
-        mStartTime = std::chrono::steady_clock::now();
-    }
+	void		resetTimer(void)	{ mStartTime = std::chrono::steady_clock::now();  }
 
     double		getSecondsElapsed(void) const
     {
@@ -98,6 +91,66 @@ public: // functions
     }
 	
 };
+
+
+// /////////////////////////////////////////////////////////////////
+//
+//		class cpccTimeCounter_lowRes
+//
+// /////////////////////////////////////////////////////////////////
+
+
+// fast time counter with low resolution of 1 sec
+// https://en.cppreference.com/w/cpp/chrono/c/difftime
+class cpccTimeCounter_lowRes
+{
+
+private:
+    std::time_t mStartTime;
+
+public: // ctor
+
+    explicit cpccTimeCounter_lowRes() : mStartTime(getTime()) {   };
+
+public: // functions
+
+    inline time_t  getTime(void) { return std::time(nullptr); }
+
+    inline void    restart(void) { mStartTime = getTime(); }
+
+    inline double  getSecondsElapsed(void)
+    {
+        // Computes difference between two calendar times as std::time_t objects
+        // (time_end - time_beg) in seconds.
+        return std::difftime(getTime(), mStartTime);
+    }
+
+};
+
+// /////////////////////////////////////////////////////////////////
+//
+//		class cpccTimeCounter_days
+//
+// /////////////////////////////////////////////////////////////////
+
+
+class cpccTimeCounter_days
+{
+
+private:
+    std::time_t         mStartDate = 0;
+
+public: // functions, data
+
+    static inline std::time_t  getDaysSince1970(void) { return (std::time(nullptr) / 3600) / 24; }
+
+    // resets the counter to today's date. This will be used for long running sessions (more than a day)
+    inline void         restart(void) { mStartDate = getDaysSince1970(); }
+    inline void			setStartDate(const std::time_t aDate) { mStartDate = aDate; }
+    inline std::time_t  getDaysElapsed(void) { return getDaysSince1970() - mStartDate; }
+
+};
+
 
 
 TEST_RUN_ASYNC(cpccTimeCounter_test)
