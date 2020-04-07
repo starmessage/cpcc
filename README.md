@@ -45,5 +45,6 @@ Classes in the current queue:
 - [  ] IOS compatibility
 
 
-
+[![HitCount](http://hits.dwyl.io/starmessage/badges.svg)](https://www.starmessagesoftware.com/)
+[![Analytics](https://ga-beacon.appspot.com/UA-385839-11/github.com/starmessage/cpcc/README.md)](https://GitHub.com/starmessage/cpcc)
 
