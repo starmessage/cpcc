@@ -29,9 +29,11 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+#include <locale>
+#include <codecvt>
 #include <mutex>
 #include <cstdlib>
-#include "types.cpccWideCharSupport.h"
+#include "data.cpccWideCharSupport.h"
 
 #include "fs.cpccUserFolders.h"
 
@@ -208,6 +210,25 @@ namespace cpccTesting
                 return std::asctime(std::localtime(&secondsSinceTheEpoch));
             #endif
         }
+        
+        static void shellOpenFile(const TCHAR *filename)
+        {
+            if (system(NULL)) // If command is a null pointer, the function only checks whether a command processor is available through this function, without invoking any command.
+            {
+               #ifdef _WIN32
+                    std::basic_string<TCHAR> theCommand(STR_WN"start ");
+                #else
+                    std::basic_string<TCHAR> theCommand("open -e ");
+                #endif
+               theCommand += filename;
+                
+                #ifdef UNICODE
+                    _wsystem(theCommand.c_str());
+                #else
+                    system(theCommand.c_str());
+                #endif
+            }
+        }
     };
 
         
@@ -219,6 +240,9 @@ namespace cpccTesting
     class cOutputStreamAbstract
     {
     public:
+        std::mutex  m_writeMutex;
+        
+        virtual ~cOutputStreamAbstract() { }
         virtual std::basic_ostream<TCHAR> &get(void) = 0;
     };
 
@@ -245,7 +269,7 @@ namespace cpccTesting
         std::basic_string<TCHAR>    m_fn;
         
     public:
-
+        
         cOutputStreamDesktopFile()
         {
             m_fn = cpccUserFolders::getDesktop();
@@ -254,6 +278,10 @@ namespace cpccTesting
             m_stream.open(m_fn, 0);
             if (m_stream.good())
             {
+                std::lock_guard<std::mutex> lock(m_writeMutex);
+                std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
+                m_stream.imbue(my_utf8_locale);
+
                 m_stream << _T("Unit testing by the cpcc library.") << std::endl;
                 m_stream << util::getTimeStamp() << std::endl;
                 m_stream.flush();
@@ -275,7 +303,7 @@ namespace cpccTesting
             #endif
         }
         
-        ~cOutputStreamDesktopFile();
+        virtual ~cOutputStreamDesktopFile();
     };
 
     // ///////////////////////////////////
@@ -297,14 +325,21 @@ namespace cpccTesting
 
     inline cOutputStreamDesktopFile::~cOutputStreamDesktopFile()
     {
-        get() << _T("Closing the file.") << std::endl;
-        int errors = cpccTesting::sharedTestRegister::getNErrors();
+        {
+            std::lock_guard<std::mutex> lock(m_writeMutex);
+            
+            get() << _T("Closing the file.") << std::endl;
+            int errors = cpccTesting::sharedTestRegister::getNErrors();
+            
+            if (errors>0)
+            {
+                get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
+                util::shellOpenFile(m_fn.c_str());
+            }
+            else
+                get() << _T("All tests passed OK.") << std::endl;
+        }
         
-        if (errors>0)
-            get() << _T("FOUND ") << errors << _T(" ERRORS.") << std::endl;
-        else
-            get() << _T("All tests passed OK.") << std::endl;
-
         if (m_stream.good())
             m_stream.close();
     }
@@ -374,6 +409,7 @@ namespace cpccTesting
 #define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
   if (!(aCONDITION))							    \
     {                                               \
+    std::lock_guard<std::mutex> lock(cpccTesting::sharedObjects::outputStream().m_writeMutex); \
     OUTPUT_STREAM << _T("Test failed! (");                \
     OUTPUT_STREAM << TEST_MAKESTRING(aCONDITION);         \
     OUTPUT_STREAM << _T(")")  << std::endl;               \
@@ -420,7 +456,7 @@ if ((aVal1) != (aVal2))                                 \
                 OUTPUT_STREAM << _T("\\ Ending   test:") << tmpNameA << std::endl << std::endl; \
                 int errors = cpccTesting::sharedTestRegister::getNErrors();          \
                 if (errors > 0)                                                 \
-                    OUTPUT_STREAM << errors << _T(" errors so far.") << std::endl;  \
+                    OUTPUT_STREAM << errors << _T(" error(s) so far.") << std::endl;  \
             }                                                                       \
                                                                                     \
             cpccSelfTest()						                                    \
@@ -435,14 +471,14 @@ if ((aVal1) != (aVal2))                                 \
 
 /* the async version of the test that runs it on a separate thread
    after a few msec to give time to the app to launch all modules */
-#define TEST_RUN_ASYNC(SelfTestUniqueName)        \
-        namespace SelfTestUniqueName {                    \
-            class cpccSelfTest                          \
-            {                                            \
-            private:                                        \
-                std::thread *threadPtr = NULL;                                    \
-            public:                                        \
-                void runTest(void);                     \
+#define TEST_RUN_ASYNC(SelfTestUniqueName)                                      \
+        namespace SelfTestUniqueName {                                          \
+            class cpccSelfTest                                                  \
+            {                                                                   \
+            private:                                                            \
+                std::thread *threadPtr = NULL;                                  \
+            public:                                                             \
+                void runTest(void);                                             \
                                                                                 \
                 void runFunctionWrapper(void)                                   \
                 {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
@@ -455,7 +491,7 @@ if ((aVal1) != (aVal2))                                 \
                     OUTPUT_STREAM << _T("\\ Ending   test (in thread):") << tmpNameA << std::endl << std::endl; \
                     int errors = cpccTesting::sharedTestRegister::getNErrors();          \
                     if (errors > 0)                                                 \
-                        OUTPUT_STREAM << errors << _T(" errors so far.") << std::endl;  \
+                        OUTPUT_STREAM << errors << _T(" error(s) so far.") << std::endl;  \
                 }                                                                       \
                                                                                         \
                 cpccSelfTest()                                                            \
@@ -472,10 +508,10 @@ if ((aVal1) != (aVal2))                                 \
                     }                                                                   \
                 }                                                                        \
                                                                                         \
-            }; INSTANTIATE_TEST_OBJECT;                                        \
-        }                                                                           \
-                                                                                    \
-        inline void SelfTestUniqueName::cpccSelfTest::runTest(void)
-
+            }; INSTANTIATE_TEST_OBJECT;                                                 \
+        }                                                                               \
+                                                                                        \
+            inline void SelfTestUniqueName::cpccSelfTest::runTest(void)                 
+        
 
 

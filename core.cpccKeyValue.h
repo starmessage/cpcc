@@ -19,14 +19,15 @@
 #include <assert.h>
 #include <sstream>
 #include <algorithm>
-// #include "core.cpccIdeMacros.h"
+#include "data.cpccKeyValueStr.h"
 #include "core.cpccStringUtil.h"
 #include "cpccUnicodeSupport.h"
+
 #include "cpccTesting.h"
 
 /** 
     A small and portable (cross platform) C++ class 
-	provides a std:map that can store any (primitive type) value
+	Provides a std:map that can store any (primitive type) value
 		
 */
 
@@ -38,29 +39,13 @@
 //
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class cpccKeyValue: private strConvertionsV3
+class cpccKeyValue: private strConvertionsV3, public cpccKeyValueStr
 {
-
-public:
-    typedef std::map<cpcc_string, cpcc_string> tKeysAndValues;
-    tKeysAndValues	m_map;
-	
-public:		
-    
-	void        removeKey(const cpcc_char* aKey);
-    void		clear(void);
-    const bool	keyExists(const cpcc_char* aKey) const;
-    
-protected:
-	// called when set() functions are called. 
-	// A descendant of this class can override this function to implement further actions,
-	// e.g. saving to a file
-	virtual void dataHasChanged(void) { }
 
 public:		// get functions
 
-    const cpcc_string	get(const cpcc_char* aKey, const cpcc_char* aDefaultValue) const;
-    const cpcc_string   get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  const  {   return get(aKey, aDefaultValue.c_str());    }
+    const cpcc_string	 get(const cpcc_char* aKey, const cpcc_char* aDefaultValue) const;
+    const cpcc_string get(const cpcc_char *aKey, const cpcc_string &aDefaultValue)  const  {   return get(aKey, aDefaultValue.c_str());    }
 
     template <typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type >
     T    get(const cpcc_char *aKey, const T aDefaultValue) const
@@ -76,13 +61,13 @@ public:		// get functions
 public:		// set functions
 
 	// does the final set() of the pair, implementing also write caching and signaling to descendant classes
-    inline void set_impl(const cpcc_char* aKey, const cpcc_char* aValue);
+    // inline void set_impl(const cpcc_char* aKey, const cpcc_char* aValue);
 	
 	template <typename T>
-	void		set(const cpcc_char   *aKey, const T aValue)              	{ set_impl(aKey, toString(aValue).c_str()) ;  }
-	void        set(const cpcc_char   *aKey, const cpcc_string &aValue)		{ set_impl(aKey, aValue.c_str());  }
+	void		set(const cpcc_char   *aKey, const T aValue)              	{ cpccKeyValueStr::set(aKey, toString(aValue).c_str()) ;  }
+	void     set(const cpcc_char   *aKey, const cpcc_string &aValue)		{ cpccKeyValueStr::set(aKey, aValue.c_str());  }
     // void        set(const cpcc_string &aKey, const cpcc_string &aDefaultValue) { m_map[aKey] = aDefaultValue; }
-    void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ set_impl(aKey, aValue);  }
+    // void		set(const cpcc_char   *aKey, const cpcc_char *aValue)		{ set(aKey, aValue);  }
 
 public: // load from string functions
 
@@ -103,63 +88,17 @@ public: // load from string functions
 
 
 
-inline void cpccKeyValue::removeKey(const cpcc_char* aKey)
-{
-    if (!aKey)
-        return;
-    m_map.erase(aKey);
-    dataHasChanged();
-}
-
-
-inline void	cpccKeyValue::clear(void)
-{
-    if (m_map.size() == 0)
-        return;
-
-    m_map.clear();
-    dataHasChanged();
-}
-
-
-inline const bool	cpccKeyValue::keyExists(const cpcc_char* aKey) const
-{
-    if (!aKey) return false;
-    //const cpcc_string keyStr(aKey);
-    // return (m_map.find(keyStr) != m_map.end()); 
-    return (m_map.find(aKey) != m_map.end());
-}
-
-
-inline void cpccKeyValue::set_impl(const cpcc_char* aKey, const cpcc_char* aValue)
-{
-    if (!aValue || !aKey) return;
-
-    // caching here 
-    if (keyExists(aKey))
-        if (m_map[aKey].compare(aValue) == 0)
-            return;	// the value is already there.
-
-    // set
-    m_map[aKey] = aValue;
-    dataHasChanged(); // let descendant classes know that the data has changes so they need to save it somewhere
-}
-
-
 inline const cpcc_string	cpccKeyValue::get(const cpcc_char* aKey, const cpcc_char* aDefaultValue) const
 {
     if (aKey)
     {
-        /*
         if (keyExists(aKey))
-        {
-            cpcc_string result();
-            return m_map[aKey]; // non-const
-        }
-         */
+            return cpccKeyValueStr::get(aKey);
+        /*
         auto searchIterator = m_map.find(aKey);
         if (searchIterator != m_map.end())
             return searchIterator->second;
+         */
     }
 
     return aDefaultValue ? aDefaultValue : _T("");

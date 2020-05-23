@@ -274,15 +274,18 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
     // ios::app = opens the file in append mode.
     // static std::ofstream _f; // with static is hangs in WinXP
 	// std::ofstream _f;
-	cpcc_ofstream _f;
+	cpcc_ofstream ofs;
 
-    _f.open(aFilename, std::ios_base::app | std::ios_base::out);
-    if (!_f.good())
+    ofs.open(aFilename, std::ios_base::app | std::ios_base::out);
+    if (!ofs.good())
         return false;
     
-    _f << txt;
+    std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
+    ofs.imbue(my_utf8_locale);
+    
+    ofs << txt;
     // _f << fflush;
-    _f.close();
+    ofs.close();
     return true;
 #endif
 }

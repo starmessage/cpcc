@@ -36,3 +36,10 @@
     #endif
 #endif
 
+#ifdef _UTF16_STRINGS 
+    #define TOSTRING_WN(v) to_wstring(v) 
+    #define STR_WN L 
+#else 
+    #define TOSTRING_WN(v) to_string(v) 
+    #define STR_WN  
+#endif 

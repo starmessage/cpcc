@@ -101,7 +101,7 @@ public:
 		infoLog().addf(_T("loading translations from file:%s"), aFilename.c_str());
         
         cpccSettings translationFile(aFilename.c_str());
-        m_lookupTable = translationFile.m_map;
+        m_lookupTable = translationFile.getMap();
 
         /*
 		cpcc_string line;

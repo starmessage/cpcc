@@ -91,7 +91,7 @@
 	You can use UTF-8 encoding with them but the filesystem itself does not care.
 
     example of utf8 string constant:
-    char utf8String[] = u8�hello�; //UTF-8 encoding.
+    char utf8String[] = u8"hello"; //UTF-8 encoding.
  */
 #pragma once
 
@@ -142,7 +142,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 
 #ifdef UNICODE
 
-    #define		cpcc_cin			std::wcin 
+    #define		cpcc_cin			    std::wcin
 	#define		cpcc_cout			std::wcout 		
 	#define		cpcc_cerr			std::wcerr 	
 	#define		cpcc_thread			std::wthread
@@ -150,21 +150,21 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
 	// The wsprintf function has a surprising deficiency: it does not handle floating-point parameters.
 	// #define		cpcc_sprintf		wsprintf		
 	// #define		cpcc_sprintf		swprintf		
-	#define		cpcc_sprintf		_stprintf
-	#define		cpcc_fprintf		fwprintf	// _ftprintf
+	#define		cpcc_sprintf		    _stprintf
+	#define		cpcc_fprintf		    fwprintf	// _ftprintf
 	#define		cpcc_fscanf			fwscanf
 	#define		cpcc_fopen			_wfopen
 	#define		cpcc_rmdir			_wrmdir
 	#define		cpcc_tmpnam_s		_wtmpnam_s
 	#define		cpcc_strlen			_tcslen
 	//  stricmp, wcsicmp: These POSIX functions are deprecated. Use the ISO C++ conformant _stricmp, _wcsicmp,
-	#define		cpcc_stricmp		_wcsicmp
+	#define		cpcc_stricmp		    _wcsicmp
 	#define		cpcc_strnicmp		_wcsnicmp
 	#define		cpcc_strftime		_tcsftime	
 
 	#define		cpcc_strtok			_tcstok
 	#define		cpcc_strcpy			_tcscpy
-    #define		cpcc_strchr         wcschr 
+    #define		cpcc_strchr             wcschr 
 	#define		cpcc_strstr			wcsstr
 	#define		cpcc_strtol			wcstol
 	#define		cpcc_strtod			wcstod

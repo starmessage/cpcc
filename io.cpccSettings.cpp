@@ -297,14 +297,21 @@ bool cpccSettings::save(void)
 {
     cpcc_ostringstream ss;
 
-    for (cpccKeyValue::tKeysAndValues::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
+    // for (cpccKeyValue::tKeysAndValues::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
+    for (auto element : getMap())
     {
-        const cpcc_char* key = it->first.c_str();
-        cpcc_string    value = it->second; // todo: value( it->second);
+        const cpcc_char* key = element.first.c_str();
+        cpcc_string    value = element.second; // todo: value( it->second);
+        
         cSerialCodec::encode(value);
         ss << key << _T("=") << value << std::endl;
     }
 
+#ifdef DEBUG
+    cpcc_string test = serialize(STR_WN"\n", true, cSerialCodec::encode);
+    assert (test.compare(ss.str())==0 && STR_WN"#9582: error in save() serialize*()");
+#endif
+    
 #ifdef UNICODE	// write the BOM if UTF-8
     //const cpcc_string tmpTxt(ss.str());
     //const cpcc_string tmpTxtAfterUTF8(helper_to_utf8(tmpTxt.c_str(), tmpTxt.length()));
