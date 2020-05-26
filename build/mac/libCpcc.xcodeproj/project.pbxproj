@@ -8,6 +8,8 @@
 
 /* Begin PBXFileReference section */
 		5848DFD323D8CD69000AE754 /* io.cpccLogFileWriterWithBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccLogFileWriterWithBuffer.h; path = ../../io.cpccLogFileWriterWithBuffer.h; sourceTree = "<group>"; };
+		586074392454C63D00350856 /* data.cpccKeyValueStr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccKeyValueStr.h; path = ../../data.cpccKeyValueStr.h; sourceTree = "<group>"; };
+		5860743A2454C65500350856 /* core.cpccKeyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccKeyValue.h; path = ../../core.cpccKeyValue.h; sourceTree = "<group>"; };
 		587B106A23C9D42400D82B3E /* gui.cpccImageBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageBase.h; path = ../../gui.cpccImageBase.h; sourceTree = "<group>"; };
 		587B106B23C9D42400D82B3E /* gui.cpccDrawingToolsCGContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsCGContext.h; path = ../../gui.cpccDrawingToolsCGContext.h; sourceTree = "<group>"; };
 		587B106C23C9D42500D82B3E /* gui.cpccDlgColorPicker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDlgColorPicker.h; path = ../../gui.cpccDlgColorPicker.h; sourceTree = "<group>"; };
@@ -26,8 +28,9 @@
 		587B107923C9D42700D82B3E /* gui.cpccText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccText.h; path = ../../gui.cpccText.h; sourceTree = "<group>"; };
 		587B107A23C9D42700D82B3E /* gui.cpccImageUtilsOSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageUtilsOSX.h; path = ../../gui.cpccImageUtilsOSX.h; sourceTree = "<group>"; };
 		587B107B23C9D42700D82B3E /* gui.cpccTextStylesMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccTextStylesMac.h; path = ../../gui.cpccTextStylesMac.h; sourceTree = "<group>"; };
+		5893A321244F86B600E68AA0 /* core.cpccStringUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccStringUtil.h; path = ../../core.cpccStringUtil.h; sourceTree = "<group>"; };
 		5899FEA423EFE308002294C4 /* pattern.singeton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pattern.singeton.h; path = ../../pattern.singeton.h; sourceTree = "<group>"; };
-		58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = types.cpccWideCharSupport.h; path = ../../types.cpccWideCharSupport.h; sourceTree = "<group>"; };
+		58BAE7CD23C7CA1800A84127 /* data.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccWideCharSupport.h; path = ../../data.cpccWideCharSupport.h; sourceTree = "<group>"; };
 		58BAE7CE23C7CA2700A84127 /* cpccTesting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTesting.h; path = ../../cpccTesting.h; sourceTree = "<group>"; };
 		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
 		58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccLog.cpp; path = ../../io.cpccLog.cpp; sourceTree = "<group>"; };
@@ -63,14 +66,18 @@
 				58BAE83B23C34AB700FDACC4 /* core.cpccHardware.h */,
 				58BAE84223C34AB800FDACC4 /* core.cpccHardware.mac.mm */,
 				58BAE84423C34AB800FDACC4 /* core.cpccIdeMacros.h */,
+				5860743A2454C65500350856 /* core.cpccKeyValue.h */,
 				58BAE84523C34AB800FDACC4 /* core.cpccOS.cpp */,
 				58BAE84923C34AB900FDACC4 /* core.cpccOS.h */,
 				58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */,
 				58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */,
 				58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */,
+				5893A321244F86B600E68AA0 /* core.cpccStringUtil.h */,
 				58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */,
 				58BAE7CE23C7CA2700A84127 /* cpccTesting.h */,
 				58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */,
+				586074392454C63D00350856 /* data.cpccKeyValueStr.h */,
+				58BAE7CD23C7CA1800A84127 /* data.cpccWideCharSupport.h */,
 				58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */,
 				58BAE84A23C34AB900FDACC4 /* fs.cpccUserFolders.cocoa.mm */,
 				58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */,
@@ -106,7 +113,6 @@
 				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
 				58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */,
 				5899FEA423EFE308002294C4 /* pattern.singeton.h */,
-				58BAE7CD23C7CA1800A84127 /* types.cpccWideCharSupport.h */,
 			);
 			sourceTree = "<group>";
 		};

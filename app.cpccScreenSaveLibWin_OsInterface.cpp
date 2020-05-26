@@ -114,21 +114,21 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 		case WM_CREATE: // Set a window timer for the screen saver window. 
 						// Perform any other required initialization.	
 			infoLog().add(_T("ScreenSaverProc() received WM_CREATE"));
-			hWndDebugPreview = cpccOS::getWindowHandleOfProgram(_T("Notepad"));
-			// StarMessage.scr /p 394268
-			infoLog().addf(_T("notepad window handle: %i"), hWndDebugPreview);
+			
+			
 			/*	to run the screensaver under the notepad's window:
+				UN-comment the line that assigns a value to hWndDebugPreview
 				open notepad, run the screensaver normally, open the log file and get the notepad's HWND
 				run:
-				myscreensaver.scr /p HWND_number_from_log
+				myscreensaver.scr /p <HWND_number_from_log>
 			*/
+			// hWndDebugPreview = cpccOS::getWindowHandleOfProgram(_T("Notepad"));	
+			if (hWndDebugPreview)
+					infoLog().addf(_T("notepad window handle: %i"), hWndDebugPreview);
 			
 			if (!screensaverPtr)
 			{
 				screensaverPtr = cpccScreenSaverFactory::createScreenSaver();
-				// something is quite not ready here in windows8 and the getDC does not work very well.
-				// So I moved the initWithWindowHandle() into the WM_ERASEBKGND event
-				// screensaverPtr->initWithWindowHandle( hwnd, 0);
 			}
 	
 			if (screensaverPtr)
