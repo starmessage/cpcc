@@ -20,8 +20,10 @@
 
 #if defined(__APPLE__)
 	#include <Cocoa/Cocoa.h>
+	
 #elif defined(_WIN32)
 	#include <Windows.h>
+	
 #else
 	#error Unknown platform for cpccScreenSaverInterface
 #endif
@@ -49,6 +51,7 @@ class cpccScreenSaverInterface
 {
 public:	// data
 
+
 public: // screensaver interface functions: calls that the operating system dispatches to the screensaver
     
     virtual ~cpccScreenSaverInterface() { }
@@ -60,8 +63,7 @@ public: // screensaver interface functions: calls that the operating system disp
 	virtual void showConfigureSheet(HWND wHandleOwner) = 0;
 #elif  __APPLE__
 	virtual void initWithWindowHandle(NSView* wHandle, const int monitorId) = 0;
-	// virtual void showConfigureSheet(NSView* wOwnerHandle) =0;
-    virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
+	virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
 
 #endif
     virtual void setContainerFolder(const cpcc_char *aFolder)=0;

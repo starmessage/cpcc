@@ -90,15 +90,17 @@ public:		// functions
 
 	const virtual void 					drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
 	{
+		if (!destWindow)
+			return;
+		destWindow->bitBlitFrom(x, y, m_hDC, getWidth(), getHeight(), getTransparentColor());
+		/*
 		cpccWindowWin *tmpWindow = (cpccWindowWin *) destWindow;
 		HDC tmpDC = tmpWindow->getDrawDC();
 		cpccDrawingToolsWinDC tmpTool(tmpDC);
 		tmpTool.bitBlitFrom(x, y, m_hDC, getWidth(), getHeight(), getTransparentColor());
+		*/
 	}
-
-
-
-	
+		
 
 	virtual void	  drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) {  	m_dtool.drawText(x, y, text, params); }
 

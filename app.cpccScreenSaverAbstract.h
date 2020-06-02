@@ -15,6 +15,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 #include "app.cpccScreenSaverInterface.h"
 #include "gui.cpccWindow.h"
 #include "core.cpccHardware.h"
@@ -29,9 +31,10 @@ private:
 
 protected:	// data
 	
-	cpccWindowBase*		DesktopWindowPtr;
-	// bool				m_PreserveDeskopContents;
     
+	cpccWindowBase*		    DesktopWindowPtr;
+	// bool				    m_PreserveDeskopContents;
+    std::vector<cpccRecti>  m_drawRegions;
 	
 protected: // constructor/destructor
 
@@ -41,7 +44,7 @@ protected: // constructor/destructor
             objLog((cpcc_char *) _T("cpccScreenSaverAbstract"))
 	{
         // infoLog().addf(_T("Program: %s %s"), cpccAppInfo::ProgramName, cpccAppInfo::Version);
-		reportComputerMonitors();
+		
 	}
 
 
@@ -89,16 +92,66 @@ protected: // screensaver standard functions
 	}
 
     
-
-	void reportComputerMonitors(void)
+	void calcDrawRegionsAndOffset(const int monitorID)
 	{
-		cpccMonitorList		list;
-		cpccHardware::getListOfMonitors(list);
+        #ifdef _WIN32
+            if (monitorID == -1)
+            {
+                // DesktopWindowPtr->setOffset(-DesktopWindowPtr->getLeft(), -DesktopWindowPtr->getTop());
 
-		// report on monitors found
-		infoLog().addf(_T("Number of monitors:%i"), list.size());
-        for (const auto &monitor : list)
-            infoLog().addf(_T("Monitor: Left %i, top %i, right %i, bottom %i"),  monitor.left, monitor.top, monitor.right, monitor.bottom);
+                cpccRecti rect = DesktopWindowPtr->getBounds();
+                rect.left = 0;
+                rect.top = 0;
+                m_drawRegions.push_back(rect);
+                return;
+            }
+
+            if (monitorID != -1)
+            {
+                cpccMonitorList		list;
+                cpccHardware::getListOfMonitors(list);
+                if (list.size() > 0)
+                {
+                    // report on monitors found
+                    infoLog().addf(_T("Number of monitors for the drawRegions:%i"), list.size());
+                    int min_left = 0, min_top = 0, i = 0;
+                    for (const auto& monitor : list)
+                    {
+                        cpccRecti rect(monitor.left, monitor.top, monitor.right, monitor.bottom);
+                        infoLog().addf(_T("Monitor rect:%s"), rect.asString().c_str());
+                        m_drawRegions.push_back(rect);
+                        if (i == 0) // first iteration
+                        {   // put initial values
+                            min_left = monitor.left;
+                            min_top = monitor.top;
+                        }
+                        else
+                        {
+                            if (min_left > monitor.left)
+                                min_left = monitor.left;
+                            if (min_top > monitor.top)
+                                min_top = monitor.top;
+                        }
+                        
+                        ++i;
+                    }
+                    // remove the minimum
+                    if (min_left != 0)
+                        for (auto& r : m_drawRegions)
+                            r.left -= min_left;
+                    if (min_top != 0)
+                        for (auto& r : m_drawRegions)
+                            r.top -= min_top;
+
+                    // infoLog().addf(_T("setOffset x=%i, y=%i"), -min_left, -min_top);
+                    // DesktopWindowPtr->setOffset(-min_left, -min_top);
+                    return;
+                }
+            }
+            
+        #endif
+        m_drawRegions.push_back(DesktopWindowPtr->getBounds());
+        
 	}
 
 
@@ -109,20 +162,13 @@ protected: // screensaver standard functions
 		if (!DesktopWindowPtr)
 			DesktopWindowPtr = new cpccWindow(wHandle);
 		
-		infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), getWidth(), getHeight());
+		// infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), DesktopWindowPtr->getWidth(), DesktopWindowPtr->getHeight());
 		infoLog().addf(_T("Screensaver container folder:%s"), getContainerFolder());
+        calcDrawRegionsAndOffset(monitorId);
 	}
 
     virtual void shutDown(void) override   {  }
 
-    
-public:	// other functions
-
-	// inline double	getSecondsElapsed(void)		{ return mTimeElapsed_inSec; }
-	// todo: kapoios ta xrisimopoiei auta ? Isos de tha eprepe giati mporei na yparxei parathyro poy ksekinaei apo to 10,10
-	virtual int		getWidth(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getWidth() : 0;	}
-	virtual int		getHeight(void)				{ return (DesktopWindowPtr) ? DesktopWindowPtr->getHeight() : 0; }
-    
 };
 
 

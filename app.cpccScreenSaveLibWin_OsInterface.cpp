@@ -122,7 +122,10 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 				run:
 				myscreensaver.scr /p <HWND_number_from_log>
 			*/
-			// hWndDebugPreview = cpccOS::getWindowHandleOfProgram(_T("Notepad"));	
+			#ifdef _DEBUG
+				hWndDebugPreview = cpccOS::getWindowHandleOfProgram(_T("Notepad"));	
+			#endif
+
 			if (hWndDebugPreview)
 					infoLog().addf(_T("notepad window handle: %i"), hWndDebugPreview);
 			
@@ -213,15 +216,15 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			//ns_cmiLog::cmiQLog().put() << "WM_PAINT";
 			#if (USE_WM_PAINT)
 				isDrawing = true;
-				if (screensaverPtr)
-					screensaverPtr->drawOneFrame();
 				
+                // https://docs.microsoft.com/en-us/windows/win32/learnwin32/painting-the-window
 				PAINTSTRUCT ps;
 				BeginPaint(hwnd,&ps);
-
-				if (screensaverPtr)
-					screensaverPtr->flushOneFrame();
-				
+                if (screensaverPtr)
+                {
+                    screensaverPtr->drawOneFrame();
+                    screensaverPtr->flushOneFrame();
+                }
 				EndPaint(hwnd,&ps);
 				isDrawing = false;
 			#endif
@@ -264,7 +267,6 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			// Perform any additional required cleanup.
 			infoLog().add(_T("ScreenSaverProc() received  WM_DESTROY"));
 
-			
 
 			if (screensaverPtr)
 			{
@@ -277,10 +279,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 			// isos edo thelei break gia na kalestei i DefScreenSaverProc() na kanei to sosto cleanup
 			break;	//return 0l;  
 
-
-
-		
-		
+					
 		case WM_MOUSEMOVE:			// mouse trap for the first 3 seconds
 			//if (Snoozed) break;		// this rule does not apply when snoozed.
 			

@@ -34,20 +34,21 @@ private:
 
 protected:
 	HDC &m_hDC;
+	
 
 public:		// constructor
 
 	explicit cpccDrawingToolsWinDC(HDC &aDC): m_hDC(aDC) { }
 
-public:		// data
-	
+private:		// data
+	int m_offsetX = 0, m_offsetY = 0;
 
 public:		// functions
 
 	void	fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& aColor) override
 	{
 		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asCOLORREF());
-		Ellipse(m_hDC, left, top, right, bottom);
+		Ellipse(m_hDC, m_offsetX + left, m_offsetY + top, m_offsetX + right, m_offsetY + bottom);
 	}
 
 
@@ -55,19 +56,24 @@ public:		// functions
 	{
 		// const COLORREF c = /* (DWORD) */ aColor.asColorref();
 		cpccWinGDIBrush tmpBrush(m_hDC, aColor.asCOLORREF());
+		RECT drawRect(r);
+		drawRect.left += m_offsetX;
+		drawRect.right += m_offsetX;
+		drawRect.top += m_offsetY;
+		drawRect.bottom += m_offsetY;
 		
 		// The brush identified by the hbr parameter may be either a handle to a logical brush or a color value. 
 		// If specifying a handle to a logical brush, call CreatePatternBrush, or CreateSolidBrush to obtain the handle.
 		// If specifying a color value for the hbr parameter, it must be one of the standard system colors (the value 1 must be added to the chosen color). 
-		FillRect(m_hDC, &r , tmpBrush);
+		FillRect(m_hDC, &drawRect, tmpBrush);
 	}
 	
 
 	virtual void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const override
 	{
 		RECT tmpRect;
-		tmpRect.left = tmpRect.right = x;
-		tmpRect.top = tmpRect.bottom = y;
+		tmpRect.left = tmpRect.right = m_offsetX + x;
+		tmpRect.top = tmpRect.bottom = m_offsetY + y;
 
 		if (params.color)
 			SetTextColor(m_hDC, params.color->asCOLORREF());
@@ -122,7 +128,7 @@ public:		// functions
 		if (!m_hDC)
 			return cpccRed;
 		
-		COLORREF c = ::GetPixel(m_hDC, x, y);
+		COLORREF c = ::GetPixel(m_hDC, m_offsetX + x, m_offsetY + y);
 		return cpccColor(GetRValue(c), GetGValue(c), GetBValue(c));
 	}
 	
@@ -130,7 +136,7 @@ public:		// functions
 	virtual void 		setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (m_hDC)
-			::SetPixel (m_hDC, x, y, aColor.asCOLORREF());
+			::SetPixel (m_hDC, m_offsetX + x, m_offsetY + y, aColor.asCOLORREF());
 	}	
 	
 
@@ -139,7 +145,7 @@ public:		// functions
 		if (!m_hDC)
 			return;
 
-		COLORREF c = ::GetPixel(m_hDC, x, y);
+		COLORREF c = ::GetPixel(m_hDC, m_offsetX + x, m_offsetY+ y);
 		int R = (int) (GetRValue(c) * xR),
 			G = (int) (GetGValue(c) * xG),
 			B = (int) (GetBValue(c) * xB);
@@ -152,10 +158,13 @@ public:		// functions
 		if (!m_hDC)
 			return;
 
+		// infoLog().addf(_T("bitBlitFrom, m_offsetX=%i, m_offsetY=%i"), m_offsetX, m_offsetY);
+
 		if (!transparentColor)
-			::BitBlt(m_hDC, x, y, srcW , srcH, srcContext, 0,0, SRCCOPY); 
+			::BitBlt(m_hDC, m_offsetX + x, m_offsetY + y, srcW , srcH, srcContext, 0,0, SRCCOPY);
 		else // http://www.winprog.org/tutorial/transparency.html
-			TransparentBlt(m_hDC, x, y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asCOLORREF());
+			TransparentBlt(m_hDC, m_offsetX  + x, m_offsetY + y, srcW , srcH, srcContext, 0, 0, srcW , srcH, transparentColor->asCOLORREF());
+			
 	}
 	
 
@@ -165,8 +174,8 @@ public:		// functions
 			return;
 
 		cpccWinGDIPen tmpPen(m_hDC, width, aColor.asCOLORREF());
-		::MoveToEx(m_hDC, x1, y1, NULL);
-		::LineTo(m_hDC, x2, y2);
+		::MoveToEx(m_hDC, m_offsetX + x1, m_offsetY + y1, NULL);
+		::LineTo(m_hDC, m_offsetX + x2, m_offsetY + y2);
 	}
 };
 

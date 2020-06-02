@@ -23,13 +23,16 @@
 
 #pragma comment(lib,"msimg32.lib")	// needed for TransparentBlt()
 
+// 
+// https://docs.microsoft.com/en-us/windows/win32/gdi/painting-on-a-dc-that-spans-multiple-displays
+
 /**
 	windows version of the C++ portable window class
 */
 class cpccWindowWin: public cpccWindowBase
 {
 private:
-	RECT					m_rect;
+	// RECT					m_rect; // todo: not needed. To be deleted
 	HDC						m_WindowDC,
 							m_DrawDC;
 	cpccWinGDIMemoryDC*		m_renderBuffer;
@@ -37,22 +40,29 @@ private:
 	enum cpccWindowWin_config	{ config_HasDoubleBuffer=true };
 
 
+// check this: LockWindowUpdate(hwnd);
+
 
 protected:		// ctors. 
 
 	/// constructor is protected because this class should not be created alone, but only via its derived class, cpccWindow
 	explicit cpccWindowWin(const HWND aWnd): cpccWindowBase(aWnd), m_renderBuffer(NULL), m_dtool(m_DrawDC)
 	{
-		m_rect.top = m_rect.bottom = m_rect.left = m_rect.right = 0;
+		// m_rect.top = m_rect.bottom = m_rect.left = m_rect.right = 0;
 		m_DrawDC = m_WindowDC = GetDC(m_windowHandle);
 		SetBkMode(m_WindowDC, TRANSPARENT);
-		GetWindowRect(m_windowHandle, &m_rect);
-		infoLog().addf(_T("cpccWindowWin() with hWND:%X, rect top:%li, left:%li, bottom:%li, right:%li"), m_windowHandle, m_rect.top, m_rect.left, m_rect.bottom, m_rect.right );
+		RECT windRect;
+		GetWindowRect(m_windowHandle, &windRect); // in screen coordinates
+		const int windWidth = windRect.right - windRect.left;
+		const int windHeight = windRect.bottom - windRect.top;
+		
+		infoLog().addf(_T("cpccWindowWin() with hWND:%X, rect.top = %i, left:%i, bottom:%i, right:%i, width:%i, height:%i"), 
+			m_windowHandle, windRect.top, windRect.left, windRect.bottom, windRect.right, windWidth, windHeight);
 
 		if (config_HasDoubleBuffer)
 		{
 			// the last paramenter, "true" means take a screenshot here of the actual window contents and put them in the buffer
-			m_renderBuffer = new cpccWinGDIMemoryDC(m_WindowDC, m_rect.right - m_rect.left, m_rect.bottom - m_rect.top, true);
+			m_renderBuffer = new cpccWinGDIMemoryDC(m_WindowDC, windWidth, windHeight, true);
 			m_DrawDC = m_renderBuffer->dc();
 		}
 	}
@@ -81,6 +91,28 @@ public:
 		m_DrawDC = (a && config_HasDoubleBuffer) ? m_renderBuffer->dc() : m_WindowDC;
 	}
 
+	/*
+		https://docs.microsoft.com/en-us/windows/win32/gdi/hmonitor-and-the-device-context
+
+		Any function that returns a display device context (DC) normally returns a DC for the primary monitor. 
+		To obtain the DC for another monitor, use the EnumDisplayMonitors function. Or, you can use the device name from 
+		the GetMonitorInfo function to create a DC with CreateDC. 
+		However, if the function, such as GetWindowDC or BeginPaint, gets a DC for a window that spans more than one 
+		display, the DC will also span the two displays.
+	*/
+
+	/*
+	void setOffset(const int offsetX, const int offsetY) override
+	{
+		m_dtool.m_offsetX = offsetX;
+		m_dtool.m_offsetY = offsetY;
+	}
+	*/
+
+	virtual void        bitBlitFrom(const int x, const int y, const HDC& srcContext, const int srcW, const int srcH, const cpccColor* transparentColor = NULL) override 
+	{ 
+		m_dtool.bitBlitFrom(x, y, srcContext, srcW, srcH, transparentColor);
+	}
 
 protected:		// functions ////////////////////////////////
 				// they are protected because no one needs to call the directly. They are called from the base class' methods
@@ -94,9 +126,6 @@ protected:		// functions ////////////////////////////////
 		// BitBlt(m_WindowDC, m_rect.left, m_rect.top, m_rect.right-m_rect.left, m_rect.bottom-m_rect.top, m_DrawDC, 0, 0, SRCCOPY);
 	}
 
-	
-	
-
 	void getTextSize(const cpcc_char *txt, int *width, int *height)
 	{	cpccTextParams params;
 		params.fontName		= fontName.getCurrent().c_str();
@@ -108,12 +137,14 @@ protected:		// functions ////////////////////////////////
 		m_dtool.getTextSize(txt, params, width, height);
 	}
 
-	inline int 		getHeight(void)	const										{ return m_rect.bottom - m_rect.top; }
-	inline int 		getWidth(void) 	const										{ return m_rect.right - m_rect.left; }
-	inline int      getTop(void)	const										{ return m_rect.top; }
-	inline int      getLeft(void)	const										{ return m_rect.left; }
-
-	inline void 	fillWithColor(const cpccColor &c)							{ m_dtool.fillRectWithColor(m_rect, c);  }
+	virtual cpccRecti   getBounds(void) const override;
+	inline int 		getHeight(void)	const override { return getSize().h; };
+	inline int 		getWidth(void) 	const override { return getSize().w; } ;
+	virtual cpccSizei   getSize(void) const;
+	inline int      getTop(void)	const override { return getTopLeft().y; }
+	inline int      getLeft(void)	const override { return getTopLeft().x; }
+	inline sPointi  getTopLeft(void)	const override;
+	inline void 	fillWithColor(const cpccColor& c); // zero based or desktop window based?
 	inline void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
 	inline void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
 					{ m_dtool.fillEllipseWithColor( left, top, right, bottom, c); } 
@@ -126,7 +157,7 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	}
 
 
-	cpccColor	getPixel_impl(const int x, const int y)	const					{ return m_dtool.getPixel(x,y); }
+	cpccColor	getPixel_impl(const int x, const int y)	const				{ return m_dtool.getPixel(x,y); }
 	void		setPixel_impl(const int x, const int y, const cpccColor &c) { m_dtool.setPixel(x,y,c); }
 		
 	void 		textOut_impl(const int x, const int y, const cpcc_char *txt) 
@@ -145,3 +176,52 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	
 };
 
+// //////////////////////////////////
+//
+//		cpccWindowWin implementation
+//
+// //////////////////////////////////
+
+inline cpccRecti   cpccWindowWin::getBounds(void) const
+{
+	cpccRecti rect;
+	RECT windRect;
+	GetWindowRect(m_windowHandle, &windRect); // in screen coordinates
+	rect.top = windRect.top;
+	rect.left = windRect.left;
+	rect.height = windRect.bottom - windRect.top;
+	rect.width = windRect.right - windRect.left;;
+	return rect;
+
+}
+
+
+inline cpccSizei   cpccWindowWin::getSize(void) const
+{
+	cpccSizei size;
+	RECT tmpRect;
+	GetClientRect(m_windowHandle, &tmpRect);
+	// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getclientrect
+	// The left and top members are zero. The right and bottom members contain the width and height of the window.
+	size.w = tmpRect.right;
+	size.h = tmpRect.bottom;
+	return size;
+}
+
+
+inline void 	cpccWindowWin::fillWithColor(const cpccColor& c) 
+{ 
+	RECT tmpRect;
+	GetClientRect(m_windowHandle, &tmpRect);
+	m_dtool.fillRectWithColor(tmpRect, c); 
+}
+
+inline sPointi      cpccWindowWin::getTopLeft(void)	const
+{
+	sPointi topLeft;
+	RECT windRect;
+	GetWindowRect(m_windowHandle, &windRect); // in screen coordinates
+	topLeft.x = windRect.left;
+	topLeft.y = windRect.top;
+	return topLeft;
+}

@@ -27,6 +27,20 @@
 #include "gui.cpccDrawingToolsAbstract.h"
 
 
+struct cpccPointi
+{
+    int x, y;
+};
+
+typedef struct cpccPointi sPointi;
+
+struct cpccSizei
+{
+    int w, h;
+};
+
+typedef struct cpccSizei sSizei;
+
 /*
  
  ideas from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4073.pdf
@@ -79,7 +93,7 @@
 	
 	// CGRect
 	//NSRect structure, defined in NSGeometry.h. 
-	// typedef NSRect  NativeRect;
+	typedef NSRect  cpccNativeRectT;
     typedef NSImage* cpccNativeDrawSurfaceHandle;
 
 
@@ -87,9 +101,9 @@
 	#include <Windows.h>
 	// Window handle is HWND (HWND__*) on Windows
 	typedef HWND    cpccNativeWindowHandle;
-	typedef HDC		cpccNativeWindowDrawHandle;
+	typedef HDC	    cpccNativeWindowDrawHandle;
     typedef HDC     cpccNativeDrawSurfaceHandle;
-
+    typedef RECT    cpccNativeRectT;
 	// typedef RECT NativeRect;
 #else
 	#error Unknown platform for cpccNativeWindowHandle and cpccNativeDrawSurfaceHandle
@@ -107,20 +121,19 @@
 class cpccWindowBase
 {
 protected:
-	cpccNativeWindowHandle				m_windowHandle;
+	cpccNativeWindowHandle			m_windowHandle;
 	bool								m_useDblBuffer;
 
 public:		// data
 
 	// drawing parameters
-	cpccStackWithDefault<cpccColor> 	bgColor,
-										drawColor;
+	cpccStackWithDefault<cpccColor> 	bgColor, drawColor;
 	
 	// text (font+paragraph) parameters:
 	cpccStackWithDefault<cpcc_string>	fontName;
-	cpccStackWithDefault<float>			fontSize;
-	cpccStackWithDefault<eTextAlign>    textAlign;
-	cpccStackWithDefault<float>			kerning;
+	cpccStackWithDefault<float>		fontSize;
+	cpccStackWithDefault<eTextAlign>  textAlign;
+	cpccStackWithDefault<float>		kerning;
 	cpccStackWithDefault<eFontQuality>	fontQuality;
 	cpccStackWithDefault<eFontWeight>	fontWeight;
 
@@ -150,30 +163,39 @@ public:		// concrete functions
 
 public:  // abstract functions
 
-    virtual void 			flush(void)=0;
-    virtual void			clear(void)=0;
-    virtual void			fillWithColor(const cpccColor& c)=0;
-	virtual void			fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
-    virtual void			fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
-	virtual void			fillCircleWithColor(const int centerX, const int centerY, const int r, const cpccColor& c) { fillEllipseWithColor(centerX - r, centerY - r, centerX + r, centerY + r, c); };
-	virtual void 			drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
-	virtual void 			drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) = 0;
-	inline void 			drawLine(const float x1, const float y1, const float x2, const float y2, const int width, const cpccColor &c)
+    virtual void 	flush(void)=0;
+    virtual void		clear(void)=0;
+    // virtual void     setOffset(const int offsetX, const int offsetY) { }
+    virtual void		fillWithColor(const cpccColor& c)=0;
+	virtual void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
+    virtual void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
+	virtual void		fillCircleWithColor(const int centerX, const int centerY, const int r, const cpccColor& c) { fillEllipseWithColor(centerX - r, centerY - r, centerX + r, centerY + r, c); };
+	virtual void 	drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
+	virtual void 	drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) = 0;
+	inline void 	drawLine(const float x1, const float y1, const float x2, const float y2, const int width, const cpccColor &c)
 	{
 		drawLine((int)(x1 + 0.5f), (int)(y1 + 0.5f), (int)(x2 + 0.5f), (int)(y2 + 0.5f), width, c);
 	}
 
+    virtual void        bitBlitFrom(const int x, const int y, const cpccNativeDrawSurfaceHandle& srcContext, const int srcW, const int srcH, const cpccColor* transparentColor = NULL)  {   }
+
     virtual void			pushCss(cpccCSS *aCssPtr)=0;
 	virtual void			popCss(cpccCSS* aCssPtr)=0;
     virtual cpccColor		getPixel(const int x, const int y) const =0;
-    virtual void 			setPixel(int x, int y, const cpccColor &c)=0;
-    virtual int				getWidth(void)	const =0;
-    virtual int             getHeight(void)	const =0;
-	virtual int             getTop(void)	const =0;
-    virtual int             getLeft(void)	const =0;
+    virtual void 		setPixel(int x, int y, const cpccColor &c)=0;
 
-	virtual int             getBottom(void) const { return getTop() + getHeight(); };
+    // rectangular bounds
+    virtual cpccRecti   getBounds(void) const = 0;
+    virtual int          getTop(void)	const =0;
+    virtual int          getLeft(void)	const =0;
+    virtual sPointi      getTopLeft(void) const =0;
+
+	virtual int         getBottom(void) const { return getTop() + getHeight(); };
 	virtual int             getRight(void)	const { return getLeft() + getWidth(); };;
+    virtual int			getWidth(void)	const = 0;
+    virtual int          getHeight(void)	const = 0;
+    virtual cpccSizei   getSize(void) const =0;
+
     virtual void            getTextSize(const cpcc_char *txt, int *width, int *height)=0;
 	virtual void			useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
     virtual void            lockFocus(void)=0;

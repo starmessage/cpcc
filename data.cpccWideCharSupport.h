@@ -25,7 +25,7 @@
 #ifdef    _WIN32
     #include <tchar.h>
 #endif
-
+#include <string>
 
 #ifdef __APPLE__    // define the _T() macro that is a MS VC macro
     #ifndef _T
@@ -37,9 +37,9 @@
 #endif
 
 #ifdef _UTF16_STRINGS 
-    #define TOSTRING_WN(v) to_wstring(v) 
+    #define TOSTRING_WN(v) std::to_wstring(v) 
     #define STR_WN L 
 #else 
-    #define TOSTRING_WN(v) to_string(v) 
+    #define TOSTRING_WN(v) std::to_string(v) 
     #define STR_WN  
 #endif 

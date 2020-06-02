@@ -44,6 +44,13 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpcc_SelfTest.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccSystemFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccDrawingToolsWinDC.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageBase.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageWin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindowBase.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindowWin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLogFileWriterWithBuffer.h" />

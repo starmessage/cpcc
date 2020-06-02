@@ -37,5 +37,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\core.cpccHardware.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLogFileWriterWithBuffer.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccTime.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindow.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindowBase.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccWindowWin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccDrawingToolsWinDC.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageWin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImage.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageBase.h" />
   </ItemGroup>
 </Project>

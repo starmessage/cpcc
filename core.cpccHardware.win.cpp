@@ -22,7 +22,7 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
 {
     //lprcMonitor holds the rectangle that describes the monitor position and resolution)
     if (!lprcMonitor)
-        return false;
+        return FALSE;
 
     cpccMonitorList *listPtr = (cpccMonitorList *)dwData;
     cpccMonitorInfoT info;
@@ -45,6 +45,8 @@ static BOOL CALLBACK util_MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPR
     return TRUE;
     */
 
+    // To continue the enumeration, return TRUE.
+    // To stop the enumeration, return FALSE.
     return TRUE;
 }
 

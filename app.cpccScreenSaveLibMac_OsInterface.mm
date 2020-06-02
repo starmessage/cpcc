@@ -17,7 +17,6 @@
  */
 
 #include    "io.cpccLog.h"
-// #include    "app.cpccAppInfo.h"
 #include    "core.cpccTryAndCatch.h"
 #include    "app.cpccScreenSaverInterface.h"
 #import     <ScreenSaver/ScreenSaver.h>

@@ -58,8 +58,8 @@
 class cpccWindowMac: public cpccWindowBase
 {
 private:
-	NSRect                          m_windowRect;
-    const float                     m_skewX, m_skewY;
+	NSRect                         m_windowRect;
+    const float                    m_skewX, m_skewY;
     cpccDrawingToolsMacOnFocused    dtool;
     
 protected:
@@ -90,14 +90,38 @@ public:  // functions
 	
     
 	void 		flush() override { };
-	int 		getHeight(void) const override	{ return (int)m_windowRect.size.height; }
-	int 		getWidth(void) 	const override	{ return (int)m_windowRect.size.width; }
+	int 		    getHeight(void) const override	    { return (int)m_windowRect.size.height; }
+	int 		    getWidth(void) 	const override	    { return (int)m_windowRect.size.width; }
     int         getTop(void)    const override	{ return (int)m_windowRect.origin.y; }
-    int         getLeft(void)   const override	{ return (int)m_windowRect.origin.x; }
+    int         getLeft(void)   const override	    { return (int)m_windowRect.origin.x; }
+    sPointi     getTopLeft(void) const override
+    {
+        sPointi tl;
+        tl.x = (int)m_windowRect.origin.x;
+        tl.y = (int)m_windowRect.origin.y;
+        return tl;
+    }
+    
+    sSizei       getSize(void)  const override
+    {
+        sSizei wh;
+        wh.w = (int)m_windowRect.size.width;
+        wh.h = (int)m_windowRect.size.height;
+        return wh;
+    }
+
+    cpccRecti   getBounds(void) const override
+    {
+        cpccRecti rect;
+        rect.fromXYWH((int)m_windowRect.origin.x, (int)m_windowRect.origin.y,
+                      (int)m_windowRect.size.width, (int)m_windowRect.size.height);
+        return rect;
+    }
+    
     void        lockFocus(void) override { [m_windowHandle lockFocus]; }
     void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     
-	void	fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) override
+	void	        fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) override
 	{
         dtool.fillRectWithColor(aRect.asNSRect(), aColor);
 	}

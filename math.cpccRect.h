@@ -24,6 +24,8 @@
 #endif
 
 
+#include "data.cpccWideCharSupport.h"
+
 
 /**
  Rectangle C++ class with lots of convenience functions
@@ -97,6 +99,8 @@ public:		// convenience functions
 	// inline virtual const void	setRight(const T v)		{ width = v - left; }
 	inline void			setXY(const T aX, const T aY) { left = aX; top = aY; }
 
+	void moveBy(const T dX, const T dY) { left += dX; top += dY; }
+
 	inline const bool   overlapsWithRect(const cpccRect<T> &aRect) const
 	{
 		if (getBottom() < aRect.top) return false;
@@ -116,6 +120,18 @@ public:		// convenience functions
 		return true;
 	}
 
+	std::basic_string<TCHAR> asString(void) const
+	{
+		std::basic_string<TCHAR> result(STR_WN"Top:");
+		result += TOSTRING_WN(top);
+		result += STR_WN", Left:" + TOSTRING_WN(left);
+		result += STR_WN", Bottom:" + TOSTRING_WN(getBottom());		
+		result += STR_WN", Right:" + TOSTRING_WN(getRight());
+		result += STR_WN", Width:" + TOSTRING_WN(width);
+		result += STR_WN", Height:" + TOSTRING_WN(height);
+
+		return result;
+	}
 };
 
 
