@@ -269,12 +269,8 @@ public:
         //[tmpView unlockFocus];
     }
     
-    
 protected: // functions
-    
 
-	
-    
     virtual bool initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
 	{
 		/* not needed if the previous creation was done with autoRelease
@@ -333,6 +329,43 @@ protected: // functions
         makeTransparentPixelsOfColor(aColor);
     }
 
+    virtual void         resizeTo_impl_newUntested(const int newWidth, const int newHeight)
+    {
+        // https://stackoverflow.com/questions/11949250/how-to-resize-nsimage
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
+              initWithBitmapDataPlanes:NULL
+                            pixelsWide:newWidth
+                            pixelsHigh:newHeight
+                         bitsPerSample:8
+                       samplesPerPixel:4
+                              hasAlpha:YES
+                              isPlanar:NO
+                        colorSpaceName:NSCalibratedRGBColorSpace
+                           bytesPerRow:0
+                          bitsPerPixel:0];
+        
+        NSSize *newSize = new NSSize();
+        newSize->width = newWidth;
+        newSize->height = newHeight;
+        rep.size = *newSize;
+        
+        [NSGraphicsContext saveGraphicsState];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+        [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
+        [NSGraphicsContext restoreGraphicsState];
+
+        //if (bmpPtr)
+        //    [bmpPtr release];  // does not work properly under Catalina
+        bmpPtr = rep;
+        
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
+        if (getWidth()!=newWidth)
+            warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
+        
+        if (getHeight()!=newHeight)
+            warningLog().addf("resizeTo_impl failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
+        // assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+    }
     
          
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
@@ -340,7 +373,7 @@ protected: // functions
         // logFunctionLife _tmpLog((char *)"cpccImageMacBmpRep.resizeTo_impl()");
         
         NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
-        
+    
         [imageOfNewSize lockFocus];
         [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
         // to adjust the flipped copy
@@ -350,11 +383,11 @@ protected: // functions
     
         NSData *imageNewData = [imageOfNewSize  TIFFRepresentation]; // converting img into data
         
-        if (bmpPtr)
-			[bmpPtr release];
+        //if (bmpPtr)
+		//	[bmpPtr release]; // does not work properly under Catalina
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
         
-        infoLog().addf("resized. width:%i height:%i", getWidth(), getHeight());
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
         if (getWidth()!=newWidth)
             warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
         
