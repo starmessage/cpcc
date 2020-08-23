@@ -35,6 +35,7 @@
 
 #ifdef _WIN32
     #include <direct.h> // for rmdir()
+	#include <Windows.h> // for GetFileAttributesEx()
 #endif
 
 
@@ -42,37 +43,107 @@
 
 struct sFileInformation
 {
-	typedef long long	cpccType_FileSize;
+	typedef long long	cpccFileSize_t;
+	
+	cpccFileSize_t		fileSize = 0;
 
-	cpccType_FileSize	size = 0;
-
-	// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/stat-functions?view=vs-2019
-	// you must include TYPES.H before STAT.H
-	// _stat structure:
-	// st_ctime 	Time of creation of file. Valid on NTFS but not on FAT formatted disk drives.
-	// st_mtime 	Time of last modification of file.
 	time_t				dateModified = 0;
 	bool				isFile = false;
 	bool				isFolder = false;
+	bool				isReadOnly = false;
 	bool				itemExists = false;
-	bool				errorOccured = false;
+	// bool				errorOccured = false;
+	
+};
 
-	bool	getStat(char *fn)
+#ifdef _WIN32
+
+// /////////////////////////////////
+//
+//  cpccFileSystemWin 
+//
+// /////////////////////////////////
+
+
+class cpccFileSystemWin
+{
+public:
+	std::basic_string<TCHAR>	errorDescription;
+
+	static const time_t filetime2time_t(const FILETIME& ft);
+
+
+	template<typename aPCharType>
+	static unsigned long getFileInfo(const aPCharType* aFilename, sFileInformation &fileInfo)
 	{
-		return !errorOccured;
+		// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/ns-fileapi-win32_file_attribute_data
+		WIN32_FILE_ATTRIBUTE_DATA fileInfoWin;
+		BOOL result = GetFileAttributesEx(aFilename, GetFileExInfoStandard, &fileInfoWin); // Returns non zero if succeed 
+		if (!result) // If the function fails, the return value is zero (0). To get extended error information, call GetLastError.
+			return GetLastError();
+		
+		LARGE_INTEGER size;
+		size.HighPart = fileInfoWin.nFileSizeHigh;
+		size.LowPart = fileInfoWin.nFileSizeLow;
+		fileInfo.fileSize = size.QuadPart;
+
+		// https://docs.microsoft.com/en-us/windows/win32/fileio/file-attribute-constants
+		fileInfo.isFolder	=		fileInfoWin.dwFileAttributes | FILE_ATTRIBUTE_DIRECTORY;
+		fileInfo.isFile		= !fileInfo.isFolder;
+		fileInfo.isReadOnly = fileInfoWin.dwFileAttributes | FILE_ATTRIBUTE_READONLY;
+
+		fileInfo.itemExists = true;
+
+		fileInfo.dateModified = filetime2time_t(fileInfoWin.ftLastWriteTime);
+
+		return 0;
 	}
 
-	bool	getStat(wchar_t *fn)
+
+	template<typename aPCharType>
+	static unsigned long getFileSize(const aPCharType* aFilename, sFileInformation::cpccFileSize_t &fileSize)
 	{
-		return !errorOccured;
+		sFileInformation fileInfo;
+		unsigned long errorCode = getFileInfo(aFilename, fileInfo);
+		if (errorCode)
+		{
+			return errorCode;
+		}
+
+		fileSize = fileInfo.fileSize;
+		return 0;
 	}
 
 };
 
 
 
+// /////////////////////////////////
+//
+//  cpccFileSystemWin implementation
+//
+// /////////////////////////////////
 
-// template<typename cpccType_PChar>
+inline const time_t cpccFileSystemWin::filetime2time_t(const FILETIME& ft)
+{
+	// A FILETIME is the number of 100-nanosecond intervals since January 1, 1601.
+	// A time_t is the number of 1 - second intervals since January 1, 1970.
+	ULARGE_INTEGER ull;
+	ull.LowPart = ft.dwLowDateTime;
+	ull.HighPart = ft.dwHighDateTime;
+	return ull.QuadPart / 10000000ULL - 11644473600ULL;
+}
+
+#endif
+
+
+// /////////////////////////////////
+//
+//  cpccFileSystemL1 
+//
+// /////////////////////////////////
+
+
 class cpccFileSystemL1
 {
 public:	 // types
@@ -80,42 +151,43 @@ public:	 // types
 	// typedef std::basic_string<cpccType_PChar>	cpccType_String;
 
 public:  // functions   
+
+
 	template<typename aPCharType>
 	static cpccType_FileSize getFileSize(const aPCharType *aFilename)
 	{
 	//  long is 4 byte in Visual Studio, so you have to use long long to get correct file size for big files on Windows
-
-	/*
-	std::ifstream f(aFilename, std::ios::binary | std::ios::ate);
-	if (!f.good())
-		return -1L;
-	
-	// you need to seek before getting the result: myfile.seekg(0, ios::end);
-
-	return static_cast<cpccType_FileSize>(f.tellg());
-	*/
-
-	
-	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(),
+	// On a Windows system this is implemented with a Windows specific GetFileAttributesEx(), or getfilesizeex(),
 	// on linux this is implemented as a lstat64(), and
 	// on the Macintosh it uses the Mac specific call getattrlist().
 
-		// large files:
-		// __int42 is equivalent to long long
-		// https://docs.microsoft.com/en-us/cpp/cpp/data-type-ranges?view=vs-2019
 
+    // for windows use getfilesizeex()
+    // https://docs.microsoft.com/en-gb/windows/win32/api/fileapi/nf-fileapi-getfilesizeex
 	#ifdef _WIN32
+		/*
+		// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/stat-functions
+		// seems to fail under windows server 2003 32 bit
 		struct _stat64 stat_buf;
 		#ifdef UNICODE
 			int rc = _wstat64(aFilename, &stat_buf);
 		#else
 			int rc = _stat64(aFilename, &stat_buf);
 		#endif
+
+		return (rc == 0) ? stat_buf.st_size : -1;
+		*/
+		cpccType_FileSize fileSize;
+		unsigned long result = cpccFileSystemWin::getFileSize(aFilename, fileSize);
+		if (result != 0)
+			fileSize = -1;
+		return fileSize;
 	#else
 		struct stat stat_buf;
 		int rc = stat(aFilename, &stat_buf);
+		return (rc == 0) ? stat_buf.st_size : -1;
 	#endif
-	return (rc == 0) ? stat_buf.st_size : -1;
+	
 	
 	}
 

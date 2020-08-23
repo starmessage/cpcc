@@ -39,6 +39,8 @@ class stringUtils
 {
 
 public:
+    static std::basic_string<TCHAR> trimWhiteSpaces(const TCHAR* txt, const TCHAR* whiteSpaceChars = _T(" \t"));
+    static std::basic_string<TCHAR> removeExtraSpaces(const TCHAR* txt, const TCHAR* whiteSpaceChars = _T(" \t"));
     
     static inline void stringTrimL(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
     static inline void stringTrimR(cpcc_string &s, const cpcc_string &charsToRemove = _T("\t\n\v\f\r "));
@@ -132,10 +134,55 @@ public:
 
 
 // --------------------------------------
+//
 // Implementation of stringUtils
+//
 // --------------------------------------
 
 
+inline std::basic_string<TCHAR> stringUtils::trimWhiteSpaces(const TCHAR* txt, const TCHAR* whiteSpaceChars)
+{
+    if (!txt)
+        return _T("");
+
+    std::basic_string<TCHAR> result(txt);
+
+    const auto trimmedBegin = result.find_first_not_of(whiteSpaceChars);
+    if (trimmedBegin == std::string::npos)
+        return _T(""); // no content
+
+    const auto trimmedEnd = result.find_last_not_of(whiteSpaceChars);
+    const auto trimmedRange = trimmedEnd - trimmedBegin + 1;
+    return result.substr(trimmedBegin, trimmedRange);
+}
+
+
+inline std::basic_string<TCHAR> stringUtils::removeExtraSpaces(const TCHAR* txt, const TCHAR* whiteSpaceChars)
+{
+    if (!txt)
+        return _T("");
+
+    // https://stackoverflow.com/questions/1798112/removing-leading-and-trailing-spaces-from-a-string
+
+    auto result = trimWhiteSpaces(txt); // now it is trimmed.
+
+
+    const std::basic_string<TCHAR> fill = _T(" ");
+
+    auto beginSpace = result.find_first_of(whiteSpaceChars);
+    while (beginSpace != std::string::npos)
+    {
+        const auto endSpace = result.find_first_not_of(whiteSpaceChars, beginSpace);
+        const auto range = endSpace - beginSpace;
+
+        result.replace(beginSpace, range, fill);
+
+        const auto newStart = beginSpace + fill.length();
+        beginSpace = result.find_first_of(whiteSpaceChars, newStart);
+    }
+
+    return result;
+}
 
 
 // trim from start (in place)
@@ -417,8 +464,28 @@ class stringConversions
 */
 
 
+
+
 TEST_RUN(stringUtils_test)
 {
+    const bool skipThisTest = false;
+
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+
+    TEST_EXPECT((stringUtils::trimWhiteSpaces(_T(" text 1 ")) == _T("text 1")), _T("SelfTest #9138a: trimWhiteSpaces() failed"));
+    TEST_EXPECT((stringUtils::trimWhiteSpaces(_T("text 2")) == _T("text 2")), _T("SelfTest #9138b: trimWhiteSpaces() failed"));
+    TEST_EXPECT((stringUtils::trimWhiteSpaces(_T("   t ext 3   ")) == _T("t ext 3")), _T("SelfTest #9138c: trimWhiteSpaces() failed"));
+    TEST_EXPECT((stringUtils::trimWhiteSpaces(_T("one\ttwo")) == _T("one\ttwo")), _T("SelfTest #9138d: trimWhiteSpaces() failed"));
+
+    TEST_EXPECT((stringUtils::removeExtraSpaces(_T("te x  t     2")) == _T("te x t 2")), _T("SelfTest #9138e: removeExtraSpaces() failed"));
+    TEST_EXPECT((stringUtils::removeExtraSpaces(_T("   t  ext 3   ")) == _T("t ext 3")), _T("SelfTest #9138f: removeExtraSpaces() failed"));
+    TEST_EXPECT((stringUtils::removeExtraSpaces(_T(" te    xt 1 ")) == _T("te xt 1")), _T("SelfTest #9138g: removeExtraSpaces() failed"));
+
+
     cpcc_string s(_T(" hello  "));
 
     stringUtils::stringTrimL(s);

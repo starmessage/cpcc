@@ -44,5 +44,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageWin.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImage.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageBase.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccKeyValueStr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccWideCharSupport.h" />
   </ItemGroup>
 </Project>

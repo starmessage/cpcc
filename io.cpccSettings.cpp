@@ -15,11 +15,11 @@
  */
 
 
-#include <assert.h>
+#include <cassert> 
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <errno.h>
+#include <cerrno>
 #include <locale>
 #include <codecvt>
 
@@ -151,7 +151,7 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
 
 cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID)
 {
-    cpccPathString fname(aScope==scopeAllUsers ? cpccSystemFolders::getCommonAppData() : cpccUserFolders::getUserData());
+    cpccPathString fname(aScope== settingsScope::scopeAllUsers ? cpccSystemFolders::getCommonAppData() : cpccUserFolders::getUserData());
     assert(cpccFileSystemMini::folderExists(fname.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
     
     #ifdef __APPLE__
@@ -164,7 +164,7 @@ cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc
          */
     
         // fname("Preferences");
-        if (aScope==scopeAllUsers)
+        if (aScope==settingsScope::scopeAllUsers)
             if (aBundleID)
                 if (cpcc_strlen(aBundleID)>0)
                     fname.appendPathSegment(aBundleID);
@@ -174,8 +174,6 @@ cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc
                 fname.appendPathSegment(aCompanyName);
     #endif
     // now the fname contains the containing folder for the INI file.
-    
-    
     
     // add the appName as part of the filename
     // operator && evaluates left operand first
@@ -308,8 +306,8 @@ bool cpccSettings::save(void)
     }
 
 #ifdef DEBUG
-    cpcc_string test = serialize(STR_WN"\n", true, cSerialCodec::encode);
-    assert (test.compare(ss.str())==0 && STR_WN"#9582: error in save() serialize*()");
+    cpcc_string test = serialize(_T("\n"), true, cSerialCodec::encode);
+    assert (test.compare(ss.str())==0 && _T("#9582: error in save() serialize*()"));
 #endif
     
 #ifdef UNICODE	// write the BOM if UTF-8

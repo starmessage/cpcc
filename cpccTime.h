@@ -213,7 +213,7 @@ public:
 	static cpcc_string secondsToHHMMSSasString(const double seconds)
 	{
 		long hours = (long) (seconds / 3600);
-		long minutes = (long) ((seconds / 60) - (hours * 60));
+		long minutes = (long) (seconds / 60) - (long) (hours * 60);
 		long secondsRem = (long) ((long) seconds % 60);
 		double secondsFloat = seconds - floor(seconds);
 		/*

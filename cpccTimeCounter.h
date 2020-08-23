@@ -159,5 +159,9 @@ TEST_RUN_ASYNC(cpccTimeCounter_test)
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     double timePassed = myCounter.getSecondsElapsed();
+    
+    // TEST_ADDNOTE(timePassed);
+    // std::basic_string<TCHAR> msg(_T("#7361: cpccTimeCounter"));
+    
     TEST_EXPECT(timePassed > 1 && timePassed < 2, _T("#7361: cpccTimeCounter"));
 }

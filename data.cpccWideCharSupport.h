@@ -36,10 +36,10 @@
     #endif
 #endif
 
-#ifdef _UTF16_STRINGS 
+#ifdef UNICODE 
     #define TOSTRING_WN(v) std::to_wstring(v) 
-    #define STR_WN L 
+    // #define STR_WN L
 #else 
     #define TOSTRING_WN(v) std::to_string(v) 
-    #define STR_WN  
+    // #define STR_WN  
 #endif 

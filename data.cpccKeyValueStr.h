@@ -47,6 +47,7 @@ public:
     
     void                removeKey(const TCHAR* aKey);
     void                clear(void);
+    const bool          isEmpty(void) const { return m_map.empty(); }
     const size_t          getCount(void) const { return m_map.size(); }
     const bool          keyExists(const TCHAR* aKey) const;
 
@@ -59,6 +60,8 @@ public:
     const tStringWN     serialize(const TCHAR* aRecordSeparator, const bool addRecordSeparatorToTheEnd, tEncodingFunc encodingFuncPtr) const;
     
     bool isEqual(const cpccKeyValueStr & other) const;
+    
+    void mergeFrom(const cpccKeyValueStr & other);
     
 protected:
     // called when set() functions are called.
@@ -75,6 +78,12 @@ protected:
 //
 // /////////////////////////////////////////////////////////////////////////////////////////////////
 
+inline void cpccKeyValueStr::mergeFrom(const cpccKeyValueStr & other)
+{
+    m_map.insert(other.m_map.begin(), other.m_map.end());
+}
+
+
 inline bool cpccKeyValueStr::isEqual(const cpccKeyValueStr & other) const
 {
     // compare std::map
@@ -88,7 +97,7 @@ inline bool cpccKeyValueStr::isEqual(const cpccKeyValueStr & other) const
 inline const cpccKeyValueStr::tStringWN     cpccKeyValueStr::serialize(const TCHAR* aRecordSeparator, const bool addRecordSeparatorToTheEnd, tEncodingFunc encodingFuncPtr) const
 {
     tStringWN result;
-    const TCHAR *recordSeparator = "";
+    const TCHAR *recordSeparator = _T("");
     for (auto element : m_map)
     {
         tStringWN    value(element.second);
@@ -163,7 +172,7 @@ inline const cpccKeyValueStr::tStringWN	cpccKeyValueStr::get(const TCHAR* aKey) 
             return searchIterator->second;
     }
 
-    return STR_WN"";
+    return _T("");
 }
 
 

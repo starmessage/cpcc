@@ -49,9 +49,6 @@ public:
     static cpcc_string& readProgramVersion(void);
     
 
-    // todo: move it to core.cpccHardware.h
-	static long			getSystemMemory_inMb(void);
-
 #ifdef __APPLE__
     static std::string readProgramVersionByPrincipalClass(const char *aClassName);
     static std::string getBundleID(void);

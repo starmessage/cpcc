@@ -16,10 +16,13 @@
 
 #define 	cpccPathHelper_DoSelfTest	true
 
-#include <assert.h>
+#include <cassert>
 
 #include "io.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
+#ifdef _WIN32
+	#include <windows.h>
+#endif
 
 #if defined(__APPLE__)
 	#include <wordexp.h>
