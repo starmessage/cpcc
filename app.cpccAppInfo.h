@@ -34,7 +34,7 @@
 struct sAppInfo
 {
 
-	enum licenseType { eltFree, eltFreeInAppleStore, eltPaidInAppleStore, eltFreeTrialPeriod, eltFull, eltSpecialEdition, eltCommercial };
+	enum class eLicenseType { eltFree, eltFreeInAppleStore, eltPaidInAppleStore, eltFreeTrialPeriod, eltPaid, eltSpecialEdition, eltCommercial };
 
 	const cpcc_char
 		* CompanyName,
@@ -54,7 +54,8 @@ struct sAppInfo
 		* DonateURL,
 		* CheckForUpdatesURL,
 		* Email;
-	int licenseType;
+	// int licenseType;
+	eLicenseType licenseType;
 
 };
 

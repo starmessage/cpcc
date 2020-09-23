@@ -122,13 +122,13 @@ public:		// convenience functions
 
 	std::basic_string<TCHAR> asString(void) const
 	{
-		std::basic_string<TCHAR> result(STR_WN"Top:");
+		std::basic_string<TCHAR> result(_T("Top:"));
 		result += TOSTRING_WN(top);
-		result += STR_WN", Left:" + TOSTRING_WN(left);
-		result += STR_WN", Bottom:" + TOSTRING_WN(getBottom());		
-		result += STR_WN", Right:" + TOSTRING_WN(getRight());
-		result += STR_WN", Width:" + TOSTRING_WN(width);
-		result += STR_WN", Height:" + TOSTRING_WN(height);
+		result += _T(", Left:") + TOSTRING_WN(left);
+		result += _T(", Bottom:") + TOSTRING_WN(getBottom());
+		result += _T(", Right:") + TOSTRING_WN(getRight());
+		result += _T(", Width:") + TOSTRING_WN(width);
+		result += _T(", Height:") + TOSTRING_WN(height);
 
 		return result;
 	}

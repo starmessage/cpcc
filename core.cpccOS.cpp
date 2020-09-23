@@ -48,16 +48,6 @@
 #endif
 
 
-long cpccOS::getSystemMemory_inMb(void)
-{
-	#ifdef _WIN32
-		return cpccOSWin::getSystemMemory_inMb();
-
-	#elif __APPLE__
-	
-		return 0;
-	#endif
-}
 
 
 

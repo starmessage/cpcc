@@ -73,19 +73,7 @@ public:
 
 
 
-	static const long getSystemMemory_inMb(void)
-	{
-		// https://msdn.microsoft.com/en-us/library/windows/desktop/aa366589%28v=vs.85%29.aspx
-		MEMORYSTATUSEX statex;
-		statex.dwLength = sizeof(statex);
-		// If the function fails, the return value is zero. To get extended error information, call GetLastError.
-		if (GlobalMemoryStatusEx(&statex))
-			return (long) (statex.ullTotalPhys / (1024 *1024)); // ullTotalPhys: The amount of actual physical memory, in bytes.
 
-		return 0;
-	}
-
-	
 	
     /*
 	static const cpcc_string getWindowsVersionMajorMinor(void) // returns something like: "6.1"

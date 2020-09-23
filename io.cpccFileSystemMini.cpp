@@ -18,8 +18,7 @@
 #if defined(_WIN32) || defined (IMPORTED_BY_io_cpccFileSystemMini_mm)
 
 #include <assert.h>
-#include <cstdio>
-// #include <stdio.h>  // for tempnam()
+#include <cstdio> // for tempnam()
 // #include <stdlib.h> // for free()
 #include <iostream>
 #include <fstream>
@@ -236,8 +235,8 @@ bool cpccFileSystemMini::writeTextFile(const cpcc_char* aFilename, const cpcc_ch
 
         // http://www.cplusplus.com/forum/beginner/107125/
         std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-        _file.imbue(my_utf8_locale);
-
+		std::locale namedObject_loc = _file.imbue(my_utf8_locale); // namedObject_loc is  to suppress warning C26444
+		
         // _file << helper_to_utf8(aTxt, cpcc_strlen(aTxt));
     }
 
@@ -281,7 +280,7 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
         return false;
     
     std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-    ofs.imbue(my_utf8_locale);
+	std::locale namedObject_loc = ofs.imbue(my_utf8_locale); // namedObject_loc is  to suppress warning C26444
     
     ofs << txt;
     // _f << fflush;
@@ -480,7 +479,7 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 #ifdef _WIN32
 	_TCHAR fullPathfileName[MAX_PATH];
 	if (GetModuleFileName(NULL,fullPathfileName, MAX_PATH))
-		return cpcc_string(fullPathfileName);
+		return std::basic_string<TCHAR>(fullPathfileName);
 	
 #elif TARGET_OS_IPHONE
     NSString *path = [NSBundle mainBundle].bundlePath;
@@ -507,12 +506,12 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	GetProcessPID (&psn, &pid);
 	
 	if (proc_pidpath(pid, fullPathfileName, sizeof(fullPathfileName)) > 0)
-		return std::string(fullPathfileName);
+		return fullPathfileName;
     
 #else
 	#error Error 5453: unsupported platform for getModuleFilename()
 #endif	
-	return cpcc_string( _T(""));
+	return  _T("");
 }
 
 

@@ -34,7 +34,7 @@
 #include <mutex>
 #include <cstdlib>
 #include "data.cpccWideCharSupport.h"
-
+#include "io.cpccFileSystemMini.h"
 #include "fs.cpccUserFolders.h"
 
 #ifdef    _WIN32
@@ -44,7 +44,7 @@
 #endif
 
 
-#if defined(_DEBUG) || defined(DEBUG)
+#if defined(_DEBUG) || defined(DEBUG) // Under xcode put DEBUG=1 in the debug configuration
     #define ENABLE_cpccTESTING    1
 #else
     #ifdef NDEBUG // in xcode, add NDEBUG in the preprocessor macros, under Release
@@ -52,7 +52,7 @@
 	#elif _WIN32
 		#define ENABLE_cpccTESTING    0
     #else
-        #define ENABLE_cpccTESTING    1
+        #define ENABLE_cpccTESTING    0     // MacOS release
     #endif
 #endif
 
@@ -202,13 +202,17 @@ namespace cpccTesting
         {
             std::time_t secondsSinceTheEpoch = std::time(nullptr);
             
+            TCHAR* result = 0;
             #ifdef UNICODE
                 #pragma warning( suppress : 4996 )
-                return _wasctime(std::localtime(&secondsSinceTheEpoch));
+                result = _wasctime(std::localtime(&secondsSinceTheEpoch));
             #else
                 #pragma warning( suppress : 4996 )
-                return std::asctime(std::localtime(&secondsSinceTheEpoch));
+                result = std::asctime(std::localtime(&secondsSinceTheEpoch));
             #endif
+            
+            if (!result) return _T("");
+            return result;
         }
         
         static void shellOpenFile(const TCHAR *filename)
@@ -216,7 +220,7 @@ namespace cpccTesting
             if (system(NULL)) // If command is a null pointer, the function only checks whether a command processor is available through this function, without invoking any command.
             {
                #ifdef _WIN32
-                    std::basic_string<TCHAR> theCommand(STR_WN"start ");
+                    std::basic_string<TCHAR> theCommand(_T("start "));
                 #else
                     std::basic_string<TCHAR> theCommand("open -e ");
                 #endif
@@ -280,9 +284,10 @@ namespace cpccTesting
             {
                 std::lock_guard<std::mutex> lock(m_writeMutex);
                 std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-                m_stream.imbue(my_utf8_locale);
+                std::locale loc = m_stream.imbue(my_utf8_locale); // loc is  to suppress warning C26444
 
                 m_stream << _T("Unit testing by the cpcc library.") << std::endl;
+                m_stream << _T("Host application:") <<  cpccFileSystemMini::getAppFullPathFilename() << std::endl;
                 m_stream << util::getTimeStamp() << std::endl;
                 m_stream.flush();
             }
@@ -406,10 +411,14 @@ namespace cpccTesting
 #define OUTPUT_STREAM           cpccTesting::sharedObjects::outputStream().get()
 
 
+// For the incorrect warning, Looks like C26110 can't recognize a mutex via a reference.
+// Here is a workarround: https://developercommunity.visualstudio.com/content/problem/670717/incorrect-lock-warnings-by-analyzer-c26110.html
+
 #define TEST_EXPECT(aCONDITION, aMESSAGE)		    \
   if (!(aCONDITION))							    \
     {                                               \
-    std::lock_guard<std::mutex> lock(cpccTesting::sharedObjects::outputStream().m_writeMutex); \
+    auto& refToMutex = cpccTesting::sharedObjects::outputStream().m_writeMutex; \
+    std::lock_guard<std::mutex> lock(refToMutex);           \
     OUTPUT_STREAM << _T("Test failed! (");                \
     OUTPUT_STREAM << TEST_MAKESTRING(aCONDITION);         \
     OUTPUT_STREAM << _T(")")  << std::endl;               \

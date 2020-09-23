@@ -76,7 +76,7 @@ private:
     cpcc_string 	mFilename;
 
 public:	// class metadata and selftest
-	enum settingsScope { scopeCurrentUser=0, scopeAllUsers };
+	enum class settingsScope { scopeCurrentUser=0, scopeAllUsers };
 
 
 public: 	// data
@@ -195,8 +195,8 @@ TEST_RUN(cpccSettings_testNew)
     const float  bigFloat = 13456798.43e9f;
     const cpcc_char* tmpTestString = _T("abc-καλημέρα=good\n\rmorning to all.");
 
-    cpcc_string fnameCurrentUser(cpccSettings::getAutoFilename(cpccSettings::scopeCurrentUser, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
-    cpcc_string fnameAllUsers(cpccSettings::getAutoFilename(cpccSettings::scopeAllUsers, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    cpcc_string fnameCurrentUser(cpccSettings::getAutoFilename(cpccSettings::settingsScope::scopeCurrentUser, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
+    cpcc_string fnameAllUsers(cpccSettings::getAutoFilename(cpccSettings::settingsScope::scopeAllUsers, _T("Test Company Name"), _T("Test App Name"), _T("com.StarMessageSoftware.SelfTestBundleID")));
     
     TEST_ADDNOTE(_T("ini file for current user: ") << fnameCurrentUser);
     TEST_ADDNOTE(_T("ini file for all users: ") << fnameAllUsers);

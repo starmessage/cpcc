@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsNSBitmapImageRep.h
  *  Version:	see function getClassVersion()
@@ -21,9 +21,9 @@
 #include "gui.cpccDrawingToolsMacOnFocused.h"
 
 
-//////////////////////////////////////////////
+// ////////////////////////////////////////////
 //		cpccDrawingToolsNSBitmapImageRep
-//////////////////////////////////////////////
+// ////////////////////////////////////////////
 typedef  NSBitmapImageRep *     TimgRepHandle;
 
 class cpccDrawingToolsNSBitmapImageRep: public cpccDrawingToolsMacOnFocused

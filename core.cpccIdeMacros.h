@@ -37,6 +37,11 @@
     #undef cpccDEBUG
 #endif
 
+#ifdef __APPLE__
+    #ifndef NDEBUG  // in xcode put NDEBUG in the release configuration
+        // #define cpccDEBUG
+    #endif
+#endif
 
 
 ////////////////////////////////////

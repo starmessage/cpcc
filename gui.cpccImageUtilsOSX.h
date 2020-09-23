@@ -31,6 +31,7 @@
 class cpccImageUtilsOSX
 {
 public:
+    
     static void removeRepresentations(NSImage * aImagePtr)
     {
     /*
@@ -184,7 +185,8 @@ public:
                                   colorSpaceName: NSCalibratedRGBColorSpace
                                   bitmapFormat: 0 // RGBA
                                   bytesPerRow: 0 // 0 == autodetect
-                                  bitsPerPixel: 0 // 0 == autodetect
+                                  // bitsPerPixel: 0 // 0 == autodetect
+                                 bitsPerPixel: 32 // debug retina
                                   ];
         
         if (!rep)
@@ -196,10 +198,12 @@ public:
     
     static void drawBmpRepresentation(const int x, const int y, const NSBitmapImageRep * aRep)
     {
+        // return; // debug retina: the flow does not pass from here
         if (!aRep)
             return;
         
         [NSGraphicsContext saveGraphicsState];
+        
         [aRep drawInRect:NSMakeRect(x, y, aRep.size.width, aRep.size.height)];
         [NSGraphicsContext restoreGraphicsState];
     }
@@ -211,6 +215,7 @@ public:
             return;
         if (!aView)
             return;
+        
         
         [aView lockFocus];
         

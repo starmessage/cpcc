@@ -22,9 +22,9 @@
 #import     <ScreenSaver/ScreenSaver.h>
 
 
-////////////////////////////////
+// //////////////////////////////
 // configuration parameters
-////////////////////////////////
+// //////////////////////////////
 // this selects if drawing will be done inside the function drawInDrawRect.
 // If not defined it is done inside the function animateOneFrame
 //  Drawing in animateOneFrame doesn't seem to work under OS 10.14 Mojave

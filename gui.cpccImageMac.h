@@ -14,7 +14,7 @@
  *	*****************************************
  */
 
-// Currently, this class is not used
+
 
 #if defined __OBJC__
 
@@ -167,9 +167,9 @@
 
 
 
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 //      cpccImageMacBmpRep
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 
 
 
@@ -178,7 +178,8 @@ class cpccImageMacBmpRep: public cpccImageBase
 protected:  // data
     NSBitmapImageRep *                  bmpPtr;
     cpccDrawingToolsNSBitmapImageRep	m_dtool;
-	
+    int     m_width = 0, m_height =0;
+    
 public: /// ctors
     cpccImageMacBmpRep(): m_dtool(bmpPtr), bmpPtr(NULL)	{	}
 	
@@ -213,21 +214,23 @@ public: /// functions
                                  colorSpaceName: NSCalibratedRGBColorSpace
                                  bitmapFormat: 0 // RGBA
                                  bytesPerRow: 0 // 0 == autodetect
-                                 bitsPerPixel: 0 // 0 == autodetect
+                                 // bitsPerPixel: 0 // 0 == autodetect
+                                bitsPerPixel: 32 // debug retina
                                  ];
-        
+        // todo for the debug retina: switch off antialias
         if (!bmpPtr)
             warningLog().add("cpccImageMacBmpRep.createBmpRepresentation() gave null rep");
         
+        m_width = aWidth;
+        m_height = aHeight;
     }
     
 public:
     
     virtual void drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) override
     {
-        NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(getWidth(), getHeight())] autorelease];
+        NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(m_width, m_height)] autorelease];
         //[tmpImageWithText setFlipped:YES];
-        
         
         [tmpImageWithText lockFocus]; //  lockFocusFlipped:YES];
         [bmpPtr drawInRect:NSMakeRect(0, 0, getWidth(), getHeight())];
@@ -251,30 +254,55 @@ public:
 
     const virtual void 	drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const override
     {
+        // destWindow is ignored probably because it already has the focus
+        
+        // this takes too much time in Retina screens
+        // return; // debug retina
+        
+        // https://stackoverflow.com/questions/24442017/fast-alternative-to-drawinrect
+        // you should remove saving and restoring the NSGraphicsContext, because the -[NSImageRep drawInRect:] method does this itself
+        
+        
         // todo: lockFocus and unlockFocus seems to take too much CPU.
         // Can it remain locked with some smart monitoring if it has not changed?
         assert(bmpPtr && "#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
         
-        //cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;
-        //NSView * tmpView = tmpWindow->getNativeWindowHandle();
-        //[tmpView lockFocus];
+        // const bool useLockFocus = false;
+        // NSView * tmpView = NULL;
+        // if (useLockFocus)
+        // {
+        //     cpccWindowMac *tmpWindow = (cpccWindowMac *)destWindow;
+        //     tmpView = tmpWindow->getNativeWindowHandle();
+        //     [tmpView lockFocus];
+        // }
         
-        [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
-                  fromRect:NSZeroRect
-                 operation:NSCompositeSourceOver
-                  fraction:1.0
-            respectFlipped:YES
-                     hints:nil];
+        // under retina, this flips vertically the image and takes 1/4 of the screen
+        //NSAffineTransform *trans = [[[NSAffineTransform alloc] init] autorelease];
+        //[trans set];
         
-        //[tmpView unlockFocus];
+        // Examples of drawing an NSImage:
+        // [image drawAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
+        // Or stretch image to fill view
+        //[image drawInRect:[self bounds] fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
+
+        const bool useDrawInRect=true;
+
+        if (useDrawInRect)
+            [bmpPtr drawInRect:NSMakeRect(x, y, m_width, m_height)
+                      fromRect:NSZeroRect
+                      operation:NSCompositeSourceOver  // respect transparency.
+                      fraction:1.0
+                respectFlipped:YES
+                         hints:nil];
+        else
+            [bmpPtr     drawAtPoint:NSMakePoint(x, y)];  // faster but no transparency
+
+        // if (tmpView)
+        //     [tmpView unlockFocus];
     }
     
-    
 protected: // functions
-    
 
-	
-    
     virtual bool initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
 	{
 		/* not needed if the previous creation was done with autoRelease
@@ -318,10 +346,13 @@ protected: // functions
         
         //[bmpPtr autorelease];
         
+        // [bmpPtr setOpaque:true]; // debug retina
         // now make the color transparent
         if (transparentCorner)
 		    setTransparentColor(getPixel(0,0));
 		
+        m_width = (int) bmpPtr.pixelsWide;
+        m_height = (int) bmpPtr.pixelsHigh;
         return true;
     }
     
@@ -333,6 +364,47 @@ protected: // functions
         makeTransparentPixelsOfColor(aColor);
     }
 
+    virtual void         resizeTo_impl_newUntested(const int newWidth, const int newHeight)
+    {
+        // https://stackoverflow.com/questions/11949250/how-to-resize-nsimage
+        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
+              initWithBitmapDataPlanes:NULL
+                            pixelsWide:newWidth
+                            pixelsHigh:newHeight
+                         bitsPerSample:8
+                       samplesPerPixel:4
+                              hasAlpha:YES
+                              isPlanar:NO
+                        colorSpaceName:NSCalibratedRGBColorSpace
+                           bytesPerRow:0
+                          bitsPerPixel:0
+                                 ];
+        
+        NSSize *newSize = new NSSize();
+        newSize->width = newWidth;
+        newSize->height = newHeight;
+        rep.size = *newSize;
+        
+        [NSGraphicsContext saveGraphicsState];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+        [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
+        [NSGraphicsContext restoreGraphicsState];
+
+        //if (bmpPtr)
+        //    [bmpPtr release];  // does not work properly under Catalina
+        bmpPtr = rep;
+        
+        m_width = newWidth;
+        m_height = newHeight;
+        
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", newWidth, newHeight);
+        if (getWidth()!=newWidth)
+            warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
+        
+        if (getHeight()!=newHeight)
+            warningLog().addf("resizeTo_impl failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
+        // assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+    }
     
          
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
@@ -340,7 +412,7 @@ protected: // functions
         // logFunctionLife _tmpLog((char *)"cpccImageMacBmpRep.resizeTo_impl()");
         
         NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
-        
+    
         [imageOfNewSize lockFocus];
         [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
         // to adjust the flipped copy
@@ -350,11 +422,14 @@ protected: // functions
     
         NSData *imageNewData = [imageOfNewSize  TIFFRepresentation]; // converting img into data
         
-        if (bmpPtr)
-			[bmpPtr release];
+        //if (bmpPtr)
+		//	[bmpPtr release]; // does not work properly under Catalina
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
         
-        infoLog().addf("resized. width:%i height:%i", getWidth(), getHeight());
+        m_width = newWidth;
+        m_height = newHeight;
+        
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", newWidth, newHeight);
         if (getWidth()!=newWidth)
             warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
         
