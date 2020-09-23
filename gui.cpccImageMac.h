@@ -377,8 +377,7 @@ protected: // functions
                               isPlanar:NO
                         colorSpaceName:NSCalibratedRGBColorSpace
                            bytesPerRow:0
-                          bitsPerPixel:0
-                                 ];
+                          bitsPerPixel:0];
         
         NSSize *newSize = new NSSize();
         newSize->width = newWidth;
@@ -394,10 +393,7 @@ protected: // functions
         //    [bmpPtr release];  // does not work properly under Catalina
         bmpPtr = rep;
         
-        m_width = newWidth;
-        m_height = newHeight;
-        
-        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", newWidth, newHeight);
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
         if (getWidth()!=newWidth)
             warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
         
@@ -426,10 +422,7 @@ protected: // functions
 		//	[bmpPtr release]; // does not work properly under Catalina
         bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
         
-        m_width = newWidth;
-        m_height = newHeight;
-        
-        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", newWidth, newHeight);
+        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
         if (getWidth()!=newWidth)
             warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
         
