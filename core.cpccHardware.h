@@ -39,7 +39,7 @@ class cpccHardware
 {
 public:
 
-    static bool hasRetinaDisplay(void);
+    static bool hasRetinaDisplay(void); // todo: rename to hasAtLeastOneRetinaDisplay. But would this function be useful?
     static size_t getListOfMonitors(cpccMonitorList &list);
     static std::basic_string<TCHAR>  getAllMonitorResolutionAsText(void);
     
@@ -48,7 +48,6 @@ public:
     static int  getCPUcores(void);
     static std::basic_string<TCHAR> getCPUmodel(void);
     
-
 };
 
 // /////////////////////////////////////////

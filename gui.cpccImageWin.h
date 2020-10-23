@@ -77,8 +77,8 @@ public:		// functions
 
 		//hOldBitmap = reinterpret_cast<HBITMAP> (::SelectObject (m_hDC, hBitmap));
 
-		RECT r;
-		r.top = r.left =0;  r.right	= aWidth; r.bottom = aHeight;
+		cpccRecti r;
+		r.top = r.left =0;  r.width	= aWidth; r.height = aHeight;
 
 		m_dtool.fillRectWithColor(r , aColor);
 

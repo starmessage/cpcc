@@ -16,7 +16,6 @@
 #pragma once
 
 #include <string>
-#include <assert.h>
 #include <sstream>
 #include <time.h>
 #include <iostream>

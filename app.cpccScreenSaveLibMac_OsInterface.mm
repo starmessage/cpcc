@@ -231,10 +231,12 @@
 {
     logFunctionLife   m_objLife( "util_createAndInitScreensaverWithWindowHandle" );
     
-	assert(ssPtr==NULL && "#4813: createScreensaver already called?");
+    if (ssPtr!=NULL)
+        errorLog().add("#4813: createScreensaver already called?");
 	
     ssPtr = cpccScreenSaverFactory::createScreenSaver();
-	assert(ssPtr && "Error 4567: ssPtr = nil");
+    if (ssPtr==NULL)
+        errorLog().add("Error 4567: ssPtr = nil");
 	
     NSBundle *saverBundle = [NSBundle bundleForClass:[self class]];
     
@@ -250,7 +252,9 @@
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
     
     NSView * windowHandle = self;
-    assert(windowHandle && "Error 2354b: could not get native window handle");
+    if (windowHandle==NULL)
+        errorLog().add("Error 2354b: could not get native window handle");
+    
     int monitorID = (m_isPreview)? -1 : 0;
     ssPtr->initWithWindowHandle( windowHandle, monitorID);
     
@@ -294,7 +298,10 @@
     [[NSProcessInfo processInfo] disableSuddenTermination];
     
     self = [super initWithFrame:frame isPreview:m_isPreview];
-    assert(self && "#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
+    
+    if (self==NULL)
+        errorLog().add("#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
+    
     
     /*
     NSRect windowframe = frame;
@@ -525,9 +532,11 @@
     if (!ssConfigurePtr)
         ssConfigurePtr = cpccScreenSaverFactory::createScreenSaver();
     
-    assert(ssConfigurePtr && "Error 7692: ssPtr = nil");
-    if (!ssConfigurePtr)
+    if (ssConfigurePtr==NULL)
+    {
+        errorLog().add("Error 7692: ssConfigurePtr = nil");
         return false;
+    }
     
     return ssConfigurePtr -> hasConfigureSheet();
 }

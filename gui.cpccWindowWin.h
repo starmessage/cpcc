@@ -32,21 +32,18 @@
 class cpccWindowWin: public cpccWindowBase
 {
 private:
-	// RECT					m_rect; // todo: not needed. To be deleted
 	HDC						m_WindowDC,
 							m_DrawDC;
 	cpccWinGDIMemoryDC*		m_renderBuffer;
 	cpccDrawingToolsWinDC	m_dtool;
 	enum cpccWindowWin_config	{ config_HasDoubleBuffer=true };
 
-
 // check this: LockWindowUpdate(hwnd);
-
 
 protected:		// ctors. 
 
 	/// constructor is protected because this class should not be created alone, but only via its derived class, cpccWindow
-	explicit cpccWindowWin(const HWND aWnd): cpccWindowBase(aWnd), m_renderBuffer(NULL), m_dtool(m_DrawDC)
+	explicit cpccWindowWin(const HWND aWnd): cpccWindowBase(aWnd, m_dtool), m_renderBuffer(NULL), m_dtool(m_DrawDC)
 	{
 		// m_rect.top = m_rect.bottom = m_rect.left = m_rect.right = 0;
 		m_DrawDC = m_WindowDC = GetDC(m_windowHandle);
@@ -145,17 +142,18 @@ protected:		// functions ////////////////////////////////
 	inline int      getLeft(void)	const override { return getTopLeft().x; }
 	inline sPointi  getTopLeft(void)	const override;
 	inline void 	fillWithColor(const cpccColor& c); // zero based or desktop window based?
-	inline void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r.asRECT(), c); }
+	inline void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)	{ m_dtool.fillRectWithColor(r, c); }
 	inline void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
 					{ m_dtool.fillEllipseWithColor( left, top, right, bottom, c); } 
 	
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
+	
 	virtual void 			drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
 	{
 		{ m_dtool.drawLine(x1, y1, x2, y2, width, c); }
 	}
-
+	
 
 	cpccColor	getPixel_impl(const int x, const int y)	const				{ return m_dtool.getPixel(x,y); }
 	void		setPixel_impl(const int x, const int y, const cpccColor &c) { m_dtool.setPixel(x,y,c); }
@@ -192,7 +190,6 @@ inline cpccRecti   cpccWindowWin::getBounds(void) const
 	rect.height = windRect.bottom - windRect.top;
 	rect.width = windRect.right - windRect.left;;
 	return rect;
-
 }
 
 
@@ -213,8 +210,9 @@ inline void 	cpccWindowWin::fillWithColor(const cpccColor& c)
 { 
 	RECT tmpRect;
 	GetClientRect(m_windowHandle, &tmpRect);
-	m_dtool.fillRectWithColor(tmpRect, c); 
+	m_dtool.fillRectWithColor_impl_win(tmpRect, c.asCOLORREF());
 }
+
 
 inline sPointi      cpccWindowWin::getTopLeft(void)	const
 {

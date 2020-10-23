@@ -52,14 +52,20 @@ public:		// functions
     }
     
     
-	virtual void fillRectWithColor(const NSRect &r, const cpccColor& aColor) override
+	virtual void fillRectWithColor(const cpccRecti &r, const cpccColor& aColor) override
 	{
         if (!m_imgRep)
 			return;
         
+        const int left  = r.left;
+        const int right = r.getRight();
+        const int top   = r.top;
+        const int bottom = r.getBottom();
+        
         NSColor *c = aColor.asNSColor();
-        for (int x=r.origin.x; x< r.origin.x + r.size.width; ++x)
-			for (int y=r.origin.y; y< r.origin.y + r.size.height; ++x)
+        
+        for (int x=left; x< right; ++x)
+			for (int y=top; y< bottom; ++x)
 				[m_imgRep setColor: c atX:x y:y];
     }
 	

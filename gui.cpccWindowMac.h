@@ -51,9 +51,9 @@
 
 #define DEBUGPARAM_DISABLE_TEXTDRAWING   false
 
-//////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
 // 		cpccWindowMac
-//////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////
 
 class cpccWindowMac: public cpccWindowBase
 {
@@ -66,12 +66,13 @@ protected:
 	
 protected:		// ctors. Protected because this class should not be created alone, but only via its derived class, cpccWindow
 	
-	cpccWindowMac(NSView *aWnd): cpccWindowBase(aWnd), m_skewX(0.0f), m_skewY(0.0f)
+	cpccWindowMac(NSView *aWnd): cpccWindowBase(aWnd, dtool), m_skewX(0.0f), m_skewY(0.0f)
 	{
 		m_windowRect.size = [aWnd bounds].size;
 		m_windowRect.origin  = [aWnd bounds].origin;
         [[NSGraphicsContext currentContext] setShouldAntialias:NO];
  		// std::cout << "m_windowRect size w=" << m_windowRect.size.width << "\n";
+        // m_drawingTool = dtool;
 	}
 
     
@@ -121,17 +122,27 @@ public:  // functions
     void        lockFocus(void) override { [m_windowHandle lockFocus]; }
     void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     
+    // todo: this can be deleted. And be called as in the case of fillRectWithGradientColorV()
+    /*
 	void	        fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) override
 	{
-        dtool.fillRectWithColor(aRect.asNSRect(), aColor);
+        dtool.fillRectWithColor(aRect, aColor);
 	}
+     */
 	
     
     virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) override
     { dtool.fillEllipseWithColor(left, top, right, bottom, c); }
 
 	
-    void 		fillWithColor(const cpccColor& aColor) override	{ dtool.fillRectWithColor(m_windowRect, aColor); }
+    void 		fillWithColor(const cpccColor& aColor) override
+    {
+        cpccRecti rect;
+        rect.fromXYWH((int)m_windowRect.origin.x, (int)m_windowRect.origin.y,
+                      (int)m_windowRect.size.width, (int)m_windowRect.size.height);
+        
+        dtool.fillRectWithColor(rect, aColor);
+    }
     
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor

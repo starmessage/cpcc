@@ -75,8 +75,10 @@ public:
 	}
 
 	void setFilename(const cpcc_char* aFilename) 
-	{ 
-		assert((m_filename.length() == 0) && "#4721: cpccLogFileWriterWithBuffer.setFilename() already called.");
+	{
+        if (m_filename.length()>0)
+            warningLog().add(_T("#4721: cpccLogFileWriterWithBuffer.setFilename() already called."));
+		
 		if (aFilename)
 			m_filename = aFilename;
 		else

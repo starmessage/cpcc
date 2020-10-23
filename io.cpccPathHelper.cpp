@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpccPathHelper.cpp
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight, file system library
@@ -214,7 +214,7 @@ cpcc_string		cpccPathHelper::getExtension(const cpcc_char *aFilename)
 
 
 
-void cpccPathHelper::selfTest(void)
+void cpccPathHelper::selfTest(void) // todo: use the new selftest functionality
 {
 #ifdef cpccDEBUG
 
@@ -294,9 +294,9 @@ void cpccPathHelper::selfTest(void)
     
 }
 
-/////////////////////////////////////////////
+// ///////////////////////////////////////////
 // Selftest 
-/////////////////////////////////////////////
+// ///////////////////////////////////////////
 
 #if defined(cpccPathHelper_DoSelfTest)
 

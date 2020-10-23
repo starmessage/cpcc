@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		cpcc_SelfTest.h
  *  Version:	1.1
  *	Purpose:	Portable (cross-platform), light-weight, unit self-checking
@@ -19,7 +19,7 @@
 #include "cpccUnicodeSupport.h"
 #include <assert.h>
 
-/// Central switch to close all selfTests in your application
+// Central switch to close all selfTests in your application
 #ifdef cpccDEBUG
 	#define ENABLE_SELF_TESTS	1
 #else

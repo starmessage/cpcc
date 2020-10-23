@@ -27,7 +27,7 @@
 // ////////////////////////////////////////////
 
 
-class cpccDrawingToolsMacOnFocused: public cpcciDrawingTools<NSRect>
+class cpccDrawingToolsMacOnFocused: public cpcciDrawingTools /* <NSRect> */
 {
 private:
 
@@ -35,6 +35,7 @@ protected:
 	
 
 public:  // constructor
+    
     virtual ~cpccDrawingToolsMacOnFocused() {}
 	
 public:		// data
@@ -42,7 +43,7 @@ public:		// data
 
 public:		// functions
     
-    virtual cpccColor getPixel(const int x, const int y) const
+    virtual cpccColor getPixel(const int x, const int y) const override
     {
 
         /*
@@ -65,7 +66,7 @@ public:		// functions
     }
     
     
-    virtual void setPixel(const int x, const int y, const cpccColor &aColor)
+    virtual void setPixel(const int x, const int y, const cpccColor &aColor) override
     {
         // in OSX there is no pair to NSReadPixel, like the window's setPixel(x,y, color)
         // I use a fillRect with size of 1x1 pixels
@@ -76,7 +77,7 @@ public:		// functions
     }
     
     
-    void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)
+    void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) override
     {
         NSColor *fillColor = c.asNSColor();
         [fillColor setFill];
@@ -85,14 +86,24 @@ public:		// functions
     }
     
     
-    void fillRectWithColor(const NSRect &r, const cpccColor& aColor)
+    virtual void fillRectWithColor(const cpccRecti &r, const cpccColor& aColor) override
     {
         [aColor.asNSColor() setFill];
-        NSRectFill(r);
+        NSRectFill(r.asNSRect());
     }
     
     
-    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    virtual void fillRectWithGradientColorV(const cpccRecti &r, const cpccColor& aTopColor, const cpccColor& aBottomColor) override
+    {
+        NSGradient* theGradient = [[[NSGradient alloc]
+                                    initWithStartingColor:aTopColor.asNSColor()
+                                    endingColor:aBottomColor.asNSColor()] autorelease];
+        
+        [theGradient drawInRect:r.asNSRect() angle:90.0];
+    }
+    
+    
+    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) override
     {
         NSBezierPath * path = [NSBezierPath bezierPath];
         [path setLineWidth: width];
@@ -106,7 +117,7 @@ public:		// functions
     }
     
     
-    void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const
+    void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const override
 	{
         // https://developer.apple.com/library/mac/#documentation/graphicsimaging/conceptual/drawingwithquartz2d/dq_text/dq_text.html#//apple_ref/doc/uid/TP30001066-CH213-TPXREF101
         //	std::cout << "textOut(" << x << " , " << y << " , "<< text << ")";
@@ -166,7 +177,7 @@ public:		// functions
     }
 	
 
-	virtual void	getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const
+	virtual void	getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const override
 	{
         //  If you give -[NSString initWithUTF8String:] a C-string that's not valid UTF-8, it returns nil.
         // NSString *macString = [[[NSString alloc] initWithUTF8String:txt] autorelease];

@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsAbstract.h
  *  Version:	see function getClassVersion()
@@ -22,8 +22,7 @@
 #include "cpccColor.h"
 #include "cpccUnicodeSupport.h"
 #include "gui.cpccText.h"
-
-
+#include "math.cpccRect.h"
 
 
 /*
@@ -105,20 +104,25 @@
 	needed for drawing inside a cpccWindow class and a cpccImage class
 
 */
-template<typename TNativeRect>
+
+// todo: replace the TNativeRect with cpccRecti as this should be abstract.
+// template<typename TNativeRect>
+// done
+
 class cpcciDrawingTools
 {
 public:
     virtual ~cpcciDrawingTools() {}
     
 public:		// functions
-    virtual void 				fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
-	virtual void 				fillRectWithColor(const TNativeRect &r, const cpccColor& aColor) =0;
-	virtual void 				drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const =0;
-	virtual void				getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const = 0;
-	virtual cpccColor			getPixel(const int x, const int y) const =0;
-	virtual void 				setPixel(const int x, const int y, const cpccColor &aColor)=0;
-	virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor) = 0;
+    virtual void        fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
+	virtual void 	   fillRectWithColor(const cpccRecti&r, const cpccColor& aColor) =0;
+    virtual void		   fillRectWithGradientColorV(const cpccRecti &r, const cpccColor& aTopColor, const cpccColor& aBottomColor)  =0;
+	virtual void		   drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) const =0;
+	virtual void		   getTextSize(const cpcc_char *txt, const cpccTextParams& params, int *width, int *height) const = 0;
+	virtual cpccColor	   getPixel(const int x, const int y) const =0;
+	virtual void        setPixel(const int x, const int y, const cpccColor &aColor)=0;
+	virtual void        drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor) = 0;
     // cannot be done abstract because one clild class does not need it
     // virtual void				bitBlitFrom(const int x, const int y, const TNativeSurface &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor = NULL) = 0;
 	

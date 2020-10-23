@@ -84,105 +84,112 @@ typedef struct cpccSizei sSizei;
 
 
 #if defined(__APPLE__)
-	#include <Cocoa/Cocoa.h>
-	// Window handle is NSWindow (void*) on Mac OS X - Cocoa
-	//typedef NSWindow* NativeWindowHandle;
-	typedef NSView* cpccNativeWindowHandle;
-	typedef NSView* cpccNativeWindowDrawHandle;
-	//typedef void* cpccNativeWindowHandle;
-	
-	// CGRect
-	//NSRect structure, defined in NSGeometry.h. 
-	typedef NSRect  cpccNativeRectT;
+    #include <Cocoa/Cocoa.h>
+    // Window handle is NSWindow (void*) on Mac OS X - Cocoa
+    //typedef NSWindow* NativeWindowHandle;
+    typedef NSView* cpccNativeWindowHandle;
+    typedef NSView* cpccNativeWindowDrawHandle;
+    //typedef void* cpccNativeWindowHandle;
+    
+    // CGRect
+    //NSRect structure, defined in NSGeometry.h. 
+    typedef NSRect  cpccNativeRectT;
     typedef NSImage* cpccNativeDrawSurfaceHandle;
 
 
 #elif defined(_WIN32)
-	#include <Windows.h>
-	// Window handle is HWND (HWND__*) on Windows
-	typedef HWND    cpccNativeWindowHandle;
-	typedef HDC	    cpccNativeWindowDrawHandle;
+    #include <Windows.h>
+    // Window handle is HWND (HWND__*) on Windows
+    typedef HWND    cpccNativeWindowHandle;
+    typedef HDC     cpccNativeWindowDrawHandle;
     typedef HDC     cpccNativeDrawSurfaceHandle;
     typedef RECT    cpccNativeRectT;
-	// typedef RECT NativeRect;
+    // typedef RECT NativeRect;
 #else
-	#error Unknown platform for cpccNativeWindowHandle and cpccNativeDrawSurfaceHandle
+    #error Unknown platform for cpccNativeWindowHandle and cpccNativeDrawSurfaceHandle
 #endif
 
 
 
 /**
-	Do your window drawing against this abstract class.
-	Construct somewhere the cpccWindow which is a descendant and 
-	creates automatically the Win or OSX version of the class.
-	To draw image, use the cpccImage's draw function that takes as 
-	a parameter the window to draw to.
+    Do your window drawing against this abstract class.
+    Construct somewhere the cpccWindow which is a descendant and 
+    creates automatically the Win or OSX version of the class.
+    To draw image, use the cpccImage's draw function that takes as 
+    a parameter the window to draw to.
 */
 class cpccWindowBase
 {
 protected:
-	cpccNativeWindowHandle			m_windowHandle;
-	bool								m_useDblBuffer;
+    cpccNativeWindowHandle			m_windowHandle;
+    bool								m_useDblBuffer;
 
 public:		// data
+    
+    cpcciDrawingTools                &m_drawingTool; //   *m_drawingTool = NULL;
+    
+    // drawing parameters
+    cpccStackWithDefault<cpccColor> 	bgColor, drawColor;
+    
+    // text (font+paragraph) parameters:
+    cpccStackWithDefault<cpcc_string>	fontName;
+    cpccStackWithDefault<float>		fontSize;
+    cpccStackWithDefault<eTextAlign>  textAlign;
+    cpccStackWithDefault<float>		kerning;
+    cpccStackWithDefault<eFontQuality>	fontQuality;
+    cpccStackWithDefault<eFontWeight>	fontWeight;
 
-	// drawing parameters
-	cpccStackWithDefault<cpccColor> 	bgColor, drawColor;
-	
-	// text (font+paragraph) parameters:
-	cpccStackWithDefault<cpcc_string>	fontName;
-	cpccStackWithDefault<float>		fontSize;
-	cpccStackWithDefault<eTextAlign>  textAlign;
-	cpccStackWithDefault<float>		kerning;
-	cpccStackWithDefault<eFontQuality>	fontQuality;
-	cpccStackWithDefault<eFontWeight>	fontWeight;
-
-	
+    
 public:  // constructor
-	
-	explicit cpccWindowBase(const cpccNativeWindowHandle aWnd): 
-		m_windowHandle(aWnd),
-		m_useDblBuffer(true),
-		bgColor(cpccPapayaWhip),
-		drawColor(cpccYellow), 
-		fontName(_T("Arial")), 
-		fontSize(12.0f),
-		textAlign(taLeft),	// left
-		kerning(0.0f),
-		fontQuality(fqAntiAliased),
-		fontWeight(fwNormal)
-	{
-		
-	}
+    
+    // todo: pass as parameter also the reference to m_drawingTool
+    explicit cpccWindowBase(const cpccNativeWindowHandle aWnd, cpcciDrawingTools &aDrawingToolImpl ):
+        m_windowHandle(aWnd),
+        m_drawingTool(aDrawingToolImpl),
+        m_useDblBuffer(true),
+        bgColor(cpccPapayaWhip),
+        drawColor(cpccYellow), 
+        fontName(_T("Arial")), 
+        fontSize(12.0f),
+        textAlign(taLeft),	// left
+        kerning(0.0f),
+        fontQuality(fqAntiAliased),
+        fontWeight(fwNormal)
+    {
+        
+    }
 
     virtual ~cpccWindowBase() { }
     
 public:		// concrete functions
 
-	cpccNativeWindowHandle 	getNativeWindowHandle(void) { return m_windowHandle; }
+    cpccNativeWindowHandle 	getNativeWindowHandle(void) { return m_windowHandle; }
+
 
 public:  // abstract functions
 
-    virtual void 	flush(void)=0;
-    virtual void		clear(void)=0;
+    virtual void        flush(void)=0;
+    virtual void        clear(void)=0;
     // virtual void     setOffset(const int offsetX, const int offsetY) { }
-    virtual void		fillWithColor(const cpccColor& c)=0;
-	virtual void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
+    
+    // todo: remove all these repeated functions as they can be directly served by the drawingTool
+    virtual void        fillWithColor(const cpccColor& c)=0;
+    // virtual void		fillRectWithColor(const cpccRecti &r, const cpccColor& c)=0;
     virtual void		fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c)=0;
-	virtual void		fillCircleWithColor(const int centerX, const int centerY, const int r, const cpccColor& c) { fillEllipseWithColor(centerX - r, centerY - r, centerX + r, centerY + r, c); };
-	virtual void 	drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
-	virtual void 	drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) = 0;
-	inline void 	drawLine(const float x1, const float y1, const float x2, const float y2, const int width, const cpccColor &c)
-	{
-		drawLine((int)(x1 + 0.5f), (int)(y1 + 0.5f), (int)(x2 + 0.5f), (int)(y2 + 0.5f), width, c);
-	}
+    virtual void		fillCircleWithColor(const int centerX, const int centerY, const int r, const cpccColor& c) { fillEllipseWithColor(centerX - r, centerY - r, centerX + r, centerY + r, c); };
+    virtual void 		drawText(const int x, const int y, const cpcc_char *text, cpccCSS *aCssPtr)=0;
+    virtual void 		drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) = 0;
+    inline void 	    drawLine(const float x1, const float y1, const float x2, const float y2, const int width, const cpccColor &c)
+    {
+        drawLine((int)(x1 + 0.5f), (int)(y1 + 0.5f), (int)(x2 + 0.5f), (int)(y2 + 0.5f), width, c);
+    }
 
     virtual void        bitBlitFrom(const int x, const int y, const cpccNativeDrawSurfaceHandle& srcContext, const int srcW, const int srcH, const cpccColor* transparentColor = NULL)  {   }
 
-    virtual void			pushCss(cpccCSS *aCssPtr)=0;
-	virtual void			popCss(cpccCSS* aCssPtr)=0;
-    virtual cpccColor		getPixel(const int x, const int y) const =0;
-    virtual void 		setPixel(int x, int y, const cpccColor &c)=0;
+    virtual void	    pushCss(cpccCSS *aCssPtr)=0;
+    virtual void        popCss(cpccCSS* aCssPtr)=0;
+    virtual cpccColor   getPixel(const int x, const int y) const =0;
+    virtual void        setPixel(int x, int y, const cpccColor &c)=0;
 
     // rectangular bounds
     virtual cpccRecti   getBounds(void) const = 0;
@@ -190,14 +197,14 @@ public:  // abstract functions
     virtual int          getLeft(void)	const =0;
     virtual sPointi      getTopLeft(void) const =0;
 
-	virtual int         getBottom(void) const { return getTop() + getHeight(); };
-	virtual int             getRight(void)	const { return getLeft() + getWidth(); };;
+    virtual int         getBottom(void) const { return getTop() + getHeight(); };
+    virtual int             getRight(void)	const { return getLeft() + getWidth(); };;
     virtual int			getWidth(void)	const = 0;
     virtual int          getHeight(void)	const = 0;
     virtual cpccSizei   getSize(void) const =0;
 
     virtual void            getTextSize(const cpcc_char *txt, int *width, int *height)=0;
-	virtual void			useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
+    virtual void			useDblBuffer(const bool a)	{ m_useDblBuffer = a; }
     virtual void            lockFocus(void)=0;
     virtual void            unlockFocus(void)=0;
 };

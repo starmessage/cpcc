@@ -265,7 +265,11 @@ public:
         
         // todo: lockFocus and unlockFocus seems to take too much CPU.
         // Can it remain locked with some smart monitoring if it has not changed?
-        assert(bmpPtr && "#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
+        if (bmpPtr==NULL)
+        {
+            errorLog().add("#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
+            return;
+        }
         
         // const bool useLockFocus = false;
         // NSView * tmpView = NULL;
@@ -367,7 +371,7 @@ protected: // functions
     virtual void         resizeTo_impl_newUntested(const int newWidth, const int newHeight)
     {
         // https://stackoverflow.com/questions/11949250/how-to-resize-nsimage
-        NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
+        NSBitmapImageRep *imageRep = [[NSBitmapImageRep alloc]
               initWithBitmapDataPlanes:NULL
                             pixelsWide:newWidth
                             pixelsHigh:newHeight
@@ -382,30 +386,32 @@ protected: // functions
         NSSize *newSize = new NSSize();
         newSize->width = newWidth;
         newSize->height = newHeight;
-        rep.size = *newSize;
+        imageRep.size = *newSize;
+
         
         [NSGraphicsContext saveGraphicsState];
-        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:imageRep]];
         [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
         [NSGraphicsContext restoreGraphicsState];
 
         //if (bmpPtr)
         //    [bmpPtr release];  // does not work properly under Catalina
-        bmpPtr = rep;
+        bmpPtr = imageRep;
         
-        infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
+        infoLog().addf("resizeTo_impl_newUntested, has resized. width:%i height:%i", getWidth(), getHeight());
         if (getWidth()!=newWidth)
-            warningLog().addf("resizeTo_impl failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
+            warningLog().addf("resizeTo_impl_newUntested failed. Desired width: %i. Actual width: %i", newWidth, getWidth());
         
         if (getHeight()!=newHeight)
-            warningLog().addf("resizeTo_impl failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
-        // assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+            warningLog().addf("resizeTo_impl_newUntested failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
+        
     }
     
          
     virtual void 		resizeTo_impl(const int newWidth, const int newHeight)
     {
         // logFunctionLife _tmpLog((char *)"cpccImageMacBmpRep.resizeTo_impl()");
+        infoLog().addf("resizeTo_impl, from %iw X %ih to %iw X %ih", getWidth(), getHeight(), newWidth, newHeight);
         
         NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
     
@@ -428,7 +434,7 @@ protected: // functions
         
         if (getHeight()!=newHeight)
             warningLog().addf("resizeTo_impl failed. Desired height: %i. Actual width: %i", newHeight, getHeight());
-        // assert((getWidth()==newWidth) && (getHeight()==newHeight) && "#8465: cpccImageMacBmpRep.resizeTo_impl()");
+        
     }
     
     

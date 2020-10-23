@@ -301,8 +301,8 @@ void cpccLogManager::initialize(const cpcc_char *appNameStem, const cpcc_char *m
 		info.addf(_T("Log filename:%s"), fn.c_str());
         
         cpcc_string appfilename(cpccFileSystemMini::getAppFullPathFilename());
-        consolePut(_T("App filename:") << appfilename);
-        info.addf(_T("App filename:%s"), appfilename.c_str());
+        consolePut(_T("c Initialize with App filename:") << appfilename);
+        info.addf(_T("Initialize with App filename:%s"), appfilename.c_str());
 				
 		if (!cpccFileSystemMini::fileExists(fn.c_str()))
 			consolePut(_T("Disabling log becase file does not exist at:") << fn.c_str());

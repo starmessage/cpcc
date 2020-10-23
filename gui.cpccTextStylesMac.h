@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		gui.cpccTextStylesMac.h
  *  Version:	see function getClassVersion()
@@ -28,7 +28,10 @@ public:
     
 	void setFont(NSMutableDictionary *aTextAttr, const cpcc_char *aFontName, const int aFontSize)
     {
-        assert( aTextAttr && "#9525: cpccTextStylesMac.setFont() NULL aTextAttr");
+        // assert( aTextAttr && "#9525: cpccTextStylesMac.setFont() NULL aTextAttr");
+        if (!aTextAttr)
+            return;
+        
         if (aTextAttr && aFontName)
         {
             /*

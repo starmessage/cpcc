@@ -46,5 +46,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccImageBase.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccKeyValueStr.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccWideCharSupport.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccMath.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccRandom.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccRect.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccVector.h" />
   </ItemGroup>
 </Project>

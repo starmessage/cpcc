@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsCGContext.h
  *  Version:	see function getClassVersion()
@@ -15,6 +15,7 @@
  *	*****************************************
  */
  
+This_file_is_not_used
  
 #pragma once
 
@@ -36,9 +37,9 @@
 //	CGContextSetShouldAntialias(myCGContext, true);
 
 
-//////////////////////////////////////////////
+// ////////////////////////////////////////////
 //		cpccDrawingToolsCGContext
-//////////////////////////////////////////////
+// ////////////////////////////////////////////
 class cpccDrawingToolsCGContext: public cpccDrawingToolsAbstract<CGContextRef, CGRect>
 {
 private:
@@ -54,7 +55,7 @@ public:		// data
 
 public:		// functions
 	
-	virtual void 		fillRectWithColor(const CGRect &r, const cpccColor& aColor)
+	virtual void 		fillRectWithColor(const CGRect &r, const cpccColor& aColor) override
 	{
         // CGContextSetFillColorWithColor(CGContextRef c, CGColorRef color)
         CGContextSetRGBFillColor (m_drawContext, aColor.a/255.0, aColor.r/255.0, aColor.g/255.0, aColor.b/255.0);// 3

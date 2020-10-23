@@ -16,7 +16,6 @@
 
 #include <string>
 #include <map>
-#include <assert.h>
 #include <sstream>
 #include <algorithm>
 #include "data.cpccKeyValueStr.h"
