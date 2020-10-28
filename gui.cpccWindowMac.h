@@ -17,9 +17,7 @@
 
 
 /* 	tutorial 
-	/Users/cto/Documents/work/C-Proj/pxCore/examples/NativeDrawing/NativeDrawing.cpp
  
-
  A layer, represented by the CGLayerRef data type, is engineered for 
  optimal performance. 
  For this reason a layer is typically a better 
@@ -92,8 +90,8 @@ public:  // functions
 	
     
 	void 		flush() override { };
-	int 		    getHeight(void) const override	    { return (int)m_windowRect.size.height; }
-	int 		    getWidth(void) 	const override	    { return (int)m_windowRect.size.width; }
+	int         getHeight(void) const override	    { return (int)m_windowRect.size.height; }
+	int         getWidth(void) 	const override	    { return (int)m_windowRect.size.width; }
     int         getTop(void)    const override	{ return (int)m_windowRect.origin.y; }
     int         getLeft(void)   const override	    { return (int)m_windowRect.origin.x; }
     sPointi     getTopLeft(void) const override
