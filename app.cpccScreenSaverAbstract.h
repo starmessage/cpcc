@@ -31,10 +31,8 @@ private:
 
 protected:	// data
 	
-    
 	cpccWindowBase*		    DesktopWindowPtr;
-	// bool				    m_PreserveDeskopContents;
-    std::vector<cpccRecti>  m_drawRegions;
+	std::vector<cpccRecti>  m_drawRegions;
 	
 protected: // constructor/destructor
 
@@ -68,8 +66,6 @@ private:	// functions
         // appLog.addInfof("cpccScreenSaverAbstract.flushOneFrame() #%i exiting", mFramesElapsed);
     }
     
-    
-    
 protected: // screensaver standard functions
     
     virtual void setContainerFolder(const cpcc_char *aFolder) override
@@ -92,7 +88,7 @@ protected: // screensaver standard functions
 	}
 
     
-	void calcDrawRegionsAndOffset(const int monitorID)
+	void calcDrawRegionsAndOffset(const int monitorID, const int aDpiScaleFactor)
 	{
         #ifdef _WIN32
             if (monitorID == -1)
@@ -151,12 +147,12 @@ protected: // screensaver standard functions
             
         #endif
         m_drawRegions.push_back(DesktopWindowPtr->getBounds());
-        
+        //debugLog().addf(_T("calcDrawRegionsAndOffset %s"), DesktopWindowPtr->getBounds().asString().c_str());
 	}
 
 
     // todo: rename: initWithWindowHandleAndRect
-	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId) override
+	virtual void initWithWindowHandle( cpccNativeWindowHandle wHandle, const int monitorId, const int dpiScaleFactor) override
 	{
         infoLog().addf( _T("cpccScreenSaverAbstract.initWithWindowHandle(%X)"), (cpccNativeWindowHandle) wHandle);
 		if (!DesktopWindowPtr)
@@ -164,7 +160,7 @@ protected: // screensaver standard functions
 		
 		// infoLog().addf( _T("TopLeft:%i,%i screen width:%i, height:%i"), DesktopWindowPtr->getTop(), DesktopWindowPtr->getLeft(), DesktopWindowPtr->getWidth(), DesktopWindowPtr->getHeight());
 		infoLog().addf(_T("Screensaver container folder:%s"), getContainerFolder());
-        calcDrawRegionsAndOffset(monitorId);
+        calcDrawRegionsAndOffset(monitorId, dpiScaleFactor);
 	}
 
     virtual void shutDown(void) override   {  }

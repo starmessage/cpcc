@@ -1,0 +1,178 @@
+https://www.mail-archive.com/search?l=cocoa-dev@lists.apple.com&q=subject:%22How+to+detect+a+Retina+Mac%22&o=newest&f=1
+UIImage is equivalent to NSBitmapImageRep, not NSImage
+--------------------------
+https://stackoverflow.com/questions/52675655/how-to-keep-nsbitmapimagerep-from-creating-lots-of-intermediate-cgimages
+an NSBitmapImageRep is a much more concrete object.
+An NSImage does not have pixels, an NSBitmapImageRep does.
+An NSBitmapImageRep is a chunk of data together with pixel format information and colorspace
+ information that allows us to interpret the data as a rectangular array of color values.
+In SnowLeopard an NSBitmapImageRep is natively backed by a CGImageRef
+
+--------------------------
+For fast drawing try a CGLayer. It's designed for fast repeated drawing.
+
+I've been doing exactly this recently, and have had excellent success with using CALayers (Core Animation).
+An NSTimer with a fast repeat rate is triggering a method that assigns in one of an array of CGImageRef's
+to the layer's contents property has made for a really decent "flipbook" style of animation.
+I've been able to get 60 frames per second without issue.
+I believe you can load up the CGImageRef's from NSImage through CGBitmapContext and CGBitmapContextCreateImage.
+https://www.mail-archive.com/cocoa-dev@lists.apple.com/msg14363.html
+you can have CoreAnimation do the animation for you, something like this:
+
+      CAKeyframeAnimation *anim;
+      NSMutableArray *images;
+      CGImageRef im;
+      int i;
+
+      images = [NSMutableArray array];
+      for (i = 0; i < N; i++) {
+          im = create_image (i);
+          [images addObject:(id)im];
+          CGImageRelease (im);
+      }
+
+      anim = [CAKeyframeAnimation animation];
+      [anim setKeyPath:@"contents"];
+      [anim setValues:images];
+      [anim setCalculationMode:@"discrete"];
+      [anim setRepeatCount:HUGE_VAL];
+      [anim setDuration:1.0];
+
+      [layer addAnimation:anim];
+
+since this runs completely in the background render thread it has a better chance of not dropping frames and should use less CPU than doing the same thing from a timer. You'll need to change the duration value to match your number of images and desired frame rate,
+
+2.
+try setting the setPreferredBackingLocation: for your NSWindow to be
+NSWindowBackingLocationVideoMemory.  If the window backing buffer is
+on the video card, then the Quartz drawing primitives are implemented
+through OpenGL.  That is, if you're really just drawing the same image
+over and over without mutating anything, then your image data should
+be  uploaded to the GPU once and drawn with OpenGL.
+
+----------------------
+
+    what is "planar":
+    https://www.mikeash.com/pyblog/friday-qa-2012-08-31-obtaining-and-interpreting-image-data.html
+    ... It's also possible to store each color in a separate chunk of memory. 
+    Each chunk is called a plane, and this format is called "planar". 
+    In this case, you essentially have three or four (depending on whether alpha is present) 
+    regions of memory, each of which is laid out exactly like the pixels from the grayscale. 
+    The pixel's color is a combination of the values from all of the planes. 
+    This can sometimes be more convenient to work with, but is often slower,
+    and often more complex to work with, so it's a much less common format.
+ 
+    --------------------------
+ 
+    The anchor point (origin) of NSImage is top-left, and
+    NSBitmapImageRep is bottom-left. 
+    When you convert from one to the other, the image coordinates are flipped vertically.
+ 
+    --------------------------
+ 
+    CGImageRef works under both OSX and IOS
+ 
+    --------------------------
+ 
+ 	The key to getting the raw pixel data on an image seems to be
+ 	-TIFFRepresentation (which, despite its name, returns an NSData object,
+ 	not an NSImageRep object). I think the most direct way to create a
+ 	bitmap from an image is probably:
+ 
+ 	NSData* tiffData = [theImage TIFFRepresentation];
+ 	NSBitmapImageRep* bitMapRep = [NSBitmapImageRep imageRepWithData:tiffData];
+ 
+ 
+ --------------------------
+ 
+ 
+    cocoa drawing guide
+    https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaDrawingGuide/Images/Images.html
+ 
+    example of accessing the pixels in a representation
+    - (BOOL) manipulateImageRep:(NSBitmapImageRep*)rep 
+    {
+        int Bpr, spp;
+        unsigned byte *data;
+        int x, y, w, h;
+ 
+        if ([rep bitsPerSample] != 8) {
+            // usually each color component is stored
+            // using 8 bits, but recently 16 bits is occasionally
+            // also used ... you might want to handle that here
+            return NO;
+            }
+ 
+        Bpr = [rep bytesPerRow];
+        spp = [rep samplesPerPixel];
+        data = [rep bitmapData];
+        w = [rep pixelsWide];
+        h = [rep pixelsHigh];
+ 
+        for (y=0; y<h; y++) {
+            unsigned byte *p = data + Bpr*y;
+            for (x=0; x<w; x++) {
+                // do your thing
+                // p[0] is red, p[1] is green, p[2] is blue, p[3] can be alpha if spp==4
+                p += spp;
+                }
+            }
+        return YES;
+        }
+ 
+    -------------------------------
+    A texture is a rectangular area of RGBA values, i.e. 
+    for each pixel we have red, green, and blue values, and an alpha value. 
+    In the Core Animation world this is basically what a CALayer is.
+    
+    ---------------------------------
+ 
+ 
+    If you create an NSImage by reading a JPEG file from disk, the object returned to you 
+    has a single representation: an NSBitmapImageRep. 
+    But, as soon as you call -lockFocus on the image and draw to it, NSImage discards the 
+    NSBitmapImageRep and creates an NSCachedImageRep from the data. 
+    This is one of NSImage’s optimizations to achieve its goal of getting image data to the 
+    screen quickly - even though it interferes with getting the data you want back out to disk. 
+    The solution is to create your own NSBitmapImage rep instead of relying on NSImage to 
+    maintain the original one for you: ....
+    http://blakeseely.tumblr.com/post/556241874/nsimage-deceivingly-simple-or-just-deceiving
+    Some developers prefer to bypass NSImage altogether and instead use Quartz CGImage objects instead.
+    CGImage bypasses all the funky caching and uncertainty of what NSImage is doing with 
+    NSImageRep objects, but also loses the simplicity of reading a file and drawing it to 
+    the screen with just a couple method calls.
+ 
+    ---------------------------------
+ 
+    example of creating an image and a rep and draw pixels in the rep
+    http://svn.gna.org/svn/gnustep/tests/examples/trunk/gui/GSTest/PixelExactDrawing-test/PixelExactDrawing-test.m
+ 
+ 
+    ---------------------------------
+ 
+ 
+    example: create an image and then a bitmapRep
+    http://www.cocoabuilder.com/archive/cocoa/180232-getting-colour-data-at-specified-point-in-an-nsimage.html
+ 
+    ---------------------------------
+ 
+    As matter of fact, you can't really lock focus on bitmap image representation.
+    Lock focus on image will create a NSCachedImageRep which use offscreen window as drawing buffer.
+ 
+    If you would like to draw to the bitmap, you might have to use quartz's bitmap context or something like this:
+    image = [[NSImage alloc] initWithSize:imageSize];
+    [image lockFocus];
+    [[NSColor colorWithCalibratedWhite:1.0 alpha:1.0] set];
+    NSRectFillUsingOperation(NSMakeRect(0, 0, imageSize.width, imageSize.height), NSCompositeCopy);
+    [[NSBitmapImageRep alloc] initWithFocusedViewRect: NSMakeRect(0, 0, imageSize.width, imageSize.height)];
+    [image unlockFocus];
+    [release];
+ 
+    But the second approach is much more in-efficient.(draw to offscreen window and then copy it to bitmap buffer)
+ 
+    What I've ended up doing is using an NSBitmapImageRep from the start,
+    instead of an NSImage, and then adding it as a representation to an
+    NSImage for drawing purposes later. This way, I can still access the
+    RGBA bytes directly via NSBitmapImageRep for my performance-sensitive
+    needs. Seems to work as I need.
+ 

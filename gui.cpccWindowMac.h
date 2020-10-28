@@ -68,6 +68,7 @@ protected:		// ctors. Protected because this class should not be created alone, 
 	
 	cpccWindowMac(NSView *aWnd): cpccWindowBase(aWnd, dtool), m_skewX(0.0f), m_skewY(0.0f)
 	{
+        debugLog().addf("new cpccWindowMac %g X %g", [aWnd bounds].size.width, [aWnd bounds].size.height );
 		m_windowRect.size = [aWnd bounds].size;
 		m_windowRect.origin  = [aWnd bounds].origin;
         [[NSGraphicsContext currentContext] setShouldAntialias:NO];
@@ -122,15 +123,6 @@ public:  // functions
     void        lockFocus(void) override { [m_windowHandle lockFocus]; }
     void        unlockFocus(void) override { [m_windowHandle unlockFocus]; }
     
-    // todo: this can be deleted. And be called as in the case of fillRectWithGradientColorV()
-    /*
-	void	        fillRectWithColor(const cpccRecti &aRect, const cpccColor& aColor) override
-	{
-        dtool.fillRectWithColor(aRect, aColor);
-	}
-     */
-	
-    
     virtual void fillEllipseWithColor(const int left, const int top, const int right, const int bottom, const cpccColor& c) override
     { dtool.fillEllipseWithColor(left, top, right, bottom, c); }
 
@@ -146,12 +138,6 @@ public:  // functions
     
 	
 protected:  // the xxxxxx_impl() functions. They should be called only from the anscenstor
-    
-    virtual void 				drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) override
-    {
-            dtool.drawLine(x1, y1, x2, y2, width, c);
-    }
-    
     
     void setPixel_impl(const int x, const int y, const cpccColor &aColor)
 	{

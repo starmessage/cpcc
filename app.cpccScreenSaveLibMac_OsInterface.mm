@@ -179,7 +179,10 @@
  
  The display... methods must find an opaque background behind the view that requires displaying and begin drawing from there forward. The display... methods search up the view hierarchy to locate the first view that responds YES to an isOpaque message, bringing the invalidated rectangles along.
  
- If a view instance can guarantee that it will fill all the pixels within its bounds using opaque colors, it should implement the method isOpaque, returning YES. The NSView implementation of isOpaque returns NO. Subclasses should override this method to return YES if all pixels within the view's content will be drawn opaquely.
+ If a view instance can guarantee that it will fill all the pixels within its bounds using opaque colors,
+ it should implement the method isOpaque, returning YES.
+ The NSView implementation of isOpaque returns NO.
+ Subclasses should override this method to return YES if all pixels within the view's content will be drawn opaquely.
  
  The isOpaque method is called during drawing, and may be called several times for a given view in a drawing pass. Subclasses should avoid computationally intensive calculations in their implementation of the isOpaque method. Simple tests–for example determining if the background color is opaque as the DraggableItemView does–are acceptable.
  
@@ -225,12 +228,10 @@
 */
 
 
-
-
-- (void)util_createAndInitScreensaverWithWindowHandle
+- (void)util_createAndInitScreensaverWithWindowHandle:(NSView *) aViewHandle backingScaleFactor:(int) aBackingScaleFactor
 {
-    logFunctionLife   m_objLife( "util_createAndInitScreensaverWithWindowHandle" );
-    
+    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+
     if (ssPtr!=NULL)
         errorLog().add("#4813: createScreensaver already called?");
 	
@@ -251,13 +252,12 @@
     NSString* pBundlePath = [saverBundle bundlePath];
     ssPtr->setContainerFolder([pBundlePath UTF8String]);
     
-    NSView * windowHandle = self;
-    if (windowHandle==NULL)
-        errorLog().add("Error 2354b: could not get native window handle");
+    // NSView * windowHandle = self;
+    // if (windowHandle==NULL)
+    //     errorLog().add("Error 2354b: could not get native window handle");
     
     int monitorID = (m_isPreview)? -1 : 0;
-    ssPtr->initWithWindowHandle( windowHandle, monitorID);
-    
+    ssPtr->initWithWindowHandle( aViewHandle, monitorID, aBackingScaleFactor);
 }
 
 
@@ -273,80 +273,41 @@
 	
 }
 
+/*
+    - (void)viewDidChangeBackingProperties {
+        // self.layer.contentsScale = [[self window] backingScaleFactor];
+    }
+*/
+
 
 - (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
 {
-    // Under MacOS Catalina, isPreview is always TRUE. Therefore we ignore it.
-    m_isPreview = (frame.size.width <= 400) && (frame.size.height <= 300);
-    
-    
-    // see displayRectIgnoringOpacity
-    // at
-    // https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/CocoaViewsGuide/SubclassingNSView/SubclassingNSView.html
-    
-	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
     ssConfigurePtr = NULL;
     
-    //[[self window] setBackgroundColor:[NSColor clearColor]];
-    //[[self window] setBackgroundColor:[NSColor orangeColor]];
+    // Under MacOS Catalina, isPreview is always TRUE. Therefore we ignore it.
+    m_isPreview = (frame.size.width <= 400) && (frame.size.height <= 300);
+    // Under a retina screen, frame size is not equal to the pixels of the screen. They might be half of it.
 
     [[NSProcessInfo processInfo] disableAutomaticTermination:@"The screen saver prefers to be closed gracefully."];
-    
-    // http://stackoverflow.com/questions/14798056/how-to-know-when-a-cocoa-app-is-about-to-quit
-    // How to know when a Cocoa app is about to quit?
-    //  https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSProcessInfo_Class/#//apple_ref/doc/uid/20000316-SW3
     [[NSProcessInfo processInfo] disableSuddenTermination];
     
+    // before this, the NSView is not ready to be used
     self = [super initWithFrame:frame isPreview:m_isPreview];
     
     if (self==NULL)
         errorLog().add("#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
     
-    
-    /*
-    NSRect windowframe = frame;
-    
-    windowframe.origin.x += 50;
-    windowframe.size.height -= 200;
-    windowframe.size.width -= 300;
-    
-    [self setFrame:windowframe];
-    */
-
-    
-	
-    /*
-     https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/c/tdef/NSBackingStoreType
-     enum { NSBackingStoreRetained = 0, NSBackingStoreNonretained = 1, NSBackingStoreBuffered = 2 };
-     typedef NSUInteger NSBackingStoreType;
-     */
-    
-    // https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSWindow_Class/#//apple_ref/occ/instm/NSWindow/setBackingType:
-    //[[self window] setBackingType:NSBackingStoreRetained];
-    
-    
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 1");
-    
-    /*
-    if (ssPtr)
-        [self util_setTransparency: ssPtr->getPreserveDeskopContents()];
+    /* make the window smaller for debug purposes.
+        NSRect windowframe = frame;
+        windowframe.origin.x += 50;
+        windowframe.size.height -= 200;
+        windowframe.size.width -= 300;
+        [self setFrame:windowframe];
     */
     
-    // this reports an error in cerr:
-    //[[self window] setBackgroundColor:[NSColor clearColor]];
-    //[[NSColor orangeColor] set];
-    // [NSBezierPath fillRect:frame];
+    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
     
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() point 3");
-    
-    
-    // [NSBezierPath fillRect:frame];
-    
-    // cpccOS::sleep(3000);
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface.initWithFrame() exiting");
-    
-    [self util_createAndInitScreensaverWithWindowHandle];
-
     return self;
 }
 
@@ -357,38 +318,31 @@
 	// You must at least call [super stopAnimation] as shown in the standard template.
     
 	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    
+    // [self.window setOpaque:YES];
+    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
+    
+    float backingScaleFactor = 1.0f;
+    if ([self.window respondsToSelector:@selector(backingScaleFactor)])
+    {
+        backingScaleFactor = (float) [self.window backingScaleFactor];
+        debugLog().addf("startAnimation backingScaleFactor: %g", backingScaleFactor);
+    }
+    debugLog().addf("startAnimation NSView frame: %g X %g", self.frame.size.width, self.frame.size.height);
+    
     if (!ssPtr) // if it was deleted from a previous stopAnimation, then re-create the screensaver
-        [self util_createAndInitScreensaverWithWindowHandle];
+        [self util_createAndInitScreensaverWithWindowHandle: self backingScaleFactor:backingScaleFactor];
 
-    
-    // cpccOS::sleep(3000);
-    
     //[[self window] setAlphaValue:0.3];
-    
-    //cpccOS::sleep(2000);
-    //[[self window] setBackgroundColor:[NSColor clearColor]];
-    
-    //[[self window] setBackgroundColor:[NSColor orangeColor]];
     //[[self window] setOpaque:NO];
     //[[self window] setAlphaValue:1.0];
     //[[NSColor clearColor] setFill];
     //NSRectFill([self frame]);
     
-    // demo
-    //NSRect tmpRect = NSMakeRect(30, 40, 100, 150);
-    //[[NSColor redColor] set];
-    //NSRectFill(tmpRect);
-    // cpccOS::sleep(2000);
-    
 	// Activates the periodic timer that animates the screen saver.
     // A zero value polls as fast as possible while a negative number turns animation off.
 	[self setAnimationTimeInterval:1/config_FramesPerSec]; // 25 frames/sec
-
-	
-    //infoLog().add( "before [super startAnimation];");
     [super startAnimation];
-
-    //infoLog().add( "cpccScreenSaveLibMac_OsInterface startAnimation exiting");
 }
 
 

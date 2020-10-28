@@ -206,8 +206,12 @@ public:		// functions
 			
 	}
 	
+	virtual void        drawLine(const float x1, const float y1, const float x2, const float y2, const float width, const cpccColor& aColor) override
+	{
+		drawLine((int)round(x1), (int)round(y1), (int)round(x2), (int)round(y2), (int)round(width), aColor);
+	}
 
-	virtual void 		drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor)
+	virtual void 		drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &aColor) override
 	{
 		if (!m_hDC)
 			return;

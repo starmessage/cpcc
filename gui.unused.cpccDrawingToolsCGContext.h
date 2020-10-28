@@ -55,6 +55,7 @@ public:		// data
 
 public:		// functions
 	
+private:
 	virtual void 		fillRectWithColor(const CGRect &r, const cpccColor& aColor) override
 	{
         // CGContextSetFillColorWithColor(CGContextRef c, CGColorRef color)
@@ -93,7 +94,7 @@ public:		// functions
 		CGContextShowTextAtPoint(m_drawContext, x, y, text, 9);
 	}
 	
-
+private:
 	virtual const cpccVector2i	getTextSize(const cpcc_char *txt, const cpccTextParams& params) const 
 	{
         return cpccVector2i(0,0);

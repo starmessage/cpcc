@@ -88,7 +88,7 @@ public:		// functions
 	}
     
 
-	const virtual void 					drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
+	virtual void drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
 	{
 		if (!destWindow)
 			return;
@@ -101,11 +101,10 @@ public:		// functions
 		*/
 	}
 		
-
 	virtual void	  drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) {  	m_dtool.drawText(x, y, text, params); }
 
-	const virtual int getWidth(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0; }
-	const virtual int getHeight(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0; 	}
+	virtual int getWidth(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getWidth() : 0; }
+	virtual int getHeight(void) const { return m_GDIHBitmap ? m_GDIHBitmap->getHeight() : 0; 	}
 
 protected:
 

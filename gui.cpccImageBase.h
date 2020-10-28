@@ -1,4 +1,4 @@
-﻿/*  *****************************************
+/*  *****************************************
  *  File:		gui.cpccImageBase.h
  *  Version:	
  *	Purpose:	Portable (cross-platform), light-weight library
@@ -29,7 +29,7 @@ class cpccImageBase
 
 protected: // data
 	bool				m_hasTrasparentColor;
-	cpccColor			m_transparentColor;
+	cpccColor		m_transparentColor;
 
 public:  // constructor
 	
@@ -38,11 +38,10 @@ public:  // constructor
     
 public:		// concrete functions
 
-	const cpccColor*	getTransparentColor(void) const					{ return m_hasTrasparentColor? &m_transparentColor: NULL; }
+	const cpccColor*	getTransparentColor(void) const				{ return m_hasTrasparentColor? &m_transparentColor: NULL; }
 	virtual void		setTransparentColor(const cpccColor &aColor)	{ m_transparentColor=aColor; m_hasTrasparentColor=true; }
 	void				removeTransparency(void)						{ m_hasTrasparentColor=false; }
 
-	
 public:  // abstract functions
 	virtual void			initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor)=0;
     virtual bool			initWithFile(const cpcc_char* afullpathfilename, const bool hasTransparentCorner=false)=0;
@@ -50,16 +49,15 @@ public:  // abstract functions
 	virtual bool			initWithResource(const int resourceID, const bool transparentCorner) = 0;
 #endif
 	virtual cpccColor		getPixel(const int x, const int y) const =0;
-    virtual void 			setPixel(const int x, const int y, const cpccColor &aColor)=0;
-    virtual void            amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB )=0;
-    const virtual int       getWidth(void) const =0;
-    const virtual int       getHeight(void) const =0;
-    virtual void 			drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)=0;
-    
-	const virtual void 		drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const =0;
-	virtual void 			resizeBy(const float aFactor) { resizeTo((int) (getWidth()*aFactor), (int) (getHeight()*aFactor)); }
-	virtual void 			resizeTo(const int newWidth, const int newHeight) =0;
-    virtual void 			cropTo(const int newTop, int newLeft, int newWidth, int newHeight)=0;
+    virtual void 		setPixel(const int x, const int y, const cpccColor &aColor)=0;
+    virtual void         amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB )=0;
+    virtual int          getWidth(void) const =0;
+    virtual int          getHeight(void) const =0;
+    virtual void 		drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)=0;
+    virtual void 		drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const =0;
+	virtual void 		resizeBy(const float aFactor) { resizeTo((int) (getWidth()*aFactor), (int) (getHeight()*aFactor)); }
+	virtual void 		resizeTo(const int newWidth, const int newHeight) =0;
+    virtual void 		cropTo(const int newTop, int newLeft, int newWidth, int newHeight)=0;
 	
 };
 

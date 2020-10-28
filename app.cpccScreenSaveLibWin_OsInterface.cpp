@@ -149,7 +149,7 @@ LRESULT WINAPI ScreenSaverProc(HWND hwnd, UINT wMessage, WPARAM wParam, LPARAM l
 					app.getArgcArgv(args);
 					if (args.size() > 1)
 						monitorID = (args[1] == _T("/p")) ? -1 : 0;
-					CPCC_TRY_AND_CATCH(screensaverPtr->initWithWindowHandle(hwnd, monitorID), "exception caught: screensaverPtr->initWithWindowHandle()");
+					CPCC_TRY_AND_CATCH(screensaverPtr->initWithWindowHandle(hwnd, monitorID, 1), "exception caught: screensaverPtr->initWithWindowHandle()");
 					
 					screensaverWindowInitialised = true;
 				}

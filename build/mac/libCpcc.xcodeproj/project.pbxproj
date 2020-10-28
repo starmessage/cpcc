@@ -16,12 +16,10 @@
 		586074392454C63D00350856 /* data.cpccKeyValueStr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccKeyValueStr.h; path = ../../data.cpccKeyValueStr.h; sourceTree = "<group>"; };
 		5860743A2454C65500350856 /* core.cpccKeyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccKeyValue.h; path = ../../core.cpccKeyValue.h; sourceTree = "<group>"; };
 		587B106A23C9D42400D82B3E /* gui.cpccImageBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageBase.h; path = ../../gui.cpccImageBase.h; sourceTree = "<group>"; };
-		587B106B23C9D42400D82B3E /* gui.cpccDrawingToolsCGContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsCGContext.h; path = ../../gui.cpccDrawingToolsCGContext.h; sourceTree = "<group>"; };
 		587B106C23C9D42500D82B3E /* gui.cpccDlgColorPicker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDlgColorPicker.h; path = ../../gui.cpccDlgColorPicker.h; sourceTree = "<group>"; };
 		587B106D23C9D42500D82B3E /* gui.cpccDlgColorPickerMac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = gui.cpccDlgColorPickerMac.mm; path = ../../gui.cpccDlgColorPickerMac.mm; sourceTree = "<group>"; };
 		587B106E23C9D42500D82B3E /* gui.cpccCSS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccCSS.h; path = ../../gui.cpccCSS.h; sourceTree = "<group>"; };
 		587B106F23C9D42500D82B3E /* gui.cpccImageMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageMac.h; path = ../../gui.cpccImageMac.h; sourceTree = "<group>"; };
-		587B107023C9D42600D82B3E /* gui.cpccDrawingToolsNSBitmapImageRep.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsNSBitmapImageRep.h; path = ../../gui.cpccDrawingToolsNSBitmapImageRep.h; sourceTree = "<group>"; };
 		587B107123C9D42600D82B3E /* gui.cpccDrawingToolsMacOnFocused.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsMacOnFocused.h; path = ../../gui.cpccDrawingToolsMacOnFocused.h; sourceTree = "<group>"; };
 		587B107223C9D42600D82B3E /* gui.cpccWindowBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccWindowBase.h; path = ../../gui.cpccWindowBase.h; sourceTree = "<group>"; };
 		587B107323C9D42600D82B3E /* gui.cpccDrawingToolsAbstract.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccDrawingToolsAbstract.h; path = ../../gui.cpccDrawingToolsAbstract.h; sourceTree = "<group>"; };
@@ -32,6 +30,7 @@
 		587B107923C9D42700D82B3E /* gui.cpccText.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccText.h; path = ../../gui.cpccText.h; sourceTree = "<group>"; };
 		587B107A23C9D42700D82B3E /* gui.cpccImageUtilsOSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageUtilsOSX.h; path = ../../gui.cpccImageUtilsOSX.h; sourceTree = "<group>"; };
 		587B107B23C9D42700D82B3E /* gui.cpccTextStylesMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccTextStylesMac.h; path = ../../gui.cpccTextStylesMac.h; sourceTree = "<group>"; };
+		589318312545D648000B7487 /* gui.cpccImageMac.notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = gui.cpccImageMac.notes.txt; path = ../../gui.cpccImageMac.notes.txt; sourceTree = "<group>"; };
 		5893A321244F86B600E68AA0 /* core.cpccStringUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccStringUtil.h; path = ../../core.cpccStringUtil.h; sourceTree = "<group>"; };
 		5899FEA423EFE308002294C4 /* pattern.singeton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pattern.singeton.h; path = ../../pattern.singeton.h; sourceTree = "<group>"; };
 		58BAE7CD23C7CA1800A84127 /* data.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccWideCharSupport.h; path = ../../data.cpccWideCharSupport.h; sourceTree = "<group>"; };
@@ -95,12 +94,11 @@
 				587B106C23C9D42500D82B3E /* gui.cpccDlgColorPicker.h */,
 				587B106D23C9D42500D82B3E /* gui.cpccDlgColorPickerMac.mm */,
 				587B107323C9D42600D82B3E /* gui.cpccDrawingToolsAbstract.h */,
-				587B106B23C9D42400D82B3E /* gui.cpccDrawingToolsCGContext.h */,
 				587B107123C9D42600D82B3E /* gui.cpccDrawingToolsMacOnFocused.h */,
-				587B107023C9D42600D82B3E /* gui.cpccDrawingToolsNSBitmapImageRep.h */,
 				587B107623C9D42600D82B3E /* gui.cpccImage.h */,
 				587B106A23C9D42400D82B3E /* gui.cpccImageBase.h */,
 				587B106F23C9D42500D82B3E /* gui.cpccImageMac.h */,
+				589318312545D648000B7487 /* gui.cpccImageMac.notes.txt */,
 				587B107A23C9D42700D82B3E /* gui.cpccImageUtilsOSX.h */,
 				587B107923C9D42700D82B3E /* gui.cpccText.h */,
 				587B107B23C9D42700D82B3E /* gui.cpccTextStylesMac.h */,

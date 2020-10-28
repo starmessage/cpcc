@@ -27,12 +27,8 @@
 // ////////////////////////////////////////////
 
 
-class cpccDrawingToolsMacOnFocused: public cpcciDrawingTools /* <NSRect> */
+class cpccDrawingToolsMacOnFocused: public cpcciDrawingTools
 {
-private:
-
-protected:
-	
 
 public:  // constructor
     
@@ -103,17 +99,26 @@ public:		// functions
     }
     
     
-    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) override
+    void drawLine(const float x1, const float y1, const float x2, const float y2, const float width, const cpccColor &c) override
     {
         NSBezierPath * path = [NSBezierPath bezierPath];
         [path setLineWidth: width];
         
-        NSPoint startPoint = {  static_cast<CGFloat>(x1), static_cast<CGFloat>(y1) };
-        NSPoint endPoint   = { static_cast<CGFloat>(x2), static_cast<CGFloat>(y2) };
+        NSPoint startPoint = {  x1, y1 };
+        NSPoint endPoint   = { x2, y2 };
         [path  moveToPoint: startPoint];
         [path lineToPoint:endPoint];
         [c.asNSColor() set];
         [path stroke];
+    }
+    
+    
+    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    {
+        drawLine(static_cast<float>(x1), static_cast<float>(y1), static_cast<float>(x2), static_cast<float>(y2),
+                 static_cast<float>(width), c);
+        //drawLine(static_cast<CGFloat>(x1), static_cast<CGFloat>(y1), static_cast<CGFloat>(x2), static_cast<CGFloat>(y2),
+        //         static_cast<CGFloat>(width), c);
     }
     
     

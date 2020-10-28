@@ -66,6 +66,14 @@ public:		// operators
 	template<typename T2>
 	inline cpccRect<T>& operator=(const cpccRect<T2>& aRect)			{ top = (T)aRect.top;  left = (T)aRect.left; width = (T)aRect.width;  height = (T)aRect.height; return (*this); };
 
+    template<typename Tnumber>
+    inline cpccRect<T> operator* (const Tnumber f)
+    {   cpccRect<T> result(*this);
+        result.top = f * top;  result.left = f * left; result. width = f * width;  result.height = f * height;
+        return result;
+    };
+
+    
 public:		// functions
 	inline cpccRect<T> &fromTLBR(const T &t, const T &l, const T &b, const T &r) { return fromXYWH(l, t, r - l, b - t); }
 
@@ -139,6 +147,15 @@ typedef	cpccRect<int>	cpccRecti;
 typedef	cpccRect<float>	cpccRectf;
 
 static const cpccRecti	cpccRectZero;
+
+// //////////////////////////////////
+//
+//  cpccRect implementation
+//
+// //////////////////////////////////
+
+
+
 
 /* old 
 template<typename T>

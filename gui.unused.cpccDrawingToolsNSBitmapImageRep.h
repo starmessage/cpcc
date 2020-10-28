@@ -1,22 +1,23 @@
 
 /*  *****************************************
  *  File:		gui.cpccDrawingToolsNSBitmapImageRep.h
- *  Version:	see function getClassVersion()
- *	Purpose:	Portable (cross-platform), light-weight, graphic context drawing tools
+ *	Purpose:	    Portable (cross-platform), light-weight, graphic context drawing tools
  *	*****************************************
- *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2013 StarMessage software.
- *  License: 	Free for opensource projects.
- *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com
- *  Download:	https://code.google.com/p/cpcc/
- *              https://github.com/starmessage/cpcc
- *	email:		sales -at- starmessage.info
+ *  Library:    Cross Platform C++ Classes (cpcc)
+ *  Copyright:  2013 StarMessage software.
+ *  License:    Free for opensource projects.
+ *              Commercial license for closed source projects.
+ *	Web:        http://www.StarMessageSoftware.com
+ *  Download:   https://github.com/starmessage/cpcc
+ *	email:      sales -at- starmessage.info
  *	*****************************************
  */
  
  
 #pragma once
+
+
+UNUSED FILE. THIS WILL CREATE A COMPILATION ERROR.
 
 #include "gui.cpccDrawingToolsMacOnFocused.h"
 
@@ -42,15 +43,7 @@ public:  // constructor
 public:		// data
 	
 
-public:		// functions
-    
-    virtual void		bitBlitFrom(const int x, const int y, const TimgRepHandle &srcContext, const int srcW, const int srcH, const cpccColor* transparentColor=NULL)
-	{
-		if (!m_imgRep || !srcContext)
-			return;
-        // todo:
-    }
-    
+private:		// functions
     
 	virtual void fillRectWithColor(const cpccRecti &r, const cpccColor& aColor) override
 	{
@@ -70,7 +63,7 @@ public:		// functions
     }
 	
 
-	   
+	/*
 	virtual cpccColor getPixel(const int x, const int y) const override
 	{
         if (!m_imgRep)
@@ -80,16 +73,19 @@ public:		// functions
         result.fromNSColor(color);
 		return result;
     }
-	
+     */
     
+	
+    /*
 	virtual void setPixel(const int x, const int y, const cpccColor &aColor) override
 	{
 		if (!m_imgRep)
             return;
         [m_imgRep setColor: aColor.asNSColor() atX:x y:y];
 	}
+    */
     
-    
+    /*
     virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB ) 
     {
         if (!m_imgRep)
@@ -99,6 +95,7 @@ public:		// functions
     
         [m_imgRep setColor: newColor atX:x y:y];
     }
+    */
     
 };
 

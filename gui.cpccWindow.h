@@ -66,8 +66,6 @@ public:		// functions
 		fillWithColor(bgColor.getCurrent());
 	}
 
-	
-
     void	pushCss(cpccCSS *aCssPtr)  override
 	{
 		if (!aCssPtr)

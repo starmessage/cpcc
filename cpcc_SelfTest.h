@@ -14,6 +14,10 @@
  *	*****************************************
  */
 
+// ////////////////////////////
+// deprecated by cpccTesting.h
+// ////////////////////////////
+
 #pragma once
 #include "core.cpccIdeMacros.h"
 #include "cpccUnicodeSupport.h"

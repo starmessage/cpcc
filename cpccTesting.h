@@ -162,6 +162,7 @@ namespace cpccTesting
     class sharedTestRegister
     {
     public:
+        
         static int  &getNErrors(void)
         {
             static int nErrors = 0;
@@ -324,8 +325,14 @@ namespace cpccTesting
             static cOutputStreamDesktopFile inst_;
             return inst_;
         }
+        
+        
+        static std::mutex &waitForExecutionTimeSlot(void)
+        {
+            static std::mutex mu;
+            return mu;
+        }
     };
-
 
 
     inline cOutputStreamDesktopFile::~cOutputStreamDesktopFile()
@@ -457,7 +464,9 @@ if ((aVal1) != (aVal2))                                 \
             void runTest(void);                     \
                                                                             \
             void runFunctionWrapper(void)                                   \
-            {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+            {   auto& refToMutex = cpccTesting::sharedObjects::waitForExecutionTimeSlot(); \
+                std::lock_guard<std::mutex> lock(refToMutex);           \
+                const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
                 if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
                     return;                                                         \
                 OUTPUT_STREAM << _T("/ Starting test:") << tmpNameA << std::endl;   \
@@ -490,11 +499,13 @@ if ((aVal1) != (aVal2))                                 \
                 void runTest(void);                                             \
                                                                                 \
                 void runFunctionWrapper(void)                                   \
-                {   const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
+                {   const int msec = 800 + (std::rand() % 1200);                 \
+                    std::this_thread::sleep_for(std::chrono::milliseconds(msec));               \
+                    auto& refToMutex = cpccTesting::sharedObjects::waitForExecutionTimeSlot(); \
+                    std::lock_guard<std::mutex> lock(refToMutex);           \
+                    const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
                     if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
                         return;                                                         \
-                    const int msec = 800 + (std::rand() % 1200);                 \
-                    std::this_thread::sleep_for(std::chrono::milliseconds(msec));               \
                     OUTPUT_STREAM << _T("/ Starting test (in thread):") << tmpNameA << std::endl;   \
                     runTest();                                         \
                     OUTPUT_STREAM << _T("\\ Ending   test (in thread):") << tmpNameA << std::endl << std::endl; \

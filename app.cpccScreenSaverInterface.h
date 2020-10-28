@@ -56,13 +56,13 @@ public: // screensaver interface functions: calls that the operating system disp
     
     virtual ~cpccScreenSaverInterface() { }
     
-	/// initWithWindowHandle should not do any drawing. Allocate the screensaver here
-	/// monitodID: -1=preview, 0=first monitor, 1=second monitor, etc
+	// initWithWindowHandle should not do any drawing. Allocate the screensaver here
+	// monitodID: -1=preview, 0=first monitor, 1=second monitor, etc
 #ifdef _WIN32
-	virtual void initWithWindowHandle(HWND wHandle, const int monitorId ) = 0;
+	virtual void initWithWindowHandle(HWND wHandle, const int monitorId, const int dpiScaleFactor ) = 0;
 	virtual void showConfigureSheet(HWND wHandleOwner) = 0;
 #elif  __APPLE__
-	virtual void initWithWindowHandle(NSView* wHandle, const int monitorId) = 0;
+	virtual void initWithWindowHandle(NSView* wHandle, const int monitorId, const int dpiScaleFactor) = 0;
 	virtual NSWindow* showConfigureSheet(NSView* wOwnerHandle) =0;
 
 #endif
