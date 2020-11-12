@@ -6,7 +6,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.Win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet.win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet-tests.cpp" />
@@ -23,7 +22,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpccUnicodeSupport.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\alpha\net.cpccInternet.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\app.cpccApp.h" />
@@ -50,5 +48,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccRandom.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccRect.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccVector.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccFileSystem.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccPathHelper.h" />
   </ItemGroup>
 </Project>

@@ -21,7 +21,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\core.cpccOSversion.Win.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.cpp" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.cpp" />
   </ItemGroup>
@@ -44,6 +43,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\cpcc_SelfTest.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccKeyValueStr.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\data.cpccWideCharSupport.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccFileSystem.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccSystemFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccUserFolders.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\gui.cpccDrawingToolsWinDC.h" />
@@ -56,7 +56,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccFileSystemMini.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLog.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccLogFileWriterWithBuffer.h" />
-    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccPathHelper.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\fs.cpccPathHelper.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSettings.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\io.cpccSound.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\..\math.cpccMath.h" />

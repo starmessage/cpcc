@@ -3,17 +3,16 @@
  *  Version:	see function getClassVersion()
  *	Purpose:	Portable (cross-platform), light-weight library
  *	*****************************************
- *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2014 StarMessage software.
- *  License: 	Free for opensource projects.
- *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
- *				http://www.24hsoftware.com/portable-cpp-filesystem-library
- *  Download:	https://github.com/starmessage/cpcc
- *	email:		sales -at- starmessage.info
+ *  Library:    Cross Platform C++ Classes (cpcc)
+ *  Copyright:  2014 StarMessage software.
+ *  License:    Free for opensource projects.
+ *  	            Commercial license for closed source projects.
+ *	Web:	        http://www.StarMessageSoftware.com/cpcclibrary
+ *	            http://www.24hsoftware.com/portable-cpp-filesystem-library
+ *  Download:   https://github.com/starmessage/cpcc
+ *	email:      sales -at- starmessage.info
  *	*****************************************
  */
-
 
 
 #if defined __OBJC__
@@ -29,7 +28,6 @@
 #include "io.cpccFileSystemMiniOSX.h"
 
 #include "gui.cpccImageBase.h"
-#include "gui.cpccImageUtilsOSX.h"
 #include "gui.cpccDrawingToolsMacOnFocused.h"
 #include "gui.cpccWindowMac.h"
 #include "core.cpccTryAndCatch.h"

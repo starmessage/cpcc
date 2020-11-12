@@ -20,7 +20,7 @@
 
 #include "io.cpccLog.h"
 #include "io.cpccFileSystemMini.h"
-#include "io.cpccPathHelper.h"
+#include "fs.cpccPathHelper.h"
 #include "cpcc_SelfTest.h"
 #include "core.cpccIdeMacros.h"
 #include "core.cpccTryAndCatch.h"

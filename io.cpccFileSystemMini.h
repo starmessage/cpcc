@@ -1,14 +1,14 @@
 /*  *****************************************
- *  File:		cpccFileSystemMini.h
- *	Purpose:	Portable (cross-platform), light-weight, file system library
+ *  File:       cpccFileSystemMini.h
+ *	Purpose:    Portable (cross-platform), light-weight, file system library
  *	*****************************************
- *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2015 StarMessage software.
- *  License: 	Free for opensource projects.
- *  			Commercial license for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
- *  Download:	https://github.com/starmessage/cpcc
- *	email:		sales -at- starmessage.info
+ *  Library:    Cross Platform C++ Classes (cpcc)
+ *  Copyright:  2015 StarMessage software.
+ *  License:    Free for opensource projects.
+ *  	            Commercial license for closed source projects.
+ *	Web:        http://www.StarMessageSoftware.com/cpcclibrary
+ *  Download:   https://github.com/starmessage/cpcc
+ *	email:      sales -at- starmessage.info
  *	*****************************************
  */
 
@@ -18,7 +18,7 @@
 #include <mutex>
 
 #include "cpccUnicodeSupport.h"
-#include "io.cpccFileSystemL1.h"
+#include "fs.cpccFileSystem.h"
 #include "core.cpccIdeMacros.h" 
 
 
@@ -35,7 +35,7 @@
 	It was created because the boost::filesystem is too complicated and needs considerable effort 
 	to be included in your application.
 */
-class cpccFileSystemMini: public cpccFileSystemL1
+class cpccFileSystemMini: public cpccFileSystem
 {
     
 public:	// class metadata and selftest
@@ -53,10 +53,6 @@ public:
 	static bool createFolder(const cpcc_char *  aFoldername);
 	static bool	createFolder(const cpcc_string& aFoldername) { return createFolder(aFoldername.c_str()); }
 	
-	// todo: move them to fs.cpccSystemFolders
-	// static cpcc_string getFolder_SystemsTemp(void);
-	
-
 
     // file functions --------------------------------
 
@@ -69,9 +65,7 @@ public:
 
 	/// the destFile must be a file specification, not a folder specification
 	static bool copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile);
-	static bool renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew);
 	static bool createEmptyFile(const cpcc_char * aFilename);
-	// static bool	createEmptyFile(const cpcc_string & aFilename) { return createEmptyFile(aFilename.c_str()); };
 	static bool appendTextFile(const cpcc_char* aFilename, const cpcc_char *txt);
     static bool writeTextFile(const cpcc_char* aFilename, const cpcc_char *aTxt, const bool inUTF8);
     inline static bool fileContainsText(const cpcc_char *fn, const cpcc_char *txt);
@@ -83,19 +77,10 @@ public:
 	#endif
 
     
-
-	static bool deleteFile(const cpcc_char * filename);
-	
 	static bool copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder);
 	// static bool	copyFile(const cpcc_string& sourceFile, const cpcc_string& destFileOrFolder) { return copyFile(sourceFile.c_str(), destFileOrFolder.c_str()); };
 
 		
-	// date functions --------------------------------
-	static time_t		 getFileModificationDate(const cpcc_char * aFilename);
-	
-	// Path functions
-	
-	
 	// Other functions --------------------------------
 	static cpcc_string getAppFullPathFilename(void);
     #if !defined(cpccTARGET_IOS)
@@ -122,7 +107,7 @@ public: // constructors
 
 public: // functions
     
-	bool	pathExists(void)	const { return (cpccFileSystemL1::fileExists(c_str()) || cpccFileSystemL1::folderExists(c_str())); }
+	bool	pathExists(void)	const { return (cpccFileSystem::fileExists(c_str()) || cpccFileSystem::folderExists(c_str())); }
 	void	appendPathSegment(const cpcc_char* aPathSegment);
 
 	// this is already defined in the parent class
@@ -134,11 +119,11 @@ public: // functions
     
 };
 
-//////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////
 //
 //  cpccFileSystemMini implementation
 //
-///////////////////////////
+// /////////////////////////
 
 bool    cpccFileSystemMini::fileContainsText(const cpcc_char *fn, const cpcc_char *txt)
 {

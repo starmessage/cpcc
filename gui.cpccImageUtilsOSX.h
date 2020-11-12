@@ -25,9 +25,9 @@
 
 
 
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 //      cpccImageUtilsOSX
-////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////
 class cpccImageUtilsOSX
 {
 public:
@@ -208,8 +208,8 @@ public:
         [NSGraphicsContext restoreGraphicsState];
     }
     
-    
-    static void drawNSImageInNSView(int x, int y, NSImage *img, NSView *aView)
+private:
+    static void drawNSImageInNSView_notUsed(int x, int y, NSImage *img, NSView *aView)
     {
         if (!img)
             return;
@@ -218,17 +218,15 @@ public:
         
         
         [aView lockFocus];
-        
         /*
          If you want to ensure that a specific image representation is used, 
          you can use the drawRepresentation:inRect: method of NSImage
          */
         [img drawAtPoint:NSMakePoint(x, y) fromRect:NSZeroRect operation: NSCompositeSourceOver fraction: 1.0f];
         [aView unlockFocus];
-        
 	}
     
-    
+public:
 	static NSImage *loadImageToNSImage(const cpcc_char* aFullPathFilename)
 	{
 		if (!aFullPathFilename)

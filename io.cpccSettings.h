@@ -25,7 +25,7 @@
 #include "cpccUnicodeSupport.h"
 #include "core.cpccKeyValue.h"
 #include "cpccTesting.h"
-#include "io.cpccPathHelper.h"
+#include "fs.cpccPathHelper.h"
 #include "io.cpccFileSystemMini.h"
 
 /** A small and portable (cross platform) C++ class 

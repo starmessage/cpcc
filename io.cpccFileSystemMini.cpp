@@ -51,7 +51,7 @@
 
 
 #include "io.cpccFileSystemMini.h"
-#include "io.cpccPathHelper.h"
+#include "fs.cpccPathHelper.h"
 #include "fs.cpccSystemFolders.h"
 #include "fs.cpccUserFolders.h"
 #if defined(cpccFileSystemMini_DoSelfTest)
@@ -154,53 +154,6 @@ cpcc_string cpccFileSystemMini::getFileSystemReport(void)
 }
 
 
-
-
-
-
-
-/* 
-cpcc_string cpccFileSystemMini::getFolder_SystemsTemp(void) 
-{
-	// getenv("TEMP"); // does not work on mac
-	// getenv("TMPDIR): returns: /var/folders/zv/zvUjUH8BFX0Sb5mxkslqWU+++TI/-Tmp-/
-    // TMPDIR is what Posix recommends, I think.
-	
-    // see mkstemp()mkstemp() which gives you both a name and a file descriptor 
-    // tmpnam says: "Never use this function. Use mkstemp or tmpfile"
-    // std::filesystem::temp_directory_path (C++17):  fs::temp_directory_path()
-
-	#ifdef _WIN32
-		TCHAR buffer[MAX_PATH+1]; 
-		GetTempPath(MAX_PATH, buffer); // this is the user's temp
-		return buffer;
-	
-	#elif defined(__APPLE__)
-		char buffer[L_tmpnam +1];
-    
-        // the following 3 pragma directives is to suppress the warning that tmpnam is deprecated
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-		char * pointer = tmpnam(buffer); // in MS VC this does not contain a folder. It is just a filename
-		#pragma unused(pointer)
-    
-    
-        // it returns the SYSTEM's temp
-        #pragma GCC diagnostic pop
-		assert(pointer && "#6753b: tmpnam() failed");
-		cpccPathHelper ph;
-		return ph.getParentFolderOf(std::string(buffer));
-	
-
-	#endif
-
-}
-
-*/
-
-
-
-
 bool cpccFileSystemMini::copyFile(const cpcc_char * sourceFile, const cpcc_char * destFileOrFolder) 
 {
 	if (folderExists(destFileOrFolder))	// if the destination is a folder, copy the file inside the folder
@@ -240,9 +193,7 @@ bool cpccFileSystemMini::writeTextFile(const cpcc_char* aFilename, const cpcc_ch
         // _file << helper_to_utf8(aTxt, cpcc_strlen(aTxt));
     }
 
-
     _file << aTxt;
-
     _file.close();
     return true;
 }
@@ -290,15 +241,6 @@ bool cpccFileSystemMini::appendTextFile(const cpcc_char* aFilename, const cpcc_c
 }
 
 
-
-#ifdef UNICODE
-	#define		cpcc_rename			_trename 		
- #else 
-	#define		cpcc_rename			std::rename 	
- #endif
-
-
-
 bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername) 
 {
 	if (folderExists(aFoldername))
@@ -314,7 +256,7 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 
 	cpcc_string finalPath(fileSystemOSX_helper::expandTilde_OSX( aFoldername));
 	
-	cpcc_string parentFolder = ph.getParentFolderOf(finalPath);
+	cpcc_string parentFolder = ph.getParentFolderOf(finalPath.c_str());
 	
 	int parentPermissions = fileSystemOSX_helper::getFileOrFolderPermissions_OSX(parentFolder.c_str());
 	
@@ -340,16 +282,6 @@ bool cpccFileSystemMini::createFolder(const cpcc_char * aFoldername)
 }
 
 
-bool cpccFileSystemMini::renameFile(const cpcc_char* filenameOld, const cpcc_char* filenameNew)
-{
-	/*
-	If the file referenced by dest_file exists prior to calling rename(), 
-	the behavior is implementation-defined. On POSIX systems, the destination 
-	file is removed. On Windows systems, the rename() fails.
-	This creates issues when trying to write portable code. 
-	*/
-	return (cpcc_rename(filenameOld, filenameNew)==0);
-}
 
 /**
 	to create an empty file (replacing any existing one) call this as
@@ -399,23 +331,6 @@ size_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer
 
 
 
-// todo: move the L1 as inline function
-bool cpccFileSystemMini::deleteFile(const cpcc_char* aFilename)
-{
-	/*
-     If the file is successfully deleted, a zero value is returned.
-	 On failure, a nonzero value is reurned and the errno variable is 
-	 set to the corresponding error code. A string interpreting 
-	 this value can be printed to the standard error stream by a call to perror.
-	 */ 
-	 
-#ifdef UNICODE
-	 return (_wremove(aFilename)==0);
-#else
-	return (remove(aFilename)==0);
-#endif
-}
-
 
 bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile)
 {
@@ -453,6 +368,8 @@ bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc
 
 bool cpccFileSystemMini::createEmptyFile(const cpcc_char * aFilename)
 {
+	if (!aFilename)
+		return false;
 	return (writeToFile(aFilename, "", 0, false) == 0);
 	// other way: std::ofstream tmpOut(aFilename); 
 }
@@ -468,7 +385,7 @@ cpcc_string cpccFileSystemMini::getAppFilename(void)
 #ifndef cpccTARGET_IOS
 cpcc_string cpccFileSystemMini::getAppFullPath(void)
 {
-	return cpccPathHelper::getParentFolderOf(getAppFullPathFilename());
+	return cpccPathHelper::getParentFolderOf(getAppFullPathFilename().c_str());
 }
 #endif
 
@@ -516,19 +433,6 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 
 
 
-
-
-time_t		cpccFileSystemMini::getFileModificationDate(const cpcc_char * aFilename) 
-{	// http://linux.die.net/man/2/stat
-
-	if (!fileExists(aFilename) && !folderExists(aFilename))
-		return 0;
-
-	// todo: _stat does not work on XP
-	cpcc_struct_stat attrib;         // create a file attribute structure
-	cpcc_stat(aFilename, &attrib);     // get the attributes
-	return attrib.st_mtime; 
-}
 
 
 // ///////////////////////////////////////////

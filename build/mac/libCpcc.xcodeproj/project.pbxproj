@@ -37,11 +37,10 @@
 		58BAE7CE23C7CA2700A84127 /* cpccTesting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTesting.h; path = ../../cpccTesting.h; sourceTree = "<group>"; };
 		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
 		58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccLog.cpp; path = ../../io.cpccLog.cpp; sourceTree = "<group>"; };
-		58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.cpccPathHelper.h; path = ../../io.cpccPathHelper.h; sourceTree = "<group>"; };
+		58BAE83823C34AB700FDACC4 /* fs.cpccPathHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccPathHelper.h; path = ../../fs.cpccPathHelper.h; sourceTree = "<group>"; };
 		58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTimeCounter.h; path = ../../cpccTimeCounter.h; sourceTree = "<group>"; };
 		58BAE83A23C34AB700FDACC4 /* cpcc_SelfTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpcc_SelfTest.h; path = ../../cpcc_SelfTest.h; sourceTree = "<group>"; };
 		58BAE83B23C34AB700FDACC4 /* core.cpccHardware.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccHardware.h; path = ../../core.cpccHardware.h; sourceTree = "<group>"; };
-		58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccPathHelper.cpp; path = ../../io.cpccPathHelper.cpp; sourceTree = "<group>"; };
 		58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccSettings.cpp; path = ../../io.cpccSettings.cpp; sourceTree = "<group>"; };
 		58BAE83F23C34AB700FDACC4 /* core.cpccOSversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccOSversion.h; path = ../../core.cpccOSversion.h; sourceTree = "<group>"; };
 		58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = net.cpccInternet.h; path = ../../alpha/net.cpccInternet.h; sourceTree = "<group>"; };
@@ -60,6 +59,7 @@
 		58BAE84D23C34AB900FDACC4 /* core.cpccOSversion.Mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOSversion.Mac.mm; path = ../../core.cpccOSversion.Mac.mm; sourceTree = "<group>"; };
 		58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccUserFolders.h; path = ../../fs.cpccUserFolders.h; sourceTree = "<group>"; };
 		58BAE84F23C34AB900FDACC4 /* core.cpccOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = core.cpccOS.mm; path = ../../core.cpccOS.mm; sourceTree = "<group>"; };
+		58FCEC05255B1B60008F9AF2 /* fs.cpccFileSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fs.cpccFileSystem.h; path = ../../fs.cpccFileSystem.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -105,6 +105,7 @@
 				587B107423C9D42600D82B3E /* gui.cpccWindow.h */,
 				587B107223C9D42600D82B3E /* gui.cpccWindowBase.h */,
 				587B107723C9D42700D82B3E /* gui.cpccWindowMac.h */,
+				58FCEC05255B1B60008F9AF2 /* fs.cpccFileSystem.h */,
 				58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */,
 				58BAE84823C34AB800FDACC4 /* io.cpccFileSystemMini.h */,
 				58BAE84623C34AB800FDACC4 /* io.cpccFileSystemMini.mm */,
@@ -112,8 +113,7 @@
 				58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */,
 				58BAE84723C34AB800FDACC4 /* io.cpccLog.h */,
 				5848DFD323D8CD69000AE754 /* io.cpccLogFileWriterWithBuffer.h */,
-				58BAE83C23C34AB700FDACC4 /* io.cpccPathHelper.cpp */,
-				58BAE83823C34AB700FDACC4 /* io.cpccPathHelper.h */,
+				58BAE83823C34AB700FDACC4 /* fs.cpccPathHelper.h */,
 				58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */,
 				58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */,
 				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
@@ -128,7 +128,7 @@
 		58BAE82D23C34A6D00FDACC4 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1160;
+				LastUpgradeCheck = 1200;
 			};
 			buildConfigurationList = 58BAE83023C34A6D00FDACC4 /* Build configuration list for PBXProject "libCpcc" */;
 			compatibilityVersion = "Xcode 9.3";
@@ -162,6 +162,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -195,6 +196,7 @@
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;

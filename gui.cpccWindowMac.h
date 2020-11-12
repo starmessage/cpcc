@@ -139,19 +139,15 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
     
     void setPixel_impl(const int x, const int y, const cpccColor &aColor)
 	{
-        if (!m_windowHandle) return;
-        const bool config_lockFocus=false;
+        if (!m_windowHandle)
+            return;
         
-        if (config_lockFocus)
-            [m_windowHandle lockFocus];
-        
+        // cpccWindowLockFocus lock(this);
+
         dtool.setPixel(x, y, aColor);
         //NSColor *drawColor = aColor.asNSColor();
         //[drawColor set];
         //NSRectFill(NSMakeRect(x, y, 1.0, 1.0));
-        
-        if (config_lockFocus)
-            [m_windowHandle unlockFocus];
 	}
     
 	
@@ -163,15 +159,9 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 		// NSReadPixel() will tell you the color of the pixel nearest to the given location,
 		// in the current drawing context.
 		
-        constexpr bool config_lockFocus=false;
+        // cpccWindowLockFocus lock(this);
         
-        if (config_lockFocus)
-            [m_windowHandle lockFocus];
-
         cpccColor c = dtool.getPixel(x +m_skewX, y + m_skewY);
-        
-        if (config_lockFocus)
-            [m_windowHandle unlockFocus];
         
 		// std::cout << "getPixel result:" << (int) c.getBrightness() << "\n";
 		return c;
@@ -181,7 +171,6 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
 	void 		textOut_impl(const int x, const int y, const cpcc_char *text)
 	{
 #if (!DEBUGPARAM_DISABLE_TEXTDRAWING)
-        const bool useLockFocus = false;
         
         cpccTextParams  params;
 
@@ -194,14 +183,9 @@ protected:  // the xxxxxx_impl() functions. They should be called only from the 
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: NO];
 
-        if (useLockFocus)
-            [m_windowHandle lockFocus];
         // You should only invoke this method when an NSView object has focus.
         dtool.drawText(x, y, text, params);
         
-        if (useLockFocus)
-            [m_windowHandle unlockFocus];
-
         if (fontQuality.getCurrent()==fqNonAntiAliased)
             [[NSGraphicsContext currentContext] setShouldAntialias: YES];
 

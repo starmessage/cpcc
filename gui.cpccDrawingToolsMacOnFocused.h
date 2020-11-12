@@ -113,7 +113,7 @@ public:		// functions
     }
     
     
-    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c)
+    virtual void drawLine(const int x1, const int y1, const int x2, const int y2, const int width, const cpccColor &c) override
     {
         drawLine(static_cast<float>(x1), static_cast<float>(y1), static_cast<float>(x2), static_cast<float>(y2),
                  static_cast<float>(width), c);

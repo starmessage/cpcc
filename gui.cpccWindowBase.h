@@ -210,3 +210,23 @@ public:  // abstract functions
     virtual void        unlockFocus(void)=0;
 };
 
+
+class cpccWindowLockFocus
+{
+private:
+    cpccWindowBase *m_wndPtr;
+    
+public:
+    
+    explicit cpccWindowLockFocus(cpccWindowBase *aWndPtr): m_wndPtr(aWndPtr)
+    {
+        if (m_wndPtr)
+            m_wndPtr->lockFocus();
+    }
+    
+    virtual ~cpccWindowLockFocus()
+    {
+        if (m_wndPtr)
+            m_wndPtr->unlockFocus();
+    }
+};

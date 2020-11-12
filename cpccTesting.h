@@ -43,6 +43,10 @@
 	// #pragma comment(lib,"Shell32.lib") // instruct visual studio to link the library
 #endif
 
+#if __APPLE__
+    #include "TargetConditionals.h"
+#endif
+
 
 #if defined(_DEBUG) || defined(DEBUG) // Under xcode put DEBUG=1 in the debug configuration
     #define ENABLE_cpccTESTING    1
@@ -216,8 +220,10 @@ namespace cpccTesting
             return result;
         }
         
+        
         static void shellOpenFile(const TCHAR *filename)
         {
+        #if TARGET_OS_IPHONE != 1
             if (system(NULL)) // If command is a null pointer, the function only checks whether a command processor is available through this function, without invoking any command.
             {
                #ifdef _WIN32
@@ -233,7 +239,9 @@ namespace cpccTesting
                     system(theCommand.c_str());
                 #endif
             }
+        #endif
         }
+        
     };
 
         
