@@ -1,4 +1,4 @@
-﻿//
+//
 // cpccColor.cpp
 //
 
@@ -80,13 +80,16 @@ void cpccColorT<T>::selfTest()
 }
 
 
+
 SELFTEST_BEGIN(cpccColorT_SelfTest)
-	if (cpccColorT<float>::config_RunSelfTest)
+	if (cpccColorT<float>::config_RunSelfTest) // debug big sur
 		cpccColorT<float>::selfTest();
 SELFTEST_END
+
 
 #endif
 
 SELFTEST_BEGIN(cpccColor32_t_SelfTest)
 	cpccColor32::selfTest();
 SELFTEST_END
+

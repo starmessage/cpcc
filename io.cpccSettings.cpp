@@ -125,9 +125,9 @@ inline void cSerialCodec::decode(cpcc_string& str)
 
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 //		cpccSettings
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////////////////////////
 cpccSettings::cpccSettings(const cpcc_char *aFilename)
 {
     if (!aFilename)
@@ -142,7 +142,8 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
         if (!cpccFileSystemMini::createFolder(folder.c_str()))
             cpcc_cerr << _T("#5813: During cpccSettings constructor could not create folder:") << folder << std::endl;
     
-    assert((folder.pathExists()) && _T("#7712i: folder for INI was not created"));
+    if (!folder.pathExists())
+        cpcc_cerr << _T("#7712i: folder for INI was not created") << std::endl;
 
     if (!load())
         cpcc_cerr << _T("Error #1351: loading cpccSettings from file:") << mFilename << std::endl;
@@ -151,8 +152,10 @@ cpccSettings::cpccSettings(const cpcc_char *aFilename)
 
 cpcc_string cpccSettings::getAutoFilename(const settingsScope aScope, const cpcc_char* aCompanyName, const cpcc_char* aAppName, const cpcc_char* aBundleID)
 {
+    
     cpccPathString fname(aScope== settingsScope::scopeAllUsers ? cpccSystemFolders::getCommonAppData() : cpccUserFolders::getUserData());
-    assert(cpccFileSystemMini::folderExists(fname.c_str()) && _T("#5381: folder for saving the settings file does not exist"));
+    if (!cpccFileSystemMini::folderExists(fname.c_str()))
+        cpcc_cerr <<  _T("#5381: folder for saving the settings file does not exist") << std::endl;
     
     #ifdef __APPLE__
         /*
@@ -307,7 +310,8 @@ bool cpccSettings::save(void)
 
 #ifdef DEBUG
     cpcc_string test = serialize(_T("\n"), true, cSerialCodec::encode);
-    assert (test.compare(ss.str())==0 && _T("#9582: error in save() serialize*()"));
+    if (test.compare(ss.str())!=0)
+        cpcc_cerr <<  _T("#9582: error in save() serialize*()") << std::endl;
 #endif
     
 #ifdef UNICODE	// write the BOM if UTF-8

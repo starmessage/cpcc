@@ -13,6 +13,7 @@
 		58528EBB247D9982004D69EA /* app.cpccScreenSaverInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = app.cpccScreenSaverInterface.h; path = ../../app.cpccScreenSaverInterface.h; sourceTree = "<group>"; };
 		58528EBC247D9982004D69EA /* app.cpccAppInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = app.cpccAppInfo.h; path = ../../app.cpccAppInfo.h; sourceTree = "<group>"; };
 		58528EBD247D9982004D69EA /* app.cpccApp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = app.cpccApp.h; path = ../../app.cpccApp.h; sourceTree = "<group>"; };
+		585EA15C2562DD4900CDCA8F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../README.md; sourceTree = "<group>"; };
 		586074392454C63D00350856 /* data.cpccKeyValueStr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccKeyValueStr.h; path = ../../data.cpccKeyValueStr.h; sourceTree = "<group>"; };
 		5860743A2454C65500350856 /* core.cpccKeyValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccKeyValue.h; path = ../../core.cpccKeyValue.h; sourceTree = "<group>"; };
 		587B106A23C9D42400D82B3E /* gui.cpccImageBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = gui.cpccImageBase.h; path = ../../gui.cpccImageBase.h; sourceTree = "<group>"; };
@@ -33,6 +34,11 @@
 		589318312545D648000B7487 /* gui.cpccImageMac.notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = gui.cpccImageMac.notes.txt; path = ../../gui.cpccImageMac.notes.txt; sourceTree = "<group>"; };
 		5893A321244F86B600E68AA0 /* core.cpccStringUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = core.cpccStringUtil.h; path = ../../core.cpccStringUtil.h; sourceTree = "<group>"; };
 		5899FEA423EFE308002294C4 /* pattern.singeton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pattern.singeton.h; path = ../../pattern.singeton.h; sourceTree = "<group>"; };
+		58A338D925647F4A00FD6699 /* cpccColor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = cpccColor.mm; path = ../../cpccColor.mm; sourceTree = "<group>"; };
+		58A338DA25647F4A00FD6699 /* cpccColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccColor.h; path = ../../cpccColor.h; sourceTree = "<group>"; };
+		58A338DB25647F4A00FD6699 /* cpccColor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = cpccColor.cpp; path = ../../cpccColor.cpp; sourceTree = "<group>"; };
+		58A338DD2564843E00FD6699 /* math.cpccNumberWithBounds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = math.cpccNumberWithBounds.h; path = ../../math.cpccNumberWithBounds.h; sourceTree = "<group>"; };
+		58A338DE256484A300FD6699 /* math.cpccVector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = math.cpccVector.h; path = ../../math.cpccVector.h; sourceTree = "<group>"; };
 		58BAE7CD23C7CA1800A84127 /* data.cpccWideCharSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = data.cpccWideCharSupport.h; path = ../../data.cpccWideCharSupport.h; sourceTree = "<group>"; };
 		58BAE7CE23C7CA2700A84127 /* cpccTesting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = cpccTesting.h; path = ../../cpccTesting.h; sourceTree = "<group>"; };
 		58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpccFileSystemMini.cpp; path = ../../io.cpccFileSystemMini.cpp; sourceTree = "<group>"; };
@@ -66,6 +72,11 @@
 		58BAE82C23C34A6D00FDACC4 = {
 			isa = PBXGroup;
 			children = (
+				58A338DD2564843E00FD6699 /* math.cpccNumberWithBounds.h */,
+				58A338DE256484A300FD6699 /* math.cpccVector.h */,
+				58A338DB25647F4A00FD6699 /* cpccColor.cpp */,
+				58A338DA25647F4A00FD6699 /* cpccColor.h */,
+				58A338D925647F4A00FD6699 /* cpccColor.mm */,
 				58528EBD247D9982004D69EA /* app.cpccApp.h */,
 				58528EBC247D9982004D69EA /* app.cpccAppInfo.h */,
 				58528EB9247D9982004D69EA /* app.cpccScreenSaveLibMac_OsInterface.mm */,
@@ -86,6 +97,8 @@
 				58BAE83923C34AB700FDACC4 /* cpccTimeCounter.h */,
 				586074392454C63D00350856 /* data.cpccKeyValueStr.h */,
 				58BAE7CD23C7CA1800A84127 /* data.cpccWideCharSupport.h */,
+				58FCEC05255B1B60008F9AF2 /* fs.cpccFileSystem.h */,
+				58BAE83823C34AB700FDACC4 /* fs.cpccPathHelper.h */,
 				58BAE84B23C34AB900FDACC4 /* fs.cpccSystemFolders.h */,
 				58BAE84A23C34AB900FDACC4 /* fs.cpccUserFolders.cocoa.mm */,
 				58BAE84E23C34AB900FDACC4 /* fs.cpccUserFolders.h */,
@@ -105,7 +118,6 @@
 				587B107423C9D42600D82B3E /* gui.cpccWindow.h */,
 				587B107223C9D42600D82B3E /* gui.cpccWindowBase.h */,
 				587B107723C9D42700D82B3E /* gui.cpccWindowMac.h */,
-				58FCEC05255B1B60008F9AF2 /* fs.cpccFileSystem.h */,
 				58BAE83623C34AB600FDACC4 /* io.cpccFileSystemMini.cpp */,
 				58BAE84823C34AB800FDACC4 /* io.cpccFileSystemMini.h */,
 				58BAE84623C34AB800FDACC4 /* io.cpccFileSystemMini.mm */,
@@ -113,12 +125,12 @@
 				58BAE83723C34AB600FDACC4 /* io.cpccLog.cpp */,
 				58BAE84723C34AB800FDACC4 /* io.cpccLog.h */,
 				5848DFD323D8CD69000AE754 /* io.cpccLogFileWriterWithBuffer.h */,
-				58BAE83823C34AB700FDACC4 /* fs.cpccPathHelper.h */,
 				58BAE83D23C34AB700FDACC4 /* io.cpccSettings.cpp */,
 				58BAE84323C34AB800FDACC4 /* io.cpccSettings.h */,
 				58BAE84023C34AB700FDACC4 /* net.cpccInternet.h */,
 				58BAE84123C34AB800FDACC4 /* net.cpccInternet.mac.mm */,
 				5899FEA423EFE308002294C4 /* pattern.singeton.h */,
+				585EA15C2562DD4900CDCA8F /* README.md */,
 			);
 			sourceTree = "<group>";
 		};

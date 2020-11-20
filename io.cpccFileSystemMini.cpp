@@ -416,11 +416,10 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	char fullPathfileName[4096];
 	ProcessSerialNumber psn;
     // needs the framework ApplicationServices.framework
-    // it is deprecated
-	GetCurrentProcess(&psn);
+	GetCurrentProcess(&psn); // it is deprecated
 	
 	pid_t pid;
-	GetProcessPID (&psn, &pid);
+	GetProcessPID (&psn, &pid); // it is deprecated
 	
 	if (proc_pidpath(pid, fullPathfileName, sizeof(fullPathfileName)) > 0)
 		return fullPathfileName;
@@ -546,7 +545,6 @@ void cpccFileSystemMini::selfTest(void)
 // ///////////////////////////////////////////
 
 #if defined(cpccFileSystemMini_DoSelfTest)
-
 
     SELFTEST_BEGIN(cpccFileSystemMini_SelfTest)
         cpccFileSystemMini::selfTest();

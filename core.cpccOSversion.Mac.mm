@@ -1,14 +1,14 @@
 /*  *****************************************
- *  File:		core.cpccOSversion.h
- *	Purpose:	Portable (cross-platform), light-weight, OS functions
-  *	*****************************************
- *  Library:	Cross Platform C++ Classes (cpcc)
- *  Copyright: 	2018 StarMessage software.
- *  License: 	Free for opensource projects.
- *  			Commercial license exists for closed source projects.
- *	Web:		http://www.StarMessageSoftware.com/cpcclibrary
- *  Download:	https://github.com/starmessage/cpcc
- *	email:		sales -at- starmessage.info
+ *  File:       core.cpccOSversion.h
+ *	Purpose:    Portable (cross-platform), light-weight, OS functions
+ *	*****************************************
+ *  Library:    Cross Platform C++ Classes (cpcc)
+ *  Copyright:  2018 StarMessage software.
+ *  License:    Free for opensource projects.
+ *              Commercial license exists for closed source projects.
+ *	Web:        http://www.StarMessageSoftware.com/cpcclibrary
+ *  Download:   https://github.com/starmessage/cpcc
+ *	email:      sales -at- starmessage.info
  *	*****************************************
  */
 
@@ -50,7 +50,7 @@ const cpcc_string cpccOSversion::getMajorMinorPatchVersionStr(void)
         if (pos!=std::string::npos)
             result.erase(0, pos);
         // now it will be like: 10.12.6 (Build 16G29)
-    
+
         // remove the patch version and the build number
         /*
         pos = result.find(".");
@@ -73,8 +73,6 @@ const cpcc_string cpccOSversion::getMajorMinorPatchVersionStr(void)
 
 // https://stackoverflow.com/questions/3694940/get-osx-version-with-objective-c
 // https://stackoverflow.com/questions/11072804/how-do-i-determine-the-os-version-at-runtime-in-os-x-or-ios-without-using-gesta
-
-
 
 
 bool cpccOSversion::isIPad(void) 
@@ -135,44 +133,31 @@ const cpcc_char *cpccOSversion::kernelVerToOsVer(const cpcc_char *aKernelVer)
     if (!aKernelVer)
         return "";
     
-    /*
-     Darwin version to OS X release
-     17.x.x. macOS 10.13.x High Sierra
-     16.x.x  macOS 10.12.x Sierra
-     15.x.x  OS X  10.11.x El Capitan
-     14.x.x  OS X  10.10.x Yosemite
-     13.x.x  OS X  10.9.x  Mavericks
-     12.x.x  OS X  10.8.x  Mountain Lion
-     11.x.x  OS X  10.7.x  Lion
-     10.x.x  OS X  10.6.x  Snow Leopard
-     9.x.x  OS X  10.5.x  Leopard
-     8.x.x  OS X  10.4.x  Tiger
-     7.x.x  OS X  10.3.x  Panther
-     6.x.x  OS X  10.2.x  Jaguar
-     5.x    OS X  10.1.x  Puma
-     */
-
+    // Darwin version to OS X release
     short int kver=0;
     sscanf(aKernelVer, "%hd.", &kver);
     switch (kver)
     {
-        case 5: return "10.1";
-        case 6: return "10.2";
-        case 7: return "10.3";
-        case 8: return "10.4";
-        case 9: return "10.5";
-        case 10: return "10.6";
-        case 11: return "10.7";
-        case 12: return "10.8";
-        case 13: return "10.9";
-        case 14: return "10.10";
-        case 15: return "10.11";
-        case 16: return "10.12";
-        case 17: return "10.13";
+        case 5: return "10.1";  // 5.x    OS X  10.1.x  Puma
+        case 6: return "10.2";  // 6.x.x  OS X  10.2.x  Jaguar
+        case 7: return "10.3";  // 7.x.x  OS X  10.3.x  Panther
+        case 8: return "10.4";  // 8.x.x  OS X  10.4.x  Tiger
+        case 9: return "10.5";  // 9.x.x  OS X  10.5.x  Leopard
+        case 10: return "10.6"; // 10.x.x  OS X  10.6.x  Snow Leopard
+        case 11: return "10.7"; // 11.x.x  OS X  10.7.x  Lion
+        case 12: return "10.8"; // 12.x.x  OS X  10.8.x  Mountain Lion
+        case 13: return "10.9"; // 13.x.x  OS X  10.9.x  Mavericks
+        case 14: return "10.10"; // 14.x.x  OS X  10.10.x Yosemite
+        case 15: return "10.11"; // 15.x.x  OS X  10.11.x El Capitan
+        case 16: return "10.12"; // 16.x.x  macOS 10.12.x Sierra
+        case 17: return "10.13"; // 17.x.x. macOS 10.13.x High Sierra
         case 18: return "10.14";
-        default: return "10.14";;
+        case 19: return "10.15";
+        case 20: return "11.0"; // MacOS 11 Big Sur
+        default: return "11.0";;
     }
 }
+
 
 const cpcc_string cpccOSversion::getKernelVersionStr(const int nComponents)
 {
@@ -202,6 +187,7 @@ const cpcc_string cpccOSversion::getKernelVersionStr(const int nComponents)
     return "";
 }
 
+
 const sOsVerComponents cpccOSversion::getKernelVersionComponents(void)
 {
         short int version_[3] = {0};
@@ -216,7 +202,6 @@ const sOsVerComponents cpccOSversion::getKernelVersionComponents(void)
         result.verPatch = version_[2];
         return result;
 }
-    
 
 
 bool cpccOSversion::is64bit(void)

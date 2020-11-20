@@ -299,7 +299,7 @@ public: // Public functions
 
 TEST_RUN(cpccVector_test)
 {
-    const bool skipThisTest = false;
+    const bool skipThisTest = false; 
 
     if (skipThisTest)
     {

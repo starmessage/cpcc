@@ -25,12 +25,8 @@
 // //////////////////////////////
 // configuration parameters
 // //////////////////////////////
-// this selects if drawing will be done inside the function drawInDrawRect.
-// If not defined it is done inside the function animateOneFrame
-//  Drawing in animateOneFrame doesn't seem to work under OS 10.14 Mojave
-// but drawing in drawRect: seems slow under erarlier versions of OS X
 
-#define     drawInDrawRect
+
 #define     config_FramesPerSec 25.0  // 25 frames/sec
 
 
@@ -138,8 +134,6 @@
 }
 
 
-
-
 @end
 
 
@@ -147,11 +141,86 @@
 @implementation cpccScreenSaveLibMac_OsInterface {
 
     // instance variables
-    cpccScreenSaverInterface *ssPtr,
-                             *ssConfigurePtr;
+    cpccScreenSaverInterface  *ssPtr,
+                            *ssConfigurePtr;
     bool                    m_isPreview;
     
 }
+
+
+- (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
+{
+    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    ssConfigurePtr = NULL;
+    
+    // Under MacOS Catalina, isPreview is always TRUE. Therefore we ignore it.
+    m_isPreview = (frame.size.width <= 400) && (frame.size.height <= 300);
+    // Under a retina screen, frame size is not equal to the pixels of the screen. They might be half of it.
+
+    [[NSProcessInfo processInfo] disableAutomaticTermination:@"The screen saver prefers to be closed gracefully."];
+    [[NSProcessInfo processInfo] disableSuddenTermination];
+    
+    // before this, the NSView is not ready to be used
+    self = [super initWithFrame:frame isPreview:m_isPreview];
+    
+    if (self==NULL)
+        errorLog().add("#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
+
+    /* make the window smaller for debug purposes.
+        NSRect windowframe = frame;
+        windowframe.origin.x += 50;
+        windowframe.size.height -= 200;
+        windowframe.size.width -= 300;
+        [self setFrame:windowframe];
+    */
+    
+    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
+    
+    return self;
+}
+
+
+
+- (void)startAnimation
+{
+    // This method should not do any drawing.
+    // You must at least call [super stopAnimation] as shown in the standard template.
+    
+    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    
+    // [self.window setOpaque:YES];
+    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
+    
+    float backingScaleFactor = 1.0f;
+    if ([self.window respondsToSelector:@selector(backingScaleFactor)])
+    {
+        backingScaleFactor = (float) [self.window backingScaleFactor];
+        debugLog().addf("startAnimation backingScaleFactor: %g", backingScaleFactor);
+    }
+    debugLog().addf("startAnimation NSView frame: %g X %g", self.frame.size.width, self.frame.size.height);
+    
+    if (!ssPtr) // if it was deleted from a previous stopAnimation, then re-create the screensaver
+        [self util_createAndInitScreensaverWithWindowHandle: self backingScaleFactor:backingScaleFactor];
+
+    //[[self window] setAlphaValue:0.3];
+    //[[self window] setOpaque:NO];
+    //[[self window] setAlphaValue:1.0];
+    //[[NSColor clearColor] setFill];
+    //NSRectFill([self frame]);
+    
+    
+    // Activates the periodic timer that animates the screen saver.
+    // A zero value polls as fast as possible while a negative number turns animation off.
+    [self setAnimationTimeInterval:1.0f/config_FramesPerSec]; // 25 frames/sec
+    [super startAnimation];
+}
+
+
+// +initialize is a class method (static method) that's called at least once when your application starts.
+// You can use this method to initialize static variables that are useful across all instances of the class.
+// + (void) initialize
+// {   }
+
 
 /*
 - (void)applicationWillTerminate:(NSNotification *)notification
@@ -250,7 +319,8 @@
     
     // find the actual path of the screensaver
     NSString* pBundlePath = [saverBundle bundlePath];
-    ssPtr->setContainerFolder([pBundlePath UTF8String]);
+    if (pBundlePath)
+        ssPtr->setContainerFolder([pBundlePath UTF8String]);
     
     // NSView * windowHandle = self;
     // if (windowHandle==NULL)
@@ -280,70 +350,7 @@
 */
 
 
-- (id)initWithFrame:(NSRect)frame isPreview:(BOOL)isPreview
-{
-    logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
-    ssConfigurePtr = NULL;
-    
-    // Under MacOS Catalina, isPreview is always TRUE. Therefore we ignore it.
-    m_isPreview = (frame.size.width <= 400) && (frame.size.height <= 300);
-    // Under a retina screen, frame size is not equal to the pixels of the screen. They might be half of it.
 
-    [[NSProcessInfo processInfo] disableAutomaticTermination:@"The screen saver prefers to be closed gracefully."];
-    [[NSProcessInfo processInfo] disableSuddenTermination];
-    
-    // before this, the NSView is not ready to be used
-    self = [super initWithFrame:frame isPreview:m_isPreview];
-    
-    if (self==NULL)
-        errorLog().add("#9572: 'super initWithFrame:frame isPreview:isPreview' has FAILED");
-    
-    /* make the window smaller for debug purposes.
-        NSRect windowframe = frame;
-        windowframe.origin.x += 50;
-        windowframe.size.height -= 200;
-        windowframe.size.width -= 300;
-        [self setFrame:windowframe];
-    */
-    
-    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
-    
-    return self;
-}
-
-
-- (void)startAnimation
-{
-	// This method should not do any drawing.
-	// You must at least call [super stopAnimation] as shown in the standard template.
-    
-	logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
-    
-    // [self.window setOpaque:YES];
-    // [self.window setPreferredBackingLocation:NSWindowBackingLocationVideoMemory];
-    
-    float backingScaleFactor = 1.0f;
-    if ([self.window respondsToSelector:@selector(backingScaleFactor)])
-    {
-        backingScaleFactor = (float) [self.window backingScaleFactor];
-        debugLog().addf("startAnimation backingScaleFactor: %g", backingScaleFactor);
-    }
-    debugLog().addf("startAnimation NSView frame: %g X %g", self.frame.size.width, self.frame.size.height);
-    
-    if (!ssPtr) // if it was deleted from a previous stopAnimation, then re-create the screensaver
-        [self util_createAndInitScreensaverWithWindowHandle: self backingScaleFactor:backingScaleFactor];
-
-    //[[self window] setAlphaValue:0.3];
-    //[[self window] setOpaque:NO];
-    //[[self window] setAlphaValue:1.0];
-    //[[NSColor clearColor] setFill];
-    //NSRectFill([self frame]);
-    
-	// Activates the periodic timer that animates the screen saver.
-    // A zero value polls as fast as possible while a negative number turns animation off.
-	[self setAnimationTimeInterval:1/config_FramesPerSec]; // 25 frames/sec
-    [super startAnimation];
-}
 
 
 - (void)stopAnimation
@@ -376,9 +383,12 @@
 
 - (void)drawRect:(NSRect)rect
 {
+    // this is called once after the initWithFrame (before the animation starts)
+    // and then called after each animateOneFrame call
+    // logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
+    
     /*
      ScreenSaverView implements drawRect: to draw a black background.
-     Subclasses can do their drawing here or in animateOneFrame.
      
      There are two main ways to do drawing in a screen saver.
      You can either do your drawing in the normal NSView drawRect: method,
@@ -390,33 +400,28 @@
      By keeping all of your computational logic out of the draw path, you ensure multiple-redraws don't cause unwanted side-effects in your animation.
      */
     
-    
-	// infoLog().add( __PRETTY_FUNCTION__ );
-	// [super drawRect:rect];      // this call draws a black background
-    /*          - (void) drawRect:(NSRect) rect
-                {
-                    [[NSColor blackColor] set];
-                    NSRectFill(rect);
-                }
-      */
-    // without it, a gray background is shown as initial background
+	// [super drawRect:rect];      // this call draws a black background. Without it, a gray background is shown as initial background
+    /*
+    if (false) // make it true for debug
+    {
+        [[NSColor blackColor] set];
+        NSRectFill(rect);
+    }
+    */
 
-    
-#ifdef drawInDrawRect
 	if (ssPtr)  // after stopAnimation is called, we might receive here a call with null ssPtr
 		{
         ssPtr->drawOneFrame();
 		ssPtr->flushOneFrame();
 		}
     
-#endif
-    
-
 }
 
 
 
 - (void) animateOneFrame {
+    
+    // logFunctionLife   m_objLife( __PRETTY_FUNCTION__ );
 	/*
 	 This method is called each time the timer animating the screen saver fires. 
 	 The time between calls to this method is always at least animationTimeInterval.
@@ -425,33 +430,24 @@
 	 The subclass can also let drawRect: perform the drawing, in which 
 	 case animateOneFrame needs to call setNeedsDisplay: with an argument of YES. 
 	 The default implementation does nothing.
+     
+     // Under Mojave, the [NSGraphicsContext currentContext] is nil.
+     // Drawing must be moved under drawFrame
+     // if ([NSGraphicsContext currentContext] == nil) .....
+     
 	 */
-    
-	// infoLog().add( __PRETTY_FUNCTION__ );
-		
     
 	if (ssPtr)
 		{
 		//NSDisableScreenUpdates();
 		
         ssPtr->animateOneFrame(1.0f / config_FramesPerSec);
-			
-#ifndef drawInDrawRect
-		ssPtr->drawOneFrame();
-		ssPtr->flushOneFrame();
-#else
         [self setNeedsDisplay:YES];
-#endif
-		//NSEnableScreenUpdates();
+
+        //NSEnableScreenUpdates();
 		}
     else
         errorLog().add("screensaverview animateOneFrame with nil ssPtr");
-    
-    // MacOS Mojave check.
-    // Under Mojave, the [NSGraphicsContext currentContext] is nil.
-    // Drawing must be moved under drawFrame
-    // if ([NSGraphicsContext currentContext] == nil) .....
-       
 }
 
 

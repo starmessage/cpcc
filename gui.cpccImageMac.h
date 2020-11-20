@@ -1,7 +1,6 @@
 /*  *****************************************
  *  File:		cpccImageMac.h
- *  Version:	see function getClassVersion()
- *	Purpose:	Portable (cross-platform), light-weight library
+ *	Purpose:	    Portable (cross-platform), light-weight image class
  *	*****************************************
  *  Library:    Cross Platform C++ Classes (cpcc)
  *  Copyright:  2014 StarMessage software.
@@ -34,6 +33,127 @@
 
 #include <AppKit/NSGraphics.h>
 
+// //////////////////////////////////////////////////////
+//
+//          cpccImageMacNSImage
+//      (to replace the older class cpccImageMacBmpRep)
+//
+// //////////////////////////////////////////////////////
+
+
+class cpccImageMacNSImage: public cpccImageBase
+{
+
+private:  // data
+    NSImage     *m_imagePtr;
+    int         m_widthCached,
+                m_heightCached;
+    
+public:
+    cpccImageMacNSImage(void): m_imagePtr(NULL), m_widthCached(0), m_heightCached(0)    {    }
+    
+    virtual int     getWidth(void) const    override {  return m_imagePtr ? m_widthCached : 0;  }
+    virtual int     getHeight(void) const   override {  return m_imagePtr ? m_heightCached : 0;  }
+    virtual void    drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const override;
+    virtual void    resizeTo(const int newWidth, const int newHeight) override;
+    virtual bool    initWithFile(const cpcc_char* aFullPathFilename, const bool transparentCorner) override;
+    
+    // not implemented:
+    virtual void    initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor) override { };
+    virtual void    drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) override  { };
+    virtual void    cropTo(const int newTop, int newLeft, int newWidth, int newHeight) override { };
+    inline cpccColor    getPixel(const int x, const int y) const override { return cpccYellow; };
+    inline virtual void setPixel(const int x, const int y, const cpccColor &aColor) override { };
+    inline virtual void amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB ) override { };
+    
+};
+
+
+// //////////////////////////////////////////////////////
+//      cpccImageMacNSImage
+//          implementation
+// //////////////////////////////////////////////////////
+
+inline bool    cpccImageMacNSImage::initWithFile(const cpcc_char* aFullPathFilename, const bool transparentCorner)
+{
+    infoLog().addf("cpccImageMacBmpRep.initWithFile_impl(%s)", aFullPathFilename);
+    if (!aFullPathFilename)
+        return false;
+    
+    if (m_imagePtr)
+        [m_imagePtr release];
+    
+    m_widthCached = m_heightCached = 0;
+    
+    NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:aFullPathFilename] autorelease];
+    if    (! tmpFilename)
+    {
+        errorLog().addf("#2834q: initWithFile_impl() failed:%s", aFullPathFilename);
+        return NULL;
+    }
+    
+    m_imagePtr = [[NSImage alloc]initWithContentsOfFile:tmpFilename];
+    if (m_imagePtr == nil)
+    {
+        errorLog().addf("#2834q: initWithFile_impl() failed:%s", aFullPathFilename);
+        return false;
+    }
+
+    m_widthCached  = (int) m_imagePtr.size.width;
+    m_heightCached = (int) m_imagePtr.size.height;
+    infoLog().addf("resizeTo_impl_newUntested, has resized. width:%i height:%i", m_widthCached, m_heightCached);
+    return true;
+}
+
+
+inline void    cpccImageMacNSImage::drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const
+{
+    // destWindow is ignored probably because it already has the focus
+    if (!destWindow)
+        return;
+    
+    if (!m_imagePtr)
+        return;
+    
+    [m_imagePtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
+              fromRect:NSZeroRect
+              operation:NSCompositeSourceOver  // respect transparency.
+              fraction:1.0
+        respectFlipped:YES
+                 hints:nil];
+}
+
+
+inline void    cpccImageMacNSImage::resizeTo(const int newWidth, const int newHeight)
+{
+    // https://stackoverflow.com/questions/11949250/how-to-resize-nsimage/38442746#38442746
+    if (! m_imagePtr.isValid)
+        return;
+
+    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc]
+              initWithBitmapDataPlanes:NULL
+                            pixelsWide:newWidth
+                            pixelsHigh:newHeight
+                         bitsPerSample:8
+                       samplesPerPixel:4
+                              hasAlpha:YES
+                              isPlanar:NO
+                        colorSpaceName:NSCalibratedRGBColorSpace
+                           bytesPerRow:0
+                          bitsPerPixel:0];
+    
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rep]];
+    [m_imagePtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight) fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
+    [NSGraphicsContext restoreGraphicsState];
+
+    [m_imagePtr release]; // drop old image
+    m_imagePtr = [[NSImage alloc] initWithSize:NSMakeSize(newWidth, newHeight)];
+    [m_imagePtr addRepresentation:rep];
+    m_widthCached = newWidth;
+    m_heightCached = newHeight;
+}
+
 
 // //////////////////////////////////////////////////////
 //      cpccImageMacBmpRep
@@ -44,16 +164,15 @@
 class cpccImageMacBmpRep: public cpccImageBase
 {
 private:  // data
-    NSBitmapImageRep *           bmpPtr;
-    cpccDrawingToolsMacOnFocused	m_dtool;
-    NSImage                     *tmpImageTest=NULL;
+    NSBitmapImageRep *           m_bmpPtr;
+    // NSImage                     *tmpImageTest=NULL;
     
 public: /// ctors
-    cpccImageMacBmpRep(): /* m_dtool(bmpPtr), */ bmpPtr(NULL)	{	}
+    cpccImageMacBmpRep(): m_bmpPtr(NULL)	{	}
 	
 public: /// functions
-	virtual int     getWidth(void) const	override {   return bmpPtr ? (int) bmpPtr.pixelsWide : 0;  }
-	virtual int     getHeight(void) const	override {	return bmpPtr ? (int) bmpPtr.pixelsHigh : 0;  }
+	virtual int     getWidth(void) const	override {   return m_bmpPtr ? (int) m_bmpPtr.pixelsWide : 0;  }
+	virtual int     getHeight(void) const	override {	return m_bmpPtr ? (int) m_bmpPtr.pixelsHigh : 0;  }
     virtual void    initWithSizeAndColor(const int aWidth, const int aHeight, const cpccColor &aColor) override;
     virtual void    drawInWindow(cpccWindowBase *destWindow, const int x, const int y) const override;
     virtual void    drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params) override;
@@ -82,22 +201,20 @@ protected: // functions
 
 inline void  cpccImageMacBmpRep::amplifyPixel(const int x, const int y, const float xR, const float xG, const float xB )
 {
-    // m_dtool.amplifyPixel(x, y, xR, xG, xB);
-    if (!bmpPtr)
+    if (!m_bmpPtr)
         return;
-    NSColor* color = [bmpPtr colorAtX:x y:y];
+    NSColor* color = [m_bmpPtr colorAtX:x y:y];
     NSColor* newColor = [NSColor colorWithDeviceRed : ([color redComponent] * xR)  green : ([color greenComponent] * xG) blue : ([color blueComponent] * xB) alpha : [color alphaComponent]];
 
-    [bmpPtr setColor: newColor atX:x y:y];
+    [m_bmpPtr setColor: newColor atX:x y:y];
 }
 
 
 inline cpccColor cpccImageMacBmpRep::getPixel(const int x, const int y) const
 {
-    // return m_dtool.getPixel(x,y);
-    if (!bmpPtr)
+    if (!m_bmpPtr)
         return cpccGreen;
-    NSColor* color = [bmpPtr colorAtX:x y:y];
+    NSColor* color = [m_bmpPtr colorAtX:x y:y];
     cpccColor result;
     result.fromNSColor(color);
     return result;
@@ -106,17 +223,16 @@ inline cpccColor cpccImageMacBmpRep::getPixel(const int x, const int y) const
 
 inline void cpccImageMacBmpRep::setPixel(const int x, const int y, const cpccColor &aColor)
 {
-    // m_dtool.setPixel(x,y,aColor);
-    if (!bmpPtr)
+    if (!m_bmpPtr)
         return;
-    [bmpPtr setColor: aColor.asNSColor() atX:x y:y];
+    [m_bmpPtr setColor: aColor.asNSColor() atX:x y:y];
 }
 
 
 inline void cpccImageMacBmpRep::setTransparentColor(const cpccColor &aColor)
 {
     cpccImageBase::setTransparentColor(aColor);
-    [bmpPtr setAlpha:true];
+    [m_bmpPtr setAlpha:true];
     makeTransparentPixelsOfColor(aColor);
 }
 
@@ -136,7 +252,7 @@ inline void cpccImageMacBmpRep::initWithSizeAndColor(const int aWidth, const int
      this memory (with the getPixel:atX:y: or bitmapData method) and fill in the image data.
      In this case, the allocated memory will belong to the object and will be freed when it’s freed.
      */
-    bmpPtr = [[NSBitmapImageRep alloc]
+    m_bmpPtr = [[NSBitmapImageRep alloc]
                              initWithBitmapDataPlanes: NULL
                              pixelsWide: aWidth
                              pixelsHigh: aHeight
@@ -147,11 +263,11 @@ inline void cpccImageMacBmpRep::initWithSizeAndColor(const int aWidth, const int
                              colorSpaceName: NSCalibratedRGBColorSpace
                              bitmapFormat: 0 // RGBA
                              bytesPerRow: 0 // 0 == autodetect
-                             // bitsPerPixel: 0 // 0 == autodetect
-                             bitsPerPixel: 32 // debug retina
+                             bitsPerPixel: 0 // 0 == autodetect
+                             // bitsPerPixel: 32 // debug retina
                              ];
     // todo for the debug retina: switch off antialias
-    if (!bmpPtr)
+    if (!m_bmpPtr)
         warningLog().add("cpccImageMacBmpRep.createBmpRepresentation() gave null rep");
 
 }
@@ -159,29 +275,30 @@ inline void cpccImageMacBmpRep::initWithSizeAndColor(const int aWidth, const int
 
 inline void cpccImageMacBmpRep::drawText(int x, int y, const cpcc_char *text, const cpccTextParams& params)
 {
-    if (!bmpPtr)
+    if (!m_bmpPtr)
         return;
     
     NSImage *tmpImageWithText = [[[NSImage alloc] initWithSize: NSMakeSize(getWidth(), getHeight())] autorelease];
     //[tmpImageWithText setFlipped:YES];
     
     [tmpImageWithText lockFocus]; //  lockFocusFlipped:YES];
-    [bmpPtr drawInRect:NSMakeRect(0, 0, getWidth(), getHeight())];
+    [m_bmpPtr drawInRect:NSMakeRect(0, 0, getWidth(), getHeight())];
     // to adjust the flipped copy
     // [bmpPtr drawInRect:NSMakeRect(0, getHeight(), getWidth(), -getHeight())];
     
     int tmpHeight;
-    m_dtool.getTextSize(text, params, NULL, &tmpHeight);
-    m_dtool.drawText(x, getHeight() - y - tmpHeight  , text, params);
+    cpccDrawingToolsMacOnFocused    drawingTool;
+    drawingTool.getTextSize(text, params, NULL, &tmpHeight);
+    drawingTool.drawText(x, getHeight() - y - tmpHeight  , text, params);
     [tmpImageWithText unlockFocus];
     
     // tmpImageWithText has the text now. Copy it back to a new bmpPtr.
     
     NSData *imageNewData = [tmpImageWithText  TIFFRepresentation]; // converting img into data
     
-    if (bmpPtr)
-        [bmpPtr release];
-    bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
+    if (m_bmpPtr)
+        [m_bmpPtr release];
+    m_bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
 }
 
 
@@ -191,18 +308,16 @@ inline void cpccImageMacBmpRep::drawInWindow(cpccWindowBase *destWindow, const i
     
     // this takes too much time in Retina screens
     // return; // debug retina
-    
-    // https://stackoverflow.com/questions/24442017/fast-alternative-to-drawinrect
-    // you should remove saving and restoring the NSGraphicsContext, because the -[NSImageRep drawInRect:] method does this itself
-    
-    
+
     // todo: lockFocus and unlockFocus seems to take too much CPU.
     // Can it remain locked with some smart monitoring if it has not changed?
-    if (bmpPtr==NULL)
+    if (m_bmpPtr==NULL)
     {
         errorLog().add("#7628: cpccImageMacBmpRep.draw() called with null bmpPtr");
         return;
     }
+    
+    
     
     // const bool useLockFocus = false;
     // NSView * tmpView = NULL;
@@ -223,27 +338,31 @@ inline void cpccImageMacBmpRep::drawInWindow(cpccWindowBase *destWindow, const i
     const bool useNSImage=false;
     if (useNSImage)
     {
+        NSImage *tmpImageTest = NULL;
         if (!tmpImageTest)
         {
-            tmpImageTest = [[NSImage alloc] initWithSize:[bmpPtr size]];
-            [tmpImageTest addRepresentation: bmpPtr];
+            tmpImageTest = [[NSImage alloc] initWithSize:[m_bmpPtr size]];
+            [tmpImageTest addRepresentation: m_bmpPtr];
         }
         [tmpImageTest drawAtPoint:NSMakePoint(x, y) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1];
         return;
     }
     */
-    
+
+    // https://stackoverflow.com/questions/24442017/fast-alternative-to-drawinrect
+    // you should remove saving and restoring the NSGraphicsContext, because the -[NSImageRep drawInRect:] method does this itself
+
     const bool useDrawInRect=true;
 
     if (useDrawInRect)
-        [bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
+        [m_bmpPtr drawInRect:NSMakeRect(x, y, getWidth(), getHeight())
                   fromRect:NSZeroRect
                   operation:NSCompositeSourceOver  // respect transparency.
                   fraction:1.0
             respectFlipped:YES
                      hints:nil];
     else
-        [bmpPtr     drawAtPoint:NSMakePoint(x, y)];  // faster but no transparency
+        [m_bmpPtr     drawAtPoint:NSMakePoint(x, y)];  // faster but no transparency
 
     // if (tmpView)
     //     [tmpView unlockFocus];
@@ -252,11 +371,12 @@ inline void cpccImageMacBmpRep::drawInWindow(cpccWindowBase *destWindow, const i
 
 inline bool cpccImageMacBmpRep::initWithFile_impl(const cpcc_char* aFullPathFilename, const bool transparentCorner)
 {
-    /* not needed if the previous creation was done with autoRelease
-    if (bmpPtr)
-        [bmpPtr release];
-    */
     infoLog().addf("cpccImageMacBmpRep.initWithFile_impl(%s)", aFullPathFilename);
+    
+    // not needed if the previous creation was done with autoRelease
+    if (m_bmpPtr)
+        [m_bmpPtr release];
+    m_bmpPtr = NULL;
     
     cpcc_string finalFilename = aFullPathFilename;
     #ifdef __APPLE__
@@ -264,7 +384,6 @@ inline bool cpccImageMacBmpRep::initWithFile_impl(const cpcc_char* aFullPathFile
         finalFilename = fileSystemOSX_helper::expandTilde_OSX(aFullPathFilename);
     #endif
     
-    bmpPtr = NULL;
     NSString * tmpFilename = [[[NSString alloc] initWithUTF8String:finalFilename.c_str()] autorelease];
     if    (! tmpFilename)
     {
@@ -272,20 +391,21 @@ inline bool cpccImageMacBmpRep::initWithFile_impl(const cpcc_char* aFullPathFile
         return NULL;
     }
     
-    NSData *fileContents = [NSData dataWithContentsOfFile:tmpFilename];
+    NSData *fileContents = [NSData dataWithContentsOfFile:tmpFilename ];
     if    (! fileContents)
     {
         errorLog().addf("#2834r: initWithFile_impl() failed:%s", finalFilename.c_str());
         return NULL;
     }
     
-    CPCC_TRY_AND_CATCH(bmpPtr = [[NSBitmapImageRep alloc] initWithData:fileContents]
-                       , "#8672: Loading image")
+    CPCC_TRY_AND_CATCH(m_bmpPtr = [[NSBitmapImageRep alloc] initWithData:fileContents]
+                       , "#8672: Loading image");
+    [fileContents release];
     #if !(__has_feature(objc_arc))
-        [fileContents release];
+    //     [fileContents release];
     #endif
     
-    if    (! bmpPtr)
+    if    (! m_bmpPtr)
     {
         errorLog().addf("#2834: initWithFile_impl() failed:%s", finalFilename.c_str());
         return NULL;
@@ -294,6 +414,7 @@ inline bool cpccImageMacBmpRep::initWithFile_impl(const cpcc_char* aFullPathFile
     //[bmpPtr autorelease];
     
     // [bmpPtr setOpaque:true]; // debug retina
+    
     // now make the color transparent
     if (transparentCorner)
         setTransparentColor(getPixel(0,0));
@@ -304,23 +425,39 @@ inline bool cpccImageMacBmpRep::initWithFile_impl(const cpcc_char* aFullPathFile
 
 inline void  cpccImageMacBmpRep::resizeTo_impl(const int newWidth, const int newHeight)
 {
+    
     // logFunctionLife _tmpLog((char *)"cpccImageMacBmpRep.resizeTo_impl()");
     infoLog().addf("resizeTo_impl, from %iw X %ih to %iw X %ih", getWidth(), getHeight(), newWidth, newHeight);
     
-    NSImage *imageOfNewSize = [[[NSImage alloc] initWithSize: NSMakeSize(newWidth, newHeight)] autorelease];
-
-    [imageOfNewSize lockFocus];
-    [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
+    if (!m_bmpPtr)
+        return;
+    
+    NSImage *tmpImageOfNewSize = [[NSImage alloc] initWithSize: NSMakeSize(CGFloat(newWidth), CGFloat(newHeight))];
+    if (!tmpImageOfNewSize)
+        return;
+    
+    if (![tmpImageOfNewSize isValid])
+        return;
+    
+    [tmpImageOfNewSize lockFocus];
+    [m_bmpPtr drawInRect:NSMakeRect(CGFloat(0), CGFloat(0), CGFloat(newWidth), CGFloat(newHeight))];
     // to adjust the flipped copy
     //[bmpPtr drawInRect:NSMakeRect(0, newHeight, newWidth, -newHeight)];
-    [imageOfNewSize unlockFocus];
-    // imageOfNewSize has the resized image now
+    [tmpImageOfNewSize unlockFocus];
+    // tmpImageOfNewSize has the resized image now
 
-    NSData *imageNewData = [imageOfNewSize  TIFFRepresentation]; // converting img into data
+    NSData *imageNewData = [tmpImageOfNewSize  TIFFRepresentation]; // converting img into data
+    if (imageNewData)
+    {
+        if (m_bmpPtr)
+            [m_bmpPtr release]; // does not work properly under Catalina
+        m_bmpPtr = NULL;
+        
+        m_bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
+        [imageNewData release];
+    }
     
-    //if (bmpPtr)
-    //    [bmpPtr release]; // does not work properly under Catalina
-    bmpPtr = [[NSBitmapImageRep alloc] initWithData:imageNewData];
+    [tmpImageOfNewSize release];
     
     infoLog().addf("resizeTo_impl, has resized. width:%i height:%i", getWidth(), getHeight());
     if (getWidth()!=newWidth)
@@ -355,12 +492,12 @@ inline void cpccImageMacBmpRep::resizeTo_impl_newUntested(const int newWidth, co
     
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:imageRep]];
-    [bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
+    [m_bmpPtr drawInRect:NSMakeRect(0, 0, newWidth, newHeight)];
     [NSGraphicsContext restoreGraphicsState];
 
     //if (bmpPtr)
     //    [bmpPtr release];  // does not work properly under Catalina
-    bmpPtr = imageRep;
+    m_bmpPtr = imageRep;
     
     infoLog().addf("resizeTo_impl_newUntested, has resized. width:%i height:%i", getWidth(), getHeight());
     if (getWidth()!=newWidth)
@@ -396,14 +533,14 @@ inline void cpccImageMacBmpRep::setAlpha_impl(int x, int y, const CGFloat a)
      [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
      */
     
-    if (!bmpPtr)   return;
+    if (!m_bmpPtr)   return;
     
-    NSColor* color = [bmpPtr colorAtX:x y:y];
+    NSColor* color = [m_bmpPtr colorAtX:x y:y];
     
     CGFloat r,g,b;
     [color getRed:&r green:&g blue:&b alpha:NULL ];
     
-    [bmpPtr setColor: [NSColor colorWithDeviceRed:r*a green:g*a blue:b*a alpha:a] atX:x y:y];
+    [m_bmpPtr setColor: [NSColor colorWithDeviceRed:r*a green:g*a blue:b*a alpha:a] atX:x y:y];
 }
 
 

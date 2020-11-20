@@ -155,6 +155,14 @@ public: // functions, data
 
 TEST_RUN_ASYNC(cpccTimeCounter_test)
 {
+    const bool skipThisTest = false; 
+    
+    if (skipThisTest)
+    {
+        TEST_ADDNOTE("Test skipped");
+        return;
+    }
+    
     cpccTimeCounter myCounter;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));

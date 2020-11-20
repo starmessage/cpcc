@@ -185,8 +185,8 @@ public:
                                   colorSpaceName: NSCalibratedRGBColorSpace
                                   bitmapFormat: 0 // RGBA
                                   bytesPerRow: 0 // 0 == autodetect
-                                  // bitsPerPixel: 0 // 0 == autodetect
-                                 bitsPerPixel: 32 // debug retina
+                                  bitsPerPixel: 0 // 0 == autodetect
+                                  // bitsPerPixel: 32 // debug retina
                                   ];
         
         if (!rep)

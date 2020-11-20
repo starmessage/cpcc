@@ -3,10 +3,8 @@
  *	Purpose:    Portable (cross-platform), light-weight, file system library.
  *	            It was created because the boost::filesystem is too complicated and
  *	            needs considerable effort to be included in your application.
- *  	            The "xxxxL1" class contains the functions that could be implemented
- *	            with minimum dependencies on other classes.
- *	            Therefore, if the file system function you need is contained in L1,
- *	            you can use it in your project with minimum effort.
+ *              This header only class, has only a few cross platform file system
+ *              functions, but it is a stand alone header include.
  *	Help:       The character type is passed as template parameter, so you can define
  *	            that from your code according to UNICODE or other considerations
  *	            e.g. typedef cpccFileSystemL1<wchar_t>		cpccFS;
@@ -62,13 +60,13 @@ public:  // functions
     static bool fileExists(const aPCharType *aFilename);
 
     template<typename aPCharType>
-    inline static bool folderExists(const aPCharType* aFoldername);
+    static bool folderExists(const aPCharType* aFoldername);
 
     template<typename aPCharType>
     static bool deleteFile(const aPCharType* aFilename);
 
     template<typename aPCharType>
-    inline static bool deleteFolder(const aPCharType * aFoldername);
+    static bool deleteFolder(const aPCharType * aFoldername);
     
     template<typename aPCharType>
     static bool renameFile(const aPCharType* filenameOld, const aPCharType* filenameNew);
@@ -208,6 +206,7 @@ inline bool cpccFileSystem::fileExists(const aPCharType *aFilename)
     return false;
 }
 
+
 template<typename aPCharType>
 inline bool cpccFileSystem::renameFile(const aPCharType* filenameOld, const aPCharType* filenameNew)
 {
@@ -225,8 +224,6 @@ inline bool cpccFileSystem::renameFile(const aPCharType* filenameOld, const aPCh
         return (std::rename(filenameOld, filenameNew)==0);
     #endif
 }
-
-
 
 
 template<typename aPCharType>
@@ -250,7 +247,7 @@ inline bool cpccFileSystem::deleteFile(const aPCharType* aFilename)
 
 
 template<typename aPCharType>
-bool cpccFileSystem::deleteFolder(const aPCharType * aFoldername)
+inline bool cpccFileSystem::deleteFolder(const aPCharType * aFoldername)
 {
     if (!aFoldername)
         return false;
@@ -270,7 +267,7 @@ bool cpccFileSystem::deleteFolder(const aPCharType * aFoldername)
 
 
 template<typename aPCharType>
-bool cpccFileSystem::folderExists(const aPCharType * aFoldername)
+inline bool cpccFileSystem::folderExists(const aPCharType * aFoldername)
 {
     if (!aFoldername)
         return false;

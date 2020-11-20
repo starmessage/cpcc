@@ -147,7 +147,7 @@ public:  // constructor
         m_windowHandle(aWnd),
         m_drawingTool(aDrawingToolImpl),
         m_useDblBuffer(true),
-        bgColor(cpccPapayaWhip),
+        bgColor(cpccGreen),
         drawColor(cpccYellow), 
         fontName(_T("Arial")), 
         fontSize(12.0f),

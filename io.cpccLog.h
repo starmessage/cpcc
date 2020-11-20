@@ -20,7 +20,7 @@
 
 #include <ctime>
 #include <iostream> 
-#include <assert.h>
+// #include <assert.h>
 #include <string> 
 #include <atomic>
 
@@ -47,8 +47,8 @@ private:
 	static bool			m_enabled;
 	
 public:
-	static void		 increaseIdent(void) { ++m_IdentLevel; assert(m_IdentLevel > 0 && "#9541a: increased log ident to <=0"); }
-	static void		 decreaseIdent(void) { --m_IdentLevel; assert(m_IdentLevel >= 0 && "#9541b: reducing log ident to <0"); }
+	static void		 increaseIdent(void) { ++m_IdentLevel; /* assert(m_IdentLevel > 0 && "#9541a: increased log ident to <=0"); */ }
+	static void		 decreaseIdent(void) { --m_IdentLevel; /* assert(m_IdentLevel >= 0 && "#9541b: reducing log ident to <0"); */ }
 	static void		 setEnabled(const bool enabled) { m_enabled = enabled;  }
 
 public: // constructor / destructor
@@ -171,15 +171,15 @@ private:
 
 
 
-/////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////
 //
 //		helper classes
 //
 //
-/////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////////////////////////////////////////////////////
+// ///////////////////////////////////////////////////////////////////////
 // this class is used to automatically log creation/desctuction messages
 // when the container object is created / destructed
 class logBlockOfCode

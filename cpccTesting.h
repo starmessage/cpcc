@@ -464,8 +464,8 @@ if ((aVal1) != (aVal2))                                 \
 // Notes: use a unnamed namespace so that the variable TestingVariableName is not redefined multiple times
 // Alternative to the unnamed namespaces is the the 'static' declaration of the variable.
 // Here, it helps to avoid the multiple symbols definition when the header is included (compiled) from many cpp files.
-#define TEST_RUN(SelfTestUniqueName)	            \
-	namespace SelfTestUniqueName {			        \
+#define TEST_RUN(SelfTestUniqueName)                \
+	namespace SelfTestUniqueName {	                 \
         class cpccSelfTest          			    \
         {										    \
         public:									    \
@@ -507,16 +507,16 @@ if ((aVal1) != (aVal2))                                 \
                 void runTest(void);                                             \
                                                                                 \
                 void runFunctionWrapper(void)                                   \
-                {   const int msec = 800 + (std::rand() % 1200);                 \
+                {   const int msec = 800 + (std::rand() % 1200);                \
                     std::this_thread::sleep_for(std::chrono::milliseconds(msec));               \
                     auto& refToMutex = cpccTesting::sharedObjects::waitForExecutionTimeSlot(); \
                     std::lock_guard<std::mutex> lock(refToMutex);           \
                     const TCHAR* tmpNameA = TEST_MAKESTRING(SelfTestUniqueName);        \
                     if (cpccTesting::sharedTestRegister::testHasAlreadyRan(tmpNameA))   \
                         return;                                                         \
-                    OUTPUT_STREAM << _T("/ Starting test (in thread):") << tmpNameA << std::endl;   \
+                    OUTPUT_STREAM << _T("/ Starting Async test (in thread):") << tmpNameA << std::endl;   \
                     runTest();                                         \
-                    OUTPUT_STREAM << _T("\\ Ending   test (in thread):") << tmpNameA << std::endl << std::endl; \
+                    OUTPUT_STREAM << _T("\\ Ending   Async test (in thread):") << tmpNameA << std::endl << std::endl; \
                     int errors = cpccTesting::sharedTestRegister::getNErrors();          \
                     if (errors > 0)                                                 \
                         OUTPUT_STREAM << errors << _T(" error(s) so far.") << std::endl;  \
