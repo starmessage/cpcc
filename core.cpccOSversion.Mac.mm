@@ -151,8 +151,8 @@ const cpcc_char *cpccOSversion::kernelVerToOsVer(const cpcc_char *aKernelVer)
         case 15: return "10.11"; // 15.x.x  OS X  10.11.x El Capitan
         case 16: return "10.12"; // 16.x.x  macOS 10.12.x Sierra
         case 17: return "10.13"; // 17.x.x. macOS 10.13.x High Sierra
-        case 18: return "10.14";
-        case 19: return "10.15";
+        case 18: return "10.14"; // Mojave
+        case 19: return "10.15"; // Catalina
         case 20: return "11.0"; // MacOS 11 Big Sur
         default: return "11.0";;
     }
