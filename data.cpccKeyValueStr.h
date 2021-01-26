@@ -48,7 +48,7 @@ public:
     void                removeKey(const TCHAR* aKey);
     void                clear(void);
     const bool          isEmpty(void) const { return m_map.empty(); }
-    const size_t          getCount(void) const { return m_map.size(); }
+    const size_t        getCount(void) const { return m_map.size(); }
     const bool          keyExists(const TCHAR* aKey) const;
 
     const tStringWN     get(const TCHAR* aKey) const;
