@@ -39,6 +39,7 @@
 
 #elif defined(__APPLE__)
     #include <TargetConditionals.h>
+    #include <mach-o/dyld.h> // for _NSGetExecutablePath()
     #include "io.cpccFileSystemMiniOSX.h"
     #include <CoreFoundation/CoreFoundation.h>
     #if TARGET_OS_IPHONE
@@ -330,8 +331,6 @@ size_t	cpccFileSystemMini::readFromFile(const cpcc_char *aFilename, char *buffer
 }
 
 
-
-
 bool	cpccFileSystemMini::copyFileToaFile(const cpcc_char* sourceFile, const cpcc_char* destFile)
 {
 	// You may use std::fopen, std::fread, std::fwrite, and std::fclose, 
@@ -389,6 +388,33 @@ cpcc_string cpccFileSystemMini::getAppFullPath(void)
 }
 #endif
 
+#ifdef __APPLE__
+	std::string getAppFullPathFilename_Apple(void)
+	{
+		char path[MAXPATHLEN+1], *pathPtr = path;
+		uint32_t path_len = MAXPATHLEN;
+		// This function returns 0 if the path was successfully copied.
+		// It returns -1 if the buffer is not large enough, and * bufsize is set to the size required.
+		int ret = _NSGetExecutablePath(pathPtr, &path_len);
+		if (ret == -1)
+		{
+			pathPtr = new char[path_len+1];
+			ret = _NSGetExecutablePath(pathPtr, &path_len);
+		}
+    
+		if (ret == 0)
+		{
+			char resolvedPath[PATH_MAX+1];
+			// The path may contain symbolic links, "..", etc. but the realpath function can be used to clean those up
+			if (realpath(pathPtr, resolvedPath) != 0)
+				return resolvedPath;
+			return path;
+		}
+        
+		return ".";
+	}
+#endif
+
 
 cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 {
@@ -403,16 +429,16 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
     return [path UTF8String];
     
 #elif TARGET_OS_MAC
-	// see also:
-	// proc_pidpath()
-	// GetCurrentProcess
+    
+    return getAppFullPathFilename_Apple();
 	
 	/*
-	 http://stackoverflow.com/questions/1023306/finding-current-executables-path-without-proc-self-exe
-	 _NSGetExecutablePath
-	 http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
+	
+     http://stackoverflow.com/questions/799679/programatically-retrieving-the-absolute-path-of-an-os-x-command-line-app/1024933#1024933
 	 http://astojanov.wordpress.com/2011/11/16/mac-os-x-resolve-absolute-path-using-process-pid/
 	 */
+    
+    /*
 	char fullPathfileName[4096];
 	ProcessSerialNumber psn;
     // needs the framework ApplicationServices.framework
@@ -423,6 +449,7 @@ cpcc_string cpccFileSystemMini::getAppFullPathFilename(void)
 	
 	if (proc_pidpath(pid, fullPathfileName, sizeof(fullPathfileName)) > 0)
 		return fullPathfileName;
+    */
     
 #else
 	#error Error 5453: unsupported platform for getModuleFilename()
