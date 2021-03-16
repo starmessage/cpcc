@@ -1,4 +1,4 @@
-﻿
+
 /*  *****************************************
  *  File:		app.cpccApp.h
  *	Purpose:	Portable (cross-platform), light-weight, library
@@ -101,24 +101,25 @@ public:
 
 	}
 
-
+    // old. Use getAppFullPath()
+    /*
 	static cpcc_string getAppDir(void) 
 	{
 	#ifdef _WIN32
 		cpcc_char tempDir[MAX_PATH];
 
 		GetModuleFileName(NULL, tempDir, sizeof(tempDir) - 1);
-		/*
-		#ifdef UNICODE
-			WCHAR w_txt[MAX_PATH+1];
-			GetModuleFileName(NULL,w_txt, sizeof(w_txt)-1);
-			LPSTR pszTextA;
-			UnicodeToAnsi(w_txt, &pszTextA);
-			SafeStrCpy(tempDir, pszTextA, sizeof(tempDir)-1);
-		#else
-			GetModuleFileName(NULL,tempDir, sizeof(tempDir)-1);
-		#endif
-		*/
+		
+		// #ifdef UNICODE
+		//	WCHAR w_txt[MAX_PATH+1];
+		//	GetModuleFileName(NULL,w_txt, sizeof(w_txt)-1);
+		//	LPSTR pszTextA;
+		//	UnicodeToAnsi(w_txt, &pszTextA);
+		//	SafeStrCpy(tempDir, pszTextA, sizeof(tempDir)-1);
+		//#else
+		//	GetModuleFileName(NULL,tempDir, sizeof(tempDir)-1);
+		//#endif
+		
 
 		// delete the part having the program.exe What remains is the path with a trailing \ 
 		if (_tcsrchr(tempDir, '\\')) *(_tcsrchr(tempDir, '\\') + 1) = 0;
@@ -146,11 +147,12 @@ public:
 			*(strrchr(tempDir, '/') + 1) = 0;
 
 		return std::string(tempDir);
-	}
+	
 	#endif
 
 	}
-
+     */
+    
 	static void	getArgcArgv(cpcc_stringList& argList)
 	{
 		cmdline2Vector(getCommandLine().c_str(), argList);

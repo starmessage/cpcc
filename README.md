@@ -2,12 +2,9 @@
 
 A set of cross platform classes and functions.
 
-Version: 0.57
-
 (c) StarMessage Software [http://www.StarMessageSoftware.com/cpcclibrary]
 
 
- 
 **Project Objectives:**
 
 A small set of cross platform classes and functions that will allow the quick development of applications.

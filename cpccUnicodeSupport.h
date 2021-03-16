@@ -136,8 +136,8 @@ typedef		std::basic_string<TCHAR>		cpcc_string;
 typedef		std::basic_stringstream<TCHAR>	cpcc_stringstream;
 typedef		std::basic_ostringstream<TCHAR> cpcc_ostringstream;
 typedef		std::basic_istringstream<TCHAR> cpcc_istringstream;
-typedef		std::basic_ifstream<TCHAR>		cpcc_ifstream;
-typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
+typedef		std::basic_ifstream<TCHAR>	  cpcc_ifstream;
+typedef		std::basic_ofstream<TCHAR>	    cpcc_ofstream;
 
 
 #ifdef UNICODE
@@ -202,7 +202,7 @@ typedef		std::basic_ofstream<TCHAR>		cpcc_ofstream;
     
 	#define		cpcc_atoi			atoi
 	#define		cpcc_to_string		std::to_string
-	#define		cpcc_tolower		tolower
+	#define		cpcc_tolower		    tolower
 	// #define		cpcc_getline		getline
 	#define		cpcc_stat			stat
 	typedef		struct stat			cpcc_struct_stat;

@@ -34,8 +34,8 @@
 #include <mutex>
 #include <cstdlib>
 #include "data.cpccWideCharSupport.h"
-#include "io.cpccFileSystemMini.h"
-#include "fs.cpccUserFolders.h"
+// #include "io.cpccFileSystemMini.h"
+
 
 #ifdef    _WIN32
     #include <windows.h>
@@ -86,6 +86,17 @@
 
 namespace cpccTesting
 {
+
+    class config
+    {
+    public:
+        // where the file will be written
+        static std::basic_string<TCHAR>  getReportFilename(void);
+        
+        // the name of the app. It will be written inside the report file
+        static std::basic_string<TCHAR> getAppName(void);
+        
+    };
 
     /*
     struct sTestResult
@@ -143,25 +154,11 @@ namespace cpccTesting
 
     */
 
-    //=============================================================================
-    // class testVariable
-    // used to avoid runing the same test again
-    //=============================================================================
-    template <typename T>
-    class testVariable
-    {
-    private:
-        T value;
-    public:
-        testVariable(const T aDefaultValue): value(aDefaultValue) { }
-        T get(void) { return value; }
-        void set(const T aValue) { value = aValue; }
-    };
 
-    //=============================================================================
+    // =============================================================================
     // class sharedTestRegister
     // used to avoid runing the same test again
-    //=============================================================================
+    // =============================================================================
 
     class sharedTestRegister
     {
@@ -194,8 +191,6 @@ namespace cpccTesting
 
 
 
-
-
     // ///////////////////////////////////
     // class util
     // ///////////////////////////////////
@@ -208,13 +203,13 @@ namespace cpccTesting
             std::time_t secondsSinceTheEpoch = std::time(nullptr);
             
             TCHAR* result = 0;
-            #ifdef UNICODE
+             #ifdef UNICODE
                 #pragma warning( suppress : 4996 )
                 result = _wasctime(std::localtime(&secondsSinceTheEpoch));
-            #else
+             #else
                 #pragma warning( suppress : 4996 )
                 result = std::asctime(std::localtime(&secondsSinceTheEpoch));
-            #endif
+             #endif
             
             if (!result) return _T("");
             return result;
@@ -223,7 +218,7 @@ namespace cpccTesting
         
         static void shellOpenFile(const TCHAR *filename)
         {
-        #if TARGET_OS_IPHONE != 1
+         #if TARGET_OS_IPHONE != 1
             if (system(NULL)) // If command is a null pointer, the function only checks whether a command processor is available through this function, without invoking any command.
             {
                #ifdef _WIN32
@@ -239,7 +234,7 @@ namespace cpccTesting
                     system(theCommand.c_str());
                 #endif
             }
-        #endif
+         #endif
         }
         
     };
@@ -265,11 +260,11 @@ namespace cpccTesting
     public:
         virtual std::basic_ostream<TCHAR> &get(void) override
         {
-        #ifdef UNICODE
+         #ifdef UNICODE
             return std::wcerr;
-        #else
+         #else
             return std::cerr;
-        #endif
+         #endif
         }
     };
 
@@ -285,18 +280,20 @@ namespace cpccTesting
         
         cOutputStreamDesktopFile()
         {
-            m_fn = cpccUserFolders::getDesktop();
-            m_fn.append(_T("/cpccTesting.txt"));
+            // m_fn = cpccUserFolders::getDesktop();
+            // m_fn.append(_T("/cpccTesting.txt"));
+            m_fn = config::getReportFilename();
             
             m_stream.open(m_fn, 0);
             if (m_stream.good())
             {
                 std::lock_guard<std::mutex> lock(m_writeMutex);
                 std::locale my_utf8_locale(std::locale(), new std::codecvt_utf8<wchar_t>);
-                std::locale loc = m_stream.imbue(my_utf8_locale); // loc is  to suppress warning C26444
+                std::locale loc = m_stream.imbue(my_utf8_locale); // loc is used just to suppress warning C26444
 
                 m_stream << _T("Unit testing by the cpcc library.") << std::endl;
-                m_stream << _T("Host application:") <<  cpccFileSystemMini::getAppFullPathFilename() << std::endl;
+                // m_stream << _T("Host application:") <<  cpccFileSystemMini::getAppFullPathFilename() << std::endl;
+                m_stream << _T("Host application:") <<  config::getAppName() << std::endl;
                 m_stream << util::getTimeStamp() << std::endl;
                 m_stream.flush();
             }
@@ -343,7 +340,8 @@ namespace cpccTesting
     };
 
 
-    inline cOutputStreamDesktopFile::~cOutputStreamDesktopFile()
+    inline
+    cOutputStreamDesktopFile::~cOutputStreamDesktopFile()
     {
         {
             std::lock_guard<std::mutex> lock(m_writeMutex);
@@ -363,62 +361,6 @@ namespace cpccTesting
         if (m_stream.good())
             m_stream.close();
     }
-
-    // todo:this class is unused
-    /*
-    class cTestRunner
-    {
-    private:
-        const std::basic_string<TCHAR> testName;
-        std::basic_ostream<TCHAR> &reportStream;
-        std::thread *threadPtr = NULL;
-        
-        // typedef pointer to a class member function: you need the class type
-        // As of C++11, you could write this typedef as a more legible using statement:
-        // using MyTypedef = int (MyClass::*)(int);
-        
-    public:
-        cTestRunner(const TCHAR *aTestName, std::basic_ostream<TCHAR> &aReportStream, const bool runAsync):
-            testName(aTestName?aTestName:_T("#5231: NULL test name")),
-            reportStream(aReportStream)
-        {
-            if (cpccTesting::sharedTestRegister::testHasAlreadyRan(testName.c_str()))
-                return;
-            if (!runAsync)
-                runFunctionWrapper();
-            else
-            {
-                reportStream << _T("Will run async (not implemented)\n");
-                // threadPtr = new std::thread(&cTestRunner::runFunctionWrapper, *this );
-            }
-        }
-        
-        ~cTestRunner()
-        {
-            if (threadPtr)
-            {
-                if (threadPtr->joinable())
-                    threadPtr->join();
-                else
-                    reportStream << _T("#8261b: ~cTestRunner() found a non-joinable thread\n");
-            }
-        }
-        
-        // this will be defined by the macro, in a derived class
-        void runTest(std::basic_ostream<TCHAR> &aStream);
-        
-        void runFunctionWrapper(void)
-        {
-            reportStream << _T("/ Starting test:") << testName << std::endl;
-            runTest(reportStream);
-            reportStream << _T("\\ Ending   test:") << testName << std::endl << std::endl;
-            int errors = cpccTesting::sharedTestRegister::getNErrors();
-            if (errors > 0)
-                reportStream << errors << _T(" errors so far.") << std::endl;
-        }
-
-    };
-    */
 
 
 } // end of namespace (the same namespace continues below)

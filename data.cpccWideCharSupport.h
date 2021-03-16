@@ -21,6 +21,8 @@
     std::basic_string<TCHAR> instead of std::string;
 */
 
+// more reading at
+// https://accu.org/journals/overload/21/116/steinbach_1842/
 
 #ifdef    _WIN32
     #include <tchar.h>
